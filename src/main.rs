@@ -1,9 +1,6 @@
-use gtk::prelude::*;
-use gtk::{Application, ApplicationWindow};
 use std::env;
-
-const  APP_ID: &str = "org.gtk_rs.gallsh";
-
+use gtk::prelude::*;
+use gtk::Application;
 fn main() {
     let mut gallshdir = String::from("images/");
     match env::var("GALLSHDIR")  {
@@ -11,18 +8,21 @@ fn main() {
         Err(e) => {
             println!("GALLSHDIR: {e}\n default to \"{gallshdir}\"");
         }
-    }
+    };
     println!("GALLSHDIR={gallshdir}");
+    let app = Application::builder()
+        .application_id("org.example.gallsh")
+        .build();
     
-    let app = Application::builder().application_id(APP_ID).build();
     app.connect_activate(build_ui);
     app.run();
 }
 
-fn build_ui(app: &Application) {
-    let window = ApplicationWindow::builder()
+fn build_ui(app: &gtk::Application) {
+    let window = gtk::ApplicationWindow::builder()
         .application(app)
         .title("gallsh")
         .build();
+
     window.present();
 }
