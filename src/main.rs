@@ -21,8 +21,8 @@ fn main() {
         .build();
 
     app.connect_activate(build_ui);
-    // app.set_accels_for_action("win.close", &["q"]);
-    app.set_accels_for_action("action.next", &["q"]);
+    app.set_accels_for_action("win.close", &["q"]);
+    app.set_accels_for_action("win.next", &["n"]);
     app.run();
 }
 
@@ -57,6 +57,7 @@ fn build_ui(app: &gtk::Application) {
             .expect("could not get state")
             .get::<u32>()
             .expect("the variant needs to be of type `u32`");
+        println!("foo");
         let parameter = parameter
             .expect("could not get parameter")
             .get::<u32>()
@@ -65,13 +66,13 @@ fn build_ui(app: &gtk::Application) {
         action.set_state(&state.to_variant());
         selected_index_label.set_label(&format!("selected index: {state}"));
     }));
+    window.add_action(&action_next);
 
     let action_close = SimpleAction::new("close", None);
     action_close.connect_activate(clone!(@weak window => move |_, _| {
         window.close();
     }));
     window.add_action(&action_close);
-    window.add_action(&action_next);
 
     window.show_all();
     window.present();
