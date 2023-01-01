@@ -1,13 +1,25 @@
+use std::fs;
+use std::path::PathBuf;
 use std::env;
 use gtk::prelude::*;
 use gtk::gdk;
 use gtk::glib;
 use glib::clone;
-use gtk::{Application, Label, WindowPosition};
+use gtk::{Application, Button, Label, WindowPosition};
 use gtk::gio;
 use gio::SimpleAction;
+use gio::SimpleActionGroup;
 
 fn main() {
+    let app = Application::builder()
+        .application_id("org.example.gallsh")
+        .build();
+
+    app.connect_activate(build_ui);
+    app.run();
+}
+
+fn build_ui(app: &gtk::Application) {
     let mut gallshdir = String::from("images/");
     match env::var("GALLSHDIR")  {
         Ok(val) => gallshdir = String::from(val),
@@ -16,65 +28,27 @@ fn main() {
         }
     };
     println!("GALLSHDIR={gallshdir}");
-    let app = Application::builder()
-        .application_id("org.example.gallsh")
-        .build();
 
-    app.connect_activate(build_ui);
-    app.set_accels_for_action("win.close", &["q"]);
-    app.set_accels_for_action("win.next", &["n"]);
-    app.run();
-}
+    let mut filename : Option<String> = None;
 
-fn build_ui(app: &gtk::Application) {
-    let selected_index = 0;
+    let entries = fs::read_dir(gallshdir).unwrap();
+
+    for entry in entries {
+        let path : PathBuf = entry.unwrap().path();
+        filename = Some(String::from(path.to_str().unwrap()));
+        break;
+    }
+
+    let filename_label = Label::new(Some(&filename.unwrap()));
+
     let window = gtk::ApplicationWindow::builder()
         .application(app)
         .title("gallsh")
+        .default_width(1000)
+        .default_height(1000)
+        .child(&filename_label)
         .build();
-
-    window.set_title("gallsh");
-    window.set_position(WindowPosition::Center);
-    window.set_size_request(400, 400);
-
-    let v_box = gtk::Box::new(gtk::Orientation::Vertical, 10);
-    let selected_index_label = Label::builder()
-        .label(&format!("selected index: {selected_index}"))
-        .build();
-
-    v_box.add(&selected_index_label);
-    window.add(&v_box);
-
-    let action_next = SimpleAction::new_stateful(
-        "next",
-        Some(&u32::static_variant_type()),
-        &selected_index.to_variant(),
-        );
-
-    action_next.connect_activate(clone!(@weak window => move |action,parameter| {
-        let mut state = action
-            .state()
-            .expect("could not get state")
-            .get::<u32>()
-            .expect("the variant needs to be of type `u32`");
-        println!("foo");
-        let parameter = parameter
-            .expect("could not get parameter")
-            .get::<u32>()
-            .expect("the variant needs to be of type `u32`");
-        state += 1;
-        action.set_state(&state.to_variant());
-        selected_index_label.set_label(&format!("selected index: {state}"));
-    }));
-    window.add_action(&action_next);
-
-    let action_close = SimpleAction::new("close", None);
-    action_close.connect_activate(clone!(@weak window => move |_, _| {
-        window.close();
-    }));
-    window.add_action(&action_close);
 
     window.show_all();
-    window.present();
 }
 
