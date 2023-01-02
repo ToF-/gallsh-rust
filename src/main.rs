@@ -2,13 +2,9 @@ use std::fs;
 use std::path::PathBuf;
 use std::env;
 use gtk::prelude::*;
-use gtk::gdk;
 use gtk::glib;
 use glib::clone;
-use gtk::{Application, Button, Label, WindowPosition};
-use gtk::gio;
-use gio::SimpleAction;
-use gio::SimpleActionGroup;
+use gtk::{Application, Image, Label};
 
 fn main() {
     let app = Application::builder()
@@ -29,17 +25,19 @@ fn build_ui(app: &gtk::Application) {
     };
     println!("GALLSHDIR={gallshdir}");
 
-    let mut filename : Option<String> = None;
+    let mut filename : String = "".to_string();
 
     let entries = fs::read_dir(gallshdir).unwrap();
 
     for entry in entries {
         let path : PathBuf = entry.unwrap().path();
-        filename = Some(String::from(path.to_str().unwrap()));
+        filename = String::from(path.to_str().unwrap());
         break;
     }
 
-    let filename_label = Label::new(Some(&filename.unwrap()));
+    let filename_label = Label::new(Some(&filename));
+
+    let image = Image::from_file(&filename);
 
     let window = gtk::ApplicationWindow::builder()
         .application(app)
@@ -47,6 +45,7 @@ fn build_ui(app: &gtk::Application) {
         .default_width(1000)
         .default_height(1000)
         .child(&filename_label)
+        .child(&image)
         .build();
 
     window.show_all();
