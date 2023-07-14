@@ -1,10 +1,11 @@
+use std::env;
 use std::fs;
 use std::path::PathBuf;
-use std::env;
-use gtk::prelude::*;
-use gtk::glib;
+use gtk4 as gtk;
 use glib::clone;
-use gtk::{Application, Image, Label};
+use gtk4::glib;
+use gtk4::prelude::*;
+use gtk4::{Application, Image, Label};
 
 fn main() {
     let app = Application::builder()
@@ -23,31 +24,24 @@ fn build_ui(app: &gtk::Application) {
             println!("GALLSHDIR: {e}\n default to \"{gallshdir}\"");
         }
     };
-    println!("GALLSHDIR={gallshdir}");
-
     let mut filename : String = "".to_string();
-
     let entries = fs::read_dir(gallshdir).unwrap();
-
     for entry in entries {
         let path : PathBuf = entry.unwrap().path();
         filename = String::from(path.to_str().unwrap());
         break;
     }
 
-    let filename_label = Label::new(Some(&filename));
-
     let image = Image::from_file(&filename);
 
     let window = gtk::ApplicationWindow::builder()
         .application(app)
-        .title("gallsh")
+        .title(&filename)
         .default_width(1000)
         .default_height(1000)
-        .child(&filename_label)
         .child(&image)
         .build();
 
-    window.show_all();
+    window.present();
 }
 
