@@ -5,7 +5,8 @@ use gtk4 as gtk;
 use glib::clone;
 use gtk4::glib;
 use gtk4::prelude::*;
-use gtk4::{Application, Image, Label};
+use gtk4::{Application, gio, Image};
+use gio::SimpleAction;
 
 fn main() {
     let app = Application::builder()
@@ -13,6 +14,7 @@ fn main() {
         .build();
 
     app.connect_activate(build_ui);
+    app.set_accels_for_action("win.close", &["q"]);
     app.run();
 }
 
@@ -41,6 +43,12 @@ fn build_ui(app: &gtk::Application) {
         .default_height(1000)
         .child(&image)
         .build();
+
+    let action_close = SimpleAction::new("close", None);
+    action_close.connect_activate(clone!(@weak window => move |_, _| {
+        window.close();
+    }));
+    window.add_action(&action_close);
 
     window.present();
 }
