@@ -1,11 +1,9 @@
 use std::env;
 use std::fs;
 use std::path::PathBuf;
-use gtk4 as gtk;
 use glib::clone;
-use gtk4::glib;
-use gtk4::prelude::*;
-use gtk4::{Application, gio, Image};
+use gtk::prelude::*;
+use gtk::{Application, ApplicationWindow, builders, EventControllerKey, gio, glib, gdk, Image };
 use gio::SimpleAction;
 
 fn main() {
@@ -20,6 +18,7 @@ fn main() {
 
 fn build_ui(app: &gtk::Application) {
     let mut gallshdir = String::from("images/");
+    let selected_image_index = 0;
     match env::var("GALLSHDIR")  {
         Ok(val) => gallshdir = String::from(val),
         Err(e) => {
@@ -49,6 +48,12 @@ fn build_ui(app: &gtk::Application) {
         window.close();
     }));
     window.add_action(&action_close);
+    let evk = gtk::EventControllerKey::new();
+    evk.connect_key_pressed(|_, key, code, modifier_type| {
+        println!("Key:{}\nCode:{}\nModifier type:{}", key, code, modifier_type);
+        gtk::Inhibit(false)
+    });
+    window.add_controller(evk);
 
     window.present();
 }
