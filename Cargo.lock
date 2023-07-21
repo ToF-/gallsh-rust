@@ -128,13 +128,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "gallsh"
-version = "0.1.0"
-dependencies = [
- "gtk4",
-]
-
-[[package]]
 name = "gdk-pixbuf"
 version = "0.17.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -339,6 +332,13 @@ dependencies = [
  "libc",
  "pango-sys",
  "system-deps",
+]
+
+[[package]]
+name = "gsr"
+version = "0.1.0"
+dependencies = [
+ "gtk4",
 ]
 
 [[package]]
