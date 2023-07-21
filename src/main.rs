@@ -7,7 +7,7 @@ use std::path::Path;
 use std::fs;
 use glib::clone;
 use gtk::prelude::*;
-use gtk::{Application, gdk, gio, glib, Image, Window };
+use gtk::{Application, gdk, gio, glib, Image};
 use gio::SimpleAction;
 
 fn get_files_in_directory(dir_path: &str) -> io::Result<Vec<String>> {
@@ -23,7 +23,6 @@ fn get_files_in_directory(dir_path: &str) -> io::Result<Vec<String>> {
             }
         })
         .collect();
-
     Ok(file_names)
 }
 
@@ -69,8 +68,12 @@ fn main() {
             .child(&image)
             .build();
 
-        let index:usize = selected_image_index.get();
+        let mut rng = thread_rng();
+        selected_image_index.set(rng.gen_range(0..filenames.len()));
+
+        let index = selected_image_index.get();
         image.set_from_file(Some(&filenames[index]));
+
         let action_close = SimpleAction::new("close", None);
         action_close.connect_activate(clone!(@weak window => move |_, _| {
             window.close();
@@ -79,38 +82,23 @@ fn main() {
         let evk = gtk::EventControllerKey::new();
         evk.connect_key_pressed(move |_, key, _, _| {
             if let Some(s) = key.name() {
-                let mut current:usize = selected_image_index.get();
+                let current = selected_image_index.get();
                 match s.as_str() {
                     "n" => {
-                        if current == filenames.len() - 1 {
-                            current = 0;
-                        }
-                        else {
-                            current+= 1;
-                        }
-                        selected_image_index.set(current);
-                        let index:usize = selected_image_index.get();
-                        image.set_from_file(Some(&filenames[index]));
+                        selected_image_index.set(if current == filenames.len()-1 { 0 } else { current + 1 });
                     },
                     "p" => {
-                        if current == 0 {
-                            current = filenames.len();
-                        }
-                        current -= 1;
-                        selected_image_index.set(current);
-                        let index:usize = selected_image_index.get();
-                        image.set_from_file(Some(&filenames[index]));
+                        selected_image_index.set(if current == 0 { filenames.len()-1 } else { current - 1});
                     },
                     "r" => {
                         let mut rng = thread_rng();
-                        current = rng.gen_range(0..filenames.len());
-                        selected_image_index.set(current);
-                        let index:usize = selected_image_index.get();
-                        image.set_from_file(Some(&filenames[index]));
+                        selected_image_index.set(rng.gen_range(0..filenames.len()));
                     },
                     _ => {
                     },
                 };
+                let index = selected_image_index.get();
+                image.set_from_file(Some(&filenames[index]));
             };
             gtk::Inhibit(false)
         });
