@@ -1,3 +1,4 @@
+use rand::{thread_rng, Rng};
 use std::cell::Cell;
 use std::rc::Rc;
 use std::env;
@@ -47,7 +48,6 @@ fn main() {
 
     fn build_ui(app: &gtk::Application) {
         let selected_image_index:Rc<Cell<usize>> = Rc::new(Cell::new(0));
-
         let mut gallshdir = String::from("images/");
         match env::var("GALLSHDIR")  {
             Ok(val) => gallshdir = String::from(val),
@@ -101,9 +101,17 @@ fn main() {
                         let index:usize = selected_image_index.get();
                         image.set_from_file(Some(&filenames[index]));
                     },
-                    _ => { },
+                    "r" => {
+                        let mut rng = thread_rng();
+                        current = rng.gen_range(0..filenames.len());
+                        selected_image_index.set(current);
+                        let index:usize = selected_image_index.get();
+                        image.set_from_file(Some(&filenames[index]));
+                    },
+                    _ => {
+                    },
+                };
             };
-            }
             gtk::Inhibit(false)
         });
         window.add_controller(evk);
