@@ -99,21 +99,22 @@ fn main() {
         }));
         window.add_action(&action_close);
         let evk = gtk::EventControllerKey::new();
-        let selectedRc:Rc<Cell<usize>> = Rc::new(Cell::new(0));
+        let selected_rc:Rc<Cell<usize>> = Rc::new(Cell::new(0));
 
         if ordered {
-            selectedRc.set(0);
+            selected_rc.set(0);
         } else {
             let mut rng = thread_rng();
-            selectedRc.set(rng.gen_range(0..filenames.len()));
+            selected_rc.set(rng.gen_range(0..filenames.len()));
         }
-        let filename = &filenames[selectedRc.get()];
+        let filename = &filenames[selected_rc.get()];
         println!("{} files selected", filenames.len());
         image.set_from_file(Some(filename.clone()));
-        println!("{} {}", selectedRc.get(), filename);
-        evk.connect_key_pressed(clone!(@strong selectedRc => move |_, key, _, _| {
+        window.set_title(Some(filename.as_str()));
+        println!("{} {}", selected_rc.get(), filename);
+        evk.connect_key_pressed(clone!(@strong selected_rc, @strong window => move |_, key, _, _| {
             if let Some(s) = key.name() {
-                let selected = selectedRc.get();
+                let selected = selected_rc.get();
                 let mut index = selected;
                 match s.as_str() {
                     "n" => {
@@ -126,13 +127,21 @@ fn main() {
                         let mut rng = thread_rng();
                         index = rng.gen_range(0..filenames.len());
                     },
-                    _ => {
-                    },
+                    "space" => {
+                        if ordered {
+                            index = if index == filenames.len()-1 { 0 } else { index + 1 };
+                        } else {
+                            let mut rng = thread_rng();
+                            index = rng.gen_range(0..filenames.len());
+                        }
+                    }
+                    _ => { },
                 };
                 let filename = &filenames[index];
                 image.set_from_file(Some(filename.clone()));
+                window.set_title(Some(filename.as_str()));
                 println!("{} {}", index, filename);
-                selectedRc.set(index);
+                selected_rc.set(index);
             };
             gtk::Inhibit(false)
         }));
