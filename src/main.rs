@@ -50,109 +50,105 @@ struct Args {
 }
 
 fn main() {
+    // acquire the image directory from env variable
+    let mut gallery_show_dir = String::from("images/");
+    match env::var("GALLSHDIR")  {
+        Ok(val) => gallery_show_dir = String::from(val),
+        Err(e) => {
+            println!("GALLSHDIR: {e}\n default to \"{gallery_show_dir}\"");
+        }
+    };
+    // parse the command line arguments arguments
     let args = Args::parse();
 
-    let app = Application::builder()
+    // build an application with some css characteristics
+    let application = Application::builder()
         .application_id("org.example.gallsh")
         .build();
 
-    app.connect_startup(|_| {
-        let provider = gtk::CssProvider::new();
-        provider.load_from_data("window { background-color:black;} image { margin:10em ; }");
+    application.connect_startup(|_| {
+        let css_provider = gtk::CssProvider::new();
+        css_provider.load_from_data("window { background-color:black;} image { margin:10em ; }");
         gtk::style_context_add_provider_for_display(
             &gdk::Display::default().unwrap(),
-            &provider,
+            &css_provider,
             1000,
         );
     });
-    let mut gallshdir = String::from("images/");
-    match env::var("GALLSHDIR")  {
-        Ok(val) => gallshdir = String::from(val),
-        Err(e) => {
-            println!("GALLSHDIR: {e}\n default to \"{gallshdir}\"");
-        }
-    };
 
-    let maximized = args.maximized;
-    let ordered = args.ordered;
     let pattern = args.pattern;
-    app.connect_activate(clone!(@strong maximized, @strong ordered, @strong pattern => move |app: &gtk::Application| { 
 
-        let mut filenames = match get_files_in_directory(&gallshdir, &pattern) {
+    // clone! passes a strong reference to pattern in the closure that activates the application
+    application.connect_activate(clone!(@strong pattern => move |application: &gtk::Application| { 
+
+        // get all the filenames in the directory that match pattern (or all if None)
+        let mut filenames = match get_files_in_directory(&gallery_show_dir, &pattern) {
             Err(msg) => panic!("{}", msg),
             Ok(result) => result,
         };
         filenames.sort();
+        println!("{} files selected", filenames.len());
 
+        // build the main window
         let image = Image::new();
         let window = gtk::ApplicationWindow::builder()
-            .application(app)
-            .title("gsr")
+            .application(application)
             .default_width(1000)
             .default_height(1000)
             .child(&image)
             .build();
 
+
+        // add an action to close the window
         let action_close = SimpleAction::new("close", None);
         action_close.connect_activate(clone!(@weak window => move |_, _| {
             window.close();
         }));
         window.add_action(&action_close);
-        let evk = gtk::EventControllerKey::new();
-        let selected_rc:Rc<Cell<usize>> = Rc::new(Cell::new(0));
 
-        if ordered {
-            selected_rc.set(0);
-        } else {
-            let mut rng = thread_rng();
-            selected_rc.set(rng.gen_range(0..filenames.len()));
-        }
+        // create a ref cell to the index so that it can be updated independantly by the
+        // connect_key_pressed event handler
+        //
+        let index = if args.ordered { 0 } else { thread_rng().gen_range(0..filenames.len()) };
+        let selected_rc:Rc<Cell<usize>> = Rc::new(Cell::new(index));
+
+        // show the first file
         let filename = &filenames[selected_rc.get()];
-        println!("{} files selected", filenames.len());
         image.set_from_file(Some(filename.clone()));
         window.set_title(Some(filename.as_str()));
-        println!("{} {}", selected_rc.get(), filename);
+
+        let evk = gtk::EventControllerKey::new();
+
+        // handle key events
         evk.connect_key_pressed(clone!(@strong selected_rc, @strong window => move |_, key, _, _| {
             if let Some(s) = key.name() {
-                let selected = selected_rc.get();
-                let mut index = selected;
-                match s.as_str() {
-                    "n" => {
-                        index = if index == filenames.len()-1 { 0 } else { index + 1 };
-                    },
-                    "p" => {
-                        index = if index == 0 { filenames.len()-1 } else { index - 1};
-                    },
-                    "r" => {
-                        let mut rng = thread_rng();
-                        index = rng.gen_range(0..filenames.len());
-                    },
-                    "space" => {
-                        if ordered {
-                            index = if index == filenames.len()-1 { 0 } else { index + 1 };
-                        } else {
-                            let mut rng = thread_rng();
-                            index = rng.gen_range(0..filenames.len());
-                        }
-                    }
-                    _ => { },
+                let current = selected_rc.get();
+                let new = match s.as_str() {
+                    "n" => { if current == filenames.len()-1 { 0 } else { current + 1 } },
+                    "p" => { if current == 0 { filenames.len()-1 } else { current - 1} },
+                    "r" => { thread_rng().gen_range(0..filenames.len()) },
+                    "space" => { if args.ordered { 
+                            if current == filenames.len()-1 { 0 } else { current + 1 } 
+                        } else { thread_rng().gen_range(0..filenames.len()) } },
+                    _ => { current },
                 };
-                let filename = &filenames[index];
+                // show the new file and update the reference cell
+                let filename = &filenames[new];
                 image.set_from_file(Some(filename.clone()));
                 window.set_title(Some(filename.as_str()));
-                println!("{} {}", index, filename);
-                selected_rc.set(index);
+                selected_rc.set(new);
             };
             gtk::Inhibit(false)
         }));
         window.add_controller(evk);
 
-        if maximized { window.fullscreen() };
+        if args.maximized { window.fullscreen() };
         window.present();
     }));
-    app.set_accels_for_action("win.close", &["q"]);
+    application.set_accels_for_action("win.close", &["q"]);
     let empty: Vec<String> = vec![];
-    app.run_with_args(&empty);
 
+    // run the application with empty args as the have been parsed before app creation
+    application.run_with_args(&empty);
 }
 
