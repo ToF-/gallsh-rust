@@ -1,14 +1,15 @@
-use rand::{thread_rng, Rng};
-use std::cell::Cell;
-use std::rc::Rc;
-use std::env;
-use std::io;
-use std::path::Path;
-use std::fs;
+use clap::Parser;
+use gio::SimpleAction;
 use glib::clone;
 use gtk::prelude::*;
-use gtk::{Application, gdk, gio, glib, Image};
-use gio::SimpleAction;
+use gtk::{self, Application, gdk, gio, glib, Image};
+use rand::{thread_rng, Rng};
+use std::cell::Cell;
+use std::env;
+use std::fs;
+use std::io;
+use std::path::Path;
+use std::rc::Rc;
 
 fn get_files_in_directory(dir_path: &str) -> io::Result<Vec<String>> {
     let entries = fs::read_dir(dir_path)?;
@@ -26,7 +27,22 @@ fn get_files_in_directory(dir_path: &str) -> io::Result<Vec<String>> {
     Ok(file_names)
 }
 
+/// Gallery Show
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    /// Pattern that displayed files must have
+    #[arg(short, long)]
+    pattern: Option<String>,
+
+    /// Maximized window
+    #[arg(short, long, default_value_t = false)]
+    maximized: bool,
+}
+
 fn main() {
+    let args = Args::parse();
+
     let app = Application::builder()
         .application_id("org.example.gallsh")
         .build();
@@ -41,11 +57,8 @@ fn main() {
         );
     });
 
-    app.connect_activate(build_ui);
-    app.set_accels_for_action("win.close", &["q"]);
-    app.run();
-
-    fn build_ui(app: &gtk::Application) {
+    let maximized = args.maximized;
+    app.connect_activate(clone!(@strong maximized => move |app: &gtk::Application| { 
         let selected_image_index:Rc<Cell<usize>> = Rc::new(Cell::new(0));
         let mut gallshdir = String::from("images/");
         match env::var("GALLSHDIR")  {
@@ -104,7 +117,12 @@ fn main() {
         });
         window.add_controller(evk);
 
+        if maximized { window.fullscreen() };
         window.present();
-    }
+    }));
+    app.set_accels_for_action("win.close", &["q"]);
+    let empty: Vec<String> = vec![];
+    app.run_with_args(&empty);
+
 }
 
