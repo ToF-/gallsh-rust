@@ -38,6 +38,10 @@ struct Args {
     /// Maximized window
     #[arg(short, long, default_value_t = false)]
     maximized: bool,
+
+    /// Ordered display (or random)
+    #[arg(short, long, default_value_t = false)]
+    ordered: bool,
 }
 
 fn main() {
@@ -56,22 +60,24 @@ fn main() {
             1000,
         );
     });
+    let mut gallshdir = String::from("images/");
+    match env::var("GALLSHDIR")  {
+        Ok(val) => gallshdir = String::from(val),
+        Err(e) => {
+            println!("GALLSHDIR: {e}\n default to \"{gallshdir}\"");
+        }
+    };
 
     let maximized = args.maximized;
-    app.connect_activate(clone!(@strong maximized => move |app: &gtk::Application| { 
-        let selected_image_index:Rc<Cell<usize>> = Rc::new(Cell::new(0));
-        let mut gallshdir = String::from("images/");
-        match env::var("GALLSHDIR")  {
-            Ok(val) => gallshdir = String::from(val),
-            Err(e) => {
-                println!("GALLSHDIR: {e}\n default to \"{gallshdir}\"");
-            }
-        };
+    let ordered = args.ordered;
+    app.connect_activate(clone!(@strong maximized, @strong ordered => move |app: &gtk::Application| { 
 
-        let filenames = match get_files_in_directory(&gallshdir) {
+        let mut filenames = match get_files_in_directory(&gallshdir) {
             Err(msg) => panic!("{}", msg),
             Ok(result) => result,
         };
+        filenames.sort();
+
         let image = Image::new();
         let window = gtk::ApplicationWindow::builder()
             .application(app)
@@ -81,40 +87,46 @@ fn main() {
             .child(&image)
             .build();
 
-        let mut rng = thread_rng();
-        selected_image_index.set(rng.gen_range(0..filenames.len()));
-
-        let index = selected_image_index.get();
-        image.set_from_file(Some(&filenames[index]));
-
         let action_close = SimpleAction::new("close", None);
         action_close.connect_activate(clone!(@weak window => move |_, _| {
             window.close();
         }));
         window.add_action(&action_close);
         let evk = gtk::EventControllerKey::new();
-        evk.connect_key_pressed(move |_, key, _, _| {
+        let selectedRc:Rc<Cell<usize>> = Rc::new(Cell::new(0));
+
+        if ordered {
+            selectedRc.set(0);
+        } else {
+            let mut rng = thread_rng();
+            selectedRc.set(rng.gen_range(0..filenames.len()));
+        }
+        let filename = &filenames[selectedRc.get()];
+        image.set_from_file(Some(filename.clone()));
+        evk.connect_key_pressed(clone!(@strong selectedRc => move |_, key, _, _| {
             if let Some(s) = key.name() {
-                let current = selected_image_index.get();
+                let selected = selectedRc.get();
+                let mut index = selected;
                 match s.as_str() {
                     "n" => {
-                        selected_image_index.set(if current == filenames.len()-1 { 0 } else { current + 1 });
+                        index = if index == filenames.len()-1 { 0 } else { index + 1 };
                     },
                     "p" => {
-                        selected_image_index.set(if current == 0 { filenames.len()-1 } else { current - 1});
+                        index = if index == 0 { filenames.len()-1 } else { index - 1};
                     },
                     "r" => {
                         let mut rng = thread_rng();
-                        selected_image_index.set(rng.gen_range(0..filenames.len()));
+                        index = rng.gen_range(0..filenames.len());
                     },
                     _ => {
                     },
                 };
-                let index = selected_image_index.get();
-                image.set_from_file(Some(&filenames[index]));
+                let filename = &filenames[index];
+                image.set_from_file(Some(filename.clone()));
+                selectedRc.set(index);
             };
             gtk::Inhibit(false)
-        });
+        }));
         window.add_controller(evk);
 
         if maximized { window.fullscreen() };
