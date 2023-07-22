@@ -11,12 +11,17 @@ use std::io;
 use std::path::Path;
 use std::rc::Rc;
 
-fn get_files_in_directory(dir_path: &str) -> io::Result<Vec<String>> {
+fn get_files_in_directory(dir_path: &str, pattern: &Option<String>) -> io::Result<Vec<String>> {
     let entries = fs::read_dir(dir_path)?;
     let file_names: Vec<String> = entries
         .filter_map(|entry| {
             let path = entry.ok()?.path();
-            if path.is_file() {
+            let p = if let Some(s) = pattern {
+                path.is_file() && path.to_str().unwrap().contains(s)
+            } else {
+                path.is_file()
+            };
+            if p {
                 let full_path = Path::new(dir_path).join(path);
                 full_path.to_str().map(|s| s.to_owned())
             } else {
@@ -70,9 +75,10 @@ fn main() {
 
     let maximized = args.maximized;
     let ordered = args.ordered;
-    app.connect_activate(clone!(@strong maximized, @strong ordered => move |app: &gtk::Application| { 
+    let pattern = args.pattern;
+    app.connect_activate(clone!(@strong maximized, @strong ordered, @strong pattern => move |app: &gtk::Application| { 
 
-        let mut filenames = match get_files_in_directory(&gallshdir) {
+        let mut filenames = match get_files_in_directory(&gallshdir, &pattern) {
             Err(msg) => panic!("{}", msg),
             Ok(result) => result,
         };
@@ -102,7 +108,9 @@ fn main() {
             selectedRc.set(rng.gen_range(0..filenames.len()));
         }
         let filename = &filenames[selectedRc.get()];
+        println!("{} files selected", filenames.len());
         image.set_from_file(Some(filename.clone()));
+        println!("{} {}", selectedRc.get(), filename);
         evk.connect_key_pressed(clone!(@strong selectedRc => move |_, key, _, _| {
             if let Some(s) = key.name() {
                 let selected = selectedRc.get();
@@ -123,6 +131,7 @@ fn main() {
                 };
                 let filename = &filenames[index];
                 image.set_from_file(Some(filename.clone()));
+                println!("{} {}", index, filename);
                 selectedRc.set(index);
             };
             gtk::Inhibit(false)
