@@ -212,6 +212,7 @@ fn main() {
         show_image(&filenames, &image, &index_rc, &window, Navigate::Current);
 
         if args.maximized { window.fullscreen() };
+        // if a timer has been passed, set a timeout routine
         if let Some(t) = args.timer {
             timeout_add_local(Duration::new(t,0), clone!(@strong filenames, @strong image, @strong index_rc, @strong window => move | | { 
                 if args.ordered { 
