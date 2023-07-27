@@ -11,17 +11,55 @@ use std::io;
 use std::path::Path;
 use std::rc::Rc;
 
+#[derive(Clone, Copy)]
+struct Index {
+    selected: usize,
+    maximum:  usize,
+}
+
+impl Index {
+    fn new(capacity: usize) -> Self {
+        Index {
+            selected: 0,
+            maximum: capacity - 1,
+        }
+    }
+
+    fn next(&mut self) {
+        self.selected = if self.selected < self.maximum { self.selected + 1 } else { 0 } ;
+        println!("selected:{}", self.selected);
+
+    }
+
+    fn prev(&mut self) {
+        self.selected = if self.selected > 0 { self.selected - 1 } else { self.maximum };
+        println!("selected:{}", self.selected);
+    }
+
+    fn random(&mut self) {
+        self.selected = thread_rng().gen_range(0..self.maximum + 1);
+        println!("selected:{}", self.selected);
+    }
+
+}
+
+
 fn get_files_in_directory(dir_path: &str, pattern: &Option<String>) -> io::Result<Vec<String>> {
     let entries = fs::read_dir(dir_path)?;
     let file_names: Vec<String> = entries
         .filter_map(|entry| {
             let path = entry.ok()?.path();
+            let valid_ext = if let Some(ext) = path.extension() {
+                ext == "jpg" || ext == "jpeg" || ext == "png"
+            } else {
+                false
+            };
             let p = if let Some(s) = pattern {
                 path.is_file() && path.to_str().unwrap().contains(s)
             } else {
                 path.is_file()
             };
-            if p {
+            if valid_ext && p {
                 let full_path = Path::new(dir_path).join(path);
                 full_path.to_str().map(|s| s.to_owned())
             } else {
@@ -106,37 +144,36 @@ fn main() {
         }));
         window.add_action(&action_close);
 
-        // create a ref cell to the index so that it can be updated independantly by the
-        // connect_key_pressed event handler
-        //
-        let index = if args.ordered { 0 } else { thread_rng().gen_range(0..filenames.len()) };
-        let selected_rc:Rc<Cell<usize>> = Rc::new(Cell::new(index));
+        let mut index = Index::new(filenames.len());
+        if !args.ordered {
+            index.random()
+        };
+        let index_rc = Rc::new(Cell::new(index));
+
 
         // show the first file
-        let filename = &filenames[selected_rc.get()];
+        let filename = &filenames[index_rc.get().selected];
         image.set_from_file(Some(filename.clone()));
         window.set_title(Some(filename.as_str()));
 
         let evk = gtk::EventControllerKey::new();
 
         // handle key events
-        evk.connect_key_pressed(clone!(@strong selected_rc, @strong window => move |_, key, _, _| {
+        evk.connect_key_pressed(clone!(@strong index_rc, @strong window => move |_, key, _, _| {
             if let Some(s) = key.name() {
-                let current = selected_rc.get();
-                let new = match s.as_str() {
-                    "n" => { if current == filenames.len()-1 { 0 } else { current + 1 } },
-                    "p" => { if current == 0 { filenames.len()-1 } else { current - 1} },
-                    "r" => { thread_rng().gen_range(0..filenames.len()) },
-                    "space" => { if args.ordered { 
-                            if current == filenames.len()-1 { 0 } else { current + 1 } 
-                        } else { thread_rng().gen_range(0..filenames.len()) } },
-                    _ => { current },
+                let mut index = index_rc.get();
+                match s.as_str() {
+                    "n" => { index.next() },
+                    "p" => { index.prev() },
+                    "r" => { index.random() },
+                    "space" => { if args.ordered { index.next() } else { index.random() } },
+                    _ => { },
                 };
                 // show the new file and update the reference cell
-                let filename = &filenames[new];
+                let filename = &filenames[index.selected];
                 image.set_from_file(Some(filename.clone()));
                 window.set_title(Some(filename.as_str()));
-                selected_rc.set(new);
+                index_rc.set(index);
             };
             gtk::Inhibit(false)
         }));
