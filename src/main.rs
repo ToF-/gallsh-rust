@@ -11,7 +11,7 @@ use std::io;
 use std::path::Path;
 use std::rc::Rc;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 struct Index {
     selected: usize,
     maximum:  usize,
@@ -136,14 +136,6 @@ fn main() {
             .child(&image)
             .build();
 
-
-        // add an action to close the window
-        let action_close = SimpleAction::new("close", None);
-        action_close.connect_activate(clone!(@weak window => move |_, _| {
-            window.close();
-        }));
-        window.add_action(&action_close);
-
         let mut index = Index::new(filenames.len());
         if !args.ordered {
             index.random()
@@ -151,41 +143,73 @@ fn main() {
         let index_rc = Rc::new(Cell::new(index));
 
 
+        // add an action to close the window
+        let action_close = SimpleAction::new("close", None);
+        action_close.connect_activate(clone!(@strong index_rc, @weak window => move |_, _| {
+            println!("{:?}", index_rc);
+            window.close();
+        }));
+        window.add_action(&action_close);
+
+        // add an action to show random image
+        let action = SimpleAction::new("random", None);
+        action.connect_activate(clone!(@strong filenames, @strong image, @strong index_rc, @weak window => move |_, _| {
+            let mut index = index_rc.get();
+            index.random();
+            index_rc.set(index);
+            show_image(&filenames, &image, index.selected, window);
+        }));
+        window.add_action(&action);
+
+        // add an action to show next image
+        let action = SimpleAction::new("next", None);
+        action.connect_activate(clone!(@strong filenames, @strong image, @strong index_rc, @weak window => move |_, _| {
+            let mut index = index_rc.get();
+            index.next();
+            index_rc.set(index);
+            show_image(&filenames, &image, index.selected, window);
+        }));
+        window.add_action(&action);
+        
+        // add an action to show prev image
+        let action = SimpleAction::new("prev", None);
+        action.connect_activate(clone!(@strong filenames, @strong image, @strong index_rc, @weak window => move |_, _| {
+            let mut index = index_rc.get();
+            index.prev();
+            index_rc.set(index);
+            show_image(&filenames, &image, index.selected, window);
+        }));
+        window.add_action(&action);
+
+        // add an action to show next or random image
+        let action = SimpleAction::new("randnext", None);
+        action.connect_activate(clone!(@strong filenames, @strong image, @strong index_rc, @weak window => move |_, _| {
+            let mut index = index_rc.get();
+            if args.ordered { index.next() } else { index.random() };
+            index_rc.set(index);
+            show_image(&filenames, &image, index.selected, window);
+        }));
+        window.add_action(&action);
         // show the first file
         let filename = &filenames[index_rc.get().selected];
         image.set_from_file(Some(filename.clone()));
         window.set_title(Some(filename.as_str()));
 
-        let evk = gtk::EventControllerKey::new();
-
-        // handle key events
-        evk.connect_key_pressed(clone!(@strong index_rc, @strong window => move |_, key, _, _| {
-            if let Some(s) = key.name() {
-                let mut index = index_rc.get();
-                match s.as_str() {
-                    "n" => { index.next() },
-                    "p" => { index.prev() },
-                    "r" => { index.random() },
-                    "space" => { if args.ordered { index.next() } else { index.random() } },
-                    _ => { },
-                };
-                // show the new file and update the reference cell
-                let filename = &filenames[index.selected];
-                image.set_from_file(Some(filename.clone()));
-                window.set_title(Some(filename.as_str()));
-                index_rc.set(index);
-            };
-            gtk::Inhibit(false)
-        }));
-        window.add_controller(evk);
-
         if args.maximized { window.fullscreen() };
         window.present();
     }));
     application.set_accels_for_action("win.close", &["q"]);
+    application.set_accels_for_action("win.random", &["r"]);
+    application.set_accels_for_action("win.next", &["n"]);
+    application.set_accels_for_action("win.prev", &["p"]);
     let empty: Vec<String> = vec![];
 
     // run the application with empty args as the have been parsed before app creation
     application.run_with_args(&empty);
 }
 
+fn show_image(filenames: &Vec<String>, image: &Image, index:usize, window: gtk::ApplicationWindow) {
+    let filename = &filenames[index];
+    image.set_from_file(Some(filename.clone()));
+    window.set_title(Some(filename.as_str()));
+}
