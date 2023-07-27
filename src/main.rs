@@ -1,6 +1,8 @@
 use clap::Parser;
+use core::time::{Duration};
 use gio::SimpleAction;
 use glib::clone;
+use glib::timeout_add_local;
 use gtk::prelude::*;
 use gtk::{self, Application, gdk, gio, glib, Image};
 use rand::{thread_rng, Rng};
@@ -11,6 +13,7 @@ use std::io;
 use std::path::Path;
 use std::rc::Rc;
 
+// a struct to keep track of navigating in image files
 #[derive(Clone, Copy, Debug)]
 struct Index {
     selected: usize,
@@ -27,22 +30,23 @@ impl Index {
 
     fn next(&mut self) {
         self.selected = if self.selected < self.maximum { self.selected + 1 } else { 0 } ;
-        println!("selected:{}", self.selected);
 
     }
-
     fn prev(&mut self) {
         self.selected = if self.selected > 0 { self.selected - 1 } else { self.maximum };
-        println!("selected:{}", self.selected);
     }
 
     fn random(&mut self) {
         self.selected = thread_rng().gen_range(0..self.maximum + 1);
-        println!("selected:{}", self.selected);
     }
-
 }
 
+enum Navigate {
+    Current,
+    Next,
+    Prev,
+    Random,
+}
 
 fn get_files_in_directory(dir_path: &str, pattern: &Option<String>) -> io::Result<Vec<String>> {
     let entries = fs::read_dir(dir_path)?;
@@ -70,6 +74,7 @@ fn get_files_in_directory(dir_path: &str, pattern: &Option<String>) -> io::Resul
     Ok(file_names)
 }
 
+// declarative setting of arguments
 /// Gallery Show
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -85,19 +90,25 @@ struct Args {
     /// Ordered display (or random)
     #[arg(short, long, default_value_t = false)]
     ordered: bool,
+
+    /// Timer delay for next picture
+    #[arg(short, long)]
+    timer: Option<u64>,
 }
 
+const DEFAULT_DIR :&str  = "images/";
+const ENV_VARIABLE :&str = "GALLSHDIR";
+
 fn main() {
-    // acquire the image directory from env variable
-    let mut gallery_show_dir = String::from("images/");
-    match env::var("GALLSHDIR")  {
-        Ok(val) => gallery_show_dir = String::from(val),
-        Err(e) => {
-            println!("GALLSHDIR: {e}\n default to \"{gallery_show_dir}\"");
-        }
-    };
-    // parse the command line arguments arguments
     let args = Args::parse();
+    let gallshdir = env::var(ENV_VARIABLE);
+    let path = if let Ok(s) = gallshdir {
+        String::from(s)
+    } else {
+        println!("GALLSHDIR variable not set. Using {} as default.", DEFAULT_DIR);
+        String::from(DEFAULT_DIR)
+    };
+    println!("searching images in {}", path);
 
     // build an application with some css characteristics
     let application = Application::builder()
@@ -115,12 +126,11 @@ fn main() {
     });
 
     let pattern = args.pattern;
-
     // clone! passes a strong reference to pattern in the closure that activates the application
     application.connect_activate(clone!(@strong pattern => move |application: &gtk::Application| { 
 
         // get all the filenames in the directory that match pattern (or all if None)
-        let mut filenames = match get_files_in_directory(&gallery_show_dir, &pattern) {
+        let mut filenames = match get_files_in_directory(&path, &pattern) {
             Err(msg) => panic!("{}", msg),
             Ok(result) => result,
         };
@@ -146,7 +156,6 @@ fn main() {
         // add an action to close the window
         let action_close = SimpleAction::new("close", None);
         action_close.connect_activate(clone!(@strong index_rc, @weak window => move |_, _| {
-            println!("{:?}", index_rc);
             window.close();
         }));
         window.add_action(&action_close);
@@ -154,48 +163,65 @@ fn main() {
         // add an action to show random image
         let action = SimpleAction::new("random", None);
         action.connect_activate(clone!(@strong filenames, @strong image, @strong index_rc, @weak window => move |_, _| {
-            let mut index = index_rc.get();
-            index.random();
-            index_rc.set(index);
-            show_image(&filenames, &image, index.selected, window);
+            show_image(&filenames, &image, &index_rc, &window, Navigate::Random);
         }));
         window.add_action(&action);
 
         // add an action to show next image
         let action = SimpleAction::new("next", None);
         action.connect_activate(clone!(@strong filenames, @strong image, @strong index_rc, @weak window => move |_, _| {
-            let mut index = index_rc.get();
-            index.next();
-            index_rc.set(index);
-            show_image(&filenames, &image, index.selected, window);
+            show_image(&filenames, &image, &index_rc, &window, Navigate::Next);
         }));
         window.add_action(&action);
         
         // add an action to show prev image
         let action = SimpleAction::new("prev", None);
         action.connect_activate(clone!(@strong filenames, @strong image, @strong index_rc, @weak window => move |_, _| {
-            let mut index = index_rc.get();
-            index.prev();
-            index_rc.set(index);
-            show_image(&filenames, &image, index.selected, window);
+            show_image(&filenames, &image, &index_rc, &window, Navigate::Prev);
         }));
         window.add_action(&action);
 
         // add an action to show next or random image
         let action = SimpleAction::new("randnext", None);
         action.connect_activate(clone!(@strong filenames, @strong image, @strong index_rc, @weak window => move |_, _| {
-            let mut index = index_rc.get();
-            if args.ordered { index.next() } else { index.random() };
-            index_rc.set(index);
-            show_image(&filenames, &image, index.selected, window);
+            if args.ordered {
+                show_image(&filenames, &image, &index_rc, &window, Navigate::Next);
+            } else {
+                show_image(&filenames, &image, &index_rc, &window, Navigate::Random);
+            }
         }));
         window.add_action(&action);
+        let evk = gtk::EventControllerKey::new();
+        // handle space key event
+        evk.connect_key_pressed(clone!(@strong filenames, @strong image, @strong index_rc, @strong window => move |_, key, _, _| {
+            if let Some(s) = key.name() {
+                match s.as_str() {
+                    "space" => if args.ordered { 
+                        show_image(&filenames, &image, &index_rc, &window, Navigate::Next)
+                    } else {
+                        show_image(&filenames, &image, &index_rc, &window, Navigate::Random)
+                    }, 
+                        _ => { },
+                }
+            } else { 
+            } ;
+            gtk::Inhibit(false)
+        }));
+        window.add_controller(evk);
         // show the first file
-        let filename = &filenames[index_rc.get().selected];
-        image.set_from_file(Some(filename.clone()));
-        window.set_title(Some(filename.as_str()));
+        show_image(&filenames, &image, &index_rc, &window, Navigate::Current);
 
         if args.maximized { window.fullscreen() };
+        if let Some(t) = args.timer {
+            timeout_add_local(Duration::new(t,0), clone!(@strong filenames, @strong image, @strong index_rc, @strong window => move | | { 
+                if args.ordered { 
+                    show_image(&filenames, &image, &index_rc, &window, Navigate::Next)
+                } else {
+                    show_image(&filenames, &image, &index_rc, &window, Navigate::Random)
+                };
+                Continue(true) 
+            }));
+    };
         window.present();
     }));
     application.set_accels_for_action("win.close", &["q"]);
@@ -203,13 +229,19 @@ fn main() {
     application.set_accels_for_action("win.next", &["n"]);
     application.set_accels_for_action("win.prev", &["p"]);
     let empty: Vec<String> = vec![];
-
-    // run the application with empty args as the have been parsed before app creation
     application.run_with_args(&empty);
 }
 
-fn show_image(filenames: &Vec<String>, image: &Image, index:usize, window: gtk::ApplicationWindow) {
-    let filename = &filenames[index];
+fn show_image(filenames: &Vec<String>, image: &Image, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow, navigate:Navigate) {
+    let mut index = index_rc.get();
+    let filename = &filenames[index.selected];
+    match navigate {
+        Navigate::Next => index.next(),
+        Navigate::Prev => index.prev(),
+        Navigate::Random => index.random(),
+        Navigate::Current => { } ,
+    }
+    index_rc.set(index);
     image.set_from_file(Some(filename.clone()));
     window.set_title(Some(filename.as_str()));
 }
