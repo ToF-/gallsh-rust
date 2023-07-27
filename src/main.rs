@@ -1,3 +1,4 @@
+use walkdir::WalkDir;
 use clap::Parser;
 use core::time::{Duration};
 use gio::SimpleAction;
@@ -48,31 +49,52 @@ enum Navigate {
     Random,
 }
 
-fn get_files_in_directory(dir_path: &str, pattern: &Option<String>) -> io::Result<Vec<String>> {
-    let entries = fs::read_dir(dir_path)?;
-    let file_names: Vec<String> = entries
-        .filter_map(|entry| {
-            let path = entry.ok()?.path();
-            let valid_ext = if let Some(ext) = path.extension() {
-                ext == "jpg" || ext == "jpeg" || ext == "png"
-            } else {
-                false
-            };
-            let p = if let Some(s) = pattern {
-                path.is_file() && path.to_str().unwrap().contains(s)
-            } else {
-                path.is_file()
-            };
-            if valid_ext && p {
-                let full_path = Path::new(dir_path).join(path);
-                full_path.to_str().map(|s| s.to_owned())
-            } else {
-                None
+fn get_files_in_directory(dir_path: &str, opt_pattern: &Option<String>) -> io::Result<Vec<String>> {
+    let mut file_names: Vec<String> = Vec::new();
+    for entry in WalkDir::new(dir_path).into_iter().filter_map(|e| e.ok()) {
+        let path = entry.into_path();
+        let valid_ext = if let Some(ext) = path.extension() {
+            ext == "jpg" || ext == "jpeg" || ext == "png"
+        } else {
+            false
+        };
+        let pattern_present = if let Some(pattern) = opt_pattern {
+            path.is_file() && path.to_str().map(|filename| filename.contains(pattern)) == Some(true)
+        } else {
+            path.is_file()
+        };
+        if valid_ext && pattern_present {
+            let full_path = Path::new(dir_path).join(path);
+            if let Some(full_name) = full_path.to_str() {
+                file_names.push(full_name.to_string().to_owned());
             }
-        })
-        .collect();
+        }
+    };
     Ok(file_names)
 }
+
+//    let entries = fs::read_dir(dir_path)?;
+//    let file_names: Vec<String> = entries
+//        .filter_map(|entry| {
+//            let path = entry.ok()?.path();
+//            let valid_ext = if let Some(ext) = path.extension() {
+//                ext == "jpg" || ext == "jpeg" || ext == "png"
+//            } else {
+//                false
+//            };
+//            let p = if let Some(s) = pattern {
+//                path.is_file() && path.to_str().unwrap().contains(s)
+//            } else {
+//                path.is_file()
+//            };
+//            if valid_ext && p {
+//                let full_path = Path::new(dir_path).join(path);
+//                full_path.to_str().map(|s| s.to_owned())
+//            } else {
+//                None
+//            }
+//        })
+//        .collect();
 
 // declarative setting of arguments
 /// Gallery Show
@@ -94,15 +116,22 @@ struct Args {
     /// Timer delay for next picture
     #[arg(short, long)]
     timer: Option<u64>,
+
+    /// Directory to search
+    #[arg(short, long)]
+    directory: Option<String>,
 }
 
 const DEFAULT_DIR :&str  = "images/";
 const ENV_VARIABLE :&str = "GALLSHDIR";
 
 fn main() {
+
     let args = Args::parse();
     let gallshdir = env::var(ENV_VARIABLE);
-    let path = if let Ok(s) = gallshdir {
+    let path = if let Some(d) = args.directory {
+        String::from(d)
+    } else if let Ok(s) = gallshdir {
         String::from(s)
     } else {
         println!("GALLSHDIR variable not set. Using {} as default.", DEFAULT_DIR);
@@ -136,6 +165,10 @@ fn main() {
         };
         filenames.sort();
         println!("{} files selected", filenames.len());
+        if filenames.len() == 0 {
+            application.quit();
+            return
+        }
 
         // build the main window
         let image = Image::new();
