@@ -73,29 +73,6 @@ fn get_files_in_directory(dir_path: &str, opt_pattern: &Option<String>) -> io::R
     Ok(file_names)
 }
 
-//    let entries = fs::read_dir(dir_path)?;
-//    let file_names: Vec<String> = entries
-//        .filter_map(|entry| {
-//            let path = entry.ok()?.path();
-//            let valid_ext = if let Some(ext) = path.extension() {
-//                ext == "jpg" || ext == "jpeg" || ext == "png"
-//            } else {
-//                false
-//            };
-//            let p = if let Some(s) = pattern {
-//                path.is_file() && path.to_str().unwrap().contains(s)
-//            } else {
-//                path.is_file()
-//            };
-//            if valid_ext && p {
-//                let full_path = Path::new(dir_path).join(path);
-//                full_path.to_str().map(|s| s.to_owned())
-//            } else {
-//                None
-//            }
-//        })
-//        .collect();
-
 // declarative setting of arguments
 /// Gallery Show
 #[derive(Parser, Debug)]
