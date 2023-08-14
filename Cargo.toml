@@ -7,6 +7,6 @@ edition = "2021"
 
 [dependencies]
 clap = { version = "4.3.19", features = ["derive"] }
-gtk = { version = "*", package = "gtk4", features = ["v4_10"] }
+gtk = { version = "0.6.*", package = "gtk4", features = ["v4_10"] }
 rand = "0.8.5"
 walkdir = "2.3.3"
