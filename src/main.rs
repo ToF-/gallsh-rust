@@ -9,7 +9,6 @@ use gtk::{self, Application, gdk, gio, glib, Image};
 use rand::{thread_rng, Rng};
 use std::cell::Cell;
 use std::env;
-use std::fs;
 use std::io;
 use std::path::Path;
 use std::rc::Rc;
