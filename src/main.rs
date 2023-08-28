@@ -12,6 +12,8 @@ use std::env;
 use std::io;
 use std::path::Path;
 use std::rc::Rc;
+use std::time::{SystemTime, UNIX_EPOCH};
+
 
 // a struct to keep track of navigating in image files
 #[derive(Clone, Copy, Debug)]
@@ -122,7 +124,7 @@ fn main() {
 
     application.connect_startup(|_| {
         let css_provider = gtk::CssProvider::new();
-        css_provider.load_from_data("window { background-color:black;} image { margin:10em ; }");
+        css_provider.load_from_data("window { background-color:black;} image { margin:1em ; }");
         gtk::style_context_add_provider_for_display(
             &gdk::Display::default().unwrap(),
             &css_provider,
@@ -244,7 +246,6 @@ fn main() {
 
 fn show_image(filenames: &Vec<String>, image: &Image, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow, navigate:Navigate) {
     let mut index = index_rc.get();
-    let filename = &filenames[index.selected];
     match navigate {
         Navigate::Next => index.next(),
         Navigate::Prev => index.prev(),
@@ -252,6 +253,7 @@ fn show_image(filenames: &Vec<String>, image: &Image, index_rc:&Rc<Cell<Index>>,
         Navigate::Current => { } ,
     }
     index_rc.set(index);
+    let filename = &filenames[index.selected];
     image.set_from_file(Some(filename.clone()));
     window.set_title(Some(filename.as_str()));
 }
