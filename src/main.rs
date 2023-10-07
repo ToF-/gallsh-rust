@@ -1,6 +1,3 @@
-use walkdir::WalkDir;
-use clap::Parser;
-use core::time::{Duration};
 use gio::SimpleAction;
 use glib::clone;
 use glib::timeout_add_local;
@@ -12,7 +9,9 @@ use std::env;
 use std::io;
 use std::path::Path;
 use std::rc::Rc;
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use clap::Parser;
+use walkdir::WalkDir;
 
 
 // a struct to keep track of navigating in image files
@@ -65,8 +64,7 @@ fn get_files_in_directory(dir_path: &str, opt_pattern: &Option<String>) -> io::R
             path.is_file()
         };
         if valid_ext && pattern_present {
-            let full_path = Path::new(dir_path).join(path);
-            if let Some(full_name) = full_path.to_str() {
+            if let Some(full_name) = path.to_str() {
                 file_names.push(full_name.to_string().to_owned());
             }
         }
