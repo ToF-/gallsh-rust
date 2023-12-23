@@ -43,6 +43,14 @@ impl Index {
     fn random(&mut self) {
         self.selected = thread_rng().gen_range(0..self.maximum + 1);
     }
+    fn set(&mut self, value: usize) {
+        if value >= 0 && value < self.maximum {
+            self.selected = value;
+        } else {
+            println!("index {} out of range, set to 0", value);
+            self.selected = 0;
+        }
+    }
 }
 
 enum Navigate {
@@ -113,6 +121,10 @@ struct Args {
     /// Reading List
     #[arg(short, long)]
     reading: Option<String>,
+
+    /// Index of first image to read 
+    #[arg(short, long)]
+    index: Option<usize>,
 }
 
 const DEFAULT_DIR :&str  = "images/";
@@ -139,6 +151,8 @@ fn main() {
     };
 
     let reading_list = &args.reading;
+
+    let index_start = args.index;
 
     if let Some(reading_list_file) = reading_list {
         println!("searching images from the {} reading list", reading_list_file)
@@ -200,6 +214,9 @@ fn main() {
         if !args.ordered {
             index.random()
         };
+        if let Some(index_number) = args.index {
+            index.set(index_number);
+        }
         let index_rc = Rc::new(Cell::new(index));
 
 
@@ -309,5 +326,5 @@ fn show_image(filenames: &Vec<String>, image: &Image, index_rc:&Rc<Cell<Index>>,
     index_rc.set(index);
     let filename = &filenames[index.selected];
     image.set_from_file(Some(filename.clone()));
-    window.set_title(Some(filename.as_str()));
+    window.set_title(Some(&format!("{} {}", index.selected, filename.as_str())));
 }
