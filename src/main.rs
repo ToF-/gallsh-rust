@@ -7,6 +7,8 @@ use rand::{thread_rng, Rng};
 use std::cell::Cell;
 use std::env;
 use std::io;
+use std::fs::OpenOptions;
+use std::io::{Write};
 use std::path::Path;
 use std::rc::Rc;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
@@ -148,6 +150,7 @@ fn main() {
 
         // build the main window
         let image = Image::new();
+        let image_bis = Image::new();
         let window = gtk::ApplicationWindow::builder()
             .application(application)
             .default_width(1000)
@@ -200,6 +203,20 @@ fn main() {
             }
         }));
         window.add_action(&action);
+        // add an action to save this file reference
+        let action = SimpleAction::new("save", None);
+        action.connect_activate(clone!(@strong filenames, @strong index_rc => move |_, _| {
+            let mut index = index_rc.get();
+            let filename = format!("{}\n", &filenames[index.selected]);
+            println!("saving reference {}.", filename);
+            let mut save_file = OpenOptions::new()
+                .write(true)
+                .append(true)
+                .create(true)
+                .open("./selected_filenames");
+            save_file.expect("could not open selected_filenames").write_all(filename.as_bytes());
+        }));
+        window.add_action(&action);
         let evk = gtk::EventControllerKey::new();
         // handle space key event
         evk.connect_key_pressed(clone!(@strong filenames, @strong image, @strong index_rc, @strong window => move |_, key, _, _| {
@@ -238,6 +255,7 @@ fn main() {
     application.set_accels_for_action("win.random", &["r"]);
     application.set_accels_for_action("win.next", &["n"]);
     application.set_accels_for_action("win.prev", &["p"]);
+    application.set_accels_for_action("win.save", &["s"]);
     let empty: Vec<String> = vec![];
     application.run_with_args(&empty);
 }
