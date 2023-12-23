@@ -8,6 +8,7 @@ use std::cell::Cell;
 use std::env;
 use std::io;
 use std::fs::OpenOptions;
+use std::fs::read_to_string;
 use std::path::Path;
 use std::io::{Write};
 use std::rc::Rc;
@@ -51,6 +52,12 @@ enum Navigate {
     Random,
 }
 
+fn get_files_from_reading_list(reading_list: &String) -> io::Result<Vec<String>> {
+    match read_to_string(reading_list) {
+        Ok(content) => Ok(content.lines().map(String::from).collect()),
+        Err(msg) => Err(msg)
+    }
+}
 fn get_files_in_directory(dir_path: &str, opt_pattern: &Option<String>) -> io::Result<Vec<String>> {
     let mut file_names: Vec<String> = Vec::new();
     for entry in WalkDir::new(dir_path).into_iter().filter_map(|e| e.ok()) {
@@ -78,7 +85,7 @@ fn get_files_in_directory(dir_path: &str, opt_pattern: &Option<String>) -> io::R
 /// Gallery Show
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
-    /// Pattern that displayed files must have
+/// Pattern that displayed files must have
 struct Args {
     #[arg(short, long)]
     pattern: Option<String>,
@@ -102,6 +109,10 @@ struct Args {
     /// Selection File
     #[arg(short, long)]
     selection: Option<String>,
+
+    /// Reading List
+    #[arg(short, long)]
+    reading: Option<String>,
 }
 
 const DEFAULT_DIR :&str  = "images/";
@@ -109,14 +120,15 @@ const ENV_VARIABLE :&str = "GALLSHDIR";
 
 fn main() {
 
-    let foo = 4807;
     let args = Args::parse();
     let gallshdir = env::var(ENV_VARIABLE);
+
     let selection_file = if let Some(selection_file_arg) = args.selection {
         String::from(selection_file_arg)
     } else  {
         String::from("./selected_files")
     };
+
     let path = if let Some(directory_arg) = args.directory {
         String::from(directory_arg)
     } else if let Ok(standard_dir) = gallshdir {
@@ -125,7 +137,14 @@ fn main() {
         println!("GALLSHDIR variable not set. Using {} as default.", DEFAULT_DIR);
         String::from(DEFAULT_DIR)
     };
-    println!("searching images in {}", path);
+
+    let reading_list = &args.reading;
+
+    if let Some(reading_list_file) = reading_list {
+        println!("searching images from the {} reading list", reading_list_file)
+    } else {
+        println!("searching images in {}", path)
+    };
 
     // build an application with some css characteristics
     let application = Application::builder()
@@ -139,18 +158,28 @@ fn main() {
             &gdk::Display::default().unwrap(),
             &css_provider,
             1000,
-        );
+            );
     });
 
     let pattern = args.pattern;
     // clone! passes a strong reference to pattern in the closure that activates the application
-    application.connect_activate(clone!(@strong pattern => move |application: &gtk::Application| { 
+    application.connect_activate(clone!(@strong reading_list, @strong pattern => move |application: &gtk::Application| { 
 
-        // get all the filenames in the directory that match pattern (or all if None)
-        let mut filenames = match get_files_in_directory(&path, &pattern) {
-            Err(msg) => panic!("{}", msg),
-            Ok(result) => result,
+
+        // get all the filenames in the directory that match pattern (or all if None) or from a
+        // reading list
+        let mut filenames = if let Some(reading_list_filename) = &reading_list {
+            match get_files_from_reading_list(reading_list_filename) {
+                Err(msg) => panic!("{}", msg),
+                Ok(result) => result,
+            }
+        } else {
+            match get_files_in_directory(&path, &pattern) {
+                Err(msg) => panic!("{}", msg),
+                Ok(result) => result,
+            }
         };
+
         filenames.sort();
         println!("{} files selected", filenames.len());
         if filenames.len() == 0 {
@@ -217,7 +246,6 @@ fn main() {
         action.connect_activate(clone!(@strong selection_file, @strong filenames, @strong index_rc => move |_, _| {
             let index = index_rc.get();
             let filename = format!("{}\n", &filenames[index.selected]);
-            println!("foo:{}",foo);
             println!("saving reference {}.", filename);
             let save_file = OpenOptions::new()
                 .write(true)
