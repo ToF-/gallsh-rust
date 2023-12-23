@@ -8,10 +8,10 @@ use std::cell::Cell;
 use std::env;
 use std::io;
 use std::fs::OpenOptions;
-use std::io::{Write};
 use std::path::Path;
+use std::io::{Write};
 use std::rc::Rc;
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::time::{Duration};
 use clap::Parser;
 use walkdir::WalkDir;
 
@@ -78,8 +78,8 @@ fn get_files_in_directory(dir_path: &str, opt_pattern: &Option<String>) -> io::R
 /// Gallery Show
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
-struct Args {
     /// Pattern that displayed files must have
+struct Args {
     #[arg(short, long)]
     pattern: Option<String>,
 
@@ -98,6 +98,10 @@ struct Args {
     /// Directory to search
     #[arg(short, long)]
     directory: Option<String>,
+
+    /// Selection File
+    #[arg(short, long)]
+    selection: Option<String>,
 }
 
 const DEFAULT_DIR :&str  = "images/";
@@ -105,12 +109,18 @@ const ENV_VARIABLE :&str = "GALLSHDIR";
 
 fn main() {
 
+    let foo = 4807;
     let args = Args::parse();
     let gallshdir = env::var(ENV_VARIABLE);
-    let path = if let Some(d) = args.directory {
-        String::from(d)
-    } else if let Ok(s) = gallshdir {
-        String::from(s)
+    let selection_file = if let Some(selection_file_arg) = args.selection {
+        String::from(selection_file_arg)
+    } else  {
+        String::from("./selected_files")
+    };
+    let path = if let Some(directory_arg) = args.directory {
+        String::from(directory_arg)
+    } else if let Ok(standard_dir) = gallshdir {
+        String::from(standard_dir)
     } else {
         println!("GALLSHDIR variable not set. Using {} as default.", DEFAULT_DIR);
         String::from(DEFAULT_DIR)
@@ -150,7 +160,6 @@ fn main() {
 
         // build the main window
         let image = Image::new();
-        let image_bis = Image::new();
         let window = gtk::ApplicationWindow::builder()
             .application(application)
             .default_width(1000)
@@ -205,16 +214,17 @@ fn main() {
         window.add_action(&action);
         // add an action to save this file reference
         let action = SimpleAction::new("save", None);
-        action.connect_activate(clone!(@strong filenames, @strong index_rc => move |_, _| {
-            let mut index = index_rc.get();
+        action.connect_activate(clone!(@strong selection_file, @strong filenames, @strong index_rc => move |_, _| {
+            let index = index_rc.get();
             let filename = format!("{}\n", &filenames[index.selected]);
+            println!("foo:{}",foo);
             println!("saving reference {}.", filename);
-            let mut save_file = OpenOptions::new()
+            let save_file = OpenOptions::new()
                 .write(true)
                 .append(true)
                 .create(true)
-                .open("./selected_filenames");
-            save_file.expect("could not open selected_filenames").write_all(filename.as_bytes());
+                .open(selection_file.clone());
+            save_file.expect(&format!("could not open {}", selection_file)).write_all(filename.as_bytes());
         }));
         window.add_action(&action);
         let evk = gtk::EventControllerKey::new();
