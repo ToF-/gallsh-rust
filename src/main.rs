@@ -22,6 +22,7 @@ use walkdir::WalkDir;
 struct Index {
     selected: usize,
     maximum:  usize,
+    start_index: usize,
 }
 
 impl Index {
@@ -29,6 +30,7 @@ impl Index {
         Index {
             selected: 0,
             maximum: capacity - 1,
+            start_index: 0,
         }
     }
 
@@ -51,6 +53,10 @@ impl Index {
             self.selected = 0;
         }
     }
+
+    fn start_area(&mut self) {
+        self.start_index = self.selected
+    }
 }
 
 enum Navigate {
@@ -65,6 +71,7 @@ fn get_files_from_reading_list(reading_list: &String) -> io::Result<Vec<String>>
         Ok(content) => Ok(content.lines().map(String::from).collect()),
         Err(msg) => Err(msg)
     }
+
 }
 fn get_files_in_directory(dir_path: &str, opt_pattern: &Option<String>) -> io::Result<Vec<String>> {
     let mut file_names: Vec<String> = Vec::new();
@@ -272,8 +279,42 @@ fn main() {
             save_file.expect(&format!("could not open {}", selection_file)).write_all(filename.as_bytes());
         }));
         window.add_action(&action);
-        let evk = gtk::EventControllerKey::new();
+        
+        // add an action to mark the begin of saving area
+        let action = SimpleAction::new("area", None);
+        action.connect_activate(clone!(@strong selection_file, @strong filenames, @strong index_rc => move |_, _| {
+            let mut index = index_rc.get();
+            let filename = format!("{}\n", &filenames[index.selected]);
+            index.start_area();
+            println!("starting saving references from {}.", filename);
+            index_rc.set(index);
+        }));
+        window.add_action(&action);
+
+        // add an action to mark the end of saving area and save files
+        let action = SimpleAction::new("end", None);
+        action.connect_activate(clone!(@strong selection_file, @strong filenames, @ strong index_rc => move |_, _| {
+            let mut index = index_rc.get();
+            if(index.selected >= index.start_index) {
+                for i in index.start_index .. index.selected {
+                    let filename = format!("{}\n", &filenames[i]);
+                    println!("saving reference {}", filename);
+                    let save_file = OpenOptions::new()
+                        .write(true)
+                        .append(true)
+                        .create(true)
+                        .open(selection_file.clone());
+                    save_file.expect(&format!("could not open {}", selection_file)).write_all(filename.as_bytes());
+                }
+            } else {
+                println!("area start index {} is greater than area end index {}", index.start_index, index.selected);
+            }
+        }));
+        window.add_action(&action);
+
+
         // handle space key event
+        let evk = gtk::EventControllerKey::new();
         evk.connect_key_pressed(clone!(@strong filenames, @strong image, @strong index_rc, @strong window => move |_, key, _, _| {
             if let Some(s) = key.name() {
                 match s.as_str() {
@@ -311,6 +352,8 @@ fn main() {
     application.set_accels_for_action("win.next", &["n"]);
     application.set_accels_for_action("win.prev", &["p"]);
     application.set_accels_for_action("win.save", &["s"]);
+    application.set_accels_for_action("win.area", &["a"]);
+    application.set_accels_for_action("win.end",&["e"]);
     let empty: Vec<String> = vec![];
     application.run_with_args(&empty);
 }
