@@ -296,7 +296,7 @@ fn main() {
         action.connect_activate(clone!(@strong selection_file, @strong filenames, @ strong index_rc => move |_, _| {
             let mut index = index_rc.get();
             if(index.selected >= index.start_index) {
-                for i in index.start_index .. index.selected {
+                for i in index.start_index .. index.selected+1 {
                     let filename = format!("{}\n", &filenames[i]);
                     println!("saving reference {}", filename);
                     let save_file = OpenOptions::new()
