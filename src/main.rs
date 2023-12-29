@@ -2,7 +2,7 @@ use gio::SimpleAction;
 use glib::clone;
 use glib::timeout_add_local;
 use gtk::prelude::*;
-use gtk::{self, Application, gdk, gio, glib, Image};
+use gtk::{self, Application, gdk, gio, glib, Grid, Image};
 use rand::{thread_rng, Rng};
 use std::cell::Cell;
 use std::env;
@@ -209,12 +209,18 @@ fn main() {
         }
 
         // build the main window
+        let grid = Grid::new();
         let image = Image::new();
+        grid.set_row_homogeneous(true);
+        grid.set_column_homogeneous(true);
+        grid.set_hexpand(true);
+        grid.set_vexpand(true);
+        grid.attach(&image, 0, 0, 1, 1);
         let window = gtk::ApplicationWindow::builder()
             .application(application)
             .default_width(1000)
             .default_height(1000)
-            .child(&image)
+            .child(&grid)
             .build();
 
         let mut index = Index::new(filenames.len());
@@ -236,32 +242,32 @@ fn main() {
 
         // add an action to show random image
         let action = SimpleAction::new("random", None);
-        action.connect_activate(clone!(@strong filenames, @strong image, @strong index_rc, @weak window => move |_, _| {
-            show_image(&filenames, &image, &index_rc, &window, Navigate::Random);
+        action.connect_activate(clone!(@strong filenames, @strong grid, @strong index_rc, @weak window => move |_, _| {
+            show_grid(&filenames, &grid, &index_rc, &window, Navigate::Random);
         }));
         window.add_action(&action);
 
         // add an action to show next image
         let action = SimpleAction::new("next", None);
-        action.connect_activate(clone!(@strong filenames, @strong image, @strong index_rc, @weak window => move |_, _| {
-            show_image(&filenames, &image, &index_rc, &window, Navigate::Next);
+        action.connect_activate(clone!(@strong filenames, @strong grid, @strong index_rc, @weak window => move |_, _| {
+            show_grid(&filenames, &grid, &index_rc, &window, Navigate::Next);
         }));
         window.add_action(&action);
         
         // add an action to show prev image
         let action = SimpleAction::new("prev", None);
-        action.connect_activate(clone!(@strong filenames, @strong image, @strong index_rc, @weak window => move |_, _| {
-            show_image(&filenames, &image, &index_rc, &window, Navigate::Prev);
+        action.connect_activate(clone!(@strong filenames, @strong grid, @strong index_rc, @weak window => move |_, _| {
+            show_grid(&filenames, &grid, &index_rc, &window, Navigate::Prev);
         }));
         window.add_action(&action);
 
         // add an action to show next or random image
         let action = SimpleAction::new("randnext", None);
-        action.connect_activate(clone!(@strong filenames, @strong image, @strong index_rc, @weak window => move |_, _| {
+        action.connect_activate(clone!(@strong filenames, @strong grid, @strong index_rc, @weak window => move |_, _| {
             if args.ordered {
-                show_image(&filenames, &image, &index_rc, &window, Navigate::Next);
+                show_grid(&filenames, &grid, &index_rc, &window, Navigate::Next);
             } else {
-                show_image(&filenames, &image, &index_rc, &window, Navigate::Random);
+                show_grid(&filenames, &grid, &index_rc, &window, Navigate::Random);
             }
         }));
         window.add_action(&action);
@@ -315,13 +321,13 @@ fn main() {
 
         // handle space key event
         let evk = gtk::EventControllerKey::new();
-        evk.connect_key_pressed(clone!(@strong filenames, @strong image, @strong index_rc, @strong window => move |_, key, _, _| {
+        evk.connect_key_pressed(clone!(@strong filenames, @strong grid, @strong index_rc, @strong window => move |_, key, _, _| {
             if let Some(s) = key.name() {
                 match s.as_str() {
                     "space" => if args.ordered { 
-                        show_image(&filenames, &image, &index_rc, &window, Navigate::Next)
+                        show_grid(&filenames, &grid, &index_rc, &window, Navigate::Next)
                     } else {
-                        show_image(&filenames, &image, &index_rc, &window, Navigate::Random)
+                        show_grid(&filenames, &grid, &index_rc, &window, Navigate::Random)
                     }, 
                         _ => { },
                 }
@@ -331,16 +337,16 @@ fn main() {
         }));
         window.add_controller(evk);
         // show the first file
-        show_image(&filenames, &image, &index_rc, &window, Navigate::Current);
+        show_grid(&filenames, &grid, &index_rc, &window, Navigate::Current);
 
         if args.maximized { window.fullscreen() };
         // if a timer has been passed, set a timeout routine
         if let Some(t) = args.timer {
-            timeout_add_local(Duration::new(t,0), clone!(@strong filenames, @strong image, @strong index_rc, @strong window => move | | { 
+            timeout_add_local(Duration::new(t,0), clone!(@strong filenames, @strong grid, @strong index_rc, @strong window => move | | { 
                 if args.ordered { 
-                    show_image(&filenames, &image, &index_rc, &window, Navigate::Next)
+                    show_grid(&filenames, &grid, &index_rc, &window, Navigate::Next)
                 } else {
-                    show_image(&filenames, &image, &index_rc, &window, Navigate::Random)
+                    show_grid(&filenames, &grid, &index_rc, &window, Navigate::Random)
                 };
                 Continue(true) 
             }));
@@ -358,7 +364,7 @@ fn main() {
     application.run_with_args(&empty);
 }
 
-fn show_image(filenames: &Vec<String>, image: &Image, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow, navigate:Navigate) {
+fn show_grid(filenames: &Vec<String>, grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow, navigate:Navigate) {
     let mut index = index_rc.get();
     match navigate {
         Navigate::Next => index.next(),
@@ -368,6 +374,11 @@ fn show_image(filenames: &Vec<String>, image: &Image, index_rc:&Rc<Cell<Index>>,
     }
     index_rc.set(index);
     let filename = &filenames[index.selected];
-    image.set_from_file(Some(filename.clone()));
+    if let Some(child) = grid.child_at(0, 0) {
+        let downcast_child = child.downcast::<gtk::Image>();
+        if let Ok(image) = downcast_child {
+            image.set_from_file(Some(filename.clone()))
+        }
+    };
     window.set_title(Some(&format!("{} {}", index.selected, filename.as_str())));
 }
