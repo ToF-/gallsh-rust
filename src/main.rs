@@ -9,7 +9,6 @@ use std::env;
 use std::io;
 use std::fs::OpenOptions;
 use std::fs::read_to_string;
-use std::path::Path;
 use std::io::{Write};
 use std::rc::Rc;
 use std::time::{Duration};
@@ -52,7 +51,7 @@ impl Index {
         self.selected = thread_rng().gen_range(0..self.maximum + 1);
     }
     fn set(&mut self, value: usize) {
-        if value >= 0 && value < self.maximum {
+        if value < self.maximum {
             self.selected = value;
         } else {
             println!("index {} out of range, set to 0", value);
@@ -65,6 +64,7 @@ impl Index {
     }
 }
 
+#[derive(PartialEq)]
 enum Navigate {
     Current,
     Next,
@@ -168,8 +168,6 @@ fn main() {
     };
 
     let reading_list = &args.reading;
-
-    let index_start = args.index;
 
     let grid_size = if let Some(size) = args.grid { if size >= 2 && size <= 10 { size } else { 1 } } else { 1 };
 
@@ -316,8 +314,8 @@ fn main() {
         // add an action to mark the end of saving area and save files
         let action = SimpleAction::new("end", None);
         action.connect_activate(clone!(@strong selection_file, @strong filenames, @ strong index_rc => move |_, _| {
-            let mut index = index_rc.get();
-            if(index.selected >= index.start_index) {
+            let index = index_rc.get();
+            if index.selected >= index.start_index {
                 for i in index.start_index .. index.selected+1 {
                     let filename = format!("{}\n", &filenames[i]);
                     println!("saving reference {}", filename);
@@ -353,7 +351,11 @@ fn main() {
         }));
         window.add_controller(evk);
         // show the first file
-        show_grid(&filenames, &grid, &index_rc, &window, Navigate::Current);
+        if args.ordered {
+            show_grid(&filenames, &grid, &index_rc, &window, Navigate::Current);
+        } else {
+            show_grid(&filenames, &grid, &index_rc, &window, Navigate::Random);
+        }
 
         if args.maximized { window.fullscreen() };
         // if a timer has been passed, set a timeout routine
@@ -394,7 +396,11 @@ fn show_grid(filenames: &Vec<String>, grid: &Grid, index_rc:&Rc<Cell<Index>>, wi
         let row = (i / index.grid_size) as i32;
         let col = (i % index.grid_size) as i32;
         let image = grid.child_at(col,row).unwrap().downcast::<gtk::Image>().unwrap();
-        let selected = index.selected + i;
+        let selected = if navigate != Navigate::Random {
+            index.selected + i
+        } else {
+            thread_rng().gen_range(0..index.maximum + 1)
+        };
         if selected <= index.maximum {
             let filename = &filenames[selected];
             image.set_from_file(Some(filename.clone()));
