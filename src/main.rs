@@ -396,7 +396,7 @@ fn show_grid(filenames: &Vec<String>, grid: &Grid, index_rc:&Rc<Cell<Index>>, wi
         let row = (i / index.grid_size) as i32;
         let col = (i % index.grid_size) as i32;
         let image = grid.child_at(col,row).unwrap().downcast::<gtk::Image>().unwrap();
-        let selected = if navigate != Navigate::Random {
+        let selected = if navigate != Navigate::Random || index.selection_size() == 1 {
             index.selected + i
         } else {
             thread_rng().gen_range(0..index.maximum + 1)
@@ -408,5 +408,7 @@ fn show_grid(filenames: &Vec<String>, grid: &Grid, index_rc:&Rc<Cell<Index>>, wi
             image.clear();
         }
     }
-    window.set_title(Some(&format!("{} {}", index.selected, filename.as_str())));
+    if index.selection_size() == 1 {
+        window.set_title(Some(&format!("{} {}", index.selected, filename.as_str())));
+    }
 }
