@@ -132,6 +132,10 @@ struct Args {
     /// Index of first image to read 
     #[arg(short, long)]
     index: Option<usize>,
+
+    /// Grid Size
+    #[arg(short, long)]
+    grid: Option<usize>,
 }
 
 const DEFAULT_DIR :&str  = "images/";
@@ -160,6 +164,8 @@ fn main() {
     let reading_list = &args.reading;
 
     let index_start = args.index;
+
+    let grid_size = if let Some(size) = args.grid { if size >= 2 && size <= 10 { size } else { 1 } } else { 1 };
 
     if let Some(reading_list_file) = reading_list {
         println!("searching images from the {} reading list", reading_list_file)
