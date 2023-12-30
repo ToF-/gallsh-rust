@@ -23,15 +23,21 @@ struct Index {
     selected: usize,
     maximum:  usize,
     start_index: usize,
+    grid_size: usize,
 }
 
 impl Index {
-    fn new(capacity: usize) -> Self {
+    fn new(capacity: usize, grid_size: usize) -> Self {
         Index {
             selected: 0,
             maximum: capacity - 1,
             start_index: 0,
+            grid_size: grid_size,
         }
+    }
+
+    fn selection_size(self) -> usize {
+        self.grid_size * self.grid_size 
     }
 
     fn next(&mut self) {
@@ -216,12 +222,16 @@ fn main() {
 
         // build the main window
         let grid = Grid::new();
-        let image = Image::new();
         grid.set_row_homogeneous(true);
         grid.set_column_homogeneous(true);
         grid.set_hexpand(true);
         grid.set_vexpand(true);
-        grid.attach(&image, 0, 0, 1, 1);
+        for row in 0 .. grid_size {
+            for col in 0 .. grid_size {
+                let image = Image::new();
+                grid.attach(&image, row as i32, col as i32, 1, 1);
+            }
+        }
         let window = gtk::ApplicationWindow::builder()
             .application(application)
             .default_width(1000)
@@ -229,7 +239,7 @@ fn main() {
             .child(&grid)
             .build();
 
-        let mut index = Index::new(filenames.len());
+        let mut index = Index::new(filenames.len(), grid_size);
         if !args.ordered {
             index.random()
         };
@@ -380,11 +390,17 @@ fn show_grid(filenames: &Vec<String>, grid: &Grid, index_rc:&Rc<Cell<Index>>, wi
     }
     index_rc.set(index);
     let filename = &filenames[index.selected];
-    if let Some(child) = grid.child_at(0, 0) {
-        let downcast_child = child.downcast::<gtk::Image>();
-        if let Ok(image) = downcast_child {
-            image.set_from_file(Some(filename.clone()))
+    for i in 0 .. (index.selection_size()) {
+        let row = (i / index.grid_size) as i32;
+        let col = (i % index.grid_size) as i32;
+        let image = grid.child_at(col,row).unwrap().downcast::<gtk::Image>().unwrap();
+        let selected = index.selected + i;
+        if selected <= index.maximum {
+            let filename = &filenames[selected];
+            image.set_from_file(Some(filename.clone()));
+        } else {
+            image.clear();
         }
-    };
+    }
     window.set_title(Some(&format!("{} {}", index.selected, filename.as_str())));
 }
