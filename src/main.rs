@@ -41,7 +41,7 @@ impl Index {
     }
 
     fn next(&mut self) {
-        self.selected = if self.selected < self.maximum { self.selected + 1 } else { 0 } ;
+        self.selected = if self.selected < self.maximum { (self.selected + self.selection_size()) % (self.maximum + 1) } else { 0 } ;
 
     }
     fn prev(&mut self) {
