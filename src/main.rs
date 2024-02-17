@@ -2,7 +2,7 @@ use gio::SimpleAction;
 use glib::clone;
 use glib::timeout_add_local;
 use gtk::prelude::*;
-use gtk::{self, Application, gdk, gio, glib, Grid, Image};
+use gtk::{self, Application, gdk, gio, glib, Grid, Image, Picture};
 use rand::{thread_rng, Rng};
 use std::cell::Cell;
 use std::env;
@@ -23,6 +23,7 @@ struct Index {
     maximum:  usize,
     start_index: usize,
     grid_size: usize,
+    real_size: bool,
 }
 
 impl Index {
@@ -32,6 +33,7 @@ impl Index {
             maximum: capacity - 1,
             start_index: 0,
             grid_size: grid_size,
+            real_size: false,
         }
     }
 
@@ -61,6 +63,10 @@ impl Index {
 
     fn start_area(&mut self) {
         self.start_index = self.selected
+    }
+
+    fn toggle_real_size(&mut self) {
+        self.real_size = !self.real_size;
     }
 }
 
@@ -142,6 +148,7 @@ struct Args {
     /// Grid Size
     #[arg(short, long)]
     grid: Option<usize>,
+
 }
 
 const DEFAULT_DIR :&str  = "images/";
@@ -226,7 +233,7 @@ fn main() {
         grid.set_vexpand(true);
         for row in 0 .. grid_size {
             for col in 0 .. grid_size {
-                let image = Image::new();
+                let image = Picture::new();
                 grid.attach(&image, row as i32, col as i32, 1, 1);
             }
         }
@@ -245,7 +252,6 @@ fn main() {
             index.set(index_number);
         }
         let index_rc = Rc::new(Cell::new(index));
-
 
         // add an action to close the window
         let action_close = SimpleAction::new("close", None);
@@ -332,7 +338,18 @@ fn main() {
         }));
         window.add_action(&action);
 
-
+        // add an action to toggle full size on and off
+        let action = SimpleAction::new("full", None);
+        action.connect_activate(clone!(@strong filenames, @strong grid, @strong index_rc, @weak window => move |_, _| {
+                let mut index = index_rc.get();
+                if index.selection_size() == 1 {
+                    index.toggle_real_size();
+                    index_rc.set(index);
+                    show_grid(&filenames, &grid, &index_rc, &window, Navigate::Current);
+                }
+        }));
+        window.add_action(&action);
+        
         // handle space key event
         let evk = gtk::EventControllerKey::new();
         evk.connect_key_pressed(clone!(@strong filenames, @strong grid, @strong index_rc, @strong window => move |_, key, _, _| {
@@ -378,6 +395,7 @@ fn main() {
     application.set_accels_for_action("win.save", &["s"]);
     application.set_accels_for_action("win.area", &["a"]);
     application.set_accels_for_action("win.end",&["e"]);
+    application.set_accels_for_action("win.full", &["f"]);
     let empty: Vec<String> = vec![];
     application.run_with_args(&empty);
 }
@@ -395,7 +413,7 @@ fn show_grid(filenames: &Vec<String>, grid: &Grid, index_rc:&Rc<Cell<Index>>, wi
     for i in 0 .. (index.selection_size()) {
         let row = (i / index.grid_size) as i32;
         let col = (i % index.grid_size) as i32;
-        let image = grid.child_at(col,row).unwrap().downcast::<gtk::Image>().unwrap();
+        let picture = grid.child_at(col,row).unwrap().downcast::<gtk::Picture>().unwrap();
         let selected = if navigate != Navigate::Random || index.selection_size() == 1 {
             index.selected + i
         } else {
@@ -403,9 +421,8 @@ fn show_grid(filenames: &Vec<String>, grid: &Grid, index_rc:&Rc<Cell<Index>>, wi
         };
         if selected <= index.maximum {
             let filename = &filenames[selected];
-            image.set_from_file(Some(filename.clone()));
-        } else {
-            image.clear();
+            picture.set_can_shrink(!index.real_size);
+            picture.set_filename(Some(filename.clone()));
         }
     }
     if index.selection_size() == 1 {
