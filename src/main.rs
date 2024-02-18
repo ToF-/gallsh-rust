@@ -2,7 +2,7 @@ use gio::SimpleAction;
 use glib::clone;
 use glib::timeout_add_local;
 use gtk::prelude::*;
-use gtk::{self, Application, gdk, gio, glib, Grid, Image, Picture};
+use gtk::{self, Application, ScrolledWindow, gdk, gio, glib, Grid, Image, Picture};
 use rand::{thread_rng, Rng};
 use std::cell::Cell;
 use std::env;
@@ -241,8 +241,15 @@ fn main() {
             .application(application)
             .default_width(1000)
             .default_height(1000)
-            .child(&grid)
             .build();
+
+        let scrolled_window = ScrolledWindow::builder()
+            .hscrollbar_policy(gtk::PolicyType::Automatic)
+            .vscrollbar_policy(gtk::PolicyType::Automatic)
+            .build();
+
+        scrolled_window.set_child(Some(&grid));
+        window.set_child(Some(&scrolled_window));
 
         let mut index = Index::new(filenames.len(), grid_size);
         if !args.ordered {
@@ -274,6 +281,18 @@ fn main() {
         }));
         window.add_action(&action);
         
+        // add an action to jump ten image
+        let action = SimpleAction::new("jump", None);
+        action.connect_activate(clone!(@strong filenames, @strong grid, @strong index_rc, @weak window => move |_, _| {
+            let mut index = index_rc.get();
+            for _ in 0..9 {
+                index.next()
+            };
+            index_rc.set(index);
+            show_grid(&filenames, &grid, &index_rc, &window, Navigate::Next);
+        }));
+        window.add_action(&action);
+        
         // add an action to show prev image
         let action = SimpleAction::new("prev", None);
         action.connect_activate(clone!(@strong filenames, @strong grid, @strong index_rc, @weak window => move |_, _| {
@@ -281,6 +300,18 @@ fn main() {
         }));
         window.add_action(&action);
 
+        // add an action to jump back ten image
+        let action = SimpleAction::new("back", None);
+        action.connect_activate(clone!(@strong filenames, @strong grid, @strong index_rc, @weak window => move |_, _| {
+            let mut index = index_rc.get();
+            for _ in 0..9 {
+                index.prev()
+            };
+            index_rc.set(index);
+            show_grid(&filenames, &grid, &index_rc, &window, Navigate::Prev);
+        }));
+        window.add_action(&action);
+        
         // add an action to show next or random image
         let action = SimpleAction::new("randnext", None);
         action.connect_activate(clone!(@strong filenames, @strong grid, @strong index_rc, @weak window => move |_, _| {
@@ -391,6 +422,8 @@ fn main() {
     application.set_accels_for_action("win.close", &["q"]);
     application.set_accels_for_action("win.random", &["r"]);
     application.set_accels_for_action("win.next", &["n"]);
+    application.set_accels_for_action("win.jump", &["j"]);
+    application.set_accels_for_action("win.back", &["b"]);
     application.set_accels_for_action("win.prev", &["p"]);
     application.set_accels_for_action("win.save", &["s"]);
     application.set_accels_for_action("win.area", &["a"]);
