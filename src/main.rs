@@ -384,18 +384,59 @@ fn main() {
         // handle space key event
         let evk = gtk::EventControllerKey::new();
         evk.connect_key_pressed(clone!(@strong filenames, @strong grid, @strong index_rc, @strong window => move |_, key, _, _| {
+            let step = 100;
             if let Some(s) = key.name() {
                 match s.as_str() {
                     "space" => if args.ordered { 
-                        show_grid(&filenames, &grid, &index_rc, &window, Navigate::Next)
+                        show_grid(&filenames, &grid, &index_rc, &window, Navigate::Next);
+                        gtk::Inhibit(false)
                     } else {
-                        show_grid(&filenames, &grid, &index_rc, &window, Navigate::Random)
+                        show_grid(&filenames, &grid, &index_rc, &window, Navigate::Random);
+                        gtk::Inhibit(false)
                     }, 
-                        _ => { },
+                        "Right" => {
+                            let h_adj = window
+                                .child()
+                                .and_then(|child| child.downcast::<ScrolledWindow>().ok())
+                                .and_then(|sw| Some(sw.hadjustment()))
+                                .expect("Failed to get hadjustment");
+                            h_adj.set_value(h_adj.value() + step as f64);
+                            gtk::Inhibit(true)
+                        },
+                        "Left" => {
+                            let h_adj = window
+                                .child()
+                                .and_then(|child| child.downcast::<ScrolledWindow>().ok())
+                                .and_then(|sw| Some(sw.hadjustment()))
+                                .expect("Failed to get hadjustment");
+                            h_adj.set_value(h_adj.value() - step as f64);
+                            gtk::Inhibit(true)
+                        },
+                        "Down" => {
+                            // Scroll down
+                            let v_adj = window
+                                .child()
+                                .and_then(|child| child.downcast::<ScrolledWindow>().ok())
+                                .and_then(|sw| Some(sw.vadjustment()))
+                                .expect("Failed to get vadjustment");
+                            v_adj.set_value(v_adj.value() + step as f64);
+                            gtk::Inhibit(true)
+                        },
+                        "Up" => {
+                            let v_adj = window
+                                .child()
+                                .and_then(|child| child.downcast::<ScrolledWindow>().ok())
+                                .and_then(|sw| Some(sw.vadjustment()))
+                                .expect("Failed to get vadjustment");
+                            v_adj.set_value(v_adj.value() - step as f64);
+                            gtk::Inhibit(true)
+                    }
+                    _ => { gtk::Inhibit(false)},
                 }
-            } else { 
-            } ;
-            gtk::Inhibit(false)
+            }
+            else {
+                gtk::Inhibit(false)
+            }
         }));
         window.add_controller(evk);
         // show the first file
