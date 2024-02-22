@@ -260,83 +260,6 @@ fn main() {
         }
         let index_rc = Rc::new(Cell::new(index));
 
-        // add an action to close the window
-        let action_close = SimpleAction::new("close", None);
-        action_close.connect_activate(clone!(@strong index_rc, @weak window => move |_, _| {
-            window.close();
-        }));
-        window.add_action(&action_close);
-
-        // add an action to show random image
-        let action = SimpleAction::new("random", None);
-        action.connect_activate(clone!(@strong filenames, @strong grid, @strong index_rc, @weak window => move |_, _| {
-            show_grid(&filenames, &grid, &index_rc, &window, Navigate::Random);
-        }));
-        window.add_action(&action);
-
-        // add an action to show next image
-        let action = SimpleAction::new("next", None);
-        action.connect_activate(clone!(@strong filenames, @strong grid, @strong index_rc, @weak window => move |_, _| {
-            show_grid(&filenames, &grid, &index_rc, &window, Navigate::Next);
-        }));
-        window.add_action(&action);
-        
-        // add an action to jump ten image
-        let action = SimpleAction::new("jump", None);
-        action.connect_activate(clone!(@strong filenames, @strong grid, @strong index_rc, @weak window => move |_, _| {
-            let mut index = index_rc.get();
-            for _ in 0..9 {
-                index.next()
-            };
-            index_rc.set(index);
-            show_grid(&filenames, &grid, &index_rc, &window, Navigate::Next);
-        }));
-        window.add_action(&action);
-        
-        // add an action to show prev image
-        let action = SimpleAction::new("prev", None);
-        action.connect_activate(clone!(@strong filenames, @strong grid, @strong index_rc, @weak window => move |_, _| {
-            show_grid(&filenames, &grid, &index_rc, &window, Navigate::Prev);
-        }));
-        window.add_action(&action);
-
-        // add an action to jump back ten image
-        let action = SimpleAction::new("back", None);
-        action.connect_activate(clone!(@strong filenames, @strong grid, @strong index_rc, @weak window => move |_, _| {
-            let mut index = index_rc.get();
-            for _ in 0..9 {
-                index.prev()
-            };
-            index_rc.set(index);
-            show_grid(&filenames, &grid, &index_rc, &window, Navigate::Prev);
-        }));
-        window.add_action(&action);
-        
-        // add an action to show next or random image
-        let action = SimpleAction::new("randnext", None);
-        action.connect_activate(clone!(@strong filenames, @strong grid, @strong index_rc, @weak window => move |_, _| {
-            if args.ordered {
-                show_grid(&filenames, &grid, &index_rc, &window, Navigate::Next);
-            } else {
-                show_grid(&filenames, &grid, &index_rc, &window, Navigate::Random);
-            }
-        }));
-        window.add_action(&action);
-        // add an action to save this file reference
-        let action = SimpleAction::new("save", None);
-        action.connect_activate(clone!(@strong selection_file, @strong filenames, @strong index_rc => move |_, _| {
-            let index = index_rc.get();
-            let filename = format!("{}\n", &filenames[index.selected]);
-            println!("saving reference {}.", filename);
-            let save_file = OpenOptions::new()
-                .write(true)
-                .append(true)
-                .create(true)
-                .open(selection_file.clone());
-            save_file.expect(&format!("could not open {}", selection_file)).write_all(filename.as_bytes());
-        }));
-        window.add_action(&action);
-        
 
         // handle key events
         let evk = gtk::EventControllerKey::new();
@@ -345,52 +268,73 @@ fn main() {
             if let Some(s) = key.name() {
                 match s.as_str() {
                     "a" => start_references(&filenames, &index_rc),
-                    "e" => end_references(&selection_file, &filenames, &index_rc), 
+                    "b" => jump_back_ten(&filenames, &grid, &index_rc, &window),
+                    "e" => end_references(&selection_file, &filenames, &index_rc),
                     "f" => toggle_full_size(&filenames, &grid, &index_rc, &window),
-
-                    "space" => if args.ordered { 
+                    "j" => jump_forward_ten(&filenames, &grid, &index_rc, &window),
+                    "n" => {
                         show_grid(&filenames, &grid, &index_rc, &window, Navigate::Next);
                         gtk::Inhibit(false)
-                    } else {
+                    }
+                    "p" => {
+                        show_grid(&filenames, &grid, &index_rc, &window, Navigate::Prev);
+                        gtk::Inhibit(false)
+                    }
+                    "q" => {
+                        window.close();
+                        gtk::Inhibit(true)
+                    },
+                    "r" => {
                         show_grid(&filenames, &grid, &index_rc, &window, Navigate::Random);
                         gtk::Inhibit(false)
-                    }, 
-                        "Right" => {
-                            let h_adj = window
-                                .child()
-                                .and_then(|child| child.downcast::<ScrolledWindow>().ok())
-                                .and_then(|sw| Some(sw.hadjustment()))
-                                .expect("Failed to get hadjustment");
-                            h_adj.set_value(h_adj.value() + step as f64);
-                            gtk::Inhibit(true)
-                        },
-                        "Left" => {
-                            let h_adj = window
-                                .child()
-                                .and_then(|child| child.downcast::<ScrolledWindow>().ok())
-                                .and_then(|sw| Some(sw.hadjustment()))
-                                .expect("Failed to get hadjustment");
-                            h_adj.set_value(h_adj.value() - step as f64);
-                            gtk::Inhibit(true)
-                        },
-                        "Down" => {
-                            // Scroll down
-                            let v_adj = window
-                                .child()
-                                .and_then(|child| child.downcast::<ScrolledWindow>().ok())
-                                .and_then(|sw| Some(sw.vadjustment()))
-                                .expect("Failed to get vadjustment");
-                            v_adj.set_value(v_adj.value() + step as f64);
-                            gtk::Inhibit(true)
-                        },
-                        "Up" => {
-                            let v_adj = window
-                                .child()
-                                .and_then(|child| child.downcast::<ScrolledWindow>().ok())
-                                .and_then(|sw| Some(sw.vadjustment()))
-                                .expect("Failed to get vadjustment");
-                            v_adj.set_value(v_adj.value() - step as f64);
-                            gtk::Inhibit(true)
+                    },
+                    "s" => save_reference(&selection_file, &filenames, &index_rc),
+
+                    "space" => { 
+                        if args.ordered { 
+                            show_grid(&filenames, &grid, &index_rc, &window, Navigate::Next);
+                            gtk::Inhibit(false)
+                        } else {
+                            show_grid(&filenames, &grid, &index_rc, &window, Navigate::Random);
+                            gtk::Inhibit(false)
+                        }
+                    },
+                    "Right" => {
+                        let h_adj = window
+                            .child()
+                            .and_then(|child| child.downcast::<ScrolledWindow>().ok())
+                            .and_then(|sw| Some(sw.hadjustment()))
+                            .expect("Failed to get hadjustment");
+                        h_adj.set_value(h_adj.value() + step as f64);
+                        gtk::Inhibit(true)
+                    },
+                    "Left" => {
+                        let h_adj = window
+                            .child()
+                            .and_then(|child| child.downcast::<ScrolledWindow>().ok())
+                            .and_then(|sw| Some(sw.hadjustment()))
+                            .expect("Failed to get hadjustment");
+                        h_adj.set_value(h_adj.value() - step as f64);
+                        gtk::Inhibit(true)
+                    },
+                    "Down" => {
+                        // Scroll down
+                        let v_adj = window
+                            .child()
+                            .and_then(|child| child.downcast::<ScrolledWindow>().ok())
+                            .and_then(|sw| Some(sw.vadjustment()))
+                            .expect("Failed to get vadjustment");
+                        v_adj.set_value(v_adj.value() + step as f64);
+                        gtk::Inhibit(true)
+                    },
+                    "Up" => {
+                        let v_adj = window
+                            .child()
+                            .and_then(|child| child.downcast::<ScrolledWindow>().ok())
+                            .and_then(|sw| Some(sw.vadjustment()))
+                            .expect("Failed to get vadjustment");
+                        v_adj.set_value(v_adj.value() - step as f64);
+                        gtk::Inhibit(true)
                     }
                     _ => { gtk::Inhibit(false)},
                 }
@@ -421,15 +365,22 @@ fn main() {
     };
         window.present();
     }));
-    application.set_accels_for_action("win.close", &["q"]);
-    application.set_accels_for_action("win.random", &["r"]);
-    application.set_accels_for_action("win.next", &["n"]);
-    application.set_accels_for_action("win.jump", &["j"]);
-    application.set_accels_for_action("win.back", &["b"]);
-    application.set_accels_for_action("win.prev", &["p"]);
     application.set_accels_for_action("win.save", &["s"]);
     let empty: Vec<String> = vec![];
     application.run_with_args(&empty);
+}
+
+fn save_reference(selection_file: &String, filenames: &Vec<String>, index_rc: &Rc<Cell<Index>>) -> gtk::Inhibit {
+    let index = index_rc.get();
+    let filename = format!("{}\n", &filenames[index.selected]);
+    println!("saving reference {}.", filename);
+    let save_file = OpenOptions::new()
+        .write(true)
+        .append(true)
+        .create(true)
+        .open(selection_file.clone());
+    save_file.expect(&format!("could not open {}", selection_file)).write_all(filename.as_bytes());
+    gtk::Inhibit(true)
 }
 
 fn start_references(filenames: &Vec<String>, index_rc: &Rc<Cell<Index>>) -> gtk::Inhibit {
@@ -455,6 +406,26 @@ fn end_references(selection_file: &String, filenames: &Vec<String>, index_rc: &R
         println!("area start index {} is greater than area end index {}", index.start_index, index.selected);
     }
     gtk::Inhibit(true)
+}
+
+fn jump_forward_ten(filenames: &Vec<String>,  grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
+    let mut index = index_rc.get();
+    for _ in 0..9 {
+        index.next()
+    };
+    index_rc.set(index);
+    show_grid(&filenames, &grid, &index_rc, &window, Navigate::Next);
+    gtk::Inhibit(false)
+}
+
+fn jump_back_ten(filenames: &Vec<String>,  grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
+    let mut index = index_rc.get();
+    for _ in 0..9 {
+        index.prev()
+    };
+    index_rc.set(index);
+    show_grid(&filenames, &grid, &index_rc, &window, Navigate::Prev);
+    gtk::Inhibit(false)
 }
 
 fn toggle_full_size(filenames: &Vec<String>, grid: &Grid, index_rc: &Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
