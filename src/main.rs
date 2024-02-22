@@ -337,56 +337,17 @@ fn main() {
         }));
         window.add_action(&action);
         
-        // add an action to mark the begin of saving area
-        let action = SimpleAction::new("area", None);
-        action.connect_activate(clone!(@strong selection_file, @strong filenames, @strong index_rc => move |_, _| {
-            let mut index = index_rc.get();
-            let filename = format!("{}\n", &filenames[index.selected]);
-            index.start_area();
-            println!("starting saving references from {}.", filename);
-            index_rc.set(index);
-        }));
-        window.add_action(&action);
 
-        // add an action to mark the end of saving area and save files
-        let action = SimpleAction::new("end", None);
-        action.connect_activate(clone!(@strong selection_file, @strong filenames, @ strong index_rc => move |_, _| {
-            let index = index_rc.get();
-            if index.selected >= index.start_index {
-                for i in index.start_index .. index.selected+1 {
-                    let filename = format!("{}\n", &filenames[i]);
-                    println!("saving reference {}", filename);
-                    let save_file = OpenOptions::new()
-                        .write(true)
-                        .append(true)
-                        .create(true)
-                        .open(selection_file.clone());
-                    save_file.expect(&format!("could not open {}", selection_file)).write_all(filename.as_bytes());
-                }
-            } else {
-                println!("area start index {} is greater than area end index {}", index.start_index, index.selected);
-            }
-        }));
-        window.add_action(&action);
-
-        // add an action to toggle full size on and off
-        let action = SimpleAction::new("full", None);
-        action.connect_activate(clone!(@strong filenames, @strong grid, @strong index_rc, @weak window => move |_, _| {
-                let mut index = index_rc.get();
-                if index.selection_size() == 1 {
-                    index.toggle_real_size();
-                    index_rc.set(index);
-                    show_grid(&filenames, &grid, &index_rc, &window, Navigate::Current);
-                }
-        }));
-        window.add_action(&action);
-        
-        // handle space key event
+        // handle key events
         let evk = gtk::EventControllerKey::new();
-        evk.connect_key_pressed(clone!(@strong filenames, @strong grid, @strong index_rc, @strong window => move |_, key, _, _| {
+        evk.connect_key_pressed(clone!(@strong selection_file, @strong filenames, @strong grid, @strong index_rc, @strong window => move |_, key, _, _| {
             let step = 100;
             if let Some(s) = key.name() {
                 match s.as_str() {
+                    "a" => start_references(&filenames, &index_rc),
+                    "e" => end_references(&selection_file, &filenames, &index_rc), 
+                    "f" => toggle_full_size(&filenames, &grid, &index_rc, &window),
+
                     "space" => if args.ordered { 
                         show_grid(&filenames, &grid, &index_rc, &window, Navigate::Next);
                         gtk::Inhibit(false)
@@ -467,11 +428,45 @@ fn main() {
     application.set_accels_for_action("win.back", &["b"]);
     application.set_accels_for_action("win.prev", &["p"]);
     application.set_accels_for_action("win.save", &["s"]);
-    application.set_accels_for_action("win.area", &["a"]);
-    application.set_accels_for_action("win.end",&["e"]);
-    application.set_accels_for_action("win.full", &["f"]);
     let empty: Vec<String> = vec![];
     application.run_with_args(&empty);
+}
+
+fn start_references(filenames: &Vec<String>, index_rc: &Rc<Cell<Index>>) -> gtk::Inhibit {
+    let mut index = index_rc.get();
+    let filename = format!("{}\n", &filenames[index.selected]);
+    index.start_area();
+    println!("starting saving references from {}.", filename);
+    index_rc.set(index);
+    gtk::Inhibit(true)
+}
+
+fn end_references(selection_file: &String, filenames: &Vec<String>, index_rc: &Rc<Cell<Index>>) -> gtk::Inhibit {
+    let index = index_rc.get();
+    if index.selected >= index.start_index {
+        for i in index.start_index .. index.selected+1 {
+            let filename = format!("{}\n", &filenames[i]);
+            println!("saving reference {}", filename);
+            let save_file = OpenOptions::new().write(true).append(true).create(true)
+                .open(selection_file.clone());
+            save_file.expect(&format!("could not open {}", selection_file)).write_all(filename.as_bytes());
+        }
+    } else {
+        println!("area start index {} is greater than area end index {}", index.start_index, index.selected);
+    }
+    gtk::Inhibit(true)
+}
+
+fn toggle_full_size(filenames: &Vec<String>, grid: &Grid, index_rc: &Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
+    let mut index = index_rc.get();
+    if index.selection_size() == 1 {
+        index.toggle_real_size();
+        index_rc.set(index);
+        show_grid(filenames, grid, index_rc, window, Navigate::Current);
+        gtk::Inhibit(false)
+    } else {
+        gtk::Inhibit(true)
+    }
 }
 
 fn show_grid(filenames: &Vec<String>, grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow, navigate:Navigate) {
