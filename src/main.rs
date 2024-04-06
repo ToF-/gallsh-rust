@@ -7,6 +7,7 @@ use rand::{thread_rng, Rng};
 use std::cell::Cell;
 use std::env;
 use std::io;
+use std::fs;
 use std::fs::OpenOptions;
 use std::fs::read_to_string;
 use std::io::{Write};
@@ -85,7 +86,7 @@ fn get_files_from_reading_list(reading_list: &String) -> io::Result<Vec<String>>
     }
 
 }
-fn get_files_in_directory(dir_path: &str, opt_pattern: &Option<String>) -> io::Result<Vec<String>> {
+fn get_files_in_directory(dir_path: &str, opt_pattern: &Option<String>, opt_low_size: Option<u64>, opt_high_size: Option<u64>) -> io::Result<Vec<String>> {
     let mut file_names: Vec<String> = Vec::new();
     for entry in WalkDir::new(dir_path).into_iter().filter_map(|e| e.ok()) {
         let path = entry.into_path();
@@ -99,9 +100,23 @@ fn get_files_in_directory(dir_path: &str, opt_pattern: &Option<String>) -> io::R
         } else {
             path.is_file()
         };
+        let low_size_limit = if let Some(low) = opt_low_size {
+            low
+        } else {
+            0
+        };
+        let high_size_limit = if let Some(high) = opt_high_size {
+            high
+        } else {
+            std::u64::MAX
+        };
         if valid_ext && pattern_present {
-            if let Some(full_name) = path.to_str() {
-                file_names.push(full_name.to_string().to_owned());
+            let metadata = fs::metadata(&path)?;
+            let len = metadata.len();
+            if low_size_limit <= len && len <= high_size_limit  {
+                if let Some(full_name) = path.to_str() {
+                    file_names.push(full_name.to_string().to_owned());
+                }
             }
         }
     };
@@ -149,6 +164,13 @@ struct Args {
     #[arg(short, long)]
     grid: Option<usize>,
 
+    /// Low Limit on file size
+    #[arg(short, long)]
+    low: Option<u64>,
+
+    /// High Limit on file size
+    #[arg(short, long)]
+    high: Option<u64>,
 }
 
 const DEFAULT_DIR :&str  = "images/";
@@ -212,7 +234,7 @@ fn main() {
                 Ok(result) => result,
             }
         } else {
-            match get_files_in_directory(&path, &pattern) {
+            match get_files_in_directory(&path, &pattern, args.low, args.high) {
                 Err(msg) => panic!("{}", msg),
                 Ok(result) => result,
             }
