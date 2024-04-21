@@ -25,6 +25,7 @@ struct Index {
     start_index: usize,
     grid_size: usize,
     real_size: bool,
+    acc: usize,
 }
 
 impl Index {
@@ -35,6 +36,8 @@ impl Index {
             start_index: 0,
             grid_size: grid_size,
             real_size: false,
+            acc: 0,
+
         }
     }
 
@@ -44,14 +47,17 @@ impl Index {
 
     fn next(&mut self) {
         self.selected = if self.selected < self.maximum { (self.selected + self.selection_size()) % (self.maximum + 1) } else { 0 } ;
+        self.acc = 0;
 
     }
     fn prev(&mut self) {
         self.selected = if self.selected > 0 { self.selected - 1 } else { self.maximum };
+        self.acc = 0;
     }
 
     fn random(&mut self) {
         self.selected = thread_rng().gen_range(0..self.maximum + 1);
+        self.acc = 0;
     }
     fn set(&mut self, value: usize) {
         if value < self.maximum {
@@ -60,6 +66,16 @@ impl Index {
             println!("index {} out of range, set to 0", value);
             self.selected = 0;
         }
+    }
+
+    fn acc_digit(&mut self, s:&str) {
+        let digit:usize = s.parse().unwrap();
+        self.acc = self.acc * 10 + digit;
+    }
+
+    fn set_acc(&mut self) {
+        self.set(self.acc);
+        self.acc = 0;
     }
 
     fn start_area(&mut self) {
@@ -289,11 +305,14 @@ fn main() {
             let step = 100;
             if let Some(s) = key.name() {
                 match s.as_str() {
+                    "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" => acc_digit(&filenames, &index_rc, s.as_str(), &window),
+                    "g" => jump_to_acc(&filenames, &grid, &index_rc, &window),
                     "a" => start_references(&filenames, &index_rc),
                     "b" => jump_back_ten(&filenames, &grid, &index_rc, &window),
                     "e" => end_references(&selection_file, &filenames, &index_rc),
                     "f" => toggle_full_size(&filenames, &grid, &index_rc, &window),
                     "j" => jump_forward_ten(&filenames, &grid, &index_rc, &window),
+                    "z" => jump_to_zero(&filenames, &grid, &index_rc, &window),
                     "n" => {
                         show_grid(&filenames, &grid, &index_rc, &window, Navigate::Next);
                         gtk::Inhibit(false)
@@ -440,6 +459,31 @@ fn jump_forward_ten(filenames: &Vec<String>,  grid: &Grid, index_rc:&Rc<Cell<Ind
     gtk::Inhibit(false)
 }
 
+fn jump_to_zero(filenames: &Vec<String>, grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
+    let mut index = index_rc.get();
+    index.set(0);
+    index_rc.set(index);
+    show_grid(&filenames, &grid, &index_rc, &window, Navigate::Current);
+    gtk::Inhibit(false)
+}
+
+fn acc_digit(filenames: &Vec<String>, index_rc:&Rc<Cell<Index>>, s:&str, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
+    let mut index = index_rc.get();
+    index.acc_digit(s);
+    index_rc.set(index);
+    window.set_title(Some(&format!("{} {} [{}]", index.selected, &filenames[index.selected].as_str(), index.acc)));
+    gtk::Inhibit(false)
+
+}
+
+fn jump_to_acc(filenames: &Vec<String>, grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
+    let mut index = index_rc.get();
+    index.set_acc();
+    index_rc.set(index);
+    show_grid(&filenames, &grid, &index_rc, &window, Navigate::Current);
+    gtk::Inhibit(false)
+}
+
 fn jump_back_ten(filenames: &Vec<String>,  grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
     let mut index = index_rc.get();
     for _ in 0..9 {
@@ -487,7 +531,5 @@ fn show_grid(filenames: &Vec<String>, grid: &Grid, index_rc:&Rc<Cell<Index>>, wi
             picture.set_filename(Some(filename.clone()));
         }
     }
-    if index.selection_size() == 1 {
-        window.set_title(Some(&format!("{} {}", index.selected, filename.as_str())));
-    }
+    window.set_title(Some(&format!("{} {} [{}]", index.selected, &filenames[index.selected].as_str(), index.acc)));
 }
