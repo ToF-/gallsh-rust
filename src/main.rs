@@ -109,7 +109,16 @@ fn file_size(entry:&str) -> u64 {
 
 fn get_files_from_reading_list(reading_list: &String) -> io::Result<Vec<String>> {
     match read_to_string(reading_list) {
-        Ok(content) => Ok(content.lines().map(String::from).collect()),
+        Ok(content) => {
+            let mut file_names: Vec<String> = Vec::new();
+            for file_name in content.lines().map(String::from).collect::<Vec<_>>() {
+                let metadata = fs::metadata(&file_name)?;
+                let len = metadata.len();
+                let entry_name = file_name.to_string().to_owned();
+                file_names.push(format!("{entry_name}:{len}"));
+            };
+            Ok(file_names)
+        },
         Err(msg) => Err(msg)
     }
 
