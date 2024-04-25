@@ -128,7 +128,7 @@ fn get_files_in_directory(dir_path: &str, opt_pattern: &Option<String>, opt_low_
     for entry in WalkDir::new(dir_path).into_iter().filter_map(|e| e.ok()) {
         let path = entry.into_path();
         let valid_ext = if let Some(ext) = path.extension() {
-            ext == "jpg" || ext == "jpeg" || ext == "png"
+            ext == "jpg" || ext == "jpeg" || ext == "png" || ext == "JPG" || ext == "JPEG" || ext == "PNG"
         } else {
             false
         };
