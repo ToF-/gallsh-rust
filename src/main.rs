@@ -15,6 +15,17 @@ use std::time::{Duration};
 use clap::Parser;
 use walkdir::WalkDir;
 
+#[derive(Clone, Debug)]
+
+struct Entry {
+    name: String,
+}
+
+type EntryList = Vec<Entry>;
+
+fn make_entry(s:String) -> Entry {
+    return Entry { name: s.clone() }
+}
 
 // a struct to keep track of navigating in image files
 #[derive(Clone, Copy, Debug)]
@@ -94,37 +105,37 @@ enum Navigate {
     Random,
 }
 
-fn file_name(entry:&str) -> &str {
-    let parts: Vec<&str> = entry.split(':').collect();
+fn file_name(entry: &Entry) -> &str {
+    let parts: Vec<&str> = entry.name.split(':').collect();
     return parts[0]
 }
 
-fn file_size(entry:&str) -> u64 {
-    let parts: Vec<&str> = entry.split(':').collect();
+fn file_size(entry: &Entry) -> u64 {
+    let parts: Vec<&str> = entry.name.split(':').collect();
     match parts[1].parse() {
         Ok(value) => return value,
         Err(msg) => panic!("{}",msg)
     }
 }
 
-fn get_files_from_reading_list(reading_list: &String) -> io::Result<Vec<String>> {
+fn get_files_from_reading_list(reading_list: &String) -> io::Result<EntryList> {
     match read_to_string(reading_list) {
         Ok(content) => {
-            let mut file_names: Vec<String> = Vec::new();
+            let mut entries: EntryList = Vec::new();
             for file_name in content.lines().map(String::from).collect::<Vec<_>>() {
                 let metadata = fs::metadata(&file_name)?;
                 let len = metadata.len();
                 let entry_name = file_name.to_string().to_owned();
-                file_names.push(format!("{entry_name}:{len}"));
+                entries.push(make_entry(format!("{entry_name}:{len}")));
             };
-            Ok(file_names)
+            Ok(entries)
         },
         Err(msg) => Err(msg)
     }
 
 }
-fn get_files_in_directory(dir_path: &str, opt_pattern: &Option<String>, opt_low_size: Option<u64>, opt_high_size: Option<u64>) -> io::Result<Vec<String>> {
-    let mut file_names: Vec<String> = Vec::new();
+fn get_files_in_directory(dir_path: &str, opt_pattern: &Option<String>, opt_low_size: Option<u64>, opt_high_size: Option<u64>) -> io::Result<EntryList> {
+    let mut entries: EntryList = Vec::new();
     for entry in WalkDir::new(dir_path).into_iter().filter_map(|e| e.ok()) {
         let path = entry.into_path();
         let valid_ext = if let Some(ext) = path.extension() {
@@ -153,12 +164,12 @@ fn get_files_in_directory(dir_path: &str, opt_pattern: &Option<String>, opt_low_
             if low_size_limit <= len && len <= high_size_limit  {
                 if let Some(full_name) = path.to_str() {
                     let entry_name = full_name.to_string().to_owned();
-                    file_names.push(format!("{entry_name}:{len}"));
+                    entries.push(make_entry(format!("{entry_name}:{len}")));
                 }
             }
         }
     };
-    Ok(file_names)
+    Ok(entries)
 }
 
 // declarative setting of arguments
@@ -280,8 +291,8 @@ fn main() {
 
         if let Some(order) = args.ordered {
             match order {
-                's' => entries.sort_by(|a, b| { file_size(a).cmp(&file_size(&b)) }),
-                _ => entries.sort_by(|a, b| { file_name(a).cmp(file_name(&b)) }),
+                's' => entries.sort_by(|a, b| { file_size(&a).cmp(&file_size(&b)) }),
+                _ => entries.sort_by(|a, b| { file_name(&a).cmp(file_name(&b)) }),
             }
         }
 
@@ -439,7 +450,7 @@ fn main() {
     application.run_with_args(&empty);
 }
 
-fn save_reference(selection_file: &String, entries: &Vec<String>, index_rc: &Rc<Cell<Index>>) -> gtk::Inhibit {
+fn save_reference(selection_file: &String, entries: &EntryList, index_rc: &Rc<Cell<Index>>) -> gtk::Inhibit {
     let index = index_rc.get();
     let filename = format!("{}\n", file_name(&entries[index.selected]));
     println!("saving reference {}.", filename);
@@ -452,7 +463,7 @@ fn save_reference(selection_file: &String, entries: &Vec<String>, index_rc: &Rc<
     gtk::Inhibit(true)
 }
 
-fn start_references(entries: &Vec<String>, index_rc: &Rc<Cell<Index>>) -> gtk::Inhibit {
+fn start_references(entries: &EntryList, index_rc: &Rc<Cell<Index>>) -> gtk::Inhibit {
     let mut index = index_rc.get();
     let filename = format!("{}\n", file_name(&entries[index.selected]));
     index.start_area();
@@ -461,7 +472,7 @@ fn start_references(entries: &Vec<String>, index_rc: &Rc<Cell<Index>>) -> gtk::I
     gtk::Inhibit(true)
 }
 
-fn end_references(selection_file: &String, entries: &Vec<String>, index_rc: &Rc<Cell<Index>>) -> gtk::Inhibit {
+fn end_references(selection_file: &String, entries: &EntryList, index_rc: &Rc<Cell<Index>>) -> gtk::Inhibit {
     let index = index_rc.get();
     if index.selected >= index.start_index {
         for i in index.start_index .. index.selected+1 {
@@ -477,7 +488,7 @@ fn end_references(selection_file: &String, entries: &Vec<String>, index_rc: &Rc<
     gtk::Inhibit(true)
 }
 
-fn jump_forward_ten(entries: &Vec<String>,  grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
+fn jump_forward_ten(entries: &EntryList,  grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
     let mut index = index_rc.get();
     for _ in 0..9 {
         index.next()
@@ -487,7 +498,7 @@ fn jump_forward_ten(entries: &Vec<String>,  grid: &Grid, index_rc:&Rc<Cell<Index
     gtk::Inhibit(false)
 }
 
-fn jump_to_zero(entries: &Vec<String>, grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
+fn jump_to_zero(entries: &EntryList, grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
     let mut index = index_rc.get();
     index.set(0);
     index_rc.set(index);
@@ -495,16 +506,16 @@ fn jump_to_zero(entries: &Vec<String>, grid: &Grid, index_rc:&Rc<Cell<Index>>, w
     gtk::Inhibit(false)
 }
 
-fn acc_digit(entries: &Vec<String>, index_rc:&Rc<Cell<Index>>, s:&str, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
+fn acc_digit(entries: &EntryList, index_rc:&Rc<Cell<Index>>, s:&str, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
     let mut index = index_rc.get();
     index.acc_digit(s);
     index_rc.set(index);
-    window.set_title(Some(&format!("{} {} [{}]", index.selected, file_name(&entries[index.selected].as_str()), index.acc)));
+    window.set_title(Some(&format!("{} {} [{}]", index.selected, file_name(&entries[index.selected]), index.acc)));
     gtk::Inhibit(false)
 
 }
 
-fn jump_to_acc(entries: &Vec<String>, grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
+fn jump_to_acc(entries: &EntryList, grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
     let mut index = index_rc.get();
     index.set_acc();
     index_rc.set(index);
@@ -512,7 +523,7 @@ fn jump_to_acc(entries: &Vec<String>, grid: &Grid, index_rc:&Rc<Cell<Index>>, wi
     gtk::Inhibit(false)
 }
 
-fn jump_back_ten(entries: &Vec<String>,  grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
+fn jump_back_ten(entries: &EntryList,  grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
     let mut index = index_rc.get();
     for _ in 0..9 {
         index.prev()
@@ -522,7 +533,7 @@ fn jump_back_ten(entries: &Vec<String>,  grid: &Grid, index_rc:&Rc<Cell<Index>>,
     gtk::Inhibit(false)
 }
 
-fn toggle_full_size(entries: &Vec<String>, grid: &Grid, index_rc: &Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
+fn toggle_full_size(entries: &EntryList, grid: &Grid, index_rc: &Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
     let mut index = index_rc.get();
     if index.selection_size() == 1 {
         index.toggle_real_size();
@@ -534,7 +545,7 @@ fn toggle_full_size(entries: &Vec<String>, grid: &Grid, index_rc: &Rc<Cell<Index
     }
 }
 
-fn show_grid(entries: &Vec<String>, grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow, navigate:Navigate) {
+fn show_grid(entries: &EntryList, grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow, navigate:Navigate) {
     let mut index = index_rc.get();
     match navigate {
         Navigate::Next => index.next(),
@@ -555,8 +566,8 @@ fn show_grid(entries: &Vec<String>, grid: &Grid, index_rc:&Rc<Cell<Index>>, wind
         if selected <= index.maximum {
             let filename = file_name(&entries[selected]);
             picture.set_can_shrink(!index.real_size);
-            picture.set_filename(Some(filename.clone()));
+            picture.set_filename(Some(filename));
         }
     }
-    window.set_title(Some(&format!("{} {} [{}]", index.selected, &entries[index.selected].as_str(), index.acc)));
+    window.set_title(Some(&format!("{} {} [{}]", index.selected, &entries[index.selected].name.as_str(), index.acc)));
 }
