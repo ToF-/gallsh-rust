@@ -12,6 +12,7 @@ use std::fs::read_to_string;
 use std::io::{Write};
 use std::rc::Rc;
 use std::time::{Duration};
+use std::time::SystemTime;
 use clap::Parser;
 use walkdir::WalkDir;
 
@@ -19,12 +20,13 @@ use walkdir::WalkDir;
 struct Entry {
     name: String,
     len: u64,
+    modified: SystemTime,
 }
 
 type EntryList = Vec<Entry>;
 
-fn make_entry(s:String, l:u64) -> Entry {
-    return Entry { name: s.clone(), len: l }
+fn make_entry(s:String, l:u64, t:SystemTime) -> Entry {
+    return Entry { name: s.clone(), len: l, modified: t }
 }
 
 // a struct to keep track of navigating in image files
@@ -113,6 +115,10 @@ fn file_size(entry: &Entry) -> u64 {
     return entry.len
 }
 
+fn file_modified_time(entry: &Entry) -> SystemTime {
+    return entry.modified
+}
+
 fn get_files_from_reading_list(reading_list: &String) -> io::Result<EntryList> {
     match read_to_string(reading_list) {
         Ok(content) => {
@@ -121,7 +127,8 @@ fn get_files_from_reading_list(reading_list: &String) -> io::Result<EntryList> {
                 let metadata = fs::metadata(&file_name)?;
                 let len = metadata.len();
                 let entry_name = file_name.to_string().to_owned();
-                entries.push(make_entry(entry_name, len));
+                let modified = metadata.modified().unwrap();
+                entries.push(make_entry(entry_name, len, modified));
             };
             Ok(entries)
         },
@@ -156,10 +163,11 @@ fn get_files_in_directory(dir_path: &str, opt_pattern: &Option<String>, opt_low_
         if valid_ext && pattern_present {
             let metadata = fs::metadata(&path)?;
             let len = metadata.len();
+            let modified = metadata.modified().unwrap();
             if low_size_limit <= len && len <= high_size_limit  {
                 if let Some(full_name) = path.to_str() {
                     let entry_name = full_name.to_string().to_owned();
-                    entries.push(make_entry(entry_name, len));
+                    entries.push(make_entry(entry_name, len, modified));
                 }
             }
         }
@@ -287,6 +295,7 @@ fn main() {
         if let Some(order) = args.ordered {
             match order {
                 's' => entries.sort_by(|a, b| { file_size(&a).cmp(&file_size(&b)) }),
+                'd' => entries.sort_by(|a, b| { file_modified_time(&a).cmp(&file_modified_time(&b)) }),
                 _ => entries.sort_by(|a, b| { file_name(&a).cmp(file_name(&b)) }),
             }
         }
