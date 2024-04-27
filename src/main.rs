@@ -16,15 +16,15 @@ use clap::Parser;
 use walkdir::WalkDir;
 
 #[derive(Clone, Debug)]
-
 struct Entry {
     name: String,
+    len: u64,
 }
 
 type EntryList = Vec<Entry>;
 
-fn make_entry(s:String) -> Entry {
-    return Entry { name: s.clone() }
+fn make_entry(s:String, l:u64) -> Entry {
+    return Entry { name: s.clone(), len: l }
 }
 
 // a struct to keep track of navigating in image files
@@ -106,16 +106,11 @@ enum Navigate {
 }
 
 fn file_name(entry: &Entry) -> &str {
-    let parts: Vec<&str> = entry.name.split(':').collect();
-    return parts[0]
+    return &entry.name
 }
 
 fn file_size(entry: &Entry) -> u64 {
-    let parts: Vec<&str> = entry.name.split(':').collect();
-    match parts[1].parse() {
-        Ok(value) => return value,
-        Err(msg) => panic!("{}",msg)
-    }
+    return entry.len
 }
 
 fn get_files_from_reading_list(reading_list: &String) -> io::Result<EntryList> {
@@ -126,7 +121,7 @@ fn get_files_from_reading_list(reading_list: &String) -> io::Result<EntryList> {
                 let metadata = fs::metadata(&file_name)?;
                 let len = metadata.len();
                 let entry_name = file_name.to_string().to_owned();
-                entries.push(make_entry(format!("{entry_name}:{len}")));
+                entries.push(make_entry(entry_name, len));
             };
             Ok(entries)
         },
@@ -164,7 +159,7 @@ fn get_files_in_directory(dir_path: &str, opt_pattern: &Option<String>, opt_low_
             if low_size_limit <= len && len <= high_size_limit  {
                 if let Some(full_name) = path.to_str() {
                     let entry_name = full_name.to_string().to_owned();
-                    entries.push(make_entry(format!("{entry_name}:{len}")));
+                    entries.push(make_entry(entry_name, len));
                 }
             }
         }
