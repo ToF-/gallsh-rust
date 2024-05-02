@@ -178,7 +178,7 @@ fn get_files_in_directory(dir_path: &str, opt_pattern: &Option<String>, opt_low_
 // declarative setting of arguments
 /// Gallery Show
 #[derive(Parser, Debug)]
-#[command(author, version, about, long_about = None)]
+#[command(infer_subcommands = true, infer_long_args = true, author, version, about, long_about = None)]
 /// Pattern that displayed files must have
 struct Args {
     #[arg(short, long)]
