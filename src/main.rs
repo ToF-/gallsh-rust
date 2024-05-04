@@ -384,6 +384,7 @@ fn main() {
                         }
                     },
                     "d" => mark_for_deletion(&entries, &index_rc),
+                    "t" => mark_for_touch(&entries, &index_rc),
                     "Right" => {
                         let h_adj = window
                             .child()
@@ -479,6 +480,20 @@ fn mark_for_deletion(entries: &EntryList, index_rc: &Rc<Cell<Index>>) -> gtk::In
         .create(true)
         .open(deletions);
     let _ = deletion_file.expect(&format!("could not open {}", deletions)).write_all(format!("rm -f {}\n", filename).as_bytes());
+    gtk::Inhibit(true)
+}
+
+fn mark_for_touch(entries: &EntryList, index_rc: &Rc<Cell<Index>>) -> gtk::Inhibit {
+    let index = index_rc.get();
+    let filename = file_name(&entries[index.selected]);
+    println!("marking {} for touch.", filename);
+    let touches = "touches";
+    let deletion_file = OpenOptions::new()
+        .write(true)
+        .append(true)
+        .create(true)
+        .open(touches);
+    let _ = deletion_file.expect(&format!("could not open {}", touches)).write_all(format!("touch {}\n", filename).as_bytes());
     gtk::Inhibit(true)
 }
 fn start_references(entries: &EntryList, index_rc: &Rc<Cell<Index>>) -> gtk::Inhibit {
