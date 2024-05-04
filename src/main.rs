@@ -295,7 +295,9 @@ fn main() {
         if let Some(order) = args.ordered {
             match order {
                 's' => entries.sort_by(|a, b| { file_size(&a).cmp(&file_size(&b)) }),
+                'S' => entries.sort_by(|a, b| { file_size(&b).cmp(&file_size(&a)) }),
                 'd' => entries.sort_by(|a, b| { file_modified_time(&a).cmp(&file_modified_time(&b)) }),
+                'D' => entries.sort_by(|a, b| { file_modified_time(&b).cmp(&file_modified_time(&a)) }),
                 _ => entries.sort_by(|a, b| { file_name(&a).cmp(file_name(&b)) }),
             }
         }
