@@ -4,6 +4,7 @@ use gtk::prelude::*;
 use gtk::{self, Application, ScrolledWindow, gdk, glib, Grid, Picture};
 use rand::{thread_rng, Rng};
 use std::cell::Cell;
+use std::cell::{RefCell, RefMut};
 use std::env;
 use std::io;
 use std::fs;
@@ -343,10 +344,11 @@ fn main() {
         }
         let index_rc = Rc::new(Cell::new(index));
 
+        let shared_vec: Rc<RefCell<Vec<usize>>> = Rc::new(RefCell::new(vec![]));
 
         // handle key events
         let evk = gtk::EventControllerKey::new();
-        evk.connect_key_pressed(clone!(@strong selection_file, @strong entries, @strong grid, @strong index_rc, @strong window => move |_, key, _, _| {
+        evk.connect_key_pressed(clone!(@strong shared_vec, @strong selection_file, @strong entries, @strong grid, @strong index_rc, @strong window => move |_, key, _, _| {
             let step = 100;
             if let Some(s) = key.name() {
                 match s.as_str() {
@@ -374,7 +376,7 @@ fn main() {
                         show_grid(&entries, &grid, &index_rc, &window, Navigate::Random);
                         gtk::Inhibit(false)
                     },
-                    "s" => save_reference(&selection_file, &entries, &index_rc),
+                    "s" => save_reference(&shared_vec, &selection_file, &entries, &index_rc),
 
                     "space" => { 
                         if let Some(_) = args.ordered { 
@@ -458,7 +460,7 @@ fn main() {
     application.run_with_args(&empty);
 }
 
-fn save_reference(selection_file: &String, entries: &EntryList, index_rc: &Rc<Cell<Index>>) -> gtk::Inhibit {
+fn save_reference(shared_vec: &Rc<RefCell<Vec<usize>>>, selection_file: &String, entries: &EntryList, index_rc: &Rc<Cell<Index>>) -> gtk::Inhibit {
     let index = index_rc.get();
     let filename = format!("{}\n", file_name(&entries[index.selected]));
     println!("saving reference {}.", filename);
@@ -468,6 +470,9 @@ fn save_reference(selection_file: &String, entries: &EntryList, index_rc: &Rc<Ce
         .create(true)
         .open(selection_file.clone());
     let _ = save_file.expect(&format!("could not open {}", selection_file)).write_all(filename.as_bytes());
+    let mut v: RefMut<'_,_> = shared_vec.borrow_mut();
+    v.push(index.selected);
+    println!("{:?}", v);
     gtk::Inhibit(true)
 }
 
