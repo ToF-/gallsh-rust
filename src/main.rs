@@ -625,7 +625,7 @@ fn save_marked_file_lists(entries_rc: &Rc<RefCell<EntryList>>, index_rc:&Rc<Cell
             for i in 0 .. entries.len() {
                 if entries[i].touched {
                     println!("saving {} for touch", entries[i].name);
-                    file.write(format!("rm -f {}\n", entries[i].name).as_bytes());
+                    file.write(format!("touch {}\n", entries[i].name).as_bytes());
                 }
             }
         }
@@ -640,7 +640,7 @@ fn save_marked_file_lists(entries_rc: &Rc<RefCell<EntryList>>, index_rc:&Rc<Cell
             for i in 0 .. entries.len() {
                 if entries[i].deleted {
                     println!("saving {} for deletion", entries[i].name);
-                    file.write(format!("touch {}\n", entries[i].name).as_bytes());
+                    file.write(format!("rm -f {}\n", entries[i].name).as_bytes());
                 }
             }
         }
