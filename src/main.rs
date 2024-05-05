@@ -638,7 +638,7 @@ fn save_marked_file_lists(entries_rc: &Rc<RefCell<EntryList>>, index_rc:&Rc<Cell
             .open("touches");
         if let Ok(mut file) = result {
             for i in 0 .. entries.len() {
-                if entries[i].deleted {
+                if entries[i].touched {
                     println!("saving {} for touch", entries[i].name);
                     file.write(format!("touch {}\n", entries[i].name).as_bytes());
                 }
