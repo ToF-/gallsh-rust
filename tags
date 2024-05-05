@@ -334,6 +334,7 @@ EmojiChooser	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d2
 EmojiChooserBuilder	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/emoji_chooser.rs	/^pub struct EmojiChooserBuilder {$/;"	s
 EmptySlice	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/distributions/slice.rs	/^pub struct EmptySlice;$/;"	s
 Entry	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/entry.rs	/^    pub struct Entry(Object<ffi::GtkEntry, ffi::GtkEntryClass>) @extends Widget, @implements Accessible, Buildable, ConstraintTarget, CellEditable, Editable;$/;"	s
+Entry	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^struct Entry {$/;"	s
 EntryBuffer	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/entry_buffer.rs	/^    pub struct EntryBuffer(Object<ffi::GtkEntryBuffer, ffi::GtkEntryBufferClass>);$/;"	s
 EntryBufferBuilder	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/entry_buffer.rs	/^pub struct EntryBufferBuilder {$/;"	s
 EntryBufferExt	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/entry_buffer.rs	/^pub trait EntryBufferExt: 'static {$/;"	t
@@ -348,6 +349,7 @@ EntryExtManual	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17
 EntryIconPosition	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/enums.rs	/^pub enum EntryIconPosition {$/;"	g
 EntryImpl	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/entry.rs	/^pub trait EntryImpl: EntryImplExt + WidgetImpl {$/;"	t
 EntryImplExt	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/entry.rs	/^pub trait EntryImplExt: ObjectSubclass {$/;"	t
+EntryList	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^type EntryList = Vec<Entry>;$/;"	T
 Error	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/walkdir-2.4.0/src/error.rs	/^pub struct Error {$/;"	s
 ErrorInner	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/walkdir-2.4.0/src/error.rs	/^enum ErrorInner {$/;"	g
 EventController	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/event_controller.rs	/^    pub struct EventController(Object<ffi::GtkEventController, ffi::GtkEventControllerClass>);$/;"	s
@@ -1412,7 +1414,7 @@ X	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/
 Xoshiro128PlusPlus	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/rngs/xoshiro128plusplus.rs	/^pub struct Xoshiro128PlusPlus {$/;"	s
 Xoshiro256PlusPlus	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/rngs/xoshiro256plusplus.rs	/^pub struct Xoshiro256PlusPlus {$/;"	s
 acc_digit	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn acc_digit(&mut self, s:&str) {$/;"	f
-acc_digit	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn acc_digit(entries: &Vec<String>, index_rc:&Rc<Cell<Index>>, s:&str, window: &gtk::ApplicationWindow) -> gtk::Inhibit {$/;"	f
+acc_digit	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn acc_digit(entries_rc: &Rc<RefCell<EntryList>>, index_rc:&Rc<Cell<Index>>, s:&str, window: &gtk::ApplicationWindow) -> gtk::Inhibit {$/;"	f
 accel_key	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_renderer_accel.rs	/^    pub fn accel_key(&self) -> u32 {$/;"	f
 accel_key	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_renderer_accel.rs	/^    pub fn accel_key(self, accel_key: u32) -> Self {$/;"	f
 accel_mode	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_renderer_accel.rs	/^    pub fn accel_mode(&self) -> CellRendererAccelMode {$/;"	f
@@ -6216,7 +6218,7 @@ end_preview	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22
 end_preview	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/print_operation_preview.rs	/^    fn end_preview(&self);$/;"	f
 end_preview	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/print_operation_preview.rs	/^    fn end_preview(&self);$/;"	f
 end_print	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/print_operation.rs	/^    fn end_print(&self, context: &PrintContext) {$/;"	f
-end_references	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn end_references(selection_file: &String, entries: &Vec<String>, index_rc: &Rc<Cell<Index>>) -> gtk::Inhibit {$/;"	f
+end_references	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn end_references(selection_file: &String, entries_rc: &Rc<RefCell<EntryList>>, index_rc: &Rc<Cell<Index>>) -> gtk::Inhibit {$/;"	f
 end_user_action	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_buffer.rs	/^    fn end_user_action(&self) {$/;"	f
 end_user_action	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_buffer.rs	/^    fn end_user_action(&self);$/;"	f
 end_user_action	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/text_buffer.rs	/^    fn end_user_action(&self) {$/;"	f
@@ -6360,9 +6362,10 @@ file	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba1500
 file	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/video.rs	/^    pub fn file(&self) -> Option<gio::File> {$/;"	f
 file	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/video.rs	/^    pub fn file(self, file: &impl IsA<gio::File>) -> Self {$/;"	f
 file	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/directory_list.rs	/^    pub fn file(self, file: &impl IsA<gio::File>) -> Self {$/;"	f
+file_modified_time	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn file_modified_time(entry: &Entry) -> SystemTime {$/;"	f
 file_name	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/walkdir-2.4.0/src/dent.rs	/^    pub fn file_name(&self) -> &OsStr {$/;"	f
-file_name	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn file_name(entry:&str) -> &str {$/;"	f
-file_size	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn file_size(entry:&str) -> u64 {$/;"	f
+file_name	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn file_name(entry: &Entry) -> &str {$/;"	f
+file_size	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn file_size(entry: &Entry) -> u64 {$/;"	f
 file_type	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/walkdir-2.4.0/src/dent.rs	/^    pub fn file_type(&self) -> fs::FileType {$/;"	f
 filename	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/bookmark_list.rs	/^    pub fn filename(&self) -> std::path::PathBuf {$/;"	f
 filename	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/recent_manager.rs	/^    fn filename(&self) -> Option<glib::GString> {$/;"	f
@@ -7467,8 +7470,8 @@ get	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001
 get	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/tree_model.rs	/^    fn get<V: for<'b> FromValue<'b> + 'static>(&self, iter: &TreeIter, column: i32) -> V {$/;"	f
 get	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/tree_model.rs	/^    fn get<V: for<'b> FromValue<'b> + 'static>(&self, iter: &TreeIter, column: i32) -> V;$/;"	f
 get_deferred_dir	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/walkdir-2.4.0/src/lib.rs	/^    fn get_deferred_dir(&mut self) -> Option<DirEntry> {$/;"	f
-get_files_from_reading_list	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn get_files_from_reading_list(reading_list: &String) -> io::Result<Vec<String>> {$/;"	f
-get_files_in_directory	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn get_files_in_directory(dir_path: &str, opt_pattern: &Option<String>, opt_low_size: Option<u64>, opt_high_size: Option<u64>) -> io::Result<Vec<String>> {$/;"	f
+get_files_from_reading_list	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn get_files_from_reading_list(reading_list: &String) -> io::Result<EntryList> {$/;"	f
+get_files_in_directory	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn get_files_in_directory(dir_path: &str, opt_pattern: &Option<String>, opt_low_size: Option<u64>, opt_high_size: Option<u64>) -> io::Result<EntryList> {$/;"	f
 get_fork_counter	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/rngs/adapter/reseeding.rs	/^    pub fn get_fork_counter() -> usize {$/;"	f
 get_insert	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_buffer.rs	/^    fn get_insert(&self) -> TextMark {$/;"	f
 get_insert	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_buffer.rs	/^    fn get_insert(&self) -> TextMark;$/;"	f
@@ -9272,10 +9275,10 @@ job_name	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba
 job_name	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/print_operation.rs	/^    fn job_name(&self) -> Option<glib::GString>;$/;"	f
 job_name	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/print_operation.rs	/^    pub fn job_name(self, job_name: impl Into<glib::GString>) -> Self {$/;"	f
 join	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/walkdir-2.4.0/src/tests/util.rs	/^    pub fn join<P: AsRef<Path>>(&self, path: P) -> PathBuf {$/;"	f
-jump_back_ten	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn jump_back_ten(entries: &Vec<String>,  grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {$/;"	f
-jump_forward_ten	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn jump_forward_ten(entries: &Vec<String>,  grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {$/;"	f
-jump_to_acc	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn jump_to_acc(entries: &Vec<String>, grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {$/;"	f
-jump_to_zero	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn jump_to_zero(entries: &Vec<String>, grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {$/;"	f
+jump_back_ten	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn jump_back_ten(entries_rc: &Rc<RefCell<EntryList>>,  grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {$/;"	f
+jump_forward_ten	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn jump_forward_ten(entries_rc: &Rc<RefCell<EntryList>>,  grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {$/;"	f
+jump_to_acc	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn jump_to_acc(entries_rc: &Rc<RefCell<EntryList>>, grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {$/;"	f
+jump_to_zero	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn jump_to_zero(entries_rc: &Rc<RefCell<EntryList>>, grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {$/;"	f
 justification	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_tag.rs	/^    fn justification(&self) -> Justification {$/;"	f
 justification	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_tag.rs	/^    fn justification(&self) -> Justification;$/;"	f
 justification	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_tag.rs	/^    pub fn justification(self, justification: Justification) -> Self {$/;"	f
@@ -9577,6 +9580,7 @@ main	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn main() {$/;"	f
 major_version	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/functions.rs	/^pub fn major_version() -> u32 {$/;"	f
 make_current	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/gl_area.rs	/^    fn make_current(&self) {$/;"	f
 make_current	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/gl_area.rs	/^    fn make_current(&self);$/;"	f
+make_entry	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn make_entry(s:String, l:u64, t:SystemTime) -> Entry {$/;"	f
 manual_capabilities	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/print_unix_dialog.rs	/^    pub fn manual_capabilities(&self) -> PrintCapabilities {$/;"	f
 manual_capabilities	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/print_unix_dialog.rs	/^    pub fn manual_capabilities(self, manual_capabilities: PrintCapabilities) -> Self {$/;"	f
 many_dirs	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/walkdir-2.4.0/src/tests/recursive.rs	/^fn many_dirs() {$/;"	f
@@ -9992,6 +9996,9 @@ mark	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba1500
 mark	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_buffer.rs	/^    fn mark(&self, name: &str) -> Option<TextMark>;$/;"	f
 mark_day	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/calendar.rs	/^    pub fn mark_day(&self, day: u32) {$/;"	f
 mark_deleted	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/text_buffer.rs	/^    fn mark_deleted(&self, mark: &TextMark) {$/;"	f
+mark_for_deletion	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn mark_for_deletion(entries_rc: &Rc<RefCell<EntryList>>, index_rc: &Rc<Cell<Index>>) -> gtk::Inhibit {$/;"	f
+mark_for_selection	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn mark_for_selection(selection_file: &String, entries_rc: &Rc<RefCell<EntryList>>, index_rc: &Rc<Cell<Index>>) -> gtk::Inhibit {$/;"	f
+mark_for_touch	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn mark_for_touch(entries_rc: &Rc<RefCell<EntryList>>, index_rc: &Rc<Cell<Index>>) -> gtk::Inhibit {$/;"	f
 mark_set	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/text_buffer.rs	/^    fn mark_set(&self, location: &TextIter, mark: &TextMark) {$/;"	f
 marks	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_iter.rs	/^    pub fn marks(&self) -> Vec<TextMark> {$/;"	f
 markup	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_renderer_accel.rs	/^    pub fn markup(self, markup: impl Into<glib::GString>) -> Self {$/;"	f
@@ -12685,7 +12692,7 @@ save	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba1500
 save	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/style_context.rs	/^    fn save(&self) {$/;"	f
 save	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/style_context.rs	/^    fn save(&self);$/;"	f
 save_future	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/file_dialog.rs	/^    pub fn save_future($/;"	f
-save_reference	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn save_reference(selection_file: &String, entries: &Vec<String>, index_rc: &Rc<Cell<Index>>) -> gtk::Inhibit {$/;"	f
+save_marked_file_lists	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn save_marked_file_lists(entries_rc: &Rc<RefCell<EntryList>>, index_rc:&Rc<Cell<Index>>) {$/;"	f
 scalar_float_impl	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/distributions/utils.rs	/^macro_rules! scalar_float_impl {$/;"	d
 scale	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_renderer_accel.rs	/^    pub fn scale(self, scale: f64) -> Self {$/;"	f
 scale	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_renderer_combo.rs	/^    pub fn scale(self, scale: f64) -> Self {$/;"	f
@@ -14690,8 +14697,9 @@ show_emoji_icon	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f1
 show_expanders	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/tree_view.rs	/^    pub fn show_expanders(self, show_expanders: bool) -> Self {$/;"	f
 show_fallback	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/app_chooser_widget.rs	/^    pub fn show_fallback(self, show_fallback: bool) -> Self {$/;"	f
 show_fill_level	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/scale.rs	/^    pub fn show_fill_level(self, show_fill_level: bool) -> Self {$/;"	f
-show_grid	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn show_grid(entries: &Vec<String>, grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow, navigate:Navigate) {$/;"	f
+show_grid	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn show_grid(entries_rc: &Rc<RefCell<EntryList>>, grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow, navigate:Navigate) {$/;"	f
 show_heading	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/calendar.rs	/^    pub fn show_heading(self, show_heading: bool) -> Self {$/;"	f
+show_marks	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn show_marks(entry: &Entry) -> String {$/;"	f
 show_menubar	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/application_window.rs	/^    pub fn show_menubar(self, show_menubar: bool) -> Self {$/;"	f
 show_other	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/app_chooser_widget.rs	/^    pub fn show_other(self, show_other: bool) -> Self {$/;"	f
 show_peek_icon	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/password_entry.rs	/^    pub fn show_peek_icon(self, show_peek_icon: bool) -> Self {$/;"	f
@@ -14912,7 +14920,7 @@ start_iter	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22b
 start_location	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/css_section.rs	/^    pub fn start_location(&self) -> CssLocation {$/;"	f
 start_point	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/gesture_drag.rs	/^    fn start_point(&self) -> Option<(f64, f64)> {$/;"	f
 start_point	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/gesture_drag.rs	/^    fn start_point(&self) -> Option<(f64, f64)>;$/;"	f
-start_references	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn start_references(entries: &Vec<String>, index_rc: &Rc<Cell<Index>>) -> gtk::Inhibit {$/;"	f
+start_references	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn start_references(entries_rc: &Rc<RefCell<EntryList>>, index_rc: &Rc<Cell<Index>>) -> gtk::Inhibit {$/;"	f
 start_widget	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/center_box.rs	/^    pub fn start_widget(&self) -> Option<Widget> {$/;"	f
 start_widget	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/center_box.rs	/^    pub fn start_widget(self, start_widget: &impl IsA<Widget>) -> Self {$/;"	f
 start_widget	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/center_layout.rs	/^    pub fn start_widget(&self) -> Option<Widget> {$/;"	f
@@ -15379,7 +15387,7 @@ to_value_optional	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6
 to_value_optional	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/expression.rs	/^    fn to_value_optional(s: Option<&Self>) -> glib::Value {$/;"	f
 to_value_optional	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/param_spec_expression.rs	/^    fn to_value_optional(s: Option<&Self>) -> Value {$/;"	f
 toggle_cursor_row	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/tree_view.rs	/^    fn toggle_cursor_row(&self) -> bool {$/;"	f
-toggle_full_size	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn toggle_full_size(entries: &Vec<String>, grid: &Grid, index_rc: &Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {$/;"	f
+toggle_full_size	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn toggle_full_size(entries_rc: &Rc<RefCell<EntryList>>, grid: &Grid, index_rc: &Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {$/;"	f
 toggle_overwrite	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/text_view.rs	/^    fn toggle_overwrite(&self) {$/;"	f
 toggle_real_size	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn toggle_real_size(&mut self) {$/;"	f
 toggled	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/toggle_button.rs	/^    fn toggled(&self) {$/;"	f
