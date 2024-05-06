@@ -3,7 +3,6 @@ use glib::timeout_add_local;
 use gtk::prelude::*;
 use gtk::{self, Application, ScrolledWindow, gdk, glib, Grid, Picture};
 use rand::{thread_rng, Rng};
-use std::cell::Cell;
 use std::cell::{RefCell, RefMut};
 use std::env;
 use std::io;
@@ -41,35 +40,36 @@ fn make_entry(s:String, l:u64, t:SystemTime) -> Entry {
 }
 
 // a struct to keep track of navigating in image files
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Debug)]
 struct Index {
+    entries: Vec<Entry>,
     selected: usize,
     maximum:  usize,
     start_index: usize,
     grid_size: usize,
+    selection_size: usize,
     real_size: bool,
     acc: usize,
 }
 
 impl Index {
-    fn new(capacity: usize, grid_size: usize) -> Self {
+    fn new(entries: Vec<Entry>, grid_size: usize) -> Self {
         Index {
+            entries: entries.clone(),
             selected: 0,
-            maximum: capacity - 1,
+            maximum: entries.len() - 1,
             start_index: 0,
             grid_size: grid_size,
+            selection_size: grid_size * grid_size,
             real_size: false,
             acc: 0,
 
         }
     }
 
-    fn selection_size(self) -> usize {
-        self.grid_size * self.grid_size 
-    }
-
     fn next(&mut self) {
-        self.selected = if self.selected < self.maximum { (self.selected + self.selection_size()) % (self.maximum + 1) } else { 0 } ;
+        let next_pos = (self.selected + self.selection_size) % (self.maximum + 1);
+        self.selected = if self.selected < self.maximum { next_pos } else { 0 } ;
         self.acc = 0;
 
     }
@@ -107,6 +107,74 @@ impl Index {
 
     fn toggle_real_size(&mut self) {
         self.real_size = !self.real_size;
+    }
+
+    fn toggle_marked(&mut self, index: usize) {
+        self.entries[index].marked = ! self.entries[index].marked;
+    }
+
+    fn toggle_marked_current(&mut self) {
+        self.entries[self.selected].marked = ! self.entries[self.selected].marked;
+    }
+
+    fn toggle_deleted_current(&mut self) {
+        self.entries[self.selected].deleted = ! self.entries[self.selected].deleted;
+    }
+
+    fn toggle_touched_current(&mut self) {
+        self.entries[self.selected].touched = ! self.entries[self.selected].touched;
+    }
+
+    fn save_marked_file_lists(&mut self) {
+        let entries = &self.entries;
+        let nb_selections = entries.iter().filter(|e| e.marked).count();
+        let nb_touches = entries.iter().filter(|e| e.touched).count();
+        let nb_deletions = entries.iter().filter(|e| e.deleted).count();
+        if nb_selections > 0 {
+            let result = OpenOptions::new()
+                .write(true)
+                .append(true)
+                .create(true)
+                .open("selected_files");
+            if let Ok(mut file) = result {
+                for i in 0 .. entries.len() {
+                    if entries[i].marked {
+                        println!("saving {} for reference", entries[i].name);
+                        let _ = file.write(format!("{}\n", entries[i].name).as_bytes());
+                    }
+                }
+            }
+        }
+        if nb_touches > 0 {
+            let result= OpenOptions::new()
+                .write(true)
+                .append(true)
+                .create(true)
+                .open("touches");
+            if let Ok(mut file) = result{
+                for i in 0 .. entries.len() {
+                    if entries[i].touched {
+                        println!("saving {} for touch", entries[i].name);
+                        let _ = file.write(format!("touch {}\n", entries[i].name).as_bytes());
+                    }
+                }
+            }
+        }
+        if nb_deletions > 0 {
+            let result = OpenOptions::new()
+                .write(true)
+                .append(true)
+                .create(true)
+                .open("deletions");
+            if let Ok(mut file) = result {
+                for i in 0 .. entries.len() {
+                    if entries[i].deleted {
+                        println!("saving {} for deletion", entries[i].name);
+                        let _ = file.write(format!("rm -f {}\n", entries[i].name).as_bytes());
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -244,12 +312,6 @@ fn main() {
     let args = Args::parse();
     let gallshdir = env::var(ENV_VARIABLE);
 
-    let selection_file = if let Some(selection_file_arg) = args.selection {
-        String::from(selection_file_arg)
-    } else  {
-        String::from("./selected_files")
-    };
-
     let path = if let Some(directory_arg) = args.directory {
         String::from(directory_arg)
     } else if let Ok(standard_dir) = gallshdir {
@@ -345,73 +407,72 @@ fn main() {
         scrolled_window.set_child(Some(&grid));
         window.set_child(Some(&scrolled_window));
 
-        let mut index = Index::new(entry_list.len(), grid_size);
+        let mut index = Index::new(entry_list.clone(), grid_size);
         if let None = args.ordered {
             index.random()
         };
         if let Some(index_number) = args.index {
             index.set(index_number);
         }
-        let index_rc = Rc::new(Cell::new(index));
+        let index_rc = Rc::new(RefCell::new(index));
 
-        let shared_vec: Rc<RefCell<Vec<usize>>> = Rc::new(RefCell::new(vec![]));
         let entries_rc: Rc<RefCell<EntryList>> = Rc::new(RefCell::new(entry_list));
 
         // handle key events
         let evk = gtk::EventControllerKey::new();
-        evk.connect_key_pressed(clone!(@strong shared_vec, @strong selection_file, @strong entries_rc, @strong grid, @strong index_rc, @strong window => move |_, key, _, _| {
+        evk.connect_key_pressed(clone!(@strong entries_rc, @strong grid, @strong index_rc, @strong window => move |_, key, _, _| {
             let step = 100;
             if let Some(s) = key.name() {
                 match s.as_str() {
                     "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" => acc_digit(&entries_rc, &index_rc, s.as_str(), &window),
-                    "g" => jump_to_acc(&entries_rc, &grid, &index_rc, &window),
-                    "a" => start_references(&entries_rc, &index_rc),
-                    "b" => jump_back_ten(&entries_rc, &grid, &index_rc, &window),
-                    "e" => end_references(&selection_file, &entries_rc, &index_rc),
-                    "f" => toggle_full_size(&entries_rc, &grid, &index_rc, &window),
-                    "j" => jump_forward_ten(&entries_rc, &grid, &index_rc, &window),
-                    "z" => jump_to_zero(&entries_rc, &grid, &index_rc, &window),
+                    "g" => jump_to_acc(&grid, &index_rc, &window),
+                    "a" => start_references(&index_rc),
+                    "b" => jump_back_ten(&grid, &index_rc, &window),
+                    "e" => end_references(&index_rc),
+                    "f" => toggle_full_size(&grid, &index_rc, &window),
+                    "j" => jump_forward_ten(&grid, &index_rc, &window),
+                    "z" => jump_to_zero(&grid, &index_rc, &window),
                     "n" => {
-                        show_grid(&entries_rc, &grid, &index_rc, &window, Navigate::Next);
+                        show_grid(&grid, &index_rc, &window, Navigate::Next);
                         gtk::Inhibit(false)
                     }
                     "p" => {
-                        show_grid(&entries_rc, &grid, &index_rc, &window, Navigate::Prev);
+                        show_grid(&grid, &index_rc, &window, Navigate::Prev);
                         gtk::Inhibit(false)
                     }
                     "q" => {
-                        save_marked_file_lists(&entries_rc, &index_rc);
+                        save_marked_file_lists(&index_rc);
                         window.close();
                         gtk::Inhibit(true)
                     },
                     "r" => {
-                        show_grid(&entries_rc, &grid, &index_rc, &window, Navigate::Random);
+                        show_grid(&grid, &index_rc, &window, Navigate::Random);
                         gtk::Inhibit(false)
                     },
                     "s" => {
-                        mark_for_selection(&selection_file, &entries_rc, &index_rc);
-                        show_grid(&entries_rc, &grid, &index_rc, &window, Navigate::Current);
+                        mark_for_selection(&index_rc);
+                        show_grid(&grid, &index_rc, &window, Navigate::Current);
                         gtk::Inhibit(false)
                     }
 
 
                     "space" => { 
                         if let Some(_) = args.ordered { 
-                            show_grid(&entries_rc, &grid, &index_rc, &window, Navigate::Next);
+                            show_grid(&grid, &index_rc, &window, Navigate::Next);
                             gtk::Inhibit(false)
                         } else {
-                            show_grid(&entries_rc, &grid, &index_rc, &window, Navigate::Random);
+                            show_grid(&grid, &index_rc, &window, Navigate::Random);
                             gtk::Inhibit(false)
                         }
                     },
                     "d" => { 
-                        mark_for_deletion(&entries_rc, &index_rc);
-                        show_grid(&entries_rc, &grid, &index_rc, &window, Navigate::Current);
+                        mark_for_deletion(&index_rc);
+                        show_grid(&grid, &index_rc, &window, Navigate::Current);
                         gtk::Inhibit(false)
                     }
                     "t" => {
-                        mark_for_touch(&entries_rc, &index_rc);
-                        show_grid(&entries_rc, &grid, &index_rc, &window, Navigate::Current);
+                        mark_for_touch(&index_rc);
+                        show_grid(&grid, &index_rc, &window, Navigate::Current);
                         gtk::Inhibit(false)
                     }
                     "Right" => {
@@ -461,9 +522,9 @@ fn main() {
         window.add_controller(evk);
         // show the first file
         if let Some(_) = args.ordered {
-            show_grid(&entries_rc, &grid, &index_rc, &window, Navigate::Current);
+            show_grid(&grid, &index_rc, &window, Navigate::Current);
         } else {
-            show_grid(&entries_rc, &grid, &index_rc, &window, Navigate::Random);
+            show_grid(&grid, &index_rc, &window, Navigate::Random);
         }
 
         if args.maximized { window.fullscreen() };
@@ -471,9 +532,9 @@ fn main() {
         if let Some(t) = args.timer {
             timeout_add_local(Duration::new(t,0), clone!(@strong entries_rc, @strong grid, @strong index_rc, @strong window => move | | { 
                 if let Some(_) = args.ordered { 
-                    show_grid(&entries_rc, &grid, &index_rc, &window, Navigate::Next)
+                    show_grid(&grid, &index_rc, &window, Navigate::Next)
                 } else {
-                    show_grid(&entries_rc, &grid, &index_rc, &window, Navigate::Random)
+                    show_grid(&grid, &index_rc, &window, Navigate::Random)
                 };
                 Continue(true) 
             }));
@@ -485,43 +546,38 @@ fn main() {
     application.run_with_args(&empty);
 }
 
-fn mark_for_selection(selection_file: &String, entries_rc: &Rc<RefCell<EntryList>>, index_rc: &Rc<Cell<Index>>) -> gtk::Inhibit {
-    let index = index_rc.get();
-    let mut entries: RefMut<'_,_> = entries_rc.borrow_mut();
-    entries[index.selected].marked = ! entries[index.selected].marked;
+fn mark_for_selection(index_rc: &Rc<RefCell<Index>>) -> gtk::Inhibit {
+    let mut index = index_rc.borrow_mut();
+    index.toggle_marked_current();
     gtk::Inhibit(true)
 }
 
-fn mark_for_deletion(entries_rc: &Rc<RefCell<EntryList>>, index_rc: &Rc<Cell<Index>>) -> gtk::Inhibit {
-    let index = index_rc.get();
-    let mut entries: RefMut<'_,_> = entries_rc.borrow_mut();
-    entries[index.selected].deleted = ! entries[index.selected].deleted;
+fn mark_for_deletion(index_rc: &Rc<RefCell<Index>>) -> gtk::Inhibit {
+    let mut index = index_rc.borrow_mut();
+    index.toggle_deleted_current();
     gtk::Inhibit(true)
 }
 
-fn mark_for_touch(entries_rc: &Rc<RefCell<EntryList>>, index_rc: &Rc<Cell<Index>>) -> gtk::Inhibit {
-    let index = index_rc.get();
-    let mut entries: RefMut<'_,_> = entries_rc.borrow_mut();
-    entries[index.selected].touched = ! entries[index.selected].touched;
+fn mark_for_touch(index_rc: &Rc<RefCell<Index>>) -> gtk::Inhibit {
+    let mut index = index_rc.borrow_mut();
+    index.toggle_touched_current();
     gtk::Inhibit(true)
 }
-fn start_references(entries_rc: &Rc<RefCell<EntryList>>, index_rc: &Rc<Cell<Index>>) -> gtk::Inhibit {
-    let mut index = index_rc.get();
-    let entries: RefMut<'_,_> = entries_rc.borrow_mut();
+fn start_references(index_rc: &Rc<RefCell<Index>>) -> gtk::Inhibit {
+    let mut index = index_rc.borrow_mut();
+    let entries = index.entries.clone();
     let filename = format!("{}\n", file_name(&entries[index.selected]));
     index.start_area();
     println!("starting saving references from {}.", filename);
-    index_rc.set(index);
     gtk::Inhibit(true)
 }
 
-fn end_references(selection_file: &String, entries_rc: &Rc<RefCell<EntryList>>, index_rc: &Rc<Cell<Index>>) -> gtk::Inhibit {
-    let index = index_rc.get();
-    let mut entries: RefMut<'_,_> = entries_rc.borrow_mut();
+fn end_references(index_rc: &Rc<RefCell<Index>>) -> gtk::Inhibit {
+    let mut index = index_rc.borrow_mut();
     if index.selected >= index.start_index {
         println!("saving references from {} to {}.", index.start_index, index.selected);
         for i in index.start_index .. index.selected+1 {
-            entries[i].marked = true;
+            index.toggle_marked(i);
         }
     } else {
         println!("area start index {} is greater than area end index {}", index.start_index, index.selected);
@@ -529,58 +585,52 @@ fn end_references(selection_file: &String, entries_rc: &Rc<RefCell<EntryList>>, 
     gtk::Inhibit(true)
 }
 
-fn jump_forward_ten(entries_rc: &Rc<RefCell<EntryList>>,  grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
-    let mut index = index_rc.get();
+fn jump_forward_ten(grid: &Grid, index_rc:&Rc<RefCell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
+    let mut index = index_rc.borrow_mut();
     for _ in 0..9 {
         index.next()
     };
-    index_rc.set(index);
-    show_grid(entries_rc, &grid, &index_rc, &window, Navigate::Next);
+    show_grid(&grid, &index_rc, &window, Navigate::Next);
     gtk::Inhibit(false)
 }
 
-fn jump_to_zero(entries_rc: &Rc<RefCell<EntryList>>, grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
-    let mut index = index_rc.get();
+fn jump_to_zero(grid: &Grid, index_rc:&Rc<RefCell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
+    let mut index = index_rc.borrow_mut();
     index.set(0);
-    index_rc.set(index);
-    show_grid(&entries_rc, &grid, &index_rc, &window, Navigate::Current);
+    show_grid(&grid, &index_rc, &window, Navigate::Current);
     gtk::Inhibit(false)
 }
 
-fn acc_digit(entries_rc: &Rc<RefCell<EntryList>>, index_rc:&Rc<Cell<Index>>, s:&str, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
-    let mut index = index_rc.get();
+fn acc_digit(entries_rc: &Rc<RefCell<EntryList>>, index_rc:&Rc<RefCell<Index>>, s:&str, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
+    let mut index = index_rc.borrow_mut();
     let entries: RefMut<'_,_> = entries_rc.borrow_mut();
     index.acc_digit(s);
-    index_rc.set(index);
     window.set_title(Some(&format!("{} {} [{}]", index.selected, file_name(&entries[index.selected]), index.acc)));
     gtk::Inhibit(false)
 
 }
 
-fn jump_to_acc(entries_rc: &Rc<RefCell<EntryList>>, grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
-    let mut index = index_rc.get();
+fn jump_to_acc(grid: &Grid, index_rc:&Rc<RefCell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
+    let mut index = index_rc.borrow_mut();
     index.set_acc();
-    index_rc.set(index);
-    show_grid(&entries_rc, &grid, &index_rc, &window, Navigate::Current);
+    show_grid(&grid, &index_rc, &window, Navigate::Current);
     gtk::Inhibit(false)
 }
 
-fn jump_back_ten(entries_rc: &Rc<RefCell<EntryList>>,  grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
-    let mut index = index_rc.get();
+fn jump_back_ten(grid: &Grid, index_rc:&Rc<RefCell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
+    let mut index = index_rc.borrow_mut();
     for _ in 0..9 {
         index.prev()
     };
-    index_rc.set(index);
-    show_grid(&entries_rc, &grid, &index_rc, &window, Navigate::Prev);
+    show_grid(&grid, &index_rc, &window, Navigate::Prev);
     gtk::Inhibit(false)
 }
 
-fn toggle_full_size(entries_rc: &Rc<RefCell<EntryList>>, grid: &Grid, index_rc: &Rc<Cell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
-    let mut index = index_rc.get();
-    if index.selection_size() == 1 {
+fn toggle_full_size(grid: &Grid, index_rc: &Rc<RefCell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
+    let mut index = index_rc.borrow_mut();
+    if (index.selection_size) == 1 {
         index.toggle_real_size();
-        index_rc.set(index);
-        show_grid(entries_rc, grid, index_rc, window, Navigate::Current);
+        show_grid(grid, index_rc, window, Navigate::Current);
         gtk::Inhibit(false)
     } else {
         gtk::Inhibit(true)
@@ -594,73 +644,24 @@ fn show_marks(entry: &Entry) -> String {
         if entry.deleted { 'D' } else { ' ' }).clone()
 }
 
-fn save_marked_file_lists(entries_rc: &Rc<RefCell<EntryList>>, index_rc:&Rc<Cell<Index>>) {
-    let mut index = index_rc.get();
-    let entries: RefMut<'_,_> = entries_rc.borrow_mut();
-    let nb_selections = entries.iter().filter(|e| e.marked).count();
-    let nb_touches = entries.iter().filter(|e| e.touched).count();
-    let nb_deletions = entries.iter().filter(|e| e.deleted).count();
-    if nb_selections > 0 {
-        let result = OpenOptions::new()
-            .write(true)
-            .append(true)
-            .create(true)
-            .open("selected_files");
-        if let Ok(mut file) = result {
-            for i in 0 .. entries.len() {
-                if entries[i].marked {
-                    println!("saving {} for reference", entries[i].name);
-                    file.write(format!("{}\n", entries[i].name).as_bytes());
-                }
-            }
-        }
-    }
-    if nb_touches > 0 {
-        let result= OpenOptions::new()
-            .write(true)
-            .append(true)
-            .create(true)
-            .open("touches");
-        if let Ok(mut file) = result{
-            for i in 0 .. entries.len() {
-                if entries[i].touched {
-                    println!("saving {} for touch", entries[i].name);
-                    file.write(format!("touch {}\n", entries[i].name).as_bytes());
-                }
-            }
-        }
-    }
-    if nb_deletions > 0 {
-        let result = OpenOptions::new()
-            .write(true)
-            .append(true)
-            .create(true)
-            .open("deletions");
-        if let Ok(mut file) = result {
-            for i in 0 .. entries.len() {
-                if entries[i].deleted {
-                    println!("saving {} for deletion", entries[i].name);
-                    file.write(format!("rm -f {}\n", entries[i].name).as_bytes());
-                }
-            }
-        }
-    }
+fn save_marked_file_lists(index_rc:&Rc<RefCell<Index>>) {
+    let mut index = index_rc.borrow_mut();
+    index.save_marked_file_lists();
 }
-fn show_grid(entries_rc: &Rc<RefCell<EntryList>>, grid: &Grid, index_rc:&Rc<Cell<Index>>, window: &gtk::ApplicationWindow, navigate:Navigate) {
-    let mut index = index_rc.get();
-    let entries: RefMut<'_,_> = entries_rc.borrow_mut();
+fn show_grid(grid: &Grid, index_rc:&Rc<RefCell<Index>>, window: &gtk::ApplicationWindow, navigate:Navigate) {
+    let mut index: RefMut<'_,_> = index_rc.borrow_mut();
+    let entries = index.entries.clone();
     match navigate {
         Navigate::Next => index.next(),
         Navigate::Prev => index.prev(),
         Navigate::Random => index.random(),
         Navigate::Current => { } ,
     }
-    index_rc.set(index);
-    for i in 0 .. (index.selection_size()) {
+    for i in 0 .. index.selection_size {
         let row = (i / index.grid_size) as i32;
         let col = (i % index.grid_size) as i32;
         let picture = grid.child_at(col,row).unwrap().downcast::<gtk::Picture>().unwrap();
-        let selected = if navigate != Navigate::Random || index.selection_size() == 1 {
+        let selected = if navigate != Navigate::Random || index.selection_size == 1 {
             index.selected + i
         } else {
             thread_rng().gen_range(0..index.maximum + 1)
