@@ -47,7 +47,6 @@ struct Index {
     maximum:  usize,
     start_index: usize,
     grid_size: usize,
-    selection_size: usize,
     real_size: bool,
     acc: usize,
 }
@@ -60,15 +59,18 @@ impl Index {
             maximum: entries.len() - 1,
             start_index: 0,
             grid_size: grid_size,
-            selection_size: grid_size * grid_size,
             real_size: false,
             acc: 0,
 
         }
     }
+    fn selection_size(self) -> usize {
+        return self.grid_size * self.grid_size
+    }
 
     fn next(&mut self) {
-        let next_pos = (self.selected + self.selection_size) % (self.maximum + 1);
+        let selection_size = self.clone().selection_size();
+        let next_pos = (self.selected + selection_size) % (self.maximum + 1);
         self.selected = if self.selected < self.maximum { next_pos } else { 0 } ;
         self.acc = 0;
 
@@ -632,7 +634,7 @@ fn jump_back_ten(grid: &Grid, index_rc:&Rc<RefCell<Index>>, window: &gtk::Applic
 
 fn toggle_full_size(grid: &Grid, index_rc: &Rc<RefCell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
     let mut index = index_rc.borrow_mut();
-    if (index.selection_size) == 1 {
+    if (index.clone().selection_size()) == 1 {
         index.toggle_real_size();
         show_grid(grid, index_rc, window, Navigate::Current);
         gtk::Inhibit(false)
@@ -655,17 +657,18 @@ fn save_marked_file_lists(index_rc:&Rc<RefCell<Index>>) {
 fn show_grid(grid: &Grid, index_rc:&Rc<RefCell<Index>>, window: &gtk::ApplicationWindow, navigate:Navigate) {
     let mut index: RefMut<'_,_> = index_rc.borrow_mut();
     let entries = index.entries.clone();
+    let selection_size = index.clone().selection_size();
     match navigate {
         Navigate::Next => index.next(),
         Navigate::Prev => index.prev(),
         Navigate::Random => index.random(),
         Navigate::Current => { } ,
     }
-    for i in 0 .. index.selection_size {
+    for i in 0 .. selection_size {
         let row = (i / index.grid_size) as i32;
         let col = (i % index.grid_size) as i32;
         let picture = grid.child_at(col,row).unwrap().downcast::<gtk::Picture>().unwrap();
-        let selected = if navigate != Navigate::Random || index.selection_size == 1 {
+        let selected = if navigate != Navigate::Random || selection_size == 1 {
             index.selected + i
         } else {
             thread_rng().gen_range(0..index.maximum + 1)
