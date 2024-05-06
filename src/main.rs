@@ -91,6 +91,10 @@ impl Index {
         }
     }
 
+    fn current_filename(self) -> String {
+        return self.entries[self.selected].name.clone()
+    }
+
     fn acc_digit(&mut self, s:&str) {
         let digit:usize = s.parse().unwrap();
         self.acc = self.acc * 10 + digit;
@@ -207,7 +211,7 @@ fn get_files_from_reading_list(reading_list: &String) -> io::Result<EntryList> {
                 let len = metadata.len();
                 let entry_name = file_name.to_string().to_owned();
                 let modified_time = metadata.modified().unwrap();
-                entries.push(make_entry(entry_name, len, modified_time));
+            entries.push(make_entry(entry_name, len, modified_time));
             };
             Ok(entries)
         },
@@ -667,15 +671,15 @@ fn show_grid(grid: &Grid, index_rc:&Rc<RefCell<Index>>, window: &gtk::Applicatio
             thread_rng().gen_range(0..index.maximum + 1)
         };
         if selected <= index.maximum {
-            let filename = file_name(&entries[selected]);
+            let filename = index.clone().current_filename();
             picture.set_can_shrink(!index.real_size);
             picture.set_filename(Some(filename));
         }
     }
     window.set_title(Some(&format!("{} {} {} [{}] {}",
                 index.selected,
-                &entries[index.selected].name.as_str(), 
-                show_marks(&entries[index.selected]), 
+                &entries[index.selected].name.as_str(),
+                show_marks(&entries[index.selected]),
                 index.acc,
                 if index.real_size { "*" } else { ""} )));
 }
