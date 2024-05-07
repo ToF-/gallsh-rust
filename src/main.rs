@@ -1,4 +1,3 @@
-
 use glib::clone;
 use glib::timeout_add_local;
 use gtk::prelude::*;
@@ -132,56 +131,27 @@ impl Index {
         self.entries[self.current].in_t_list = ! self.entries[self.current].in_t_list;
     }
 
+    fn save_marked_file_list(&mut self, selection: Vec<&Entry>, dest_file_path: &str) {
+        if selection.len() > 0 {
+            let result = OpenOptions::new()
+                .write(true)
+                .append(true)
+                .create(true)
+                .open(dest_file_path);
+            if let Ok(mut file) = result {
+                for e in selection.iter() {
+                    println!("saving {} for reference", e.file_path);
+                    let _ = file.write(format!("{}\n", e.file_path).as_bytes());
+                }
+            }
+        }
+    }
+
     fn save_marked_file_lists(&mut self) {
-        let entries = &self.entries;
-        let nb_selections = entries.iter().filter(|e| e.in_s_list).count();
-        let nb_touches = entries.iter().filter(|e| e.in_t_list).count();
-        let nb_deletions = entries.iter().filter(|e| e.in_u_list).count();
-        if nb_selections > 0 {
-            let result = OpenOptions::new()
-                .write(true)
-                .append(true)
-                .create(true)
-                .open("selected_files");
-            if let Ok(mut file) = result {
-                for i in 0 .. entries.len() {
-                    if entries[i].in_s_list {
-                        println!("saving {} for reference", entries[i].file_path);
-                        let _ = file.write(format!("{}\n", entries[i].file_path).as_bytes());
-                    }
-                }
-            }
-        }
-        if nb_touches > 0 {
-            let result= OpenOptions::new()
-                .write(true)
-                .append(true)
-                .create(true)
-                .open("touches");
-            if let Ok(mut file) = result{
-                for i in 0 .. entries.len() {
-                    if entries[i].in_t_list {
-                        println!("saving {} for touch", entries[i].file_path);
-                        let _ = file.write(format!("{}\n", entries[i].file_path).as_bytes());
-                    }
-                }
-            }
-        }
-        if nb_deletions > 0 {
-            let result = OpenOptions::new()
-                .write(true)
-                .append(true)
-                .create(true)
-                .open("deletions");
-            if let Ok(mut file) = result {
-                for i in 0 .. entries.len() {
-                    if entries[i].in_u_list {
-                        println!("saving {} for deletion", entries[i].file_path);
-                        let _ = file.write(format!("{}\n", entries[i].file_path).as_bytes());
-                    }
-                }
-            }
-        }
+        let entries = &self.entries.clone();
+        let _ = &self.save_marked_file_list(entries.iter().filter(|e| e.in_s_list).collect(), "selected_files");
+        let _ = &self.save_marked_file_list(entries.iter().filter(|e| e.in_t_list).collect(), "touches");
+        let _ = &self.save_marked_file_list(entries.iter().filter(|e| e.in_u_list).collect(), "deletions");
     }
 }
 
