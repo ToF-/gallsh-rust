@@ -18,24 +18,24 @@ use walkdir::WalkDir;
 
 #[derive(Clone, Debug)]
 struct Entry {
-    name: String,
-    len: u64,
+    file_path: String,
+    file_size: u64,
     modified_time: SystemTime,
-    marked: bool,
-    touched: bool,
-    deleted: bool,
+    in_s_list: bool,
+    in_t_list: bool,
+    in_u_list: bool,
 }
 
 type EntryList = Vec<Entry>;
 
 fn make_entry(s:String, l:u64, t:SystemTime) -> Entry {
     return Entry { 
-      name: s.clone(),
-      len: l,
+      file_path: s.clone(),
+      file_size: l,
       modified_time: t,
-      marked: false,
-      touched: false,
-      deleted: false,
+      in_s_list: false,
+      in_t_list: false,
+      in_u_list: false,
     }
 }
 
@@ -43,24 +43,24 @@ fn make_entry(s:String, l:u64, t:SystemTime) -> Entry {
 #[derive(Clone, Debug)]
 struct Index {
     entries: Vec<Entry>,
-    selected: usize,
+    current: usize,
     maximum:  usize,
     start_index: usize,
     grid_size: usize,
     real_size: bool,
-    acc: usize,
+    register: usize,
 }
 
 impl Index {
     fn new(entries: Vec<Entry>, grid_size: usize) -> Self {
         Index {
             entries: entries.clone(),
-            selected: 0,
+            current: 0,
             maximum: entries.len() - 1,
             start_index: 0,
             grid_size: grid_size,
             real_size: false,
-            acc: 0,
+            register: 0,
 
         }
     }
@@ -70,83 +70,83 @@ impl Index {
 
     fn next(&mut self) {
         let selection_size = self.clone().selection_size();
-        let next_pos = (self.selected + selection_size) % (self.maximum + 1);
-        self.selected = if self.selected < self.maximum { next_pos } else { 0 } ;
-        self.acc = 0;
+        let next_pos = (self.current + selection_size) % (self.maximum + 1);
+        self.current = if self.current < self.maximum { next_pos } else { 0 } ;
+        self.register = 0;
 
     }
     fn prev(&mut self) {
-        self.selected = if self.selected > 0 { self.selected - 1 } else { self.maximum };
-        self.acc = 0;
+        self.current = if self.current > 0 { self.current - 1 } else { self.maximum };
+        self.register = 0;
     }
 
     fn random(&mut self) {
-        self.selected = thread_rng().gen_range(0..self.maximum + 1);
-        self.acc = 0;
+        self.current = thread_rng().gen_range(0..self.maximum + 1);
+        self.register = 0;
     }
     fn set(&mut self, value: usize) {
         if value < self.maximum {
-            self.selected = value;
+            self.current = value;
         } else {
             println!("index {} out of range, set to 0", value);
-            self.selected = 0;
+            self.current = 0;
         }
     }
 
     fn current_filename(self) -> String {
-        return self.entries[self.selected].name.clone()
+        return self.entries[self.current].file_path.clone()
     }
 
-    fn acc_digit(&mut self, s:&str) {
+    fn register_digit(&mut self, s:&str) {
         let digit:usize = s.parse().unwrap();
-        self.acc = self.acc * 10 + digit;
+        self.register = self.register * 10 + digit;
     }
 
-    fn set_acc(&mut self) {
-        self.set(self.acc);
-        self.acc = 0;
+    fn set_register(&mut self) {
+        self.set(self.register);
+        self.register = 0;
     }
 
     fn start_area(&mut self) {
-        self.start_index = self.selected
+        self.start_index = self.current
     }
 
     fn toggle_real_size(&mut self) {
         self.real_size = !self.real_size;
     }
 
-    fn toggle_marked(&mut self, index: usize) {
-        self.entries[index].marked = ! self.entries[index].marked;
+    fn toggle_in_s_list(&mut self, index: usize) {
+        self.entries[index].in_s_list = ! self.entries[index].in_s_list;
     }
 
-    fn toggle_marked_current(&mut self) {
-        self.entries[self.selected].marked = ! self.entries[self.selected].marked;
+    fn toggle_in_s_list_current(&mut self) {
+        self.entries[self.current].in_s_list = ! self.entries[self.current].in_s_list;
     }
 
-    fn toggle_deleted_current(&mut self) {
-        self.entries[self.selected].deleted = ! self.entries[self.selected].deleted;
+    fn toggle_in_u_list_current(&mut self) {
+        self.entries[self.current].in_u_list = ! self.entries[self.current].in_u_list;
     }
 
-    fn toggle_touched_current(&mut self) {
-        self.entries[self.selected].touched = ! self.entries[self.selected].touched;
+    fn toggle_in_t_list_current(&mut self) {
+        self.entries[self.current].in_t_list = ! self.entries[self.current].in_t_list;
     }
 
     fn save_marked_file_lists(&mut self) {
         let entries = &self.entries;
-        let nb_selections = entries.iter().filter(|e| e.marked).count();
-        let nb_touches = entries.iter().filter(|e| e.touched).count();
-        let nb_deletions = entries.iter().filter(|e| e.deleted).count();
+        let nb_selections = entries.iter().filter(|e| e.in_s_list).count();
+        let nb_touches = entries.iter().filter(|e| e.in_t_list).count();
+        let nb_deletions = entries.iter().filter(|e| e.in_u_list).count();
         if nb_selections > 0 {
             let result = OpenOptions::new()
                 .write(true)
                 .append(true)
                 .create(true)
-                .open("selected_files");
+                .open("current_files");
             if let Ok(mut file) = result {
                 for i in 0 .. entries.len() {
-                    if entries[i].marked {
-                        println!("saving {} for reference", entries[i].name);
-                        let _ = file.write(format!("{}\n", entries[i].name).as_bytes());
+                    if entries[i].in_s_list {
+                        println!("saving {} for reference", entries[i].file_path);
+                        let _ = file.write(format!("{}\n", entries[i].file_path).as_bytes());
                     }
                 }
             }
@@ -159,9 +159,9 @@ impl Index {
                 .open("touches");
             if let Ok(mut file) = result{
                 for i in 0 .. entries.len() {
-                    if entries[i].touched {
-                        println!("saving {} for touch", entries[i].name);
-                        let _ = file.write(format!("touch {}\n", entries[i].name).as_bytes());
+                    if entries[i].in_t_list {
+                        println!("saving {} for touch", entries[i].file_path);
+                        let _ = file.write(format!("touch {}\n", entries[i].file_path).as_bytes());
                     }
                 }
             }
@@ -174,9 +174,9 @@ impl Index {
                 .open("deletions");
             if let Ok(mut file) = result {
                 for i in 0 .. entries.len() {
-                    if entries[i].deleted {
-                        println!("saving {} for deletion", entries[i].name);
-                        let _ = file.write(format!("rm -f {}\n", entries[i].name).as_bytes());
+                    if entries[i].in_u_list {
+                        println!("saving {} for deletion", entries[i].file_path);
+                        let _ = file.write(format!("rm -f {}\n", entries[i].file_path).as_bytes());
                     }
                 }
             }
@@ -193,11 +193,11 @@ enum Navigate {
 }
 
 fn file_name(entry: &Entry) -> &str {
-    return &entry.name
+    return &entry.file_path
 }
 
 fn file_size(entry: &Entry) -> u64 {
-    return entry.len
+    return entry.file_size
 }
 
 fn file_modified_time(entry: &Entry) -> SystemTime {
@@ -210,10 +210,10 @@ fn get_files_from_reading_list(reading_list: &String) -> io::Result<EntryList> {
             let mut entries: EntryList = Vec::new();
             for file_name in content.lines().map(String::from).collect::<Vec<_>>() {
                 let metadata = fs::metadata(&file_name)?;
-                let len = metadata.len();
+                let file_size = metadata.len();
                 let entry_name = file_name.to_string().to_owned();
                 let modified_time = metadata.modified().unwrap();
-            entries.push(make_entry(entry_name, len, modified_time));
+            entries.push(make_entry(entry_name, file_size, modified_time));
             };
             Ok(entries)
         },
@@ -247,12 +247,12 @@ fn get_files_in_directory(dir_path: &str, opt_pattern: &Option<String>, opt_low_
         };
         if valid_ext && pattern_present {
             let metadata = fs::metadata(&path)?;
-            let len = metadata.len();
+            let file_size = metadata.len();
             let modified_time = metadata.modified().unwrap();
-            if low_size_limit <= len && len <= high_size_limit  {
+            if low_size_limit <= file_size && file_size <= high_size_limit  {
                 if let Some(full_name) = path.to_str() {
                     let entry_name = full_name.to_string().to_owned();
-                    entries.push(make_entry(entry_name, len, modified_time));
+                    entries.push(make_entry(entry_name, file_size, modified_time));
                 }
             }
         }
@@ -376,7 +376,7 @@ fn main() {
                 's' => entry_list.sort_by(|a, b| { file_size(&a).cmp(&file_size(&b)) }),
                 'S' => entry_list.sort_by(|a, b| { file_size(&b).cmp(&file_size(&a)) }),
                 'd' => entry_list.sort_by(|a, b| { file_modified_time(&a).cmp(&file_modified_time(&b)) }),
-                'D' => entry_list.sort_by(|a, b| { file_modified_time(&b).cmp(&file_modified_time(&a)) }),
+                'U' => entry_list.sort_by(|a, b| { file_modified_time(&b).cmp(&file_modified_time(&a)) }),
                 _ => entry_list.sort_by(|a, b| { file_name(&a).cmp(file_name(&b)) }),
             }
         }
@@ -430,8 +430,16 @@ fn main() {
             let step = 100;
             if let Some(s) = key.name() {
                 match s.as_str() {
-                    "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" => acc_digit(&entries_rc, &index_rc, s.as_str(), &window),
-                    "g" => jump_to_acc(&grid, &index_rc, &window),
+                    "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" => {
+                        register_digit(&index_rc, s.as_str());
+                        show_grid(&grid, &index_rc, &window, Navigate::Current);
+                        gtk::Inhibit(false)
+                    }
+                    "g" => {
+                        jump_to_register(&index_rc);
+                        show_grid(&grid, &index_rc, &window, Navigate::Current);
+                        gtk::Inhibit(false)
+                    }
                     "a" => start_references(&index_rc),
                     "b" => jump_back_ten(&grid, &index_rc, &window),
                     "e" => end_references(&index_rc),
@@ -554,25 +562,25 @@ fn main() {
 
 fn mark_for_selection(index_rc: &Rc<RefCell<Index>>) -> gtk::Inhibit {
     let mut index = index_rc.borrow_mut();
-    index.toggle_marked_current();
+    index.toggle_in_s_list_current();
     gtk::Inhibit(true)
 }
 
 fn mark_for_deletion(index_rc: &Rc<RefCell<Index>>) -> gtk::Inhibit {
     let mut index = index_rc.borrow_mut();
-    index.toggle_deleted_current();
+    index.toggle_in_u_list_current();
     gtk::Inhibit(true)
 }
 
 fn mark_for_touch(index_rc: &Rc<RefCell<Index>>) -> gtk::Inhibit {
     let mut index = index_rc.borrow_mut();
-    index.toggle_touched_current();
+    index.toggle_in_t_list_current();
     gtk::Inhibit(true)
 }
 fn start_references(index_rc: &Rc<RefCell<Index>>) -> gtk::Inhibit {
     let mut index = index_rc.borrow_mut();
     let entries = index.entries.clone();
-    let filename = format!("{}\n", file_name(&entries[index.selected]));
+    let filename = format!("{}\n", file_name(&entries[index.current]));
     index.start_area();
     println!("starting saving references from {}.", filename);
     gtk::Inhibit(true)
@@ -580,13 +588,13 @@ fn start_references(index_rc: &Rc<RefCell<Index>>) -> gtk::Inhibit {
 
 fn end_references(index_rc: &Rc<RefCell<Index>>) -> gtk::Inhibit {
     let mut index = index_rc.borrow_mut();
-    if index.selected >= index.start_index {
-        println!("saving references from {} to {}.", index.start_index, index.selected);
-        for i in index.start_index .. index.selected+1 {
-            index.toggle_marked(i);
+    if index.current >= index.start_index {
+        println!("saving references from {} to {}.", index.start_index, index.current);
+        for i in index.start_index .. index.current+1 {
+            index.toggle_in_s_list(i);
         }
     } else {
-        println!("area start index {} is greater than area end index {}", index.start_index, index.selected);
+        println!("area start index {} is greater than area end index {}", index.start_index, index.current);
     }
     gtk::Inhibit(true)
 }
@@ -607,20 +615,14 @@ fn jump_to_zero(grid: &Grid, index_rc:&Rc<RefCell<Index>>, window: &gtk::Applica
     gtk::Inhibit(false)
 }
 
-fn acc_digit(entries_rc: &Rc<RefCell<EntryList>>, index_rc:&Rc<RefCell<Index>>, s:&str, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
+fn register_digit(index_rc:&Rc<RefCell<Index>>, s:&str) {
     let mut index = index_rc.borrow_mut();
-    let entries: RefMut<'_,_> = entries_rc.borrow_mut();
-    index.acc_digit(s);
-    window.set_title(Some(&format!("{} {} [{}]", index.selected, file_name(&entries[index.selected]), index.acc)));
-    gtk::Inhibit(false)
-
+    index.register_digit(s);
 }
 
-fn jump_to_acc(grid: &Grid, index_rc:&Rc<RefCell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
+fn jump_to_register(index_rc:&Rc<RefCell<Index>>) {
     let mut index = index_rc.borrow_mut();
-    index.set_acc();
-    show_grid(&grid, &index_rc, &window, Navigate::Current);
-    gtk::Inhibit(false)
+    index.set_register();
 }
 
 fn jump_back_ten(grid: &Grid, index_rc:&Rc<RefCell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
@@ -645,9 +647,9 @@ fn toggle_full_size(grid: &Grid, index_rc: &Rc<RefCell<Index>>, window: &gtk::Ap
 
 fn show_marks(entry: &Entry) -> String {
     format!("{}|{}|{}",
-        if entry.marked { 'S' } else { ' ' },
-        if entry.touched { 'T' } else { ' ' },
-        if entry.deleted { 'D' } else { ' ' }).clone()
+        if entry.in_s_list { 'S' } else { ' ' },
+        if entry.in_t_list { 'T' } else { ' ' },
+        if entry.in_u_list { 'U' } else { ' ' }).clone()
 }
 
 fn save_marked_file_lists(index_rc:&Rc<RefCell<Index>>) {
@@ -655,7 +657,7 @@ fn save_marked_file_lists(index_rc:&Rc<RefCell<Index>>) {
     index.save_marked_file_lists();
 }
 fn show_grid(grid: &Grid, index_rc:&Rc<RefCell<Index>>, window: &gtk::ApplicationWindow, navigate:Navigate) {
-    let mut index: RefMut<'_,_> = index_rc.borrow_mut();
+    let mut index: RefMut<'_,Index> = index_rc.borrow_mut();
     let entries = index.entries.clone();
     let selection_size = index.clone().selection_size();
     match navigate {
@@ -668,21 +670,21 @@ fn show_grid(grid: &Grid, index_rc:&Rc<RefCell<Index>>, window: &gtk::Applicatio
         let row = (i / index.grid_size) as i32;
         let col = (i % index.grid_size) as i32;
         let picture = grid.child_at(col,row).unwrap().downcast::<gtk::Picture>().unwrap();
-        let selected = if navigate != Navigate::Random || selection_size == 1 {
-            index.selected + i
+        let current = if navigate != Navigate::Random || selection_size == 1 {
+            index.current + i
         } else {
             thread_rng().gen_range(0..index.maximum + 1)
         };
-        if selected <= index.maximum {
+        if current <= index.maximum {
             let filename = index.clone().current_filename();
             picture.set_can_shrink(!index.real_size);
             picture.set_filename(Some(filename));
         }
     }
     window.set_title(Some(&format!("{} {} {} [{}] {}",
-                index.selected,
-                &entries[index.selected].name.as_str(),
-                show_marks(&entries[index.selected]),
-                index.acc,
+                index.current,
+                &entries[index.current].file_path.as_str(),
+                show_marks(&entries[index.current]),
+                index.register,
                 if index.real_size { "*" } else { ""} )));
 }
