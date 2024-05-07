@@ -1,3 +1,4 @@
+
 use glib::clone;
 use glib::timeout_add_local;
 use gtk::prelude::*;
@@ -141,7 +142,7 @@ impl Index {
                 .write(true)
                 .append(true)
                 .create(true)
-                .open("current_files");
+                .open("selected_files");
             if let Ok(mut file) = result {
                 for i in 0 .. entries.len() {
                     if entries[i].in_s_list {
@@ -161,7 +162,7 @@ impl Index {
                 for i in 0 .. entries.len() {
                     if entries[i].in_t_list {
                         println!("saving {} for touch", entries[i].file_path);
-                        let _ = file.write(format!("touch {}\n", entries[i].file_path).as_bytes());
+                        let _ = file.write(format!("{}\n", entries[i].file_path).as_bytes());
                     }
                 }
             }
@@ -176,7 +177,7 @@ impl Index {
                 for i in 0 .. entries.len() {
                     if entries[i].in_u_list {
                         println!("saving {} for deletion", entries[i].file_path);
-                        let _ = file.write(format!("rm -f {}\n", entries[i].file_path).as_bytes());
+                        let _ = file.write(format!("{}\n", entries[i].file_path).as_bytes());
                     }
                 }
             }
@@ -434,18 +435,32 @@ fn main() {
                         register_digit(&index_rc, s.as_str());
                         show_grid(&grid, &index_rc, &window, Navigate::Current);
                         gtk::Inhibit(false)
-                    }
+                    },
                     "g" => {
                         jump_to_register(&index_rc);
                         show_grid(&grid, &index_rc, &window, Navigate::Current);
                         gtk::Inhibit(false)
+                    },
+                    "j" => {
+                        jump_forward_ten(&index_rc);
+                        show_grid(&grid, &index_rc, &window, Navigate::Next);
+                        gtk::Inhibit(false)
+                    },
+                    "b" => {
+                        jump_back_ten(&index_rc);
+                        show_grid(&grid, &index_rc, &window, Navigate::Prev);
+                        gtk::Inhibit(false)
+                    },
+                    "f" => {
+                            toggle_full_size(&index_rc);
+                            show_grid(&grid, &index_rc, &window, Navigate::Current);
+                            gtk::Inhibit(false)
+                    },
+                    "z" => {
+                        jump_to_zero(&index_rc);
+                        show_grid(&grid, &index_rc, &window, Navigate::Current);
+                        gtk::Inhibit(false)
                     }
-                    "a" => start_references(&index_rc),
-                    "b" => jump_back_ten(&grid, &index_rc, &window),
-                    "e" => end_references(&index_rc),
-                    "f" => toggle_full_size(&grid, &index_rc, &window),
-                    "j" => jump_forward_ten(&grid, &index_rc, &window),
-                    "z" => jump_to_zero(&grid, &index_rc, &window),
                     "n" => {
                         show_grid(&grid, &index_rc, &window, Navigate::Next);
                         gtk::Inhibit(false)
@@ -467,9 +482,25 @@ fn main() {
                         mark_for_selection(&index_rc);
                         show_grid(&grid, &index_rc, &window, Navigate::Current);
                         gtk::Inhibit(false)
-                    }
-
-
+                    },
+                    "t" => {
+                        mark_for_touch(&index_rc);
+                        show_grid(&grid, &index_rc, &window, Navigate::Current);
+                        gtk::Inhibit(false)
+                    },
+                    "u" => { 
+                        mark_for_deletion(&index_rc);
+                        show_grid(&grid, &index_rc, &window, Navigate::Current);
+                        gtk::Inhibit(false)
+                    },
+                    "a" => {
+                        start_references(&index_rc);
+                        gtk::Inhibit(false)
+                    },
+                    "e" => {
+                        end_references(&index_rc);
+                        gtk::Inhibit(false)
+                    },
                     "space" => { 
                         if let Some(_) = args.ordered { 
                             show_grid(&grid, &index_rc, &window, Navigate::Next);
@@ -479,16 +510,6 @@ fn main() {
                             gtk::Inhibit(false)
                         }
                     },
-                    "d" => { 
-                        mark_for_deletion(&index_rc);
-                        show_grid(&grid, &index_rc, &window, Navigate::Current);
-                        gtk::Inhibit(false)
-                    }
-                    "t" => {
-                        mark_for_touch(&index_rc);
-                        show_grid(&grid, &index_rc, &window, Navigate::Current);
-                        gtk::Inhibit(false)
-                    }
                     "Right" => {
                         let h_adj = window
                             .child()
@@ -577,42 +598,32 @@ fn mark_for_touch(index_rc: &Rc<RefCell<Index>>) -> gtk::Inhibit {
     index.toggle_in_t_list_current();
     gtk::Inhibit(true)
 }
-fn start_references(index_rc: &Rc<RefCell<Index>>) -> gtk::Inhibit {
+fn start_references(index_rc: &Rc<RefCell<Index>>) {
     let mut index = index_rc.borrow_mut();
-    let entries = index.entries.clone();
-    let filename = format!("{}\n", file_name(&entries[index.current]));
     index.start_area();
-    println!("starting saving references from {}.", filename);
-    gtk::Inhibit(true)
 }
 
-fn end_references(index_rc: &Rc<RefCell<Index>>) -> gtk::Inhibit {
+fn end_references(index_rc: &Rc<RefCell<Index>>) {
     let mut index = index_rc.borrow_mut();
     if index.current >= index.start_index {
-        println!("saving references from {} to {}.", index.start_index, index.current);
         for i in index.start_index .. index.current+1 {
             index.toggle_in_s_list(i);
         }
     } else {
         println!("area start index {} is greater than area end index {}", index.start_index, index.current);
     }
-    gtk::Inhibit(true)
 }
 
-fn jump_forward_ten(grid: &Grid, index_rc:&Rc<RefCell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
+fn jump_forward_ten(index_rc:&Rc<RefCell<Index>>) {
     let mut index = index_rc.borrow_mut();
     for _ in 0..9 {
         index.next()
-    };
-    show_grid(&grid, &index_rc, &window, Navigate::Next);
-    gtk::Inhibit(false)
+    }
 }
 
-fn jump_to_zero(grid: &Grid, index_rc:&Rc<RefCell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
+fn jump_to_zero(index_rc:&Rc<RefCell<Index>>) {
     let mut index = index_rc.borrow_mut();
     index.set(0);
-    show_grid(&grid, &index_rc, &window, Navigate::Current);
-    gtk::Inhibit(false)
 }
 
 fn register_digit(index_rc:&Rc<RefCell<Index>>, s:&str) {
@@ -625,23 +636,17 @@ fn jump_to_register(index_rc:&Rc<RefCell<Index>>) {
     index.set_register();
 }
 
-fn jump_back_ten(grid: &Grid, index_rc:&Rc<RefCell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
+fn jump_back_ten(index_rc:&Rc<RefCell<Index>>) {
     let mut index = index_rc.borrow_mut();
     for _ in 0..9 {
         index.prev()
     };
-    show_grid(&grid, &index_rc, &window, Navigate::Prev);
-    gtk::Inhibit(false)
 }
 
-fn toggle_full_size(grid: &Grid, index_rc: &Rc<RefCell<Index>>, window: &gtk::ApplicationWindow) -> gtk::Inhibit {
+fn toggle_full_size(index_rc: &Rc<RefCell<Index>>) {
     let mut index = index_rc.borrow_mut();
     if (index.clone().selection_size()) == 1 {
         index.toggle_real_size();
-        show_grid(grid, index_rc, window, Navigate::Current);
-        gtk::Inhibit(false)
-    } else {
-        gtk::Inhibit(true)
     }
 }
 
