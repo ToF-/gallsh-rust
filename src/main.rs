@@ -77,8 +77,8 @@ impl Index {
     }
     fn prev(&mut self) {
         let selection_size = self.clone().selection_size();
-        let next_pos = self.current - selection_size;
-        self.current = if next_pos <= self.maximum { next_pos } else { self.maximum - selection_size };
+        let next_pos = if self.current >= selection_size { self.current - selection_size } else { self.maximum - selection_size + 1 };
+        self.current = next_pos;
         self.register = 0;
     }
 
