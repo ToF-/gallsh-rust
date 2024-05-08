@@ -13,7 +13,7 @@ use std::io::{Write};
 use std::rc::Rc;
 use std::time::{Duration};
 use std::time::SystemTime;
-use clap::Parser;
+use clap::{Parser,ValueEnum};
 use walkdir::WalkDir;
 
 #[derive(Clone, Debug)]
@@ -95,20 +95,12 @@ impl Index {
         }
     }
 
-    fn current_filename(self) -> String {
-        return self.entries[self.current].file_path.clone()
-    }
     fn nth_filename(self, i: usize) -> String {
         if self.current + i <= self.maximum {
             return self.entries[self.current + i].file_path.clone()
         } else {
             return self.entries[self.current + i - self.maximum].file_path.clone()
         }
-    }
-
-    fn register_digit(&mut self, s:&str) {
-        let digit:usize = s.parse().unwrap();
-        self.register = self.register * 10 + digit;
     }
 
     fn set_register(&mut self) {
@@ -162,26 +154,6 @@ impl Index {
         let _ = &self.save_marked_file_list(entries.iter().filter(|e| e.to_touch).collect(), "touches");
         let _ = &self.save_marked_file_list(entries.iter().filter(|e| e.to_unlink).collect(), "deletions");
     }
-}
-
-#[derive(PartialEq)]
-enum Navigate {
-    Current,
-    Next,
-    Prev,
-    Random,
-}
-
-fn file_name(entry: &Entry) -> &str {
-    return &entry.file_path
-}
-
-fn file_size(entry: &Entry) -> u64 {
-    return entry.file_size
-}
-
-fn file_modified_time(entry: &Entry) -> SystemTime {
-    return entry.modified_time
 }
 
 fn get_files_from_reading_list(reading_list: &String) -> io::Result<EntryList> {
@@ -240,9 +212,18 @@ fn get_files_in_directory(dir_path: &str, opt_pattern: &Option<String>, opt_low_
     Ok(entries)
 }
 
+#[derive(Clone, Copy, Debug, ValueEnum)]
+enum Order {
+    Name, Size, Date,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+struct ParseOrderError;
+
+
 // declarative setting of arguments
 /// Gallery Show
-#[derive(Parser, Debug)]
+#[derive(Parser, Clone, Debug)]
 #[command(infer_subcommands = true, infer_long_args = true, author, version, about, long_about = None)]
 /// Pattern that displayed files must have
 struct Args {
@@ -254,8 +235,8 @@ struct Args {
     maximized: bool,
 
     /// Ordered display (or random)
-    #[arg(short, long)]
-    ordered: Option<char>,
+    #[arg(short, long,value_name("order"),value_parser(clap::value_parser!(Order)))]
+    ordered: Option<Order>,
 
     /// Timer delay for next picture
     #[arg(short, long)]
@@ -298,25 +279,6 @@ fn main() {
     let args = Args::parse();
     let gallshdir = env::var(ENV_VARIABLE);
 
-    let path = if let Some(directory_arg) = args.directory {
-        String::from(directory_arg)
-    } else if let Ok(standard_dir) = gallshdir {
-        String::from(standard_dir)
-    } else {
-        println!("GALLSHDIR variable not set. Using {} as default.", DEFAULT_DIR);
-        String::from(DEFAULT_DIR)
-    };
-
-    let reading_list = &args.reading;
-
-    let grid_size = if let Some(size) = args.grid { if size >= 2 && size <= 10 { size } else { 1 } } else { 1 };
-
-    if let Some(reading_list_file) = reading_list {
-        println!("searching images from the {} reading list", reading_list_file)
-    } else {
-        println!("searching images in {}", path)
-    };
-
     // build an application with some css characteristics
     let application = Application::builder()
         .application_id("org.example.gallsh")
@@ -332,9 +294,29 @@ fn main() {
             );
     });
 
-    let pattern = args.pattern;
     // clone! passes a strong reference to pattern in the closure that activates the application
-    application.connect_activate(clone!(@strong reading_list, @strong pattern => move |application: &gtk::Application| { 
+    application.connect_activate(clone!(@strong args => move |application: &gtk::Application| { 
+
+        let order: Order = if let Some(result) = args.clone().ordered { result } else { Order::Name };
+        let pattern = &args.pattern;
+        let path = if let Some(directory_arg) = &args.directory {
+            String::from(directory_arg)
+        } else if let Ok(standard_dir) = &gallshdir {
+            String::from(standard_dir)
+        } else {
+            println!("GALLSHDIR variable not set. Using {} as default.", DEFAULT_DIR);
+            String::from(DEFAULT_DIR)
+        };
+
+        let reading_list = &args.reading;
+
+        let grid_size = if let Some(size) = args.grid { if size >= 2 && size <= 10 { size } else { 1 } } else { 1 };
+
+        if let Some(reading_list_file) = reading_list {
+            println!("searching images from the {} reading list", reading_list_file)
+        } else {
+            println!("searching images in {}", path)
+        };
 
 
         // get all the entries in the directory that match pattern (or all if None) or from a
@@ -350,15 +332,10 @@ fn main() {
                 Ok(result) => result,
             }
         };
-
-        if let Some(order) = args.ordered {
-            match order {
-                's' => entry_list.sort_by(|a, b| { file_size(&a).cmp(&file_size(&b)) }),
-                'S' => entry_list.sort_by(|a, b| { file_size(&b).cmp(&file_size(&a)) }),
-                'd' => entry_list.sort_by(|a, b| { file_modified_time(&a).cmp(&file_modified_time(&b)) }),
-                'U' => entry_list.sort_by(|a, b| { file_modified_time(&b).cmp(&file_modified_time(&a)) }),
-                _ => entry_list.sort_by(|a, b| { file_name(&a).cmp(file_name(&b)) }),
-            }
+        match order {
+            Order::Size => entry_list.sort_by(|a, b| { a.file_size.cmp(&b.file_size) }),
+            Order::Date => entry_list.sort_by(|a, b| { a.modified_time.cmp(&b.modified_time) }),
+            Order::Name => entry_list.sort_by(|a, b| { a.file_path.cmp(&b.file_path) }),
         }
 
         println!("{} files selected", entry_list.len());
@@ -414,48 +391,48 @@ fn main() {
                     "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" => {
                         let digit:usize = s.parse().unwrap();
                         index.register = index.register * 10 + digit;
-                        show_grid_alt(&grid, index.clone(), &window);
+                        show_grid(&grid, index.clone(), &window);
                         gtk::Inhibit(false)
                     },
                     "g" => {
                         index.set_register();
-                        show_grid_alt(&grid, index.clone(), &window);
+                        show_grid(&grid, index.clone(), &window);
                         gtk::Inhibit(false)
                     },
                     "j" => {
                         for _ in 0..10 {
                             index.next()
                         }
-                        show_grid_alt(&grid, index.clone(), &window);
+                        show_grid(&grid, index.clone(), &window);
                         gtk::Inhibit(false)
                     },
                     "b" => {
                         for _ in 0..10 {
                             index.prev()
                         }
-                        show_grid_alt(&grid, index.clone(), &window);
+                        show_grid(&grid, index.clone(), &window);
                         gtk::Inhibit(false)
                     },
                     "f" => {
                         if (index.clone().selection_size()) == 1 {
                             index.toggle_real_size();
                         }
-                        show_grid_alt(&grid, index.clone(), &window);
+                        show_grid(&grid, index.clone(), &window);
                         gtk::Inhibit(false)
                     },
                     "z" => {
                         index.set(0);
-                        show_grid_alt(&grid, index.clone(), &window);
+                        show_grid(&grid, index.clone(), &window);
                         gtk::Inhibit(false)
                     }
                     "n" => {
                         index.next();
-                        show_grid_alt(&grid, index.clone(), &window);
+                        show_grid(&grid, index.clone(), &window);
                         gtk::Inhibit(false)
                     }
                     "p" => {
                         index.prev();
-                        show_grid_alt(&grid, index.clone(), &window);
+                        show_grid(&grid, index.clone(), &window);
                         gtk::Inhibit(false)
                     }
                     "q" => {
@@ -465,23 +442,23 @@ fn main() {
                     },
                     "r" => {
                         index.random();
-                        show_grid_alt(&grid, index.clone(), &window);
+                        show_grid(&grid, index.clone(), &window);
                         gtk::Inhibit(false)
                     },
                     "s" => {
                         index.toggle_to_select_current();
                         index.toggle_to_select_current();
-                        show_grid_alt(&grid, index.clone(), &window);
+                        show_grid(&grid, index.clone(), &window);
                         gtk::Inhibit(false)
                     },
                     "t" => {
                         index.toggle_to_touch_current();
-                        show_grid_alt(&grid, index.clone(), &window);
+                        show_grid(&grid, index.clone(), &window);
                         gtk::Inhibit(false)
                     },
                     "u" => { 
                         index.toggle_to_unlink_current();
-                        show_grid_alt(&grid, index.clone(), &window);
+                        show_grid(&grid, index.clone(), &window);
                         gtk::Inhibit(false)
                     },
                     "a" => {
@@ -504,7 +481,7 @@ fn main() {
                         } else {
                             index.random()
                         }
-                        show_grid_alt(&grid, index.clone(), &window);
+                        show_grid(&grid, index.clone(), &window);
                         gtk::Inhibit(false)
                     },
                     "Right" => {
@@ -554,23 +531,25 @@ fn main() {
         window.add_controller(evk);
         // show the first file
         if let Some(_) = args.ordered {
-            let mut index: RefMut<'_,Index> = index_rc.borrow_mut();
-            show_grid_alt(&grid, index.clone(), &window);
+            let index: RefMut<'_,Index> = index_rc.borrow_mut();
+            show_grid(&grid, index.clone(), &window);
         } else {
             let mut index: RefMut<'_,Index> = index_rc.borrow_mut();
             index.random();
-            show_grid_alt(&grid, index.clone(), &window);
+            show_grid(&grid, index.clone(), &window);
         }
 
         if args.maximized { window.fullscreen() };
         // if a timer has been passed, set a timeout routine
         if let Some(t) = args.timer {
             timeout_add_local(Duration::new(t,0), clone!(@strong entries_rc, @strong grid, @strong index_rc, @strong window => move | | { 
+                let mut index: RefMut<'_,Index> = index_rc.borrow_mut();
                 if let Some(_) = args.ordered { 
-                    show_grid(&grid, &index_rc, &window, Navigate::Next)
+                    index.next();
                 } else {
-                    show_grid(&grid, &index_rc, &window, Navigate::Random)
+                    index.random();
                 };
+                show_grid(&grid, index.clone(), &window);
                 Continue(true) 
             }));
     };
@@ -589,43 +568,7 @@ fn show_marks(entry: &Entry) -> String {
         if entry.to_unlink { "UNLINK" } else { "" }).clone()
 }
 
-fn save_marked_file_lists(index_rc:&Rc<RefCell<Index>>) {
-    let mut index = index_rc.borrow_mut();
-    index.save_marked_file_lists();
-}
-fn show_grid(grid: &Grid, index_rc:&Rc<RefCell<Index>>, window: &gtk::ApplicationWindow, navigate:Navigate) {
-    let mut index: RefMut<'_,Index> = index_rc.borrow_mut();
-    let entries = index.entries.clone();
-    let selection_size = index.clone().selection_size();
-    match navigate {
-        Navigate::Next => index.next(),
-        Navigate::Prev => index.prev(),
-        Navigate::Random => index.random(),
-        Navigate::Current => { } ,
-    }
-    for i in 0 .. selection_size {
-        let row = (i / index.grid_size) as i32;
-        let col = (i % index.grid_size) as i32;
-        let picture = grid.child_at(col,row).unwrap().downcast::<gtk::Picture>().unwrap();
-        let current = if navigate != Navigate::Random || selection_size == 1 {
-            index.current + i
-        } else {
-            thread_rng().gen_range(0..index.maximum + 1)
-        };
-        if current <= index.maximum {
-            let filename = index.clone().current_filename();
-            picture.set_can_shrink(!index.real_size);
-            picture.set_filename(Some(filename));
-        }
-    }
-    window.set_title(Some(&format!("{} {} {} [{}] {}",
-                index.current,
-                &entries[index.current].file_path.as_str(),
-                show_marks(&entries[index.current]),
-                index.register,
-                if index.real_size { "*" } else { ""} )));
-}
-fn show_grid_alt(grid: &Grid, mut index: Index, window: &gtk::ApplicationWindow) {
+fn show_grid(grid: &Grid, index: Index, window: &gtk::ApplicationWindow) {
     let entries = index.entries.clone();
     let selection_size = index.clone().selection_size();
     for i in 0 .. selection_size {
