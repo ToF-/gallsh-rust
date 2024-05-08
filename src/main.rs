@@ -21,9 +21,9 @@ struct Entry {
     file_path: String,
     file_size: u64,
     modified_time: SystemTime,
-    in_s_list: bool,
-    in_t_list: bool,
-    in_u_list: bool,
+    to_select: bool,
+    to_touch: bool,
+    to_unlink: bool,
 }
 
 type EntryList = Vec<Entry>;
@@ -33,9 +33,9 @@ fn make_entry(s:String, l:u64, t:SystemTime) -> Entry {
       file_path: s.clone(),
       file_size: l,
       modified_time: t,
-      in_s_list: false,
-      in_t_list: false,
-      in_u_list: false,
+      to_select: false,
+      to_touch: false,
+      to_unlink: false,
     }
 }
 
@@ -76,7 +76,9 @@ impl Index {
 
     }
     fn prev(&mut self) {
-        self.current = if self.current > 0 { self.current - 1 } else { self.maximum };
+        let selection_size = self.clone().selection_size();
+        let next_pos = self.current - selection_size;
+        self.current = if next_pos <= self.maximum { next_pos } else { self.maximum - selection_size };
         self.register = 0;
     }
 
@@ -95,6 +97,13 @@ impl Index {
 
     fn current_filename(self) -> String {
         return self.entries[self.current].file_path.clone()
+    }
+    fn nth_filename(self, i: usize) -> String {
+        if self.current + i <= self.maximum {
+            return self.entries[self.current + i].file_path.clone()
+        } else {
+            return self.entries[self.current + i - self.maximum].file_path.clone()
+        }
     }
 
     fn register_digit(&mut self, s:&str) {
@@ -115,20 +124,20 @@ impl Index {
         self.real_size = !self.real_size;
     }
 
-    fn toggle_in_s_list(&mut self, index: usize) {
-        self.entries[index].in_s_list = ! self.entries[index].in_s_list;
+    fn toggle_to_select(&mut self, index: usize) {
+        self.entries[index].to_select = ! self.entries[index].to_select;
     }
 
-    fn toggle_in_s_list_current(&mut self) {
-        self.entries[self.current].in_s_list = ! self.entries[self.current].in_s_list;
+    fn toggle_to_select_current(&mut self) {
+        self.entries[self.current].to_select = ! self.entries[self.current].to_select;
     }
 
-    fn toggle_in_u_list_current(&mut self) {
-        self.entries[self.current].in_u_list = ! self.entries[self.current].in_u_list;
+    fn toggle_to_unlink_current(&mut self) {
+        self.entries[self.current].to_unlink = ! self.entries[self.current].to_unlink;
     }
 
-    fn toggle_in_t_list_current(&mut self) {
-        self.entries[self.current].in_t_list = ! self.entries[self.current].in_t_list;
+    fn toggle_to_touch_current(&mut self) {
+        self.entries[self.current].to_touch = ! self.entries[self.current].to_touch;
     }
 
     fn save_marked_file_list(&mut self, selection: Vec<&Entry>, dest_file_path: &str) {
@@ -149,9 +158,9 @@ impl Index {
 
     fn save_marked_file_lists(&mut self) {
         let entries = &self.entries.clone();
-        let _ = &self.save_marked_file_list(entries.iter().filter(|e| e.in_s_list).collect(), "selected_files");
-        let _ = &self.save_marked_file_list(entries.iter().filter(|e| e.in_t_list).collect(), "touches");
-        let _ = &self.save_marked_file_list(entries.iter().filter(|e| e.in_u_list).collect(), "deletions");
+        let _ = &self.save_marked_file_list(entries.iter().filter(|e| e.to_select).collect(), "selections");
+        let _ = &self.save_marked_file_list(entries.iter().filter(|e| e.to_touch).collect(), "touches");
+        let _ = &self.save_marked_file_list(entries.iter().filter(|e| e.to_unlink).collect(), "deletions");
     }
 }
 
@@ -399,86 +408,104 @@ fn main() {
         let evk = gtk::EventControllerKey::new();
         evk.connect_key_pressed(clone!(@strong entries_rc, @strong grid, @strong index_rc, @strong window => move |_, key, _, _| {
             let step = 100;
+            let mut index: RefMut<'_,Index> = index_rc.borrow_mut();
             if let Some(s) = key.name() {
                 match s.as_str() {
                     "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" => {
-                        register_digit(&index_rc, s.as_str());
-                        show_grid(&grid, &index_rc, &window, Navigate::Current);
+                        let digit:usize = s.parse().unwrap();
+                        index.register = index.register * 10 + digit;
+                        show_grid_alt(&grid, index.clone(), &window);
                         gtk::Inhibit(false)
                     },
                     "g" => {
-                        jump_to_register(&index_rc);
-                        show_grid(&grid, &index_rc, &window, Navigate::Current);
+                        index.set_register();
+                        show_grid_alt(&grid, index.clone(), &window);
                         gtk::Inhibit(false)
                     },
                     "j" => {
-                        jump_forward_ten(&index_rc);
-                        show_grid(&grid, &index_rc, &window, Navigate::Next);
+                        for _ in 0..10 {
+                            index.next()
+                        }
+                        show_grid_alt(&grid, index.clone(), &window);
                         gtk::Inhibit(false)
                     },
                     "b" => {
-                        jump_back_ten(&index_rc);
-                        show_grid(&grid, &index_rc, &window, Navigate::Prev);
+                        for _ in 0..10 {
+                            index.prev()
+                        }
+                        show_grid_alt(&grid, index.clone(), &window);
                         gtk::Inhibit(false)
                     },
                     "f" => {
-                            toggle_full_size(&index_rc);
-                            show_grid(&grid, &index_rc, &window, Navigate::Current);
-                            gtk::Inhibit(false)
+                        if (index.clone().selection_size()) == 1 {
+                            index.toggle_real_size();
+                        }
+                        show_grid_alt(&grid, index.clone(), &window);
+                        gtk::Inhibit(false)
                     },
                     "z" => {
-                        jump_to_zero(&index_rc);
-                        show_grid(&grid, &index_rc, &window, Navigate::Current);
+                        index.set(0);
+                        show_grid_alt(&grid, index.clone(), &window);
                         gtk::Inhibit(false)
                     }
                     "n" => {
-                        show_grid(&grid, &index_rc, &window, Navigate::Next);
+                        index.next();
+                        show_grid_alt(&grid, index.clone(), &window);
                         gtk::Inhibit(false)
                     }
                     "p" => {
-                        show_grid(&grid, &index_rc, &window, Navigate::Prev);
+                        index.prev();
+                        show_grid_alt(&grid, index.clone(), &window);
                         gtk::Inhibit(false)
                     }
                     "q" => {
-                        save_marked_file_lists(&index_rc);
+                        index.save_marked_file_lists();
                         window.close();
                         gtk::Inhibit(true)
                     },
                     "r" => {
-                        show_grid(&grid, &index_rc, &window, Navigate::Random);
+                        index.random();
+                        show_grid_alt(&grid, index.clone(), &window);
                         gtk::Inhibit(false)
                     },
                     "s" => {
-                        mark_for_selection(&index_rc);
-                        show_grid(&grid, &index_rc, &window, Navigate::Current);
+                        index.toggle_to_select_current();
+                        index.toggle_to_select_current();
+                        show_grid_alt(&grid, index.clone(), &window);
                         gtk::Inhibit(false)
                     },
                     "t" => {
-                        mark_for_touch(&index_rc);
-                        show_grid(&grid, &index_rc, &window, Navigate::Current);
+                        index.toggle_to_touch_current();
+                        show_grid_alt(&grid, index.clone(), &window);
                         gtk::Inhibit(false)
                     },
                     "u" => { 
-                        mark_for_deletion(&index_rc);
-                        show_grid(&grid, &index_rc, &window, Navigate::Current);
+                        index.toggle_to_unlink_current();
+                        show_grid_alt(&grid, index.clone(), &window);
                         gtk::Inhibit(false)
                     },
                     "a" => {
-                        start_references(&index_rc);
+                        index.start_area();
                         gtk::Inhibit(false)
                     },
                     "e" => {
-                        end_references(&index_rc);
+                        if index.current >= index.start_index {
+                            for i in index.start_index .. index.current+1 {
+                                index.toggle_to_select(i);
+                            }
+                        } else {
+                            println!("area start index {} is greater than area end index {}", index.start_index, index.current);
+                        }
                         gtk::Inhibit(false)
                     },
                     "space" => { 
                         if let Some(_) = args.ordered { 
-                            show_grid(&grid, &index_rc, &window, Navigate::Next);
-                            gtk::Inhibit(false)
+                            index.next()
                         } else {
-                            show_grid(&grid, &index_rc, &window, Navigate::Random);
-                            gtk::Inhibit(false)
+                            index.random()
                         }
+                        show_grid_alt(&grid, index.clone(), &window);
+                        gtk::Inhibit(false)
                     },
                     "Right" => {
                         let h_adj = window
@@ -527,9 +554,12 @@ fn main() {
         window.add_controller(evk);
         // show the first file
         if let Some(_) = args.ordered {
-            show_grid(&grid, &index_rc, &window, Navigate::Current);
+            let mut index: RefMut<'_,Index> = index_rc.borrow_mut();
+            show_grid_alt(&grid, index.clone(), &window);
         } else {
-            show_grid(&grid, &index_rc, &window, Navigate::Random);
+            let mut index: RefMut<'_,Index> = index_rc.borrow_mut();
+            index.random();
+            show_grid_alt(&grid, index.clone(), &window);
         }
 
         if args.maximized { window.fullscreen() };
@@ -551,80 +581,12 @@ fn main() {
     application.run_with_args(&empty);
 }
 
-fn mark_for_selection(index_rc: &Rc<RefCell<Index>>) -> gtk::Inhibit {
-    let mut index = index_rc.borrow_mut();
-    index.toggle_in_s_list_current();
-    gtk::Inhibit(true)
-}
-
-fn mark_for_deletion(index_rc: &Rc<RefCell<Index>>) -> gtk::Inhibit {
-    let mut index = index_rc.borrow_mut();
-    index.toggle_in_u_list_current();
-    gtk::Inhibit(true)
-}
-
-fn mark_for_touch(index_rc: &Rc<RefCell<Index>>) -> gtk::Inhibit {
-    let mut index = index_rc.borrow_mut();
-    index.toggle_in_t_list_current();
-    gtk::Inhibit(true)
-}
-fn start_references(index_rc: &Rc<RefCell<Index>>) {
-    let mut index = index_rc.borrow_mut();
-    index.start_area();
-}
-
-fn end_references(index_rc: &Rc<RefCell<Index>>) {
-    let mut index = index_rc.borrow_mut();
-    if index.current >= index.start_index {
-        for i in index.start_index .. index.current+1 {
-            index.toggle_in_s_list(i);
-        }
-    } else {
-        println!("area start index {} is greater than area end index {}", index.start_index, index.current);
-    }
-}
-
-fn jump_forward_ten(index_rc:&Rc<RefCell<Index>>) {
-    let mut index = index_rc.borrow_mut();
-    for _ in 0..9 {
-        index.next()
-    }
-}
-
-fn jump_to_zero(index_rc:&Rc<RefCell<Index>>) {
-    let mut index = index_rc.borrow_mut();
-    index.set(0);
-}
-
-fn register_digit(index_rc:&Rc<RefCell<Index>>, s:&str) {
-    let mut index = index_rc.borrow_mut();
-    index.register_digit(s);
-}
-
-fn jump_to_register(index_rc:&Rc<RefCell<Index>>) {
-    let mut index = index_rc.borrow_mut();
-    index.set_register();
-}
-
-fn jump_back_ten(index_rc:&Rc<RefCell<Index>>) {
-    let mut index = index_rc.borrow_mut();
-    for _ in 0..9 {
-        index.prev()
-    };
-}
-
-fn toggle_full_size(index_rc: &Rc<RefCell<Index>>) {
-    let mut index = index_rc.borrow_mut();
-    if (index.clone().selection_size()) == 1 {
-        index.toggle_real_size();
-    }
-}
 
 fn show_marks(entry: &Entry) -> String {
     format!("{}|{}|{}",
-        if entry.in_s_list { 'S' } else { ' ' },
-        if entry.in_t_list { 'T' } else { ' ' },
-        if entry.in_u_list { 'U' } else { ' ' }).clone()
+        if entry.to_select { "SELECT" } else { "" },
+        if entry.to_touch { "TOUCH" } else { "" },
+        if entry.to_unlink { "UNLINK" } else { "" }).clone()
 }
 
 fn save_marked_file_lists(index_rc:&Rc<RefCell<Index>>) {
@@ -655,6 +617,24 @@ fn show_grid(grid: &Grid, index_rc:&Rc<RefCell<Index>>, window: &gtk::Applicatio
             picture.set_can_shrink(!index.real_size);
             picture.set_filename(Some(filename));
         }
+    }
+    window.set_title(Some(&format!("{} {} {} [{}] {}",
+                index.current,
+                &entries[index.current].file_path.as_str(),
+                show_marks(&entries[index.current]),
+                index.register,
+                if index.real_size { "*" } else { ""} )));
+}
+fn show_grid_alt(grid: &Grid, mut index: Index, window: &gtk::ApplicationWindow) {
+    let entries = index.entries.clone();
+    let selection_size = index.clone().selection_size();
+    for i in 0 .. selection_size {
+        let row = (i / index.grid_size) as i32;
+        let col = (i % index.grid_size) as i32;
+        let picture = grid.child_at(col,row).unwrap().downcast::<gtk::Picture>().unwrap();
+        let filename = index.clone().nth_filename(i);
+        picture.set_can_shrink(!index.real_size);
+        picture.set_filename(Some(filename));
     }
     window.set_title(Some(&format!("{} {} {} [{}] {}",
                 index.current,
