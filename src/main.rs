@@ -381,7 +381,13 @@ fn main() {
 
         let entries_rc: Rc<RefCell<EntryList>> = Rc::new(RefCell::new(entry_list));
 
-        // handle key events
+        let gesture = gtk::GestureClick::new();
+        gesture.set_button(0);
+        gesture.connect_pressed( |gesture,_, x, y| {
+             println!("mouse click position: ({},{})", x, y);
+        });
+        grid.add_controller(gesture);
+
         let evk = gtk::EventControllerKey::new();
         evk.connect_key_pressed(clone!(@strong entries_rc, @strong grid, @strong index_rc, @strong window => move |_, key, _, _| {
             let step = 100;
