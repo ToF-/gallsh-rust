@@ -39,7 +39,7 @@ fn make_entry(s:String, l:u64, t:SystemTime) -> Entry {
     }
 }
 
-// a struct to keep track of navigating in image files
+// a struct to keep track of navigating in a list of image files
 #[derive(Clone, Debug)]
 struct Index {
     entries: Vec<Entry>,
@@ -392,78 +392,64 @@ fn main() {
                         let digit:usize = s.parse().unwrap();
                         index.register = index.register * 10 + digit;
                         show_grid(&grid, index.clone(), &window);
-                        gtk::Inhibit(false)
                     },
                     "g" => {
                         index.set_register();
                         show_grid(&grid, index.clone(), &window);
-                        gtk::Inhibit(false)
                     },
                     "j" => {
                         for _ in 0..10 {
                             index.next()
                         }
                         show_grid(&grid, index.clone(), &window);
-                        gtk::Inhibit(false)
                     },
                     "b" => {
                         for _ in 0..10 {
                             index.prev()
                         }
                         show_grid(&grid, index.clone(), &window);
-                        gtk::Inhibit(false)
                     },
                     "f" => {
                         if (index.clone().selection_size()) == 1 {
                             index.toggle_real_size();
                         }
                         show_grid(&grid, index.clone(), &window);
-                        gtk::Inhibit(false)
                     },
                     "z" => {
                         index.set(0);
                         show_grid(&grid, index.clone(), &window);
-                        gtk::Inhibit(false)
                     }
                     "n" => {
                         index.next();
                         show_grid(&grid, index.clone(), &window);
-                        gtk::Inhibit(false)
                     }
                     "p" => {
                         index.prev();
                         show_grid(&grid, index.clone(), &window);
-                        gtk::Inhibit(false)
                     }
                     "q" => {
                         index.save_marked_file_lists();
                         window.close();
-                        gtk::Inhibit(true)
                     },
                     "r" => {
                         index.random();
                         show_grid(&grid, index.clone(), &window);
-                        gtk::Inhibit(false)
                     },
                     "s" => {
                         index.toggle_to_select_current();
                         index.toggle_to_select_current();
                         show_grid(&grid, index.clone(), &window);
-                        gtk::Inhibit(false)
                     },
                     "t" => {
                         index.toggle_to_touch_current();
                         show_grid(&grid, index.clone(), &window);
-                        gtk::Inhibit(false)
                     },
                     "u" => { 
                         index.toggle_to_unlink_current();
                         show_grid(&grid, index.clone(), &window);
-                        gtk::Inhibit(false)
                     },
                     "a" => {
                         index.start_area();
-                        gtk::Inhibit(false)
                     },
                     "e" => {
                         if index.current >= index.start_index {
@@ -473,7 +459,6 @@ fn main() {
                         } else {
                             println!("area start index {} is greater than area end index {}", index.start_index, index.current);
                         }
-                        gtk::Inhibit(false)
                     },
                     "space" => { 
                         if let Some(_) = args.ordered { 
@@ -482,7 +467,6 @@ fn main() {
                             index.random()
                         }
                         show_grid(&grid, index.clone(), &window);
-                        gtk::Inhibit(false)
                     },
                     "Right" => {
                         let h_adj = window
@@ -491,7 +475,6 @@ fn main() {
                             .and_then(|sw| Some(sw.hadjustment()))
                             .expect("Failed to get hadjustment");
                         h_adj.set_value(h_adj.value() + step as f64);
-                        gtk::Inhibit(true)
                     },
                     "Left" => {
                         let h_adj = window
@@ -500,7 +483,6 @@ fn main() {
                             .and_then(|sw| Some(sw.hadjustment()))
                             .expect("Failed to get hadjustment");
                         h_adj.set_value(h_adj.value() - step as f64);
-                        gtk::Inhibit(true)
                     },
                     "Down" => {
                         // Scroll down
@@ -510,7 +492,6 @@ fn main() {
                             .and_then(|sw| Some(sw.vadjustment()))
                             .expect("Failed to get vadjustment");
                         v_adj.set_value(v_adj.value() + step as f64);
-                        gtk::Inhibit(true)
                     },
                     "Up" => {
                         let v_adj = window
@@ -519,15 +500,16 @@ fn main() {
                             .and_then(|sw| Some(sw.vadjustment()))
                             .expect("Failed to get vadjustment");
                         v_adj.set_value(v_adj.value() - step as f64);
-                        gtk::Inhibit(true)
                     }
-                    _ => { gtk::Inhibit(false)},
-                }
+                    _ => { },
+                };
+                gtk::Inhibit(false)
             }
             else {
                 gtk::Inhibit(false)
             }
         }));
+
         window.add_controller(evk);
         // show the first file
         if let Some(_) = args.ordered {
