@@ -128,7 +128,11 @@ impl Index {
     }
 
     fn toggle_to_select(&mut self, index: usize) {
-        self.entries[index].to_select = ! self.entries[index].to_select;
+        if index <= self.maximum {
+            self.entries[index].to_select = ! self.entries[index].to_select;
+        } else {
+            println!("index out of range: {}/{}", index, self.maximum);
+        }
     }
 
     fn toggle_to_select_current(&mut self) {
@@ -406,8 +410,7 @@ fn main() {
                 gesture.set_button(0);
                 gesture.connect_pressed(clone!(@strong index_rc, @strong grid, @strong window => move |_,_, _, _| {
                     let mut index: RefMut<'_,Index> = index_rc.borrow_mut();
-                    let current = index.clone().current;
-                    let entry_index = current + col * grid_size + row;
+                    let entry_index = index.clone().nth_index(col * grid_size + row);
                     index.toggle_to_select(entry_index);
                     show_grid(&grid, index.clone(), &window);
                 }));
@@ -416,8 +419,7 @@ fn main() {
                 motion_controller.connect_enter(clone!(@strong index_rc => move |_,_,_| {
                     let mut index: RefMut<'_,Index> = index_rc.borrow_mut();
                     let entries = index.entries.clone();
-                    let current = index.clone().current;
-                    let entry_index = current + col * grid_size + row;
+                    let entry_index = index.clone().nth_index(col * grid_size + row);
                     let filename = <Index as Clone>::clone(&index).nth_filename(entry_index);
                     println!("{}", filename);
                 }));
