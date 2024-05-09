@@ -1,4 +1,5 @@
 use clap::{Parser,ValueEnum};
+use gtk::EventControllerMotion;
 use glib::Value;
 use glib::clone;
 use glib::closure_local;
@@ -401,15 +402,26 @@ fn main() {
             for col in 0 .. grid_size {
                 let image = Picture::new();
                 grid.attach(&image, row as i32, col as i32, 1, 1);
-                let _gesture = gtk::GestureClick::new();
-                _gesture.set_button(0);
-                _gesture.connect_pressed(clone!(@strong index_rc, @strong grid, @strong window => move |_gesture,_, _, _| {
+                let gesture = gtk::GestureClick::new();
+                gesture.set_button(0);
+                gesture.connect_pressed(clone!(@strong index_rc, @strong grid, @strong window => move |_,_, _, _| {
                     let mut index: RefMut<'_,Index> = index_rc.borrow_mut();
                     let current = index.clone().current;
-                    index.toggle_to_select(current + col * grid_size + row);
+                    let entry_index = current + col * grid_size + row;
+                    index.toggle_to_select(entry_index);
                     show_grid(&grid, index.clone(), &window);
                 }));
-                image.add_controller(_gesture);
+                image.add_controller(gesture);
+                let motion_controller = EventControllerMotion::new(); 
+                motion_controller.connect_enter(clone!(@strong index_rc => move |_,_,_| {
+                    let mut index: RefMut<'_,Index> = index_rc.borrow_mut();
+                    let entries = index.entries.clone();
+                    let current = index.clone().current;
+                    let entry_index = current + col * grid_size + row;
+                    let filename = &entries[entry_index].file_path.as_str();
+                    println!("{}", filename);
+                }));
+                image.add_controller(motion_controller)
             }
         }
         scrolled_window.set_child(Some(&grid));
