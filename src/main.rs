@@ -160,12 +160,18 @@ fn get_files_from_reading_list(reading_list: &String) -> io::Result<EntryList> {
     match read_to_string(reading_list) {
         Ok(content) => {
             let mut entries: EntryList = Vec::new();
-            for file_name in content.lines().map(String::from).collect::<Vec<_>>() {
-                let metadata = fs::metadata(&file_name)?;
-                let file_size = metadata.len();
-                let entry_name = file_name.to_string().to_owned();
-                let modified_time = metadata.modified().unwrap();
-            entries.push(make_entry(entry_name, file_size, modified_time));
+            for path in content.lines().map(String::from).collect::<Vec<_>>() {
+                match fs::metadata(&path) {
+                    Ok(metadata) => {
+                        let file_size = metadata.len();
+                        let entry_name = path.to_string().to_owned();
+                        let modified_time = metadata.modified().unwrap();
+                        entries.push(make_entry(entry_name, file_size, modified_time));
+                    }
+                    Err(err) => {
+                        println!("can't open: {}: {}", path, err);
+                    }
+                }
             };
             Ok(entries)
         },
@@ -173,6 +179,7 @@ fn get_files_from_reading_list(reading_list: &String) -> io::Result<EntryList> {
     }
 
 }
+
 fn get_files_in_directory(dir_path: &str, opt_pattern: &Option<String>, opt_low_size: Option<u64>, opt_high_size: Option<u64>) -> io::Result<EntryList> {
     let mut entries: EntryList = Vec::new();
     for entry in WalkDir::new(dir_path).into_iter().filter_map(|e| e.ok()) {
@@ -198,14 +205,18 @@ fn get_files_in_directory(dir_path: &str, opt_pattern: &Option<String>, opt_low_
             std::u64::MAX
         };
         if valid_ext && pattern_present {
-            let metadata = fs::metadata(&path)?;
-            let file_size = metadata.len();
-            let modified_time = metadata.modified().unwrap();
-            if low_size_limit <= file_size && file_size <= high_size_limit  {
-                if let Some(full_name) = path.to_str() {
-                    let entry_name = full_name.to_string().to_owned();
-                    entries.push(make_entry(entry_name, file_size, modified_time));
+            if let Ok(metadata) = fs::metadata(&path) {
+                let file_size = metadata.len();
+                println!("{}", file_size);
+                let modified_time = metadata.modified().unwrap();
+                if low_size_limit <= file_size && file_size <= high_size_limit  {
+                    if let Some(full_name) = path.to_str() {
+                        let entry_name = full_name.to_string().to_owned();
+                        entries.push(make_entry(entry_name, file_size, modified_time));
+                    }
                 }
+            } else {
+                println!("can't open: {}", path.display());
             }
         }
     };
@@ -567,10 +578,11 @@ fn show_grid(grid: &Grid, index: Index, window: &gtk::ApplicationWindow) {
         picture.set_can_shrink(!index.real_size);
         picture.set_filename(Some(filename));
     }
-    window.set_title(Some(&format!("{} {} {} [{}] {}",
+    window.set_title(Some(&format!("{} {} {} [{}] {} {}",
                 index.current,
                 &entries[index.current].file_path.as_str(),
                 show_marks(&entries[index.current]),
                 index.register,
-                if index.real_size { "*" } else { ""} )));
+                if index.real_size { "*" } else { ""},
+                &entries[index.current].file_size)));
 }
