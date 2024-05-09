@@ -11079,6 +11079,7 @@ normalize	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bb
 not	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/predicates-3.1.0/src/boolean.rs	/^    fn not(self) -> NotPredicate<Self, Item>$/;"	f
 nth	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/bitset.rs	/^    pub fn nth(&self, nth: u32) -> u32 {$/;"	f
 nth_filename	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn nth_filename(self, i: usize) -> String {$/;"	f
+nth_index	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn nth_index(self, i: usize) -> usize {$/;"	f
 nth_page	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/assistant.rs	/^    pub fn nth_page(&self, page_num: i32) -> Option<Widget> {$/;"	f
 nth_page	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/notebook.rs	/^    pub fn nth_page(&self, page_num: Option<u32>) -> Option<Widget> {$/;"	f
 nth_sort_column	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/column_view_sorter.rs	/^    pub fn nth_sort_column(&self, position: u32) -> (Option<ColumnViewColumn>, SortType) {$/;"	f

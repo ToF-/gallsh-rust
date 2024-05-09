@@ -96,10 +96,14 @@ impl Index {
     }
 
     fn nth_filename(self, i: usize) -> String {
+        self.entries[self.clone().nth_index(i)].file_path.clone()
+    }
+
+    fn nth_index(self, i: usize) -> usize {
         if self.current + i <= self.maximum {
-            return self.entries[self.current + i].file_path.clone()
+            self.current + i
         } else {
-            return self.entries[self.current + i - self.maximum].file_path.clone()
+            self.current + i - self.maximum
         }
     }
 
@@ -207,7 +211,6 @@ fn get_files_in_directory(dir_path: &str, opt_pattern: &Option<String>, opt_low_
         if valid_ext && pattern_present {
             if let Ok(metadata) = fs::metadata(&path) {
                 let file_size = metadata.len();
-                println!("{}", file_size);
                 let modified_time = metadata.modified().unwrap();
                 if low_size_limit <= file_size && file_size <= high_size_limit  {
                     if let Some(full_name) = path.to_str() {
@@ -365,6 +368,12 @@ fn main() {
             for col in 0 .. grid_size {
                 let image = Picture::new();
                 grid.attach(&image, row as i32, col as i32, 1, 1);
+                let _gesture = gtk::GestureClick::new();
+                _gesture.set_button(0);
+                _gesture.connect_pressed(move |_gesture,_, _, _| {
+                    println!("clicked on picture at ({},{})", row,col)
+                });
+                image.add_controller(_gesture);
             }
         }
         let window = gtk::ApplicationWindow::builder()
@@ -392,12 +401,6 @@ fn main() {
 
         let entries_rc: Rc<RefCell<EntryList>> = Rc::new(RefCell::new(entry_list));
 
-        let gesture = gtk::GestureClick::new();
-        gesture.set_button(0);
-        gesture.connect_pressed( |gesture,_, x, y| {
-             println!("mouse click position: ({},{})", x, y);
-        });
-        grid.add_controller(gesture);
 
         let evk = gtk::EventControllerKey::new();
         evk.connect_key_pressed(clone!(@strong entries_rc, @strong grid, @strong index_rc, @strong window => move |_, key, _, _| {
@@ -575,8 +578,10 @@ fn show_grid(grid: &Grid, index: Index, window: &gtk::ApplicationWindow) {
         let col = (i % index.grid_size) as i32;
         let picture = grid.child_at(col,row).unwrap().downcast::<gtk::Picture>().unwrap();
         let filename = index.clone().nth_filename(i);
+        // let current_index = index.current
         picture.set_can_shrink(!index.real_size);
-        picture.set_filename(Some(filename));
+        picture.set_filename(Some(filename.clone()));
+
     }
     window.set_title(Some(&format!("{} {} {} [{}] {} {}",
                 index.current,
