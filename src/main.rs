@@ -339,7 +339,7 @@ fn main() {
 
         let reading_list = &args.reading;
 
-        let grid_size = if let Some(size) = args.grid { if size >= 2 && size <= 10 { size } else { 1 } } else { 1 };
+        let grid_size = if let Some(size) = args.grid { if size >= 2 && size <= 20 { size } else { 1 } } else { 1 };
 
         if let Some(reading_list_file) = reading_list {
             println!("searching images from the {} reading list", reading_list_file)
