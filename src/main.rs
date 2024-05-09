@@ -465,7 +465,6 @@ fn main() {
                     },
                     "s" => {
                         index.toggle_to_select_current();
-                        index.toggle_to_select_current();
                         show_grid(&grid, index.clone(), &window);
                     },
                     "t" => {
