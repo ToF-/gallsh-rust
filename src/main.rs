@@ -1,4 +1,9 @@
 use glib::clone;
+use glib::subclass::Signal;
+use std::sync::OnceLock;
+use glib::prelude::*;
+use glib::closure_local;
+use glib::Value;
 use glib::timeout_add_local;
 use gtk::prelude::*;
 use gtk::{self, Application, ScrolledWindow, gdk, glib, Grid, Picture};
@@ -358,6 +363,18 @@ fn main() {
             return
         }
 
+        let mut index = Index::new(entry_list.clone(), grid_size);
+        if let None = args.ordered {
+            index.random()
+        };
+        if let Some(index_number) = args.index {
+            index.set(index_number);
+        }
+        let index_rc = Rc::new(RefCell::new(index));
+
+        let entries_rc: Rc<RefCell<EntryList>> = Rc::new(RefCell::new(entry_list));
+
+
         // build the main window
         let grid = Grid::new();
         grid.set_row_homogeneous(true);
@@ -370,9 +387,11 @@ fn main() {
                 grid.attach(&image, row as i32, col as i32, 1, 1);
                 let _gesture = gtk::GestureClick::new();
                 _gesture.set_button(0);
-                _gesture.connect_pressed(move |_gesture,_, _, _| {
-                    println!("clicked on picture at ({},{})", row,col)
-                });
+                _gesture.connect_pressed(clone!(@strong index_rc => move |_gesture,_, _, _| {
+                    let mut index: RefMut<'_,Index> = index_rc.borrow_mut();
+                    let current = index.clone().current;
+                    index.toggle_to_select(current + row * grid_size + col);
+                }));
                 image.add_controller(_gesture);
             }
         }
@@ -389,18 +408,6 @@ fn main() {
 
         scrolled_window.set_child(Some(&grid));
         window.set_child(Some(&scrolled_window));
-
-        let mut index = Index::new(entry_list.clone(), grid_size);
-        if let None = args.ordered {
-            index.random()
-        };
-        if let Some(index_number) = args.index {
-            index.set(index_number);
-        }
-        let index_rc = Rc::new(RefCell::new(index));
-
-        let entries_rc: Rc<RefCell<EntryList>> = Rc::new(RefCell::new(entry_list));
-
 
         let evk = gtk::EventControllerKey::new();
         evk.connect_key_pressed(clone!(@strong entries_rc, @strong grid, @strong index_rc, @strong window => move |_, key, _, _| {
