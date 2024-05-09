@@ -1,24 +1,25 @@
-use glib::clone;
-use glib::subclass::Signal;
-use std::sync::OnceLock;
-use glib::prelude::*;
-use glib::closure_local;
+use clap::{Parser,ValueEnum};
 use glib::Value;
+use glib::clone;
+use glib::closure_local;
+use glib::prelude::*;
+use glib::subclass::Signal;
 use glib::timeout_add_local;
 use gtk::prelude::*;
 use gtk::{self, Application, ScrolledWindow, gdk, glib, Grid, Picture};
 use rand::{thread_rng, Rng};
 use std::cell::{RefCell, RefMut};
+use std::collections::HashSet;
 use std::env;
-use std::io;
-use std::fs;
 use std::fs::OpenOptions;
 use std::fs::read_to_string;
+use std::fs;
 use std::io::{Write};
+use std::io;
 use std::rc::Rc;
-use std::time::{Duration};
+use std::sync::OnceLock;
 use std::time::SystemTime;
-use clap::{Parser,ValueEnum};
+use std::time::{Duration};
 use walkdir::WalkDir;
 
 #[derive(Clone, Debug)]
@@ -169,13 +170,17 @@ fn get_files_from_reading_list(reading_list: &String) -> io::Result<EntryList> {
     match read_to_string(reading_list) {
         Ok(content) => {
             let mut entries: EntryList = Vec::new();
+            let mut filenames: HashSet<String> = HashSet::new();
             for path in content.lines().map(String::from).collect::<Vec<_>>() {
                 match fs::metadata(&path) {
                     Ok(metadata) => {
                         let file_size = metadata.len();
                         let entry_name = path.to_string().to_owned();
                         let modified_time = metadata.modified().unwrap();
-                        entries.push(make_entry(entry_name, file_size, modified_time));
+                        if ! filenames.contains(&entry_name) {
+                            filenames.insert(entry_name.clone());
+                            entries.push(make_entry(entry_name, file_size, modified_time));
+                        }
                     }
                     Err(err) => {
                         println!("can't open: {}: {}", path, err);
