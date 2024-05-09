@@ -376,25 +376,6 @@ fn main() {
 
 
         // build the main window
-        let grid = Grid::new();
-        grid.set_row_homogeneous(true);
-        grid.set_column_homogeneous(true);
-        grid.set_hexpand(true);
-        grid.set_vexpand(true);
-        for row in 0 .. grid_size {
-            for col in 0 .. grid_size {
-                let image = Picture::new();
-                grid.attach(&image, row as i32, col as i32, 1, 1);
-                let _gesture = gtk::GestureClick::new();
-                _gesture.set_button(0);
-                _gesture.connect_pressed(clone!(@strong index_rc => move |_gesture,_, _, _| {
-                    let mut index: RefMut<'_,Index> = index_rc.borrow_mut();
-                    let current = index.clone().current;
-                    index.toggle_to_select(current + row * grid_size + col);
-                }));
-                image.add_controller(_gesture);
-            }
-        }
         let window = gtk::ApplicationWindow::builder()
             .application(application)
             .default_width(1000)
@@ -406,6 +387,26 @@ fn main() {
             .vscrollbar_policy(gtk::PolicyType::Automatic)
             .build();
 
+        let grid = Grid::new();
+        grid.set_row_homogeneous(true);
+        grid.set_column_homogeneous(true);
+        grid.set_hexpand(true);
+        grid.set_vexpand(true);
+        for row in 0 .. grid_size {
+            for col in 0 .. grid_size {
+                let image = Picture::new();
+                grid.attach(&image, row as i32, col as i32, 1, 1);
+                let _gesture = gtk::GestureClick::new();
+                _gesture.set_button(0);
+                _gesture.connect_pressed(clone!(@strong index_rc, @strong grid, @strong window => move |_gesture,_, _, _| {
+                    let mut index: RefMut<'_,Index> = index_rc.borrow_mut();
+                    let current = index.clone().current;
+                    index.toggle_to_select(current + col * grid_size + row);
+                    show_grid(&grid, index.clone(), &window);
+                }));
+                image.add_controller(_gesture);
+            }
+        }
         scrolled_window.set_child(Some(&grid));
         window.set_child(Some(&scrolled_window));
 
@@ -584,6 +585,13 @@ fn show_grid(grid: &Grid, index: Index, window: &gtk::ApplicationWindow) {
         let row = (i / index.grid_size) as i32;
         let col = (i % index.grid_size) as i32;
         let picture = grid.child_at(col,row).unwrap().downcast::<gtk::Picture>().unwrap();
+        let current = index.clone().current;
+        let j = index.clone().nth_index((row as usize) * index.grid_size + (col as usize));
+        if entries[j].to_select {
+            picture.set_opacity(0.25)
+        } else {
+            picture.set_opacity(1.0)
+        }
         let filename = index.clone().nth_filename(i);
         // let current_index = index.current
         picture.set_can_shrink(!index.real_size);
