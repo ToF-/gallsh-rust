@@ -418,7 +418,7 @@ fn main() {
                     let entries = index.entries.clone();
                     let current = index.clone().current;
                     let entry_index = current + col * grid_size + row;
-                    let filename = &entries[entry_index].file_path.as_str();
+                    let filename = <Index as Clone>::clone(&index).nth_filename(entry_index);
                     println!("{}", filename);
                 }));
                 image.add_controller(motion_controller)
