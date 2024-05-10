@@ -7613,6 +7613,7 @@ get	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001
 get	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/tree_model.rs	/^    fn get<V: for<'b> FromValue<'b> + 'static>(&self, iter: &TreeIter, column: i32) -> V {$/;"	f
 get	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/tree_model.rs	/^    fn get<V: for<'b> FromValue<'b> + 'static>(&self, iter: &TreeIter, column: i32) -> V;$/;"	f
 get_deferred_dir	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/walkdir-2.4.0/src/lib.rs	/^    fn get_deferred_dir(&mut self) -> Option<DirEntry> {$/;"	f
+get_file	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn get_file(file_path: &str) -> io::Result<EntryList> {$/;"	f
 get_files_from_reading_list	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn get_files_from_reading_list(reading_list: &String) -> io::Result<EntryList> {$/;"	f
 get_files_in_directory	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn get_files_in_directory(dir_path: &str, opt_pattern: &Option<String>, opt_low_size: Option<u64>, opt_high_size: Option<u64>) -> io::Result<EntryList> {$/;"	f
 get_fork_counter	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/rngs/adapter/reseeding.rs	/^    pub fn get_fork_counter() -> usize {$/;"	f

@@ -192,6 +192,18 @@ fn get_files_from_reading_list(reading_list: &String) -> io::Result<EntryList> {
 
 }
 
+fn get_file(file_path: &str) -> io::Result<EntryList> {
+    let mut entries: EntryList = Vec::new();
+    if let Ok(metadata) = fs::metadata(&file_path) {
+        let file_size = metadata.len();
+        let modified_time = metadata.modified().unwrap();
+        let entry_name = file_path.to_string().to_owned();
+        entries.push(make_entry(entry_name, file_size, modified_time));
+    } else {
+        println!("can't open: {}", file_path);
+    };
+    Ok(entries)
+}
 fn get_files_in_directory(dir_path: &str, opt_pattern: &Option<String>, opt_low_size: Option<u64>, opt_high_size: Option<u64>) -> io::Result<EntryList> {
     let mut entries: EntryList = Vec::new();
     for entry in WalkDir::new(dir_path).into_iter().filter_map(|e| e.ok()) {
@@ -294,6 +306,10 @@ struct Args {
     /// High Limit on file size
     #[arg(short, long)]
     high: Option<u64>,
+
+    /// File to view
+    #[arg(short, long)]
+    file: Option<String>, 
 }
 
 const DEFAULT_DIR :&str  = "images/";
@@ -352,9 +368,16 @@ fn main() {
                 Ok(result) => result,
             }
         } else {
-            match get_files_in_directory(&path, &pattern, args.low, args.high) {
-                Err(msg) => panic!("{}", msg),
-                Ok(result) => result,
+            if let Some(file) = &args.file {
+                match get_file(file) {
+                    Err(msg) => panic!("{}", msg),
+                    Ok(result) => result,
+                } 
+            } else {
+                match get_files_in_directory(&path, &pattern, args.low, args.high) {
+                    Err(msg) => panic!("{}", msg),
+                    Ok(result) => result,
+                }
             }
         };
         match order {
