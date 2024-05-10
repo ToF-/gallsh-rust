@@ -1,4 +1,5 @@
 use clap::{Parser,ValueEnum};
+use clap_num::number_range;
 use gtk::EventControllerMotion;
 use glib::Value;
 use glib::clone;
@@ -249,6 +250,9 @@ enum Order {
 #[derive(Debug, PartialEq, Eq)]
 struct ParseOrderError;
 
+fn less_than_11(s: &str) -> Result<usize, String> {
+    number_range(s,1,10)
+}
 
 // declarative setting of arguments
 /// Gallery Show
@@ -288,7 +292,7 @@ struct Args {
     index: Option<usize>,
 
     /// Grid Size
-    #[arg(short, long)]
+    #[arg(short, long, value_parser=less_than_11)]
     grid: Option<usize>,
 
     /// Low Limit on file size
