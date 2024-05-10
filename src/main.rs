@@ -1,11 +1,8 @@
 use clap::{Parser,ValueEnum};
 use clap_num::number_range;
 use gtk::EventControllerMotion;
-use glib::Value;
 use glib::clone;
-use glib::closure_local;
 use glib::prelude::*;
-use glib::subclass::Signal;
 use glib::timeout_add_local;
 use gtk::prelude::*;
 use gtk::{self, Application, ScrolledWindow, gdk, glib, Grid, Picture};
@@ -19,7 +16,6 @@ use std::fs;
 use std::io::{Write};
 use std::io;
 use std::rc::Rc;
-use std::sync::OnceLock;
 use std::time::SystemTime;
 use std::time::{Duration};
 use walkdir::WalkDir;
@@ -108,11 +104,7 @@ impl Index {
     }
 
     fn nth_index(self, i: usize) -> usize {
-        if self.current + i <= self.maximum {
-            self.current + i
-        } else {
-            self.current + i - self.maximum
-        }
+        (self.current + i) % (self.maximum + 1)
     }
 
     fn set_register(&mut self) {
@@ -421,8 +413,7 @@ fn main() {
                 image.add_controller(gesture);
                 let motion_controller = EventControllerMotion::new(); 
                 motion_controller.connect_enter(clone!(@strong index_rc => move |_,_,_| {
-                    let mut index: RefMut<'_,Index> = index_rc.borrow_mut();
-                    let entries = index.entries.clone();
+                    let index: RefMut<'_,Index> = index_rc.borrow_mut();
                     let entry_index = index.clone().nth_index(col * grid_size + row);
                     let filename = <Index as Clone>::clone(&index).nth_filename(entry_index);
                     println!("{}", filename);
@@ -607,7 +598,6 @@ fn show_grid(grid: &Grid, index: Index, window: &gtk::ApplicationWindow) {
         let row = (i / index.grid_size) as i32;
         let col = (i % index.grid_size) as i32;
         let picture = grid.child_at(col,row).unwrap().downcast::<gtk::Picture>().unwrap();
-        let current = index.clone().current;
         let j = index.clone().nth_index((row as usize) * index.grid_size + (col as usize));
         if entries[j].to_select {
             picture.set_opacity(0.25)
