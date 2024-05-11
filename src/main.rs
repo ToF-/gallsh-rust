@@ -1,23 +1,31 @@
+use mime;
 use clap::{Parser,ValueEnum};
 use clap_num::number_range;
-use gtk::EventControllerMotion;
 use glib::clone;
 use glib::prelude::*;
 use glib::timeout_add_local;
+use gtk::EventControllerMotion;
 use gtk::prelude::*;
 use gtk::{self, Application, ScrolledWindow, gdk, glib, Grid, Picture};
 use rand::{thread_rng, Rng};
 use std::cell::{RefCell, RefMut};
 use std::collections::HashSet;
 use std::env;
+use std::ffi::OsStr;
 use std::fs::OpenOptions;
 use std::fs::read_to_string;
+use std::fs::File;
 use std::fs;
+use std::io::BufReader;
+use std::io::{Error,ErrorKind};
 use std::io::{Write};
 use std::io;
+use std::path::{Path, PathBuf};
 use std::rc::Rc;
 use std::time::SystemTime;
 use std::time::{Duration};
+use thumbnailer::error::{ThumbResult, ThumbError};
+use thumbnailer::{create_thumbnails, ThumbnailSize};
 use walkdir::WalkDir;
 
 #[derive(Clone, Debug)]
@@ -192,6 +200,101 @@ fn get_files_from_reading_list(reading_list: &String) -> io::Result<EntryList> {
 
 }
 
+fn create_thumbnail(source: String, target: String, number: Option<usize>) -> ThumbResult<()> {
+    if let Some(n) = number {
+        println!("{:6} {}", n, target.clone())
+    } else {
+        println!("{}", target.clone())
+    };
+    match File::open(source.clone()) {
+        Err(err) => {
+            println!("error opening file {}: {}", source, err);
+            return Err(ThumbError::IO(err))
+        },
+        Ok(input_file) => {
+            let source_path = Path::new(source.as_str());
+            let source_extension = match source_path.extension().and_then(OsStr::to_str) {
+                None => {
+                    println!("error: file {} has no extension", source.clone());
+                    return Err(ThumbError::IO(Error::new(ErrorKind::Other, "no extension")))
+                },
+                Some(s) => s,
+            };
+            let reader = BufReader::new(input_file);
+            let output_file = match File::create(target.clone()) {
+                Err(err) => {
+                    println!("error while creating file {}: {}",
+                        target.clone(),
+                        err);
+                    return Err(ThumbError::IO(err))
+                },
+                Ok(file) => file,
+            };
+            write_thunbnail(reader, source_extension, output_file)
+        },
+    }
+}
+fn write_thunbnail<R: std::io::Seek + std::io::Read>(reader: BufReader<R>, extension: &str, mut output_file: File) -> ThumbResult<()> {
+    let mime = match extension {
+        "jpg" | "jpeg" | "JPG" | "JPEG" => mime::IMAGE_JPEG,
+        "png" | "PNG" => mime::IMAGE_PNG,
+        _ => panic!("wrong extension"),
+    };
+    let mut thumbnails = match create_thumbnails(reader, mime, [ThumbnailSize::Small]) {
+        Ok(tns) => tns,
+        Err(err) => {
+            println!("error while creating thumbnails:{:?}", err);
+            return Err(err)
+        },
+    };
+    let thumbnail = thumbnails.pop().unwrap();
+    let write_result = match extension {
+        "jpg" | "jpeg" | "JPG" | "JPEG" => thumbnail.write_jpeg(&mut output_file,255),
+        "png" | "PNG" => thumbnail.write_png(&mut output_file),
+        _ => panic!("wrong extension"),
+    };
+    match write_result {
+        Err(err) => {
+            println!("error while writing ihunbnail:{}", err);
+            Err(err)
+        },
+        ok => ok,
+    }
+}
+fn update_thumbnails(dir_path: &str) -> ThumbResult<usize> {
+    let result_images = get_files_in_directory(dir_path, false, &None, None, None);
+    let image_entries = match result_images {
+        Ok(entries) => entries,
+        Err(err) => return Err(ThumbError::IO(err)),
+    };
+    let result_thumbnails = get_files_in_directory(dir_path, true, &None, None, None);
+    let mut thumbnail_entries = match result_thumbnails {
+        Ok(entries) => entries,
+        Err(err) => return Err(ThumbError::IO(err)),
+    };
+    thumbnail_entries.sort_by(|a, b| { a.file_path.cmp(&b.file_path) });
+    let mut number: usize = 0;
+    for entry in image_entries {
+            let image_path: PathBuf = PathBuf::from(entry.file_path);
+            let mut target_path: PathBuf = image_path.clone();
+            let extension = target_path.extension().unwrap();
+            let file_stem = target_path.file_stem().unwrap();
+            let new_file_name = format!("{}THUMB.{}",
+                file_stem.to_str().unwrap(),
+                extension.to_str().unwrap());
+            target_path.set_file_name(new_file_name);
+            let source = image_path.into_os_string().into_string().unwrap();
+            let target = target_path.into_os_string().into_string().unwrap();
+            if let Err(_) = thumbnail_entries.binary_search_by(|probe|
+                probe.file_path.cmp(&target)) {
+                let _ = create_thumbnail(source, target, Some(number));
+                number += 1;
+            } else {
+            }
+    };
+    Ok(0)
+}
+
 fn get_file(file_path: &str) -> io::Result<EntryList> {
     let mut entries: EntryList = Vec::new();
     if let Ok(metadata) = fs::metadata(&file_path) {
@@ -314,7 +417,11 @@ struct Args {
 
     /// Thumbnails only
     #[arg(long)]
-    thumbnails: bool
+    thumbnails: bool,
+
+    /// Update thumbnails before showing files
+    #[arg(long)]
+    update_thumbnails: bool,
 }
 
 const DEFAULT_DIR :&str  = "images/";
@@ -375,6 +482,12 @@ fn main() {
         };
 
 
+        if args.update_thumbnails {
+            println!("updating thumbnails...");
+            if let Ok(n) = update_thumbnails(&path) {
+                println!("{n} thumbnails added");
+            }
+        }
         // get all the entries in the directory that match pattern (or all if None) or from a
         // reading list
         let mut entry_list = if let Some(reading_list_filename) = &reading_list {
