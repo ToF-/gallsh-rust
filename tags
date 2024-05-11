@@ -15682,6 +15682,7 @@ toggle_real_size	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    f
 toggle_to_select	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn toggle_to_select(&mut self, index: usize) {$/;"	f
 toggle_to_select_current	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn toggle_to_select_current(&mut self) {$/;"	f
 toggle_to_touch_current	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn toggle_to_touch_current(&mut self) {$/;"	f
+toggle_to_unlink	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn toggle_to_unlink(&mut self, index: usize) {$/;"	f
 toggle_to_unlink_current	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn toggle_to_unlink_current(&mut self) {$/;"	f
 toggled	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/toggle_button.rs	/^    fn toggled(&self) {$/;"	f
 toggled	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/toggle_button.rs	/^    fn toggled(&self);$/;"	f

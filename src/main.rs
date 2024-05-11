@@ -6,6 +6,7 @@ use glib::prelude::*;
 use glib::timeout_add_local;
 use gtk::EventControllerMotion;
 use gtk::prelude::*;
+use gtk::traits::WidgetExt;
 use gtk::{self, Application, ScrolledWindow, gdk, glib, Grid, Picture};
 use rand::{thread_rng, Rng};
 use std::cell::{RefCell, RefMut};
@@ -30,16 +31,22 @@ use walkdir::WalkDir;
 
 fn append_thumb_suffix(file_name: &str) -> String {
     let file_path = PathBuf::from(file_name);
-    let extension = file_path.extension().unwrap().to_str().unwrap();
-    let file_stem = file_path.file_stem().unwrap().to_str().unwrap();
-    format!("{}THUMB.{}", file_stem, extension)
+    let parent = file_path.parent().unwrap();
+    let extension = file_path.extension().unwrap();
+    let file_stem = file_path.file_stem().unwrap();
+    let new_file_name = format!("{}THUMB.{}", file_stem.to_str().unwrap(), extension.to_str().unwrap());
+    let new_path = parent.join(new_file_name);
+    new_path.to_str().unwrap().to_string()
 }
 
 fn remove_thumb_suffix(file_name: &str) -> String {
     let file_path = PathBuf::from(file_name);
-    let extension = file_path.extension().unwrap().to_str().unwrap();
-    let file_stem = file_path.file_stem().unwrap().to_str().unwrap().strip_suffix("THUMB").unwrap();
-    format!("{}.{}", file_stem, extension)
+    let parent = file_path.parent().unwrap();
+    let extension = file_path.extension().unwrap();
+    let file_stem = file_path.file_stem().unwrap();
+    let new_file_name = format!("{}.{}", file_stem.to_str().unwrap(), extension.to_str().unwrap());
+    let new_path = parent.join(new_file_name);
+    new_path.to_str().unwrap().to_string()
 }
 
 #[derive(Clone, Debug)]
@@ -149,6 +156,13 @@ impl Index {
     fn toggle_to_select(&mut self, index: usize) {
         if index <= self.maximum {
             self.entries[index].to_select = ! self.entries[index].to_select;
+        } else {
+            println!("index out of range: {}/{}", index, self.maximum);
+        }
+    }
+    fn toggle_to_unlink(&mut self, index: usize) {
+        if index <= self.maximum {
+            self.entries[index].to_unlink = ! self.entries[index].to_unlink;
         } else {
             println!("index out of range: {}/{}", index, self.maximum);
         }
@@ -564,15 +578,25 @@ fn main() {
             for col in 0 .. grid_size {
                 let image = Picture::new();
                 grid.attach(&image, row as i32, col as i32, 1, 1);
-                let gesture = gtk::GestureClick::new();
-                gesture.set_button(0);
-                gesture.connect_pressed(clone!(@strong index_rc, @strong grid, @strong window => move |_,_, _, _| {
+                let gesture_select = gtk::GestureClick::new();
+                gesture_select.set_button(1);
+                gesture_select.connect_pressed(clone!(@strong index_rc, @strong grid, @strong window => move |_,_, _, _| {
                     let mut index: RefMut<'_,Index> = index_rc.borrow_mut();
                     let entry_index = index.clone().nth_index(col * grid_size + row);
                     index.toggle_to_select(entry_index);
                     show_grid(&grid, index.clone(), &window);
                 }));
-                image.add_controller(gesture);
+                image.add_controller(gesture_select);
+                let gesture_unlink = gtk::GestureClick::new();
+                gesture_unlink.set_button(3);
+                gesture_unlink.connect_pressed(clone!(@strong index_rc, @strong grid, @strong window => move |_,_, _, _| {
+                    let mut index: RefMut<'_,Index> = index_rc.borrow_mut();
+                    let entry_index = index.clone().nth_index(col * grid_size + row);
+                    index.toggle_to_unlink(entry_index);
+                    show_grid(&grid, index.clone(), &window);
+                }));
+                image.add_controller(gesture_unlink);
+
                 let motion_controller = EventControllerMotion::new(); 
                 motion_controller.connect_enter(clone!(@strong index_rc => move |_,_,_| {
                     let index: RefMut<'_,Index> = index_rc.borrow_mut();
@@ -761,11 +785,13 @@ fn show_grid(grid: &Grid, index: Index, window: &gtk::ApplicationWindow) {
         let col = (i % index.grid_size) as i32;
         let picture = grid.child_at(col,row).unwrap().downcast::<gtk::Picture>().unwrap();
         let j = index.clone().nth_index((row as usize) * index.grid_size + (col as usize));
-        if entries[j].to_select {
-            picture.set_opacity(0.25)
-        } else {
-            picture.set_opacity(1.0)
-        }
+        let entry = entries[j].clone();
+        let opacity = if entry.to_select {
+            0.50
+        } else if entry.to_unlink {
+            0.25
+        } else { 1.0 };
+        picture.set_opacity(opacity);
         let filename = index.clone().nth_filename(i);
         // let current_index = index.current
         picture.set_can_shrink(!index.real_size);
