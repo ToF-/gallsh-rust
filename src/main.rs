@@ -204,7 +204,7 @@ fn get_file(file_path: &str) -> io::Result<EntryList> {
     };
     Ok(entries)
 }
-fn get_files_in_directory(dir_path: &str, opt_pattern: &Option<String>, opt_low_size: Option<u64>, opt_high_size: Option<u64>) -> io::Result<EntryList> {
+fn get_files_in_directory(dir_path: &str, thumbnails_only: bool, opt_pattern: &Option<String>, opt_low_size: Option<u64>, opt_high_size: Option<u64>) -> io::Result<EntryList> {
     let mut entries: EntryList = Vec::new();
     for entry in WalkDir::new(dir_path).into_iter().filter_map(|e| e.ok()) {
         let path = entry.into_path();
@@ -218,6 +218,7 @@ fn get_files_in_directory(dir_path: &str, opt_pattern: &Option<String>, opt_low_
         } else {
             path.is_file()
         };
+        let check_thumbnails = pattern_present && path.to_str().map(|filename| filename.contains("THUMB")) == Some(thumbnails_only);
         let low_size_limit = if let Some(low) = opt_low_size {
             low
         } else {
@@ -228,7 +229,7 @@ fn get_files_in_directory(dir_path: &str, opt_pattern: &Option<String>, opt_low_
         } else {
             std::u64::MAX
         };
-        if valid_ext && pattern_present {
+        if valid_ext && pattern_present && check_thumbnails {
             if let Ok(metadata) = fs::metadata(&path) {
                 let file_size = metadata.len();
                 let modified_time = metadata.modified().unwrap();
@@ -276,7 +277,7 @@ struct Args {
     ordered: Option<Order>,
 
     /// Timer delay for next picture
-    #[arg(short, long)]
+    #[arg(long)]
     timer: Option<u64>,
 
     /// Directory to search
@@ -310,6 +311,10 @@ struct Args {
     /// File to view
     #[arg(short, long)]
     file: Option<String>, 
+
+    /// Thumbnails only
+    #[arg(long)]
+    thumbnails: bool
 }
 
 const DEFAULT_DIR :&str  = "images/";
@@ -351,7 +356,17 @@ fn main() {
 
         let reading_list = &args.reading;
 
-        let grid_size = if let Some(size) = args.grid { if size >= 2 && size <= 20 { size } else { 1 } } else { 1 };
+        let grid_size = if args.thumbnails && args.grid == None {
+            10
+        } else {
+            if let Some(size) = args.grid { 
+                if size <= 10 {
+                    size
+                } else {
+                    if args.thumbnails { 10 } else { 1 }
+                }
+            } else { 1 }
+        };
 
         if let Some(reading_list_file) = reading_list {
             println!("searching images from the {} reading list", reading_list_file)
@@ -374,7 +389,7 @@ fn main() {
                     Ok(result) => result,
                 } 
             } else {
-                match get_files_in_directory(&path, &pattern, args.low, args.high) {
+                match get_files_in_directory(&path, args.thumbnails, &pattern, args.low, args.high) {
                     Err(msg) => panic!("{}", msg),
                     Ok(result) => result,
                 }
