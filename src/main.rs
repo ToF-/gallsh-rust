@@ -1,4 +1,3 @@
-use mime;
 use clap::{Parser,ValueEnum};
 use clap_num::number_range;
 use glib::clone;
@@ -8,20 +7,22 @@ use gtk::EventControllerMotion;
 use gtk::prelude::*;
 use gtk::traits::WidgetExt;
 use gtk::{self, Application, ScrolledWindow, gdk, glib, Grid, Picture};
+use mime;
 use rand::{thread_rng, Rng};
 use std::cell::{RefCell, RefMut};
 use std::collections::HashSet;
 use std::env;
 use std::ffi::OsStr;
+use std::fs::File;
 use std::fs::OpenOptions;
 use std::fs::read_to_string;
-use std::fs::File;
 use std::fs;
 use std::io::BufReader;
 use std::io::{Error,ErrorKind};
 use std::io::{Write};
 use std::io;
-use std::path::{Path, PathBuf};
+use std::path::Path;
+use std::path::{PathBuf};
 use std::rc::Rc;
 use std::time::SystemTime;
 use std::time::{Duration};
@@ -237,7 +238,7 @@ fn get_files_from_reading_list(reading_list: &String) -> io::Result<EntryList> {
 }
 
 fn create_thumbnail(source: String, target: String, number: usize, total: usize) -> ThumbResult<()> {
-    println!("{:6}/{:6} {}", number, total, target.clone());
+    println!("creating thumbnails {:6}/{:6} {}", number, total, target.clone());
     match File::open(source.clone()) {
         Err(err) => {
             println!("error opening file {}: {}", source, err);
@@ -293,9 +294,9 @@ fn write_thunbnail<R: std::io::Seek + std::io::Read>(reader: BufReader<R>, exten
         ok => ok,
     }
 }
-fn update_thumbnails(dir_path: &str) -> ThumbResult<usize> {
+fn update_thumbnails(dir_path: &str) -> ThumbResult<(usize,usize)> {
     let result_images = get_files_in_directory(dir_path, false, &None, None, None);
-    let image_entries = match result_images {
+    let mut image_entries = match result_images {
         Ok(entries) => entries,
         Err(err) => return Err(ThumbError::IO(err)),
     };
@@ -304,21 +305,38 @@ fn update_thumbnails(dir_path: &str) -> ThumbResult<usize> {
         Ok(entries) => entries,
         Err(err) => return Err(ThumbError::IO(err)),
     };
+    image_entries.sort_by(|a, b| { a.file_path.cmp(&b.file_path) });
     thumbnail_entries.sort_by(|a, b| { a.file_path.cmp(&b.file_path) });
     let mut number: usize = 0;
     let mut created: usize = 0;
-    let total = image_entries.len();
+    let total_images = image_entries.len();
     for entry in image_entries {
         let source = entry.file_path.clone();
         let target = append_thumb_suffix(&source);
         if let Err(_) = thumbnail_entries.binary_search_by(|probe|
             probe.file_path.cmp(&target)) {
-            let _ = create_thumbnail(source, target, number, total);
+            let _ = create_thumbnail(source, target, number, total_images);
             created += 1;
         } else { }
         number += 1;
     };
-    Ok(created)
+    let mut deleted: usize = 0;
+    for entry in thumbnail_entries {
+        let source = entry.file_path.clone();
+        let target = remove_thumb_suffix(&source);
+        let image_path = PathBuf::from(target.clone());
+        if ! image_path.exists() {
+            println!("deleting thumbnails {} with no matching image", source.clone());
+            match std::fs::remove_file(source.clone()) {
+                Err(err) => {
+                    println!("error while deleting file {}: {}", source, err);
+                },
+                Ok(_) => {},
+            };
+            deleted += 1;
+        }
+    }
+    Ok((created,deleted))
 }
 
 fn get_file(file_path: &str) -> io::Result<EntryList> {
@@ -510,8 +528,8 @@ fn main() {
 
         if args.update_thumbnails {
             println!("updating thumbnails...");
-            if let Ok(n) = update_thumbnails(&path) {
-                println!("{n} thumbnails added");
+            if let Ok((created, deleted)) = update_thumbnails(&path) {
+                println!("{created} thumbnails added, {deleted} thumbnails deleted");
             }
         }
         // get all the entries in the directory that match pattern (or all if None) or from a

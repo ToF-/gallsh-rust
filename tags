@@ -16138,7 +16138,7 @@ update_relation	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f1
 update_relation	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/accessible.rs	/^    fn update_relation(&self, relations: &[Relation]);$/;"	f
 update_state	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/accessible.rs	/^    fn update_state(&self, states: &[State]) {$/;"	f
 update_state	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/accessible.rs	/^    fn update_state(&self, states: &[State]);$/;"	f
-update_thumbnails	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn update_thumbnails(dir_path: &str) -> ThumbResult<usize> {$/;"	f
+update_thumbnails	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn update_thumbnails(dir_path: &str) -> ThumbResult<(usize,usize)> {$/;"	f
 update_weights	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/distributions/weighted_index.rs	/^    pub fn update_weights(&mut self, new_weights: &[(usize, &X)]) -> Result<(), WeightedError>$/;"	f
 upper	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/adjustment.rs	/^    fn upper(&self) -> f64 {$/;"	f
 upper	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/adjustment.rs	/^    fn upper(&self) -> f64;$/;"	f
