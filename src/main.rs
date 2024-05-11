@@ -44,7 +44,8 @@ fn remove_thumb_suffix(file_name: &str) -> String {
     let parent = file_path.parent().unwrap();
     let extension = file_path.extension().unwrap();
     let file_stem = file_path.file_stem().unwrap();
-    let new_file_name = format!("{}.{}", file_stem.to_str().unwrap(), extension.to_str().unwrap());
+    let new_file_stem = file_stem.to_str().unwrap().strip_suffix("THUMB").unwrap();
+    let new_file_name = format!("{}.{}", new_file_stem, extension.to_str().unwrap());
     let new_path = parent.join(new_file_name);
     new_path.to_str().unwrap().to_string()
 }
