@@ -28,6 +28,20 @@ use thumbnailer::error::{ThumbResult, ThumbError};
 use thumbnailer::{create_thumbnails, ThumbnailSize};
 use walkdir::WalkDir;
 
+fn append_thumb_suffix(file_name: &str) -> String {
+    let file_path = PathBuf::from(file_name);
+    let extension = file_path.extension().unwrap().to_str().unwrap();
+    let file_stem = file_path.file_stem().unwrap().to_str().unwrap();
+    format!("{}THUMB.{}", file_stem, extension)
+}
+
+fn remove_thumb_suffix(file_name: &str) -> String {
+    let file_path = PathBuf::from(file_name);
+    let extension = file_path.extension().unwrap().to_str().unwrap();
+    let file_stem = file_path.file_stem().unwrap().to_str().unwrap().strip_suffix("THUMB").unwrap();
+    format!("{}.{}", file_stem, extension)
+}
+
 #[derive(Clone, Debug)]
 struct Entry {
     file_path: String,
@@ -152,7 +166,7 @@ impl Index {
         self.entries[self.current].to_touch = ! self.entries[self.current].to_touch;
     }
 
-    fn save_marked_file_list(&mut self, selection: Vec<&Entry>, dest_file_path: &str) {
+    fn save_marked_file_list(&mut self, selection: Vec<&Entry>, dest_file_path: &str, thumbnails: bool) {
         if selection.len() > 0 {
             let result = OpenOptions::new()
                 .write(true)
@@ -160,19 +174,22 @@ impl Index {
                 .create(true)
                 .open(dest_file_path);
             if let Ok(mut file) = result {
-                for e in selection.iter() {
-                    println!("saving {} for reference", e.file_path);
-                    let _ = file.write(format!("{}\n", e.file_path).as_bytes());
+                for entry in selection.iter() {
+                    let file_path = if thumbnails {
+                        remove_thumb_suffix(&entry.file_path.clone())
+                    } else { entry.file_path.clone() };
+                    println!("saving {} for reference", file_path);
+                    let _ = file.write(format!("{}\n", file_path).as_bytes());
                 }
             }
         }
     }
 
-    fn save_marked_file_lists(&mut self) {
+    fn save_marked_file_lists(&mut self, thumbnails: bool) {
         let entries = &self.entries.clone();
-        let _ = &self.save_marked_file_list(entries.iter().filter(|e| e.to_select).collect(), "selections");
-        let _ = &self.save_marked_file_list(entries.iter().filter(|e| e.to_touch).collect(), "touches");
-        let _ = &self.save_marked_file_list(entries.iter().filter(|e| e.to_unlink).collect(), "deletions");
+        let _ = &self.save_marked_file_list(entries.iter().filter(|e| e.to_select).collect(), "selections", thumbnails);
+        let _ = &self.save_marked_file_list(entries.iter().filter(|e| e.to_touch).collect(), "touches", thumbnails);
+        let _ = &self.save_marked_file_list(entries.iter().filter(|e| e.to_unlink).collect(), "deletions", thumbnails);
     }
 }
 
@@ -204,12 +221,8 @@ fn get_files_from_reading_list(reading_list: &String) -> io::Result<EntryList> {
 
 }
 
-fn create_thumbnail(source: String, target: String, number: Option<usize>) -> ThumbResult<()> {
-    if let Some(n) = number {
-        println!("{:6} {}", n, target.clone())
-    } else {
-        println!("{}", target.clone())
-    };
+fn create_thumbnail(source: String, target: String, number: usize, total: usize) -> ThumbResult<()> {
+    println!("{:6}/{:6} {}", number, total, target.clone());
     match File::open(source.clone()) {
         Err(err) => {
             println!("error opening file {}: {}", source, err);
@@ -278,25 +291,19 @@ fn update_thumbnails(dir_path: &str) -> ThumbResult<usize> {
     };
     thumbnail_entries.sort_by(|a, b| { a.file_path.cmp(&b.file_path) });
     let mut number: usize = 0;
+    let mut created: usize = 0;
+    let total = image_entries.len();
     for entry in image_entries {
-            let image_path: PathBuf = PathBuf::from(entry.file_path);
-            let mut target_path: PathBuf = image_path.clone();
-            let extension = target_path.extension().unwrap();
-            let file_stem = target_path.file_stem().unwrap();
-            let new_file_name = format!("{}THUMB.{}",
-                file_stem.to_str().unwrap(),
-                extension.to_str().unwrap());
-            target_path.set_file_name(new_file_name);
-            let source = image_path.into_os_string().into_string().unwrap();
-            let target = target_path.into_os_string().into_string().unwrap();
-            if let Err(_) = thumbnail_entries.binary_search_by(|probe|
-                probe.file_path.cmp(&target)) {
-                let _ = create_thumbnail(source, target, Some(number));
-                number += 1;
-            } else {
-            }
+        let source = entry.file_path.clone();
+        let target = append_thumb_suffix(&source);
+        if let Err(_) = thumbnail_entries.binary_search_by(|probe|
+            probe.file_path.cmp(&target)) {
+            let _ = create_thumbnail(source, target, number, total);
+            created += 1;
+        } else { }
+        number += 1;
     };
-    Ok(0)
+    Ok(created)
 }
 
 fn get_file(file_path: &str) -> io::Result<EntryList> {
@@ -625,7 +632,7 @@ fn main() {
                         show_grid(&grid, index.clone(), &window);
                     }
                     "q" => {
-                        index.save_marked_file_lists();
+                        index.save_marked_file_lists(args.thumbnails);
                         window.close();
                     },
                     "r" => {

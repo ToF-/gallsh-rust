@@ -1957,6 +1957,7 @@ append_string	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d
 append_text	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/combo_box_text.rs	/^    pub fn append_text(&self, text: &str) {$/;"	f
 append_texture	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/snapshot.rs	/^    fn append_texture(&self, texture: &impl IsA<gdk::Texture>, bounds: &graphene::Rect) {$/;"	f
 append_texture	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/snapshot.rs	/^    fn append_texture(&self, texture: &impl IsA<gdk::Texture>, bounds: &graphene::Rect);$/;"	f
+append_thumb_suffix	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn append_thumb_suffix(file_name: &str) -> String {$/;"	f
 application	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/about_dialog.rs	/^    pub fn application(self, application: &impl IsA<Application>) -> Self {$/;"	f
 application	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/application_window.rs	/^    pub fn application(self, application: &impl IsA<Application>) -> Self {$/;"	f
 application	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/assistant.rs	/^    pub fn application(self, application: &impl IsA<Application>) -> Self {$/;"	f
@@ -5213,7 +5214,7 @@ create_pango_layout	/Users/christophethibaut/.cargo/registry/src/index.crates.io
 create_row_drag_icon	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/tree_view.rs	/^    fn create_row_drag_icon(&self, path: &TreePath) -> Option<gdk::Paintable> {$/;"	f
 create_row_drag_icon	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/tree_view.rs	/^    fn create_row_drag_icon(&self, path: &TreePath) -> Option<gdk::Paintable>;$/;"	f
 create_tag	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/text_buffer.rs	/^    fn create_tag($/;"	f
-create_thumbnail	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn create_thumbnail(source: String, target: String, number: Option<usize>) -> ThumbResult<()> {$/;"	f
+create_thumbnail	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn create_thumbnail(source: String, target: String, number: usize, total: usize) -> ThumbResult<()> {$/;"	f
 create_thumbnails	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/thumbnailer-0.5.1/src/lib.rs	/^pub fn create_thumbnails<R: BufRead + Seek, I: IntoIterator<Item = ThumbnailSize>>($/;"	f
 create_widget_for_value	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/drag_icon.rs	/^    pub fn create_widget_for_value(value: &glib::Value) -> Option<Widget> {$/;"	f
 creates_folders	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/file_chooser.rs	/^    fn creates_folders(&self) -> bool {$/;"	f
@@ -12657,6 +12658,7 @@ remove_tag	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22b
 remove_tag	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/text_buffer.rs	/^    fn remove_tag(&self, tag: &TextTag, start: &TextIter, end: &TextIter) {$/;"	f
 remove_tag_by_name	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_buffer.rs	/^    fn remove_tag_by_name(&self, name: &str, start: &TextIter, end: &TextIter) {$/;"	f
 remove_tag_by_name	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_buffer.rs	/^    fn remove_tag_by_name(&self, name: &str, start: &TextIter, end: &TextIter);$/;"	f
+remove_thumb_suffix	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn remove_thumb_suffix(file_name: &str) -> String {$/;"	f
 remove_widget	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_editable.rs	/^    fn remove_widget(&self) {$/;"	f
 remove_widget	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_editable.rs	/^    fn remove_widget(&self);$/;"	f
 remove_widget	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/size_group.rs	/^    pub fn remove_widget(&self, widget: &impl IsA<Widget>) {$/;"	f
@@ -12951,8 +12953,8 @@ save	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba1500
 save	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/style_context.rs	/^    fn save(&self) {$/;"	f
 save	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/style_context.rs	/^    fn save(&self);$/;"	f
 save_future	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/file_dialog.rs	/^    pub fn save_future($/;"	f
-save_marked_file_list	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn save_marked_file_list(&mut self, selection: Vec<&Entry>, dest_file_path: &str) {$/;"	f
-save_marked_file_lists	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn save_marked_file_lists(&mut self) {$/;"	f
+save_marked_file_list	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn save_marked_file_list(&mut self, selection: Vec<&Entry>, dest_file_path: &str, thumbnails: bool) {$/;"	f
+save_marked_file_lists	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn save_marked_file_lists(&mut self, thumbnails: bool) {$/;"	f
 scalar_float_impl	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/distributions/utils.rs	/^macro_rules! scalar_float_impl {$/;"	d
 scale	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_renderer_accel.rs	/^    pub fn scale(self, scale: f64) -> Self {$/;"	f
 scale	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_renderer_combo.rs	/^    pub fn scale(self, scale: f64) -> Self {$/;"	f
