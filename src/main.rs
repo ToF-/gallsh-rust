@@ -379,6 +379,9 @@ fn get_files_in_directory(dir_path: &str, thumbnails_only: bool, opt_pattern: &O
         if valid_ext && pattern_present && check_thumbnails {
             if let Ok(metadata) = fs::metadata(&path) {
                 let file_size = metadata.len();
+                if file_size == 0 {
+                    println!("file {} has a size of 0", path.to_str().unwrap())
+                };
                 let modified_time = metadata.modified().unwrap();
                 if low_size_limit <= file_size && file_size <= high_size_limit  {
                     if let Some(full_name) = path.to_str() {
