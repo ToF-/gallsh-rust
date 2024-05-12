@@ -151,7 +151,7 @@ impl Entries {
 
     fn show_status(self, offset: usize) -> String {
         format!("{} {} {} {}",
-            offset,
+            self.current + offset,
             self.clone().offset_entry(offset).show_status(),
             self.register,
             if self.real_size { "*" } else { "" })
@@ -618,10 +618,10 @@ fn main() {
                 gesture_select.set_button(1);
                 gesture_select.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_,_, _, _| {
                     let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-                    entries.toggle_to_select_with_offset(col * grid_size + row);
+                    let offset = col * grid_size + row;
+                    entries.toggle_to_select_with_offset(offset);
                     show_grid(&grid, &entries.clone());
-                    let entry = entries.clone().offset_entry(col * grid_size + row);
-                    window.set_title(Some(&entry.show_status()))
+                    window.set_title(Some(&entries.clone().show_status(offset)));
                 }));
                 image.add_controller(gesture_select);
 
@@ -629,18 +629,18 @@ fn main() {
                 gesture_unlink.set_button(3);
                 gesture_unlink.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_,_, _, _| {
                     let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-                    entries.toggle_to_unlink_with_offset(col * grid_size + row);
+                    let offset = col * grid_size + row;
+                    entries.toggle_to_unlink_with_offset(offset);
                     show_grid(&grid, &entries.clone());
-                    let entry = entries.clone().offset_entry(col * grid_size + row);
-                    window.set_title(Some(&entry.show_status()))
+                    window.set_title(Some(&entries.clone().show_status(offset)));
                 }));
                 image.add_controller(gesture_unlink);
 
                 let motion_controller = EventControllerMotion::new(); 
                 motion_controller.connect_enter(clone!(@strong entries_rc, @strong window => move |_,_,_| {
                     let entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-                    let entry = entries.clone().offset_entry(col * grid_size + row);
-                    window.set_title(Some(&entry.show_status()))
+                    let offset = col * grid_size + row;
+                    window.set_title(Some(&entries.clone().show_status(offset)));
                 }));
                 image.add_controller(motion_controller)
             }
