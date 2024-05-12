@@ -30,6 +30,8 @@ use thumbnailer::error::{ThumbResult, ThumbError};
 use thumbnailer::{create_thumbnails, ThumbnailSize};
 use walkdir::WalkDir;
 
+const FIRST_CELL: usize = 0;
+
 fn append_thumb_suffix(file_name: &str) -> String {
     let file_path = PathBuf::from(file_name);
     let parent = file_path.parent().unwrap();
@@ -64,11 +66,11 @@ type EntryList = Vec<Entry>;
 
 fn make_entry(s:String, l:u64, t:SystemTime) -> Entry {
     return Entry { 
-      file_path: s.clone(),
-      file_size: l,
-      modified_time: t,
-      to_select: false,
-      to_unlink: false,
+        file_path: s.clone(),
+        file_size: l,
+        modified_time: t,
+        to_select: false,
+        to_unlink: false,
     }
 }
 
@@ -87,7 +89,6 @@ impl Entry {
 struct Entries {
     entry_list: Vec<Entry>,
     current: usize,
-    focus: usize,
     maximum:  usize,
     start_index: usize,
     grid_size: usize,
@@ -101,7 +102,6 @@ impl Entries {
         Entries {
             entry_list: entry_list.clone(),
             current: 0,
-            focus: 0,
             maximum: entry_list.len() - 1,
             start_index: 0,
             grid_size: grid_size,
@@ -119,7 +119,6 @@ impl Entries {
             next_pos -= self.maximum + 1
         };
         self.current = next_pos;
-        self.focus = self.current;
         self.register = 0;
     }
 
@@ -133,7 +132,6 @@ impl Entries {
             next_pos = self.maximum - (usize::MAX - next_pos)
         }
         self.current = next_pos;
-        self.focus = self.current;
         self.register = 0;
     }
 
@@ -149,15 +147,14 @@ impl Entries {
             println!("index {} out of range, set to 0", value);
             self.current = 0;
         }
-        self.focus = self.current;
     }
 
-    fn show_status(self) -> String {
+    fn show_status(self, offset: usize) -> String {
         format!("{} {} {} {}",
-                self.clone().focus,
-                self.clone().offset_entry(0).show_status(),
-                self.register,
-                if self.real_size { "*" } else { "" })
+            offset,
+            self.clone().offset_entry(offset).show_status(),
+            self.register,
+            if self.real_size { "*" } else { "" })
     }
 
     fn offset_entry(self, offset: usize) -> Entry {
@@ -507,7 +504,7 @@ fn main() {
             &gdk::Display::default().unwrap(),
             &css_provider,
             1000,
-            );
+        );
     });
 
     // clone! passes a strong reference to pattern in the closure that activates the application
@@ -622,7 +619,7 @@ fn main() {
                 gesture_select.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_,_, _, _| {
                     let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
                     entries.toggle_to_select_with_offset(col * grid_size + row);
-                    show_grid(&grid, &entries.clone(), &window);
+                    show_grid(&grid, &entries.clone());
                     let entry = entries.clone().offset_entry(col * grid_size + row);
                     window.set_title(Some(&entry.show_status()))
                 }));
@@ -633,7 +630,7 @@ fn main() {
                 gesture_unlink.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_,_, _, _| {
                     let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
                     entries.toggle_to_unlink_with_offset(col * grid_size + row);
-                    show_grid(&grid, &entries.clone(), &window);
+                    show_grid(&grid, &entries.clone());
                     let entry = entries.clone().offset_entry(col * grid_size + row);
                     window.set_title(Some(&entry.show_status()))
                 }));
@@ -660,41 +657,49 @@ fn main() {
                     "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" => {
                         let digit:usize = s.parse().unwrap();
                         entries.register = entries.register * 10 + digit;
-                        show_grid(&grid, &entries.clone(), &window);
+                        show_grid(&grid, &entries.clone());
+                        window.set_title(Some(&(entries.clone().show_status(FIRST_CELL))));
                     },
                     "g" => {
                         entries.set_register();
-                        show_grid(&grid, &entries.clone(), &window);
+                        show_grid(&grid, &entries.clone());
+                        window.set_title(Some(&(entries.clone().show_status(FIRST_CELL))));
                     },
                     "j" => {
                         for _ in 0..10 {
                             entries.next()
                         }
-                        show_grid(&grid, &entries.clone(), &window);
+                        show_grid(&grid, &entries.clone());
+                        window.set_title(Some(&(entries.clone().show_status(FIRST_CELL))));
                     },
                     "b" => {
                         for _ in 0..10 {
                             entries.prev()
                         }
-                        show_grid(&grid, &entries.clone(), &window);
+                        show_grid(&grid, &entries.clone());
+                        window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
                     },
                     "f" => {
                         if (entries.clone().max_cells) == 1 {
                             entries.toggle_real_size();
+                            show_grid(&grid, &entries.clone());
+                            window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
                         }
-                        show_grid(&grid, &entries.clone(), &window);
                     },
                     "z" => {
                         entries.set(0);
-                        show_grid(&grid, &entries.clone(), &window);
+                        show_grid(&grid, &entries.clone());
+                        window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
                     }
                     "n" => {
                         entries.next();
-                        show_grid(&grid, &entries.clone(), &window);
+                        show_grid(&grid, &entries.clone());
+                        window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
                     }
                     "p" => {
                         entries.prev();
-                        show_grid(&grid, &entries.clone(), &window);
+                        show_grid(&grid, &entries.clone());
+                        window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
                     }
                     "q" => {
                         entries.save_marked_file_lists(args.thumbnails);
@@ -702,15 +707,18 @@ fn main() {
                     },
                     "r" => {
                         entries.random();
-                        show_grid(&grid, &entries.clone(), &window);
+                        show_grid(&grid, &entries.clone());
+                        window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
                     },
                     "s" => {
                         entries.toggle_to_select_with_offset(0);
-                        show_grid(&grid, &entries.clone(), &window);
+                        show_grid(&grid, &entries.clone());
+                        window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
                     },
                     "u" => { 
                         entries.toggle_to_unlink_with_offset(0);
-                        show_grid(&grid, &entries.clone(), &window);
+                        show_grid(&grid, &entries.clone());
+                        window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
                     },
                     "a" => {
                         entries.start_area();
@@ -724,7 +732,8 @@ fn main() {
                         } else {
                             entries.random()
                         }
-                        show_grid(&grid, &entries.clone(), &window);
+                        show_grid(&grid, &entries.clone());
+                        window.set_title(Some(&(entries.clone().show_status(FIRST_CELL))));
                     },
                     "Right" => {
                         let h_adj = window
@@ -772,11 +781,13 @@ fn main() {
         // show the first file
         if let Some(_) = args.ordered {
             let entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-            show_grid(&grid, &entries, &window);
+            show_grid(&grid, &entries);
+            window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
         } else {
             let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
             entries.random();
-            show_grid(&grid, &entries, &window);
+            show_grid(&grid, &entries);
+            window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
         }
 
         if args.maximized { window.fullscreen() };
@@ -789,10 +800,11 @@ fn main() {
                 } else {
                     entries.random();
                 };
-                show_grid(&grid, &entries.clone(), &window);
+                show_grid(&grid, &entries.clone());
+                window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
                 Continue(true) 
             }));
-    };
+        };
         window.present();
     }));
     application.set_accels_for_action("win.save", &["s"]);
@@ -802,7 +814,7 @@ fn main() {
 
 
 
-fn show_grid(grid: &Grid, entries: &Entries, window: &gtk::ApplicationWindow) {
+fn show_grid(grid: &Grid, entries: &Entries) {
     let max_cells = entries.clone().max_cells;
     let grid_size = entries.clone().grid_size;
     for cell_index in 0 .. max_cells {
@@ -821,5 +833,4 @@ fn show_grid(grid: &Grid, entries: &Entries, window: &gtk::ApplicationWindow) {
         picture.set_can_shrink(!entries.clone().real_size);
         picture.set_filename(Some(filename.clone()));
     }
-    window.set_title(Some(&(entries.clone().show_status())));
 }

@@ -389,6 +389,7 @@ F	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/
 FAMILY	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/flags.rs	/^        const FAMILY = ffi::GTK_FONT_CHOOSER_LEVEL_FAMILY as _;$/;"	c
 FEATURES	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/flags.rs	/^        const FEATURES = ffi::GTK_FONT_CHOOSER_LEVEL_FEATURES as _;$/;"	c
 FFMPEG	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/thumbnailer-0.5.1/src/utils/ffmpeg_cli.rs	/^const FFMPEG: &str = "ffmpeg";$/;"	c
+FIRST_CELL	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^const FIRST_CELL: usize = 0;$/;"	c
 FOCUSED	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/flags.rs	/^        const FOCUSED = ffi::GTK_CELL_RENDERER_FOCUSED as _;$/;"	c
 FOCUSED	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/flags.rs	/^        const FOCUSED = ffi::GTK_STATE_FLAG_FOCUSED as _;$/;"	c
 FOCUS_VISIBLE	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/flags.rs	/^        const FOCUS_VISIBLE = ffi::GTK_STATE_FLAG_FOCUS_VISIBLE as _;$/;"	c
@@ -14959,7 +14960,7 @@ show_emoji_icon	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f1
 show_expanders	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/tree_view.rs	/^    pub fn show_expanders(self, show_expanders: bool) -> Self {$/;"	f
 show_fallback	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/app_chooser_widget.rs	/^    pub fn show_fallback(self, show_fallback: bool) -> Self {$/;"	f
 show_fill_level	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/scale.rs	/^    pub fn show_fill_level(self, show_fill_level: bool) -> Self {$/;"	f
-show_grid	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn show_grid(grid: &Grid, entries: &Entries, window: &gtk::ApplicationWindow) {$/;"	f
+show_grid	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn show_grid(grid: &Grid, entries: &Entries) {$/;"	f
 show_heading	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/calendar.rs	/^    pub fn show_heading(self, show_heading: bool) -> Self {$/;"	f
 show_menubar	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/application_window.rs	/^    pub fn show_menubar(self, show_menubar: bool) -> Self {$/;"	f
 show_other	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/app_chooser_widget.rs	/^    pub fn show_other(self, show_other: bool) -> Self {$/;"	f
@@ -14976,7 +14977,7 @@ show_spaces	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22
 show_spaces	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_tag.rs	/^    fn show_spaces(&self) -> pango::ShowFlags;$/;"	f
 show_spaces	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_tag.rs	/^    pub fn show_spaces(self, show_spaces: pango::ShowFlags) -> Self {$/;"	f
 show_spaces_set	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_tag.rs	/^    pub fn show_spaces_set(self, show_spaces_set: bool) -> Self {$/;"	f
-show_status	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn show_status(self) -> String {$/;"	f
+show_status	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn show_status(self, offset: usize) -> String {$/;"	f
 show_status	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn show_status(self,) -> String {$/;"	f
 show_tabs	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/notebook.rs	/^    pub fn show_tabs(self, show_tabs: bool) -> Self {$/;"	f
 show_text	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/progress_bar.rs	/^    pub fn show_text(self, show_text: bool) -> Self {$/;"	f
