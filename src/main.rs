@@ -57,7 +57,6 @@ struct Entry {
     file_size: u64,
     modified_time: SystemTime,
     to_select: bool,
-    to_touch: bool,
     to_unlink: bool,
 }
 
@@ -69,16 +68,16 @@ fn make_entry(s:String, l:u64, t:SystemTime) -> Entry {
       file_size: l,
       modified_time: t,
       to_select: false,
-      to_touch: false,
       to_unlink: false,
     }
 }
 
 // a struct to keep track of navigating in a list of image files
 #[derive(Clone, Debug)]
-struct Index {
-    entries: Vec<Entry>,
+struct Entries {
+    entry_list: Vec<Entry>,
     current: usize,
+    focus: usize,
     maximum:  usize,
     start_index: usize,
     grid_size: usize,
@@ -86,12 +85,13 @@ struct Index {
     register: usize,
 }
 
-impl Index {
-    fn new(entries: Vec<Entry>, grid_size: usize) -> Self {
-        Index {
-            entries: entries.clone(),
+impl Entries {
+    fn new(entry_list: Vec<Entry>, grid_size: usize) -> Self {
+        Entries {
+            entry_list: entry_list.clone(),
             current: 0,
-            maximum: entries.len() - 1,
+            focus: 0,
+            maximum: entry_list.len() - 1,
             start_index: 0,
             grid_size: grid_size,
             real_size: false,
@@ -105,26 +105,37 @@ impl Index {
 
     fn next(&mut self) {
         let selection_size = self.clone().selection_size();
-        if selection_size < self.maximum {
-            let next_pos = (self.current + selection_size) % (self.maximum + 1);
-            self.current = if self.current < self.maximum { next_pos } else { 0 } ;
-        }
+        if selection_size >= self.maximum {
+            return
+        };
+        let mut next_pos = self.current + selection_size;
+        if next_pos > self.maximum {
+            next_pos -= self.maximum + 1
+        };
+        self.current = next_pos;
+        self.focus = self.current;
         self.register = 0;
-
     }
+
     fn prev(&mut self) {
         let selection_size = self.clone().selection_size();
-        if selection_size < self.maximum {
-            let next_pos = if self.current >= selection_size { self.current - selection_size } else { self.maximum - selection_size + 1 };
-            self.current = next_pos;
+        if selection_size >= self.maximum {
+            return
+        };
+        let mut next_pos = self.current - selection_size;
+        if next_pos > self.maximum {
+            next_pos = self.maximum - (usize::MAX - next_pos)
         }
+        self.current = next_pos;
+        self.focus = self.current;
         self.register = 0;
     }
 
     fn random(&mut self) {
-        self.current = thread_rng().gen_range(0..self.maximum + 1);
-        self.register = 0;
+        let position = thread_rng().gen_range(0..self.maximum + 1);
+        self.set(position);
     }
+
     fn set(&mut self, value: usize) {
         if value < self.maximum {
             self.current = value;
@@ -132,14 +143,45 @@ impl Index {
             println!("index {} out of range, set to 0", value);
             self.current = 0;
         }
+        self.focus = self.current;
     }
 
-    fn nth_filename(self, i: usize) -> String {
-        self.entries[self.clone().nth_index(i)].file_path.clone()
+    fn set_focus(&mut self, i: usize) {
+        self.focus = i
+    }
+
+    fn nth_file_name(self, i: usize) -> String {
+        self.entry_list[i].file_path.clone()
+    }
+
+    fn nth_file_size(self, i: usize) -> u64 {
+        self.entry_list[self.clone().nth_index(i)].file_size
+    }
+
+    fn nth_marks(self, i: usize) -> String {
+        let entry = self.clone().nth_entry(i);
+        format!("{}|{}",
+            if entry.to_select { "SELECT" } else { "" },
+            if entry.to_unlink { "UNLINK" } else { "" }).clone()
+    }
+
+    fn show_status(self) -> String {
+        let focus = self.focus;
+        format!("{} {} {} [{}] {} {}",
+            focus,
+            self.clone().nth_file_name(focus),
+            self.clone().nth_marks(focus),
+            self.register,
+            if self.real_size { "*" } else { ""},
+            self.clone().nth_file_size(focus))
     }
 
     fn nth_index(self, i: usize) -> usize {
         (self.current + i) % (self.maximum + 1)
+    }
+
+    fn nth_entry(self, i: usize) -> Entry {
+        self.entry_list[self.clone().nth_index(i)].clone()
     }
 
     fn set_register(&mut self) {
@@ -157,29 +199,26 @@ impl Index {
 
     fn toggle_to_select(&mut self, index: usize) {
         if index <= self.maximum {
-            self.entries[index].to_select = ! self.entries[index].to_select;
+            self.entry_list[index].to_select = ! self.entry_list[index].to_select;
         } else {
             println!("index out of range: {}/{}", index, self.maximum);
         }
     }
     fn toggle_to_unlink(&mut self, index: usize) {
         if index <= self.maximum {
-            self.entries[index].to_unlink = ! self.entries[index].to_unlink;
+            self.entry_list[index].to_unlink = ! self.entry_list[index].to_unlink;
         } else {
             println!("index out of range: {}/{}", index, self.maximum);
         }
     }
 
     fn toggle_to_select_current(&mut self) {
-        self.entries[self.current].to_select = ! self.entries[self.current].to_select;
+        self.toggle_to_select(self.current);
     }
 
     fn toggle_to_unlink_current(&mut self) {
-        self.entries[self.current].to_unlink = ! self.entries[self.current].to_unlink;
-    }
-
-    fn toggle_to_touch_current(&mut self) {
-        self.entries[self.current].to_touch = ! self.entries[self.current].to_touch;
+        if self.grid_size == 1 { self.focus = self.current };
+        self.entry_list[self.current].to_unlink = ! self.entry_list[self.current].to_unlink;
     }
 
     fn save_marked_file_list(&mut self, selection: Vec<&Entry>, dest_file_path: &str, thumbnails: bool) {
@@ -202,17 +241,16 @@ impl Index {
     }
 
     fn save_marked_file_lists(&mut self, thumbnails: bool) {
-        let entries = &self.entries.clone();
-        let _ = &self.save_marked_file_list(entries.iter().filter(|e| e.to_select).collect(), "selections", thumbnails);
-        let _ = &self.save_marked_file_list(entries.iter().filter(|e| e.to_touch).collect(), "touches", thumbnails);
-        let _ = &self.save_marked_file_list(entries.iter().filter(|e| e.to_unlink).collect(), "deletions", thumbnails);
+        let entry_list = &self.entry_list.clone();
+        let _ = &self.save_marked_file_list(entry_list.iter().filter(|e| e.to_select).collect(), "selections", thumbnails);
+        let _ = &self.save_marked_file_list(entry_list.iter().filter(|e| e.to_unlink).collect(), "deletions", thumbnails);
     }
 }
 
 fn get_files_from_reading_list(reading_list: &String) -> io::Result<EntryList> {
     match read_to_string(reading_list) {
         Ok(content) => {
-            let mut entries: EntryList = Vec::new();
+            let mut entry_list: EntryList = Vec::new();
             let mut filenames: HashSet<String> = HashSet::new();
             for path in content.lines().map(String::from).collect::<Vec<_>>() {
                 match fs::metadata(&path) {
@@ -222,7 +260,7 @@ fn get_files_from_reading_list(reading_list: &String) -> io::Result<EntryList> {
                         let modified_time = metadata.modified().unwrap();
                         if ! filenames.contains(&entry_name) {
                             filenames.insert(entry_name.clone());
-                            entries.push(make_entry(entry_name, file_size, modified_time));
+                            entry_list.push(make_entry(entry_name, file_size, modified_time));
                         }
                     }
                     Err(err) => {
@@ -230,7 +268,7 @@ fn get_files_from_reading_list(reading_list: &String) -> io::Result<EntryList> {
                     }
                 }
             };
-            Ok(entries)
+            Ok(entry_list)
         },
         Err(msg) => Err(msg)
     }
@@ -296,24 +334,24 @@ fn write_thunbnail<R: std::io::Seek + std::io::Read>(reader: BufReader<R>, exten
 }
 fn update_thumbnails(dir_path: &str) -> ThumbResult<(usize,usize)> {
     let result_images = get_files_in_directory(dir_path, false, &None, None, None);
-    let mut image_entries = match result_images {
-        Ok(entries) => entries,
+    let mut image_entry_list = match result_images {
+        Ok(entry_list) => entry_list,
         Err(err) => return Err(ThumbError::IO(err)),
     };
     let result_thumbnails = get_files_in_directory(dir_path, true, &None, None, None);
-    let mut thumbnail_entries = match result_thumbnails {
-        Ok(entries) => entries,
+    let mut thumbnail_entry_list = match result_thumbnails {
+        Ok(entry_list) => entry_list,
         Err(err) => return Err(ThumbError::IO(err)),
     };
-    image_entries.sort_by(|a, b| { a.file_path.cmp(&b.file_path) });
-    thumbnail_entries.sort_by(|a, b| { a.file_path.cmp(&b.file_path) });
+    image_entry_list.sort_by(|a, b| { a.file_path.cmp(&b.file_path) });
+    thumbnail_entry_list.sort_by(|a, b| { a.file_path.cmp(&b.file_path) });
     let mut number: usize = 0;
     let mut created: usize = 0;
-    let total_images = image_entries.len();
-    for entry in image_entries {
+    let total_images = image_entry_list.len();
+    for entry in image_entry_list {
         let source = entry.file_path.clone();
         let target = append_thumb_suffix(&source);
-        if let Err(_) = thumbnail_entries.binary_search_by(|probe|
+        if let Err(_) = thumbnail_entry_list.binary_search_by(|probe|
             probe.file_path.cmp(&target)) {
             let _ = create_thumbnail(source, target, number, total_images);
             created += 1;
@@ -321,7 +359,7 @@ fn update_thumbnails(dir_path: &str) -> ThumbResult<(usize,usize)> {
         number += 1;
     };
     let mut deleted: usize = 0;
-    for entry in thumbnail_entries {
+    for entry in thumbnail_entry_list {
         let source = entry.file_path.clone();
         let target = remove_thumb_suffix(&source);
         let image_path = PathBuf::from(target.clone());
@@ -340,19 +378,19 @@ fn update_thumbnails(dir_path: &str) -> ThumbResult<(usize,usize)> {
 }
 
 fn get_file(file_path: &str) -> io::Result<EntryList> {
-    let mut entries: EntryList = Vec::new();
+    let mut entry_list: EntryList = Vec::new();
     if let Ok(metadata) = fs::metadata(&file_path) {
         let file_size = metadata.len();
         let modified_time = metadata.modified().unwrap();
         let entry_name = file_path.to_string().to_owned();
-        entries.push(make_entry(entry_name, file_size, modified_time));
+        entry_list.push(make_entry(entry_name, file_size, modified_time));
     } else {
         println!("can't open: {}", file_path);
     };
-    Ok(entries)
+    Ok(entry_list)
 }
 fn get_files_in_directory(dir_path: &str, thumbnails_only: bool, opt_pattern: &Option<String>, opt_low_size: Option<u64>, opt_high_size: Option<u64>) -> io::Result<EntryList> {
-    let mut entries: EntryList = Vec::new();
+    let mut entry_list: EntryList = Vec::new();
     for entry in WalkDir::new(dir_path).into_iter().filter_map(|e| e.ok()) {
         let path = entry.into_path();
         let valid_ext = if let Some(ext) = path.extension() {
@@ -386,7 +424,7 @@ fn get_files_in_directory(dir_path: &str, thumbnails_only: bool, opt_pattern: &O
                 if low_size_limit <= file_size && file_size <= high_size_limit  {
                     if let Some(full_name) = path.to_str() {
                         let entry_name = full_name.to_string().to_owned();
-                        entries.push(make_entry(entry_name, file_size, modified_time));
+                        entry_list.push(make_entry(entry_name, file_size, modified_time));
                     }
                 }
             } else {
@@ -394,7 +432,7 @@ fn get_files_in_directory(dir_path: &str, thumbnails_only: bool, opt_pattern: &O
             }
         }
     };
-    Ok(entries)
+    Ok(entry_list)
 }
 
 #[derive(Clone, Copy, Debug, ValueEnum)]
@@ -567,16 +605,16 @@ fn main() {
             return
         }
 
-        let mut index = Index::new(entry_list.clone(), grid_size);
+        let mut entries = Entries::new(entry_list.clone(), grid_size);
         if let None = args.ordered {
-            index.random()
+            entries.random()
         };
         if let Some(index_number) = args.index {
-            index.set(index_number);
+            entries.set(index_number);
         }
-        let index_rc = Rc::new(RefCell::new(index));
+        let entries_rc = Rc::new(RefCell::new(entries));
 
-        let entries_rc: Rc<RefCell<EntryList>> = Rc::new(RefCell::new(entry_list));
+        let entry_list_rc: Rc<RefCell<EntryList>> = Rc::new(RefCell::new(entry_list));
 
 
         // build the main window
@@ -600,31 +638,33 @@ fn main() {
             for col in 0 .. grid_size {
                 let image = Picture::new();
                 grid.attach(&image, row as i32, col as i32, 1, 1);
+
                 let gesture_select = gtk::GestureClick::new();
                 gesture_select.set_button(1);
-                gesture_select.connect_pressed(clone!(@strong index_rc, @strong grid, @strong window => move |_,_, _, _| {
-                    let mut index: RefMut<'_,Index> = index_rc.borrow_mut();
-                    let entry_index = index.clone().nth_index(col * grid_size + row);
-                    index.toggle_to_select(entry_index);
-                    show_grid(&grid, index.clone(), &window);
+                gesture_select.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_,_, _, _| {
+                    let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
+                    let entry_index = entries.clone().nth_index(col * grid_size + row);
+                    entries.toggle_to_select(entry_index);
+                    show_grid(&grid, &entries.clone(), &window);
                 }));
                 image.add_controller(gesture_select);
+
                 let gesture_unlink = gtk::GestureClick::new();
                 gesture_unlink.set_button(3);
-                gesture_unlink.connect_pressed(clone!(@strong index_rc, @strong grid, @strong window => move |_,_, _, _| {
-                    let mut index: RefMut<'_,Index> = index_rc.borrow_mut();
-                    let entry_index = index.clone().nth_index(col * grid_size + row);
-                    index.toggle_to_unlink(entry_index);
-                    show_grid(&grid, index.clone(), &window);
+                gesture_unlink.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_,_, _, _| {
+                    let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
+                    let entry_index = entries.clone().nth_index(col * grid_size + row);
+                    entries.toggle_to_unlink(entry_index);
+                    show_grid(&grid, &entries.clone(), &window);
                 }));
                 image.add_controller(gesture_unlink);
 
                 let motion_controller = EventControllerMotion::new(); 
-                motion_controller.connect_enter(clone!(@strong index_rc => move |_,_,_| {
-                    let index: RefMut<'_,Index> = index_rc.borrow_mut();
-                    let entry_index = index.clone().nth_index(col * grid_size + row);
-                    let filename = <Index as Clone>::clone(&index).nth_filename(entry_index);
-                    println!("{}", filename);
+                motion_controller.connect_enter(clone!(@strong entries_rc, @strong window => move |_,_,_| {
+                    let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
+                    let entry_index = entries.clone().nth_index(col * grid_size + row);
+                    entries.set_focus(entry_index);
+                    window.set_title(Some(&entries.clone().show_status()))
                 }));
                 image.add_controller(motion_controller)
             }
@@ -633,89 +673,85 @@ fn main() {
         window.set_child(Some(&scrolled_window));
 
         let evk = gtk::EventControllerKey::new();
-        evk.connect_key_pressed(clone!(@strong entries_rc, @strong grid, @strong index_rc, @strong window => move |_, key, _, _| {
+        evk.connect_key_pressed(clone!(@strong entries_rc, @strong grid, @strong entry_list_rc, @strong window => move |_, key, _, _| {
             let step = 100;
-            let mut index: RefMut<'_,Index> = index_rc.borrow_mut();
+            let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
             if let Some(s) = key.name() {
                 match s.as_str() {
                     "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" => {
                         let digit:usize = s.parse().unwrap();
-                        index.register = index.register * 10 + digit;
-                        show_grid(&grid, index.clone(), &window);
+                        entries.register = entries.register * 10 + digit;
+                        show_grid(&grid, &entries.clone(), &window);
                     },
                     "g" => {
-                        index.set_register();
-                        show_grid(&grid, index.clone(), &window);
+                        entries.set_register();
+                        show_grid(&grid, &entries.clone(), &window);
                     },
                     "j" => {
                         for _ in 0..10 {
-                            index.next()
+                            entries.next()
                         }
-                        show_grid(&grid, index.clone(), &window);
+                        show_grid(&grid, &entries.clone(), &window);
                     },
                     "b" => {
                         for _ in 0..10 {
-                            index.prev()
+                            entries.prev()
                         }
-                        show_grid(&grid, index.clone(), &window);
+                        show_grid(&grid, &entries.clone(), &window);
                     },
                     "f" => {
-                        if (index.clone().selection_size()) == 1 {
-                            index.toggle_real_size();
+                        if (entries.clone().selection_size()) == 1 {
+                            entries.toggle_real_size();
                         }
-                        show_grid(&grid, index.clone(), &window);
+                        show_grid(&grid, &entries.clone(), &window);
                     },
                     "z" => {
-                        index.set(0);
-                        show_grid(&grid, index.clone(), &window);
+                        entries.set(0);
+                        show_grid(&grid, &entries.clone(), &window);
                     }
                     "n" => {
-                        index.next();
-                        show_grid(&grid, index.clone(), &window);
+                        entries.next();
+                        show_grid(&grid, &entries.clone(), &window);
                     }
                     "p" => {
-                        index.prev();
-                        show_grid(&grid, index.clone(), &window);
+                        entries.prev();
+                        show_grid(&grid, &entries.clone(), &window);
                     }
                     "q" => {
-                        index.save_marked_file_lists(args.thumbnails);
+                        entries.save_marked_file_lists(args.thumbnails);
                         window.close();
                     },
                     "r" => {
-                        index.random();
-                        show_grid(&grid, index.clone(), &window);
+                        entries.random();
+                        show_grid(&grid, &entries.clone(), &window);
                     },
                     "s" => {
-                        index.toggle_to_select_current();
-                        show_grid(&grid, index.clone(), &window);
-                    },
-                    "t" => {
-                        index.toggle_to_touch_current();
-                        show_grid(&grid, index.clone(), &window);
+                        entries.toggle_to_select_current();
+                        show_grid(&grid, &entries.clone(), &window);
                     },
                     "u" => { 
-                        index.toggle_to_unlink_current();
-                        show_grid(&grid, index.clone(), &window);
+                        entries.toggle_to_unlink_current();
+                        show_grid(&grid, &entries.clone(), &window);
                     },
                     "a" => {
-                        index.start_area();
+                        entries.start_area();
                     },
                     "e" => {
-                        if index.current >= index.start_index {
-                            for i in index.start_index .. index.current+1 {
-                                index.toggle_to_select(i);
+                        if entries.current >= entries.start_index {
+                            for i in entries.start_index .. entries.current+1 {
+                                entries.toggle_to_select(i);
                             }
                         } else {
-                            println!("area start index {} is greater than area end index {}", index.start_index, index.current);
+                            println!("area start index {} is greater than area end index {}", entries.start_index, entries.current);
                         }
                     },
                     "space" => { 
                         if let Some(_) = args.ordered { 
-                            index.next()
+                            entries.next()
                         } else {
-                            index.random()
+                            entries.random()
                         }
-                        show_grid(&grid, index.clone(), &window);
+                        show_grid(&grid, &entries.clone(), &window);
                     },
                     "Right" => {
                         let h_adj = window
@@ -762,25 +798,25 @@ fn main() {
         window.add_controller(evk);
         // show the first file
         if let Some(_) = args.ordered {
-            let index: RefMut<'_,Index> = index_rc.borrow_mut();
-            show_grid(&grid, index.clone(), &window);
+            let entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
+            show_grid(&grid, &entries.clone(), &window);
         } else {
-            let mut index: RefMut<'_,Index> = index_rc.borrow_mut();
-            index.random();
-            show_grid(&grid, index.clone(), &window);
+            let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
+            entries.random();
+            show_grid(&grid, &entries.clone(), &window);
         }
 
         if args.maximized { window.fullscreen() };
         // if a timer has been passed, set a timeout routine
         if let Some(t) = args.timer {
-            timeout_add_local(Duration::new(t,0), clone!(@strong entries_rc, @strong grid, @strong index_rc, @strong window => move | | { 
-                let mut index: RefMut<'_,Index> = index_rc.borrow_mut();
+            timeout_add_local(Duration::new(t,0), clone!(@strong entries_rc, @strong grid, @strong entry_list_rc, @strong window => move | | { 
+                let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
                 if let Some(_) = args.ordered { 
-                    index.next();
+                    entries.next();
                 } else {
-                    index.random();
+                    entries.random();
                 };
-                show_grid(&grid, index.clone(), &window);
+                show_grid(&grid, &entries.clone(), &window);
                 Continue(true) 
             }));
     };
@@ -792,39 +828,27 @@ fn main() {
 }
 
 
-fn show_marks(entry: &Entry) -> String {
-    format!("{}|{}|{}",
-        if entry.to_select { "SELECT" } else { "" },
-        if entry.to_touch { "TOUCH" } else { "" },
-        if entry.to_unlink { "UNLINK" } else { "" }).clone()
-}
 
-fn show_grid(grid: &Grid, index: Index, window: &gtk::ApplicationWindow) {
-    let entries = index.entries.clone();
-    let selection_size = index.clone().selection_size();
-    for i in 0 .. selection_size {
-        let row = (i / index.grid_size) as i32;
-        let col = (i % index.grid_size) as i32;
+fn show_grid(grid: &Grid, entries: &Entries, window: &gtk::ApplicationWindow) {
+    let selection_size = entries.clone().selection_size();
+    let grid_size = entries.clone().grid_size;
+    for cell_index in 0 .. selection_size {
+        let row = (cell_index / grid_size) as i32;
+        let col = (cell_index % grid_size) as i32;
         let picture = grid.child_at(col,row).unwrap().downcast::<gtk::Picture>().unwrap();
-        let j = index.clone().nth_index((row as usize) * index.grid_size + (col as usize));
-        let entry = entries[j].clone();
+        let position = row as usize * grid_size + col as usize;
+        let entry = entries.clone().nth_entry(position);
         let opacity = if entry.to_select {
             0.50
         } else if entry.to_unlink {
             0.25
         } else { 1.0 };
         picture.set_opacity(opacity);
-        let filename = index.clone().nth_filename(i);
-        // let current_index = index.current
-        picture.set_can_shrink(!index.real_size);
+        println!("{:?}", entry.clone());
+        let filename = entry.file_path;
+        picture.set_can_shrink(!entries.clone().real_size);
         picture.set_filename(Some(filename.clone()));
-
     }
-    window.set_title(Some(&format!("{} {} {} [{}] {} {}",
-                index.current,
-                &entries[index.current].file_path.as_str(),
-                show_marks(&entries[index.current]),
-                index.register,
-                if index.real_size { "*" } else { ""},
-                &entries[index.current].file_size)));
+    println!("focus:{} to_select:{}", &entries.clone().focus, &entries.clone().entry_list[entries.clone().focus].to_select);
+    window.set_title(Some(&(entries.clone().show_status())));
 }
