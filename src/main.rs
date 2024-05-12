@@ -72,6 +72,16 @@ fn make_entry(s:String, l:u64, t:SystemTime) -> Entry {
     }
 }
 
+impl Entry {
+    fn show_status(self,) -> String {
+        format!("{} {}|{} [{}]",
+            self.file_path,
+            if self.to_select { "SELECT" } else { "" },
+            if self.to_unlink { "UNLINK" } else { "" },
+            self.file_size)
+    }
+}
+
 // a struct to keep track of navigating in a list of image files
 #[derive(Clone, Debug)]
 struct Entries {
@@ -158,22 +168,12 @@ impl Entries {
         self.entry_list[self.clone().nth_index(i)].file_size
     }
 
-    fn nth_marks(self, i: usize) -> String {
-        let entry = self.clone().nth_entry(i);
-        format!("{}|{}",
-            if entry.to_select { "SELECT" } else { "" },
-            if entry.to_unlink { "UNLINK" } else { "" }).clone()
-    }
-
     fn show_status(self) -> String {
-        let focus = self.focus;
-        format!("{} {} {} [{}] {} {}",
-            focus,
-            self.clone().nth_file_name(focus),
-            self.clone().nth_marks(focus),
-            self.register,
-            if self.real_size { "*" } else { ""},
-            self.clone().nth_file_size(focus))
+        format!("{} {} {} {}",
+                self.clone().focus,
+                self.clone().nth_entry(self.focus).show_status(),
+                self.register,
+                if self.real_size { "*" } else { "" })
     }
 
     fn nth_index(self, i: usize) -> usize {
@@ -726,7 +726,8 @@ fn main() {
                         show_grid(&grid, &entries.clone(), &window);
                     },
                     "s" => {
-                        entries.toggle_to_select_current();
+                        let entry_index = entries.clone().nth_index(0);
+                        entries.toggle_to_select(entry_index);
                         show_grid(&grid, &entries.clone(), &window);
                     },
                     "u" => { 
@@ -799,11 +800,11 @@ fn main() {
         // show the first file
         if let Some(_) = args.ordered {
             let entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-            show_grid(&grid, &entries.clone(), &window);
+            show_grid(&grid, &entries, &window);
         } else {
             let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
             entries.random();
-            show_grid(&grid, &entries.clone(), &window);
+            show_grid(&grid, &entries, &window);
         }
 
         if args.maximized { window.fullscreen() };
@@ -844,11 +845,10 @@ fn show_grid(grid: &Grid, entries: &Entries, window: &gtk::ApplicationWindow) {
             0.25
         } else { 1.0 };
         picture.set_opacity(opacity);
-        println!("{:?}", entry.clone());
+        println!("{:p}",&entry);
         let filename = entry.file_path;
         picture.set_can_shrink(!entries.clone().real_size);
         picture.set_filename(Some(filename.clone()));
     }
-    println!("focus:{} to_select:{}", &entries.clone().focus, &entries.clone().entry_list[entries.clone().focus].to_select);
     window.set_title(Some(&(entries.clone().show_status())));
 }
