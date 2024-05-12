@@ -91,6 +91,7 @@ struct Entries {
     maximum:  usize,
     start_index: usize,
     grid_size: usize,
+    max_cells: usize,
     real_size: bool,
     register: usize,
 }
@@ -104,21 +105,16 @@ impl Entries {
             maximum: entry_list.len() - 1,
             start_index: 0,
             grid_size: grid_size,
+            max_cells: grid_size * grid_size,
             real_size: false,
             register: 0,
 
         }
     }
-    fn selection_size(self) -> usize {
-        return self.grid_size * self.grid_size
-    }
 
     fn next(&mut self) {
-        let selection_size = self.clone().selection_size();
-        if selection_size >= self.maximum {
-            return
-        };
-        let mut next_pos = self.current + selection_size;
+        if self.maximum <= self.max_cells { return };
+        let mut next_pos = self.current + self.max_cells;
         if next_pos > self.maximum {
             next_pos -= self.maximum + 1
         };
@@ -128,11 +124,11 @@ impl Entries {
     }
 
     fn prev(&mut self) {
-        let selection_size = self.clone().selection_size();
-        if selection_size >= self.maximum {
+        if self.maximum <= self.max_cells { return };
+        if self.max_cells >= self.maximum {
             return
         };
-        let mut next_pos = self.current - selection_size;
+        let mut next_pos = self.current - self.max_cells;
         if next_pos > self.maximum {
             next_pos = self.maximum - (usize::MAX - next_pos)
         }
@@ -156,32 +152,18 @@ impl Entries {
         self.focus = self.current;
     }
 
-    fn set_focus(&mut self, i: usize) {
-        self.focus = i
-    }
-
-    fn nth_file_name(self, i: usize) -> String {
-        self.entry_list[i].file_path.clone()
-    }
-
-    fn nth_file_size(self, i: usize) -> u64 {
-        self.entry_list[self.clone().nth_index(i)].file_size
-    }
-
     fn show_status(self) -> String {
         format!("{} {} {} {}",
                 self.clone().focus,
-                self.clone().nth_entry(self.focus).show_status(),
+                self.clone().offset_entry(0).show_status(),
                 self.register,
                 if self.real_size { "*" } else { "" })
     }
 
-    fn nth_index(self, i: usize) -> usize {
-        (self.current + i) % (self.maximum + 1)
-    }
-
-    fn nth_entry(self, i: usize) -> Entry {
-        self.entry_list[self.clone().nth_index(i)].clone()
+    fn offset_entry(self, offset: usize) -> Entry {
+        let start = self.current;
+        let position = (start + offset) % (self.maximum + 1);
+        self.entry_list[position].clone()
     }
 
     fn set_register(&mut self) {
@@ -193,32 +175,28 @@ impl Entries {
         self.start_index = self.current
     }
 
+    fn end_area(&mut self) {
+        if self.current < self.start_index {
+            println!("area start index {} is greater than area end index {}", self.start_index, self.current);
+            return
+        }
+        for i in self.start_index .. self.current {
+            self.entry_list[i].to_select = true
+        }
+    }
+
     fn toggle_real_size(&mut self) {
         self.real_size = !self.real_size;
     }
 
-    fn toggle_to_select(&mut self, index: usize) {
-        if index <= self.maximum {
-            self.entry_list[index].to_select = ! self.entry_list[index].to_select;
-        } else {
-            println!("index out of range: {}/{}", index, self.maximum);
-        }
-    }
-    fn toggle_to_unlink(&mut self, index: usize) {
-        if index <= self.maximum {
-            self.entry_list[index].to_unlink = ! self.entry_list[index].to_unlink;
-        } else {
-            println!("index out of range: {}/{}", index, self.maximum);
-        }
+    fn toggle_to_select_with_offset(&mut self, offset: usize) {
+        let position = (self.current + offset) % (self.maximum + 1);
+        self.entry_list[position].to_select = ! self.entry_list[position].to_select
     }
 
-    fn toggle_to_select_current(&mut self) {
-        self.toggle_to_select(self.current);
-    }
-
-    fn toggle_to_unlink_current(&mut self) {
-        if self.grid_size == 1 { self.focus = self.current };
-        self.entry_list[self.current].to_unlink = ! self.entry_list[self.current].to_unlink;
+    fn toggle_to_unlink_with_offset(&mut self, offset: usize) {
+        let position = (self.current + offset) % (self.maximum + 1);
+        self.entry_list[position].to_unlink = ! self.entry_list[position].to_unlink
     }
 
     fn save_marked_file_list(&mut self, selection: Vec<&Entry>, dest_file_path: &str, thumbnails: bool) {
@@ -643,9 +621,10 @@ fn main() {
                 gesture_select.set_button(1);
                 gesture_select.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_,_, _, _| {
                     let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-                    let entry_index = entries.clone().nth_index(col * grid_size + row);
-                    entries.toggle_to_select(entry_index);
+                    entries.toggle_to_select_with_offset(col * grid_size + row);
                     show_grid(&grid, &entries.clone(), &window);
+                    let entry = entries.clone().offset_entry(col * grid_size + row);
+                    window.set_title(Some(&entry.show_status()))
                 }));
                 image.add_controller(gesture_select);
 
@@ -653,18 +632,18 @@ fn main() {
                 gesture_unlink.set_button(3);
                 gesture_unlink.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_,_, _, _| {
                     let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-                    let entry_index = entries.clone().nth_index(col * grid_size + row);
-                    entries.toggle_to_unlink(entry_index);
+                    entries.toggle_to_unlink_with_offset(col * grid_size + row);
                     show_grid(&grid, &entries.clone(), &window);
+                    let entry = entries.clone().offset_entry(col * grid_size + row);
+                    window.set_title(Some(&entry.show_status()))
                 }));
                 image.add_controller(gesture_unlink);
 
                 let motion_controller = EventControllerMotion::new(); 
                 motion_controller.connect_enter(clone!(@strong entries_rc, @strong window => move |_,_,_| {
-                    let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-                    let entry_index = entries.clone().nth_index(col * grid_size + row);
-                    entries.set_focus(entry_index);
-                    window.set_title(Some(&entries.clone().show_status()))
+                    let entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
+                    let entry = entries.clone().offset_entry(col * grid_size + row);
+                    window.set_title(Some(&entry.show_status()))
                 }));
                 image.add_controller(motion_controller)
             }
@@ -700,7 +679,7 @@ fn main() {
                         show_grid(&grid, &entries.clone(), &window);
                     },
                     "f" => {
-                        if (entries.clone().selection_size()) == 1 {
+                        if (entries.clone().max_cells) == 1 {
                             entries.toggle_real_size();
                         }
                         show_grid(&grid, &entries.clone(), &window);
@@ -726,25 +705,18 @@ fn main() {
                         show_grid(&grid, &entries.clone(), &window);
                     },
                     "s" => {
-                        let entry_index = entries.clone().nth_index(0);
-                        entries.toggle_to_select(entry_index);
+                        entries.toggle_to_select_with_offset(0);
                         show_grid(&grid, &entries.clone(), &window);
                     },
                     "u" => { 
-                        entries.toggle_to_unlink_current();
+                        entries.toggle_to_unlink_with_offset(0);
                         show_grid(&grid, &entries.clone(), &window);
                     },
                     "a" => {
                         entries.start_area();
                     },
                     "e" => {
-                        if entries.current >= entries.start_index {
-                            for i in entries.start_index .. entries.current+1 {
-                                entries.toggle_to_select(i);
-                            }
-                        } else {
-                            println!("area start index {} is greater than area end index {}", entries.start_index, entries.current);
-                        }
+                        entries.end_area();
                     },
                     "space" => { 
                         if let Some(_) = args.ordered { 
@@ -831,21 +803,20 @@ fn main() {
 
 
 fn show_grid(grid: &Grid, entries: &Entries, window: &gtk::ApplicationWindow) {
-    let selection_size = entries.clone().selection_size();
+    let max_cells = entries.clone().max_cells;
     let grid_size = entries.clone().grid_size;
-    for cell_index in 0 .. selection_size {
+    for cell_index in 0 .. max_cells {
         let row = (cell_index / grid_size) as i32;
         let col = (cell_index % grid_size) as i32;
         let picture = grid.child_at(col,row).unwrap().downcast::<gtk::Picture>().unwrap();
-        let position = row as usize * grid_size + col as usize;
-        let entry = entries.clone().nth_entry(position);
+        let offset = row as usize * grid_size + col as usize;
+        let entry = entries.clone().offset_entry(offset);
         let opacity = if entry.to_select {
             0.50
         } else if entry.to_unlink {
             0.25
         } else { 1.0 };
         picture.set_opacity(opacity);
-        println!("{:p}",&entry);
         let filename = entry.file_path;
         picture.set_can_shrink(!entries.clone().real_size);
         picture.set_filename(Some(filename.clone()));
