@@ -9,7 +9,7 @@ use gtk::traits::WidgetExt;
 use gtk::{self, Application, ScrolledWindow, gdk, glib, Grid, Picture};
 use mime;
 use rand::{thread_rng, Rng};
-use std::cell::{RefCell, RefMut};
+use std::cell::{OnceCell,RefCell, RefMut};
 use std::collections::HashSet;
 use std::env;
 use std::ffi::OsStr;
@@ -588,8 +588,9 @@ fn main() {
             entries.set(index_number);
         }
         let entries_rc = Rc::new(RefCell::new(entries));
+        let entry_list_rc = Rc::new(OnceCell::<EntryList>::new());
+        entry_list_rc.get_or_init(|| entry_list.clone());
 
-        let entry_list_rc: Rc<RefCell<EntryList>> = Rc::new(RefCell::new(entry_list));
 
 
         // build the main window
@@ -616,12 +617,14 @@ fn main() {
 
                 let gesture_select = gtk::GestureClick::new();
                 gesture_select.set_button(1);
-                gesture_select.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_,_, _, _| {
+                gesture_select.connect_pressed(clone!(@strong entry_list_rc, @strong entries_rc, @strong grid, @strong window => move |_,_, _, _| {
                     let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
                     let offset = col * grid_size + row;
                     entries.toggle_to_select_with_offset(offset);
                     show_grid(&grid, &entries.clone());
                     window.set_title(Some(&entries.clone().show_status(offset)));
+                    let entry_list = entry_list_rc.get();
+                    println!("{:?}",entry_list);
                 }));
                 image.add_controller(gesture_select);
 
@@ -649,7 +652,7 @@ fn main() {
         window.set_child(Some(&scrolled_window));
 
         let evk = gtk::EventControllerKey::new();
-        evk.connect_key_pressed(clone!(@strong entries_rc, @strong grid, @strong entry_list_rc, @strong window => move |_, key, _, _| {
+        evk.connect_key_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_, key, _, _| {
             let step = 100;
             let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
             if let Some(s) = key.name() {
@@ -811,8 +814,6 @@ fn main() {
     let empty: Vec<String> = vec![];
     application.run_with_args(&empty);
 }
-
-
 
 fn show_grid(grid: &Grid, entries: &Entries) {
     let max_cells = entries.clone().max_cells;
