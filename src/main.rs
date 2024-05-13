@@ -623,8 +623,6 @@ fn main() {
                     entries.toggle_to_select_with_offset(offset);
                     show_grid(&grid, &entries.clone());
                     window.set_title(Some(&entries.clone().show_status(offset)));
-                    let entry_list = entry_list_rc.get();
-                    println!("{:?}",entry_list);
                 }));
                 image.add_controller(gesture_select);
 
