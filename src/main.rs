@@ -10,7 +10,7 @@ use gtk::traits::WidgetExt;
 use gtk::{self, Application, ScrolledWindow, gdk, glib, Grid, Picture};
 use mime;
 use rand::{thread_rng, Rng};
-use std::cell::{OnceCell,RefCell, RefMut};
+use std::cell::{Ref,OnceCell,RefCell, RefMut};
 use std::collections::HashSet;
 use std::env;
 use std::ffi::OsStr;
@@ -90,7 +90,6 @@ impl Entry {
 struct Entries {
     entry_list: Vec<Entry>,
     current: usize,
-    offset: usize,
     maximum:  usize,
     start_index: usize,
     grid_size: usize,
@@ -104,7 +103,6 @@ impl Entries {
         Entries {
             entry_list: entry_list.clone(),
             current: 0,
-            offset: 0,
             maximum: entry_list.len() - 1,
             start_index: 0,
             grid_size: grid_size,
@@ -590,6 +588,7 @@ fn main() {
         }
         let entries_rc = Rc::new(RefCell::new(entries));
         let entry_list_rc = Rc::new(OnceCell::<EntryList>::new());
+        let offset_rc = Rc::new(RefCell::new(0));
         entry_list_rc.get_or_init(|| entry_list.clone());
 
 
@@ -675,11 +674,12 @@ fn main() {
                 image.add_controller(view_gesture);
 
                 let motion_controller = EventControllerMotion::new(); 
-                motion_controller.connect_enter(clone!(@strong entries_rc, @strong window => move |_,_,_| {
-                    let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-                    let offset = col * grid_size + row;
-                    entries.offset = offset;
-                    window.set_title(Some(&entries.clone().show_status(offset)));
+                motion_controller.connect_enter(clone!(@strong entries_rc, @strong offset_rc, @strong window => move |_,_,_| {
+                    let entries = entries_rc.borrow();
+                        let mut offset: RefMut<'_,usize> = offset_rc.borrow_mut();
+                    let position = col * grid_size + row;
+                    *offset = position;
+                    window.set_title(Some(&entries.clone().show_status(position)));
                 }));
 
                 image.add_controller(motion_controller)
@@ -688,7 +688,7 @@ fn main() {
         grid_scrolled_window.set_child(Some(&grid));
 
         let evk = gtk::EventControllerKey::new();
-        evk.connect_key_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_, key, _, _| {
+        evk.connect_key_pressed(clone!(@strong entries_rc, @strong offset_rc, @strong grid, @strong window => move |_, key, _, _| {
             let step = 100;
             let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
             if let Some(s) = key.name() {
@@ -761,17 +761,19 @@ fn main() {
                         entries.end_area();
                     },
                     "period" => {
-                        println!("period");
-                        let w = stack.visible_child().unwrap();
-                        if w == grid_scrolled_window {
-                            let offset = entries.clone().offset;
-                            let entry = entries.clone().offset_entry(offset);
-                            let file_path = remove_thumb_suffix(&entry.file_path);
-                            stack.set_visible_child(&view_scrolled_window);
-                            show_view(&view, &file_path);
-                        } else {
-                            stack.set_visible_child(&grid_scrolled_window);
-                        }
+                        // let w = stack.visible_child().unwrap();
+                        // if w == grid_scrolled_window {
+                        //     println!("view");
+                        //     let offset: Ref<'_,usize> = offset_rc.borrow();
+                        //     let entry = entries.clone().offset_entry(*offset);
+                        //     let file_path = remove_thumb_suffix(&entry.file_path);
+                        //     stack.set_visible_child(&view_scrolled_window);
+                        //     show_view(&view, &file_path);
+
+                        // } else {
+                        //     println!("grid");
+                        //     stack.set_visible_child(&grid_scrolled_window);
+                        // }
                     },
                     "space" => { 
                         if let Some(_) = args.ordered { 
@@ -825,7 +827,8 @@ fn main() {
             }
             else {
                 gtk::Inhibit(false)
-            }
+            };
+            gtk::Inhibit(false)
         }));
 
         window.add_controller(evk);
