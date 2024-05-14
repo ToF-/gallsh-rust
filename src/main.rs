@@ -1,3 +1,4 @@
+use std::{thread, time};
 use clap::{Parser,ValueEnum};
 use clap_num::number_range;
 use glib::clone;
@@ -600,12 +601,38 @@ fn main() {
             .default_height(1000)
             .build();
 
-        let scrolled_window = ScrolledWindow::builder()
+        let grid_scrolled_window = ScrolledWindow::builder()
             .hscrollbar_policy(gtk::PolicyType::Automatic)
             .vscrollbar_policy(gtk::PolicyType::Automatic)
             .build();
 
+        let view_scrolled_window = ScrolledWindow::builder()
+            .hscrollbar_policy(gtk::PolicyType::Automatic)
+            .vscrollbar_policy(gtk::PolicyType::Automatic)
+            .build();
+
+        let view = Grid::new();
+        view.set_row_homogeneous(true);
+        view.set_column_homogeneous(true);
+        view.set_hexpand(true);
+        view.set_vexpand(true);
+        let stack = gtk::Stack::new();
+        let image_view = Picture::new();
+        let gesture_unlink = gtk::GestureClick::new();
+        gesture_unlink.set_button(3);
+        gesture_unlink.connect_pressed(clone!(@strong stack, @strong grid_scrolled_window, @strong window => move |_,_, _, _| {
+            stack.set_visible_child(&grid_scrolled_window);
+        }));
+        image_view.add_controller(gesture_unlink);
+        view.attach(&image_view, 0, 0, 1, 1);
+        view_scrolled_window.set_child(Some(&view));
+
         let grid = Grid::new();
+        let grid_page = stack.add_child(&grid_scrolled_window);
+        let view_page = stack.add_child(&view_scrolled_window);
+        window.set_child(Some(&stack));
+        stack.set_visible_child(&view_scrolled_window);
+        stack.set_visible_child(&grid_scrolled_window);
         grid.set_row_homogeneous(true);
         grid.set_column_homogeneous(true);
         grid.set_hexpand(true);
@@ -628,11 +655,16 @@ fn main() {
 
                 let gesture_unlink = gtk::GestureClick::new();
                 gesture_unlink.set_button(3);
-                gesture_unlink.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_,_, _, _| {
+                gesture_unlink.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong view, @strong stack, @strong view_scrolled_window, @strong grid_scrolled_window, @strong window => move |_,_, _, _| {
                     let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
                     let offset = col * grid_size + row;
-                    entries.toggle_to_unlink_with_offset(offset);
-                    show_grid(&grid, &entries.clone());
+                    // entries.toggle_to_unlink_with_offset(offset);
+                    let entry = entries.clone().offset_entry(offset);
+                    let picture = view.child_at(0,0).unwrap().downcast::<gtk::Picture>().unwrap();
+                    let file_path = remove_thumb_suffix(&entry.file_path);
+                    picture.set_filename(Some(file_path)); 
+                    stack.set_visible_child(&view_scrolled_window);
+                    // show_grid(&grid, &entries.clone());
                     window.set_title(Some(&entries.clone().show_status(offset)));
                 }));
                 image.add_controller(gesture_unlink);
@@ -646,8 +678,12 @@ fn main() {
                 image.add_controller(motion_controller)
             }
         }
-        scrolled_window.set_child(Some(&grid));
-        window.set_child(Some(&scrolled_window));
+        grid_scrolled_window.set_child(Some(&grid));
+
+
+        
+        
+
 
         let evk = gtk::EventControllerKey::new();
         evk.connect_key_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_, key, _, _| {
