@@ -1,4 +1,3 @@
-use std::{thread, time};
 use clap::{Parser,ValueEnum};
 use clap_num::number_range;
 use glib::clone;
@@ -109,7 +108,6 @@ impl Entries {
             max_cells: grid_size * grid_size,
             real_size: false,
             register: 0,
-
         }
     }
 
@@ -620,12 +618,12 @@ fn main() {
         view.set_vexpand(true);
         let stack = gtk::Stack::new();
         let image_view = Picture::new();
-        let gesture_unlink = gtk::GestureClick::new();
-        gesture_unlink.set_button(3);
-        gesture_unlink.connect_pressed(clone!(@strong stack, @strong grid_scrolled_window, @strong window => move |_,_, _, _| {
+        let view_gesture = gtk::GestureClick::new();
+        view_gesture.set_button(1);
+        view_gesture.connect_pressed(clone!(@strong entries_rc, @strong stack, @strong grid_scrolled_window, @strong window => move |_,_, _, _| {
             stack.set_visible_child(&grid_scrolled_window);
         }));
-        image_view.add_controller(gesture_unlink);
+        image_view.add_controller(view_gesture);
         view.attach(&image_view, 0, 0, 1, 1);
         view_scrolled_window.set_child(Some(&view));
 
@@ -644,32 +642,30 @@ fn main() {
                 let image = Picture::new();
                 grid.attach(&image, row as i32, col as i32, 1, 1);
 
-                let gesture_select = gtk::GestureClick::new();
-                gesture_select.set_button(1);
-                gesture_select.connect_pressed(clone!(@strong entry_list_rc, @strong entries_rc, @strong grid, @strong window => move |_,_, _, _| {
+                let select_gesture = gtk::GestureClick::new();
+                select_gesture.set_button(3);
+                select_gesture.connect_pressed(clone!(@strong entry_list_rc, @strong entries_rc, @strong grid, @strong window => move |_,_, _, _| {
                     let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
                     let offset = col * grid_size + row;
                     entries.toggle_to_select_with_offset(offset);
                     show_grid(&grid, &entries.clone());
                     window.set_title(Some(&entries.clone().show_status(offset)));
                 }));
-                image.add_controller(gesture_select);
+                image.add_controller(select_gesture);
 
-                let gesture_unlink = gtk::GestureClick::new();
-                gesture_unlink.set_button(3);
-                gesture_unlink.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong view, @strong stack, @strong view_scrolled_window, @strong grid_scrolled_window, @strong window => move |_,_, _, _| {
+                let view_gesture = gtk::GestureClick::new();
+                view_gesture.set_button(1);
+
+                view_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong view, @strong stack, @strong view_scrolled_window, @strong grid_scrolled_window, @strong window => move |_,_, _, _| {
                     let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
                     let offset = col * grid_size + row;
-                    // entries.toggle_to_unlink_with_offset(offset);
                     let entry = entries.clone().offset_entry(offset);
-                    let picture = view.child_at(0,0).unwrap().downcast::<gtk::Picture>().unwrap();
                     let file_path = remove_thumb_suffix(&entry.file_path);
-                    picture.set_filename(Some(file_path)); 
                     stack.set_visible_child(&view_scrolled_window);
-                    // show_grid(&grid, &entries.clone());
+                    show_view(&view, &file_path);
                     window.set_title(Some(&entries.clone().show_status(offset)));
                 }));
-                image.add_controller(gesture_unlink);
+                image.add_controller(view_gesture);
 
                 let motion_controller = EventControllerMotion::new(); 
                 motion_controller.connect_enter(clone!(@strong entries_rc, @strong window => move |_,_,_| {
@@ -871,7 +867,7 @@ fn show_grid(grid: &Grid, entries: &Entries) {
         picture.set_filename(Some(filename.clone()));
     }
 }
-
-fn show_stack(stack: &Stack, entries: &Entries) {
-
+fn show_view(grid: &Grid, picture_file_path: &str) {
+    let picture = grid.child_at(0,0).unwrap().downcast::<gtk::Picture>().unwrap();
+    picture.set_filename(Some(picture_file_path));
 }
