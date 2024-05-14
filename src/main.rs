@@ -476,6 +476,10 @@ struct Args {
     /// Update thumbnails and then quit
     #[arg(long)]
     update_thumbnails: bool,
+
+    /// Window width (and height)
+    #[arg(short, long, default_value_t = 1000)]
+    width: i32,
 }
 
 const DEFAULT_DIR :&str  = "images/";
@@ -588,11 +592,15 @@ fn main() {
 
 
 
+        let width = if args.width < 3000 && args.width > 100 {
+            args.width
+        } else { 1000 } ;
+        let height = width;
         // build the main window
         let window = gtk::ApplicationWindow::builder()
             .application(application)
-            .default_width(1000)
-            .default_height(1000)
+            .default_width(width)
+            .default_height(height)
             .build();
 
         let grid_scrolled_window = ScrolledWindow::builder()
