@@ -46,8 +46,11 @@ fn remove_thumb_suffix(file_name: &str) -> String {
     let file_path = PathBuf::from(file_name);
     let parent = file_path.parent().unwrap();
     let extension = file_path.extension().unwrap();
-    let file_stem = file_path.file_stem().unwrap();
-    let new_file_stem = file_stem.to_str().unwrap().strip_suffix("THUMB").unwrap();
+    let file_stem = file_path.file_stem().unwrap().to_str().unwrap();
+    let new_file_stem = match file_stem.strip_suffix("THUMB") {
+        Some(s) => s,
+        None => &file_stem,
+    };
     let new_file_name = format!("{}.{}", new_file_stem, extension.to_str().unwrap());
     let new_path = parent.join(new_file_name);
     new_path.to_str().unwrap().to_string()
@@ -658,6 +661,7 @@ fn main() {
 
                 view_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong view, @strong stack, @strong view_scrolled_window, @strong grid_scrolled_window, @strong window => move |_,_, _, _| {
                     let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
+                    if entries.grid_size == 1 { return };
                     let offset = col * grid_size + row;
                     let entry = entries.clone().offset_entry(offset);
                     let file_path = remove_thumb_suffix(&entry.file_path);
@@ -773,6 +777,7 @@ fn main() {
                     "Right" => {
                         let h_adj = window
                             .child()
+                            .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
                             .and_then(|child| child.downcast::<ScrolledWindow>().ok())
                             .and_then(|sw| Some(sw.hadjustment()))
                             .expect("Failed to get hadjustment");
@@ -781,6 +786,7 @@ fn main() {
                     "Left" => {
                         let h_adj = window
                             .child()
+                            .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
                             .and_then(|child| child.downcast::<ScrolledWindow>().ok())
                             .and_then(|sw| Some(sw.hadjustment()))
                             .expect("Failed to get hadjustment");
@@ -790,6 +796,7 @@ fn main() {
                         // Scroll down
                         let v_adj = window
                             .child()
+                            .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
                             .and_then(|child| child.downcast::<ScrolledWindow>().ok())
                             .and_then(|sw| Some(sw.vadjustment()))
                             .expect("Failed to get vadjustment");
@@ -798,6 +805,7 @@ fn main() {
                     "Up" => {
                         let v_adj = window
                             .child()
+                            .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
                             .and_then(|child| child.downcast::<ScrolledWindow>().ok())
                             .and_then(|sw| Some(sw.vadjustment()))
                             .expect("Failed to get vadjustment");
