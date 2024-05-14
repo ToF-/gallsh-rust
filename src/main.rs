@@ -90,6 +90,7 @@ impl Entry {
 struct Entries {
     entry_list: Vec<Entry>,
     current: usize,
+    offset: usize,
     maximum:  usize,
     start_index: usize,
     grid_size: usize,
@@ -103,6 +104,7 @@ impl Entries {
         Entries {
             entry_list: entry_list.clone(),
             current: 0,
+            offset: 0,
             maximum: entry_list.len() - 1,
             start_index: 0,
             grid_size: grid_size,
@@ -674,10 +676,12 @@ fn main() {
 
                 let motion_controller = EventControllerMotion::new(); 
                 motion_controller.connect_enter(clone!(@strong entries_rc, @strong window => move |_,_,_| {
-                    let entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
+                    let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
                     let offset = col * grid_size + row;
+                    entries.offset = offset;
                     window.set_title(Some(&entries.clone().show_status(offset)));
                 }));
+
                 image.add_controller(motion_controller)
             }
         }
@@ -756,6 +760,19 @@ fn main() {
                     "e" => {
                         entries.end_area();
                     },
+                    "period" => {
+                        println!("period");
+                        let w = stack.visible_child().unwrap();
+                        if w == grid_scrolled_window {
+                            let offset = entries.clone().offset;
+                            let entry = entries.clone().offset_entry(offset);
+                            let file_path = remove_thumb_suffix(&entry.file_path);
+                            stack.set_visible_child(&view_scrolled_window);
+                            show_view(&view, &file_path);
+                        } else {
+                            stack.set_visible_child(&grid_scrolled_window);
+                        }
+                    },
                     "space" => { 
                         if let Some(_) = args.ordered { 
                             entries.next()
@@ -802,7 +819,7 @@ fn main() {
                             .expect("Failed to get vadjustment");
                         v_adj.set_value(v_adj.value() - step as f64);
                     }
-                    _ => { },
+                    _ => {  },
                 };
                 gtk::Inhibit(false)
             }
