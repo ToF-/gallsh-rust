@@ -14977,6 +14977,7 @@ show_spaces	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22
 show_spaces	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_tag.rs	/^    fn show_spaces(&self) -> pango::ShowFlags;$/;"	f
 show_spaces	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_tag.rs	/^    pub fn show_spaces(self, show_spaces: pango::ShowFlags) -> Self {$/;"	f
 show_spaces_set	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_tag.rs	/^    pub fn show_spaces_set(self, show_spaces_set: bool) -> Self {$/;"	f
+show_stack	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn show_stack(stack: &Stack, entries: &Entries) {$/;"	f
 show_status	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn show_status(self, offset: usize) -> String {$/;"	f
 show_status	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn show_status(self,) -> String {$/;"	f
 show_tabs	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/notebook.rs	/^    pub fn show_tabs(self, show_tabs: bool) -> Self {$/;"	f

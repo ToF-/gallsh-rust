@@ -7,7 +7,7 @@ use glib::timeout_add_local;
 use gtk::EventControllerMotion;
 use gtk::prelude::*;
 use gtk::traits::WidgetExt;
-use gtk::{self, Application, ScrolledWindow, gdk, glib, Grid, Picture};
+use gtk::{self, Application, ScrolledWindow, gdk, glib, Stack, Grid, Picture};
 use mime;
 use rand::{thread_rng, Rng};
 use std::cell::{OnceCell,RefCell, RefMut};
@@ -604,11 +604,13 @@ fn main() {
         let grid_scrolled_window = ScrolledWindow::builder()
             .hscrollbar_policy(gtk::PolicyType::Automatic)
             .vscrollbar_policy(gtk::PolicyType::Automatic)
+            .name("grid")
             .build();
 
         let view_scrolled_window = ScrolledWindow::builder()
             .hscrollbar_policy(gtk::PolicyType::Automatic)
             .vscrollbar_policy(gtk::PolicyType::Automatic)
+            .name("view")
             .build();
 
         let view = Grid::new();
@@ -868,4 +870,8 @@ fn show_grid(grid: &Grid, entries: &Entries) {
         picture.set_can_shrink(!entries.clone().real_size);
         picture.set_filename(Some(filename.clone()));
     }
+}
+
+fn show_stack(stack: &Stack, entries: &Entries) {
+
 }
