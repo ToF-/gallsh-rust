@@ -15726,7 +15726,6 @@ toggle_cursor_row	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f
 toggle_overwrite	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/text_view.rs	/^    fn toggle_overwrite(&self) {$/;"	f
 toggle_real_size	/home/tof/Coding/gallsh-rust/src/main.rs	/^    fn toggle_real_size(&mut self) {$/;"	f
 toggle_to_select_with_offset	/home/tof/Coding/gallsh-rust/src/main.rs	/^    fn toggle_to_select_with_offset(&mut self, offset: usize) {$/;"	f
-toggle_to_unlink_with_offset	/home/tof/Coding/gallsh-rust/src/main.rs	/^    fn toggle_to_unlink_with_offset(&mut self, offset: usize) {$/;"	f
 toggled	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/toggle_button.rs	/^    fn toggled(&self) {$/;"	f
 toggled	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/toggle_button.rs	/^    fn toggled(&self);$/;"	f
 toggled	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/check_button.rs	/^    fn toggled(&self) {$/;"	f

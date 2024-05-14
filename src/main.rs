@@ -1,3 +1,4 @@
+use std::process::exit;
 use clap::{Parser,ValueEnum};
 use clap_num::number_range;
 use glib::clone;
@@ -6,7 +7,7 @@ use glib::timeout_add_local;
 use gtk::EventControllerMotion;
 use gtk::prelude::*;
 use gtk::traits::WidgetExt;
-use gtk::{self, Application, ScrolledWindow, gdk, glib, Stack, Grid, Picture};
+use gtk::{self, Application, ScrolledWindow, gdk, glib, Grid, Picture};
 use mime;
 use rand::{thread_rng, Rng};
 use std::cell::{OnceCell,RefCell, RefMut};
@@ -62,7 +63,6 @@ struct Entry {
     file_size: u64,
     modified_time: SystemTime,
     to_select: bool,
-    to_unlink: bool,
 }
 
 type EntryList = Vec<Entry>;
@@ -73,16 +73,14 @@ fn make_entry(s:String, l:u64, t:SystemTime) -> Entry {
         file_size: l,
         modified_time: t,
         to_select: false,
-        to_unlink: false,
     }
 }
 
 impl Entry {
     fn show_status(self,) -> String {
-        format!("{} {}|{} [{}]",
+        format!("{} {} [{}]",
             self.file_path,
-            if self.to_select { "SELECT" } else { "" },
-            if self.to_unlink { "UNLINK" } else { "" },
+            if self.to_select { "△" } else { "" },
             self.file_size)
     }
 }
@@ -193,11 +191,6 @@ impl Entries {
         self.entry_list[position].to_select = ! self.entry_list[position].to_select
     }
 
-    fn toggle_to_unlink_with_offset(&mut self, offset: usize) {
-        let position = (self.current + offset) % (self.maximum + 1);
-        self.entry_list[position].to_unlink = ! self.entry_list[position].to_unlink
-    }
-
     fn save_marked_file_list(&mut self, selection: Vec<&Entry>, dest_file_path: &str, thumbnails: bool) {
         if selection.len() > 0 {
             let result = OpenOptions::new()
@@ -220,7 +213,6 @@ impl Entries {
     fn save_marked_file_lists(&mut self, thumbnails: bool) {
         let entry_list = &self.entry_list.clone();
         let _ = &self.save_marked_file_list(entry_list.iter().filter(|e| e.to_select).collect(), "selections", thumbnails);
-        let _ = &self.save_marked_file_list(entry_list.iter().filter(|e| e.to_unlink).collect(), "deletions", thumbnails);
     }
 }
 
@@ -481,7 +473,7 @@ struct Args {
     #[arg(long)]
     thumbnails: bool,
 
-    /// Update thumbnails before showing files
+    /// Update thumbnails and then quit
     #[arg(long)]
     update_thumbnails: bool,
 }
@@ -549,6 +541,7 @@ fn main() {
             if let Ok((created, deleted)) = update_thumbnails(&path) {
                 println!("{created} thumbnails added, {deleted} thumbnails deleted");
             }
+            std::process::exit(0);
         }
         // get all the entries in the directory that match pattern (or all if None) or from a
         // reading list
@@ -631,8 +624,8 @@ fn main() {
         view_scrolled_window.set_child(Some(&view));
 
         let grid = Grid::new();
-        let grid_page = stack.add_child(&grid_scrolled_window);
-        let view_page = stack.add_child(&view_scrolled_window);
+        let _ = stack.add_child(&grid_scrolled_window);
+        let _ = stack.add_child(&view_scrolled_window);
         window.set_child(Some(&stack));
         stack.set_visible_child(&view_scrolled_window);
         stack.set_visible_child(&grid_scrolled_window);
@@ -660,7 +653,7 @@ fn main() {
                 view_gesture.set_button(1);
 
                 view_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong view, @strong stack, @strong view_scrolled_window, @strong grid_scrolled_window, @strong window => move |_,_, _, _| {
-                    let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
+                    let entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
                     if entries.grid_size == 1 { return };
                     let offset = col * grid_size + row;
                     let entry = entries.clone().offset_entry(offset);
@@ -681,11 +674,6 @@ fn main() {
             }
         }
         grid_scrolled_window.set_child(Some(&grid));
-
-
-        
-        
-
 
         let evk = gtk::EventControllerKey::new();
         evk.connect_key_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_, key, _, _| {
@@ -751,11 +739,6 @@ fn main() {
                     },
                     "s" => {
                         entries.toggle_to_select_with_offset(0);
-                        show_grid(&grid, &entries.clone());
-                        window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
-                    },
-                    "u" => { 
-                        entries.toggle_to_unlink_with_offset(0);
                         show_grid(&grid, &entries.clone());
                         window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
                     },
@@ -864,11 +847,7 @@ fn show_grid(grid: &Grid, entries: &Entries) {
         let picture = grid.child_at(col,row).unwrap().downcast::<gtk::Picture>().unwrap();
         let offset = row as usize * grid_size + col as usize;
         let entry = entries.clone().offset_entry(offset);
-        let opacity = if entry.to_select {
-            0.50
-        } else if entry.to_unlink {
-            0.25
-        } else { 1.0 };
+        let opacity = if entry.to_select { 0.50 } else { 1.0 };
         picture.set_opacity(opacity);
         let filename = entry.file_path;
         picture.set_can_shrink(!entries.clone().real_size);
