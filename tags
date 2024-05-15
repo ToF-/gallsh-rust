@@ -13139,6 +13139,7 @@ selection_mode	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gt
 selection_mode	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/icon_view.rs	/^    pub fn selection_mode(self, selection_mode: SelectionMode) -> Self {$/;"	f
 selection_mode	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/list_box.rs	/^    pub fn selection_mode(&self) -> SelectionMode {$/;"	f
 selection_mode	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/list_box.rs	/^    pub fn selection_mode(self, selection_mode: SelectionMode) -> Self {$/;"	f
+selection_size	/home/tof/Coding/gallsh-rust/src/main.rs	/^    fn selection_size(self) -> usize {$/;"	f
 selects_multiple	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/file_chooser.rs	/^    fn selects_multiple(&self) -> bool {$/;"	f
 selects_multiple	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/file_chooser.rs	/^    fn selects_multiple(&self) -> bool;$/;"	f
 semicolon	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/mime-0.3.17/src/lib.rs	/^    fn semicolon(&self) -> Option<usize> {$/;"	f

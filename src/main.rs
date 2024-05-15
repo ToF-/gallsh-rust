@@ -188,6 +188,7 @@ impl Entries {
         } else {
         self.start_index = Some(self.current + offset)
         }
+        println!("{:?}{:?} selection_size:{}", self.start_index, self.end_index, self.clone().selection_size());
     }
 
     fn end_area(&mut self) {
@@ -201,13 +202,16 @@ impl Entries {
         }
     }
     fn end_area_with_offset(&mut self, offset: usize) {
+        println!("start index {:?} end index {:?} current {:?} offset{:?}", self.start_index, self.end_index, self.current, offset);  
         if let Some(start_index) = self.start_index {
             if self.current + offset >= start_index {
+                self.end_index = Some(self.current + offset);
                 self.set_to_select(start_index, self.current + offset)
             }
         } else {
             self.end_index = Some(self.current + offset)
         }
+        println!("{:?}{:?} selection_size:{}", self.start_index, self.end_index, self.clone().selection_size());
     }
 
     fn set_to_select(&mut self, start: usize, end: usize) {
@@ -216,8 +220,20 @@ impl Entries {
             self.entry_list[i].to_select = false;
         }
         for i in start..end+1 {
+            println!("{}", i);
             self.entry_list[i].to_select = true;
         }
+        println!("selection_size:{}", self.clone().selection_size());
+    }
+
+    fn selection_size(self) -> usize {
+        let mut result = 0;
+        for i in 0..self.maximum+1 {
+            if self.entry_list[i].to_select {
+                result += 1
+            }
+        };
+        result
     }
     
     fn toggle_real_size(&mut self) {
@@ -687,10 +703,18 @@ fn main() {
                 select_gesture.set_button(3);
                 select_gesture.connect_pressed(clone!(@strong entry_list_rc, @strong entries_rc, @strong grid, @strong window => move |_,_, _, _| {
                     let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
+                    println!("{}", entries.clone().selection_size());
                     let offset = col * grid_size + row;
-                    entries.toggle_to_select_with_offset(offset);
+                    if entries.start_index.is_none() {
+                        println!("start area at {}", offset);
+                        entries.start_area_with_offset(offset)
+                    } else {
+                        println!("end area at {}", offset);
+                        entries.end_area_with_offset(offset)
+                    };
                     show_grid(&grid, &entries.clone());
                     window.set_title(Some(&entries.clone().show_status(offset)));
+                    println!("{}", entries.clone().selection_size());
                 }));
                 image.add_controller(select_gesture);
 
