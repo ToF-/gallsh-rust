@@ -1,3 +1,8 @@
+use std::fs::OpenOptions;
+use rand::{thread_rng,Rng}; 
+use std::io::Write;
+use std::time::SystemTime;
+use std::path::{PathBuf};
 use std::process::exit;
 use clap::{Parser,ValueEnum};
 use clap_num::number_range;
@@ -9,29 +14,24 @@ use gtk::prelude::*;
 use gtk::traits::WidgetExt;
 use gtk::{self, Application, ScrolledWindow, gdk, glib, Grid, Picture};
 use mime;
-use rand::{thread_rng, Rng};
 use std::cell::{Ref,OnceCell,RefCell, RefMut};
 use std::collections::HashSet;
 use std::env;
 use std::ffi::OsStr;
 use std::fs::File;
-use std::fs::OpenOptions;
 use std::fs::read_to_string;
 use std::fs;
 use std::io::BufReader;
 use std::io::{Error,ErrorKind};
-use std::io::{Write};
 use std::io;
 use std::path::Path;
-use std::path::{PathBuf};
 use std::rc::Rc;
-use std::time::SystemTime;
 use std::time::{Duration};
 use thumbnailer::error::{ThumbResult, ThumbError};
 use thumbnailer::{create_thumbnails, ThumbnailSize};
 use walkdir::WalkDir;
-
 const FIRST_CELL: usize = 0;
+const MAX_THUMBNAILS :usize = 100;
 
 fn append_thumb_suffix(file_name: &str) -> String {
     let file_path = PathBuf::from(file_name);
@@ -188,7 +188,6 @@ impl Entries {
         } else {
         self.start_index = Some(self.current + offset)
         }
-        println!("{:?}{:?} selection_size:{}", self.start_index, self.end_index, self.clone().selection_size());
     }
 
     fn end_area(&mut self) {
@@ -202,7 +201,6 @@ impl Entries {
         }
     }
     fn end_area_with_offset(&mut self, offset: usize) {
-        println!("start index {:?} end index {:?} current {:?} offset{:?}", self.start_index, self.end_index, self.current, offset);  
         if let Some(start_index) = self.start_index {
             if self.current + offset >= start_index {
                 self.end_index = Some(self.current + offset);
@@ -211,19 +209,29 @@ impl Entries {
         } else {
             self.end_index = Some(self.current + offset)
         }
-        println!("{:?}{:?} selection_size:{}", self.start_index, self.end_index, self.clone().selection_size());
     }
 
     fn set_to_select(&mut self, start: usize, end: usize) {
         if self.start_index.is_none() || self.end_index.is_none() { return };
-        for i in 0..self.maximum+1 {
-            self.entry_list[i].to_select = false;
-        }
         for i in start..end+1 {
-            println!("{}", i);
             self.entry_list[i].to_select = true;
         }
-        println!("selection_size:{}", self.clone().selection_size());
+    }
+
+    fn reset_all_select(&mut self) {
+        for i in 0..self.maximum+1 {
+            self.entry_list[i].to_select = false;
+        };
+        self.start_index = None;
+        self.end_index = None;
+    }
+
+    fn reset_grid_select(&mut self) {
+        for i in 0..MAX_THUMBNAILS {
+            self.entry_list[self.current+i].to_select = false;
+        };
+        self.start_index = None;
+        self.end_index = None;
     }
 
     fn selection_size(self) -> usize {
@@ -703,18 +711,23 @@ fn main() {
                 select_gesture.set_button(3);
                 select_gesture.connect_pressed(clone!(@strong entry_list_rc, @strong entries_rc, @strong grid, @strong window => move |_,_, _, _| {
                     let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-                    println!("{}", entries.clone().selection_size());
                     let offset = col * grid_size + row;
-                    if entries.start_index.is_none() {
-                        println!("start area at {}", offset);
-                        entries.start_area_with_offset(offset)
+                    if entries.clone().offset_entry(offset).to_select {
+                        entries.toggle_to_select_with_offset(offset)
                     } else {
-                        println!("end area at {}", offset);
-                        entries.end_area_with_offset(offset)
+                        if ! (entries.start_index.is_none() || entries.end_index.is_none()) {
+                            entries.end_index = None;
+                            entries.start_area_with_offset(offset);
+                        } else {
+                            if entries.start_index.is_none() {
+                                entries.start_area_with_offset(offset)
+                            } else {
+                                entries.end_area_with_offset(offset)
+                            }
+                        };
                     };
                     show_grid(&grid, &entries.clone());
                     window.set_title(Some(&entries.clone().show_status(offset)));
-                    println!("{}", entries.clone().selection_size());
                 }));
                 image.add_controller(select_gesture);
 
@@ -831,7 +844,17 @@ fn main() {
                         }
                         show_grid(&grid, &entries.clone());
                     },
-                    "period"|"Shift_L" => {
+                    "u" => {
+                        entries.reset_grid_select();
+                        show_grid(&grid, &entries.clone());
+                        window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                    },
+                    "U" => {
+                        entries.reset_all_select();
+                        show_grid(&grid, &entries.clone());
+                        window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                    },
+                    "period" => {
                         if stack.visible_child().unwrap() == grid_scrolled_window {
                             let offset: Ref<'_,usize> = offset_rc.borrow();
                             stack.set_visible_child(&view_scrolled_window);
