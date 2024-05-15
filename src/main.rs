@@ -178,7 +178,6 @@ impl Entries {
         } else {
             self.start_index = Some(self.current)
         } 
-        println!("{:?},{:?}", self.start_index, self.end_index);
     }
 
     fn start_area_with_offset(&mut self, offset: usize) {
@@ -221,13 +220,6 @@ impl Entries {
         }
     }
     
-    fn print_selection(self) {
-        for i in 0..self.maximum+1 {
-            if self.entry_list[i].to_select {
-                println!("{i}");
-            }
-        }
-    }
     fn toggle_real_size(&mut self) {
         self.real_size = !self.real_size;
     }

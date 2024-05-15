@@ -12318,7 +12318,6 @@ primary_sort_order	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001
 print_pages	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/print_settings.rs	/^    pub fn print_pages(&self) -> PrintPages {$/;"	f
 print_run_page_setup_dialog	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/functions.rs	/^pub fn print_run_page_setup_dialog($/;"	f
 print_run_page_setup_dialog_async	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/functions.rs	/^pub fn print_run_page_setup_dialog_async<P: FnOnce(&PageSetup) + Send + Sync + 'static>($/;"	f
-print_selection	/home/tof/Coding/gallsh-rust/src/main.rs	/^    fn print_selection(self) {$/;"	f
 print_settings	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/page_setup_unix_dialog.rs	/^    pub fn print_settings(&self) -> Option<PrintSettings> {$/;"	f
 print_settings	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/print_operation.rs	/^    fn print_settings(&self) -> Option<PrintSettings> {$/;"	f
 print_settings	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/print_operation.rs	/^    fn print_settings(&self) -> Option<PrintSettings>;$/;"	f
