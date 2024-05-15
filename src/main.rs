@@ -91,7 +91,8 @@ struct Entries {
     entry_list: Vec<Entry>,
     current: usize,
     maximum:  usize,
-    start_index: usize,
+    start_index: Option<usize>,
+    end_index: Option<usize>,
     grid_size: usize,
     max_cells: usize,
     real_size: bool,
@@ -104,7 +105,8 @@ impl Entries {
             entry_list: entry_list.clone(),
             current: 0,
             maximum: entry_list.len() - 1,
-            start_index: 0,
+            start_index: None,
+            end_index: None,
             grid_size: grid_size,
             max_cells: grid_size * grid_size,
             real_size: false,
@@ -169,19 +171,63 @@ impl Entries {
     }
 
     fn start_area(&mut self) {
-        self.start_index = self.current
+        if let Some(end_index) = self.end_index {
+            if self.current <= end_index {
+                self.set_to_select(self.current, end_index);
+            }
+        } else {
+            self.start_index = Some(self.current)
+        } 
+        println!("{:?},{:?}", self.start_index, self.end_index);
+    }
+
+    fn start_area_with_offset(&mut self, offset: usize) {
+        if let Some(end_index) = self.end_index {
+            if self.current + offset <= end_index {
+                self.set_to_select(self.current + offset, end_index)
+            }
+        } else {
+        self.start_index = Some(self.current + offset)
+        }
     }
 
     fn end_area(&mut self) {
-        if self.current < self.start_index {
-            println!("area start index {} is greater than area end index {}", self.start_index, self.current);
-            return
+        if let Some(start_index) = self.start_index {
+            if self.current >= start_index {
+                self.set_to_select(start_index, self.current);
+                self.end_index = Some(self.current);
+            }
+        } else {
+            self.end_index = Some(self.current)
         }
-        for i in self.start_index .. self.current {
-            self.entry_list[i].to_select = true
+    }
+    fn end_area_with_offset(&mut self, offset: usize) {
+        if let Some(start_index) = self.start_index {
+            if self.current + offset >= start_index {
+                self.set_to_select(start_index, self.current + offset)
+            }
+        } else {
+            self.end_index = Some(self.current + offset)
         }
     }
 
+    fn set_to_select(&mut self, start: usize, end: usize) {
+        if self.start_index.is_none() || self.end_index.is_none() { return };
+        for i in 0..self.maximum+1 {
+            self.entry_list[i].to_select = false;
+        }
+        for i in start..end+1 {
+            self.entry_list[i].to_select = true;
+        }
+    }
+    
+    fn print_selection(self) {
+        for i in 0..self.maximum+1 {
+            if self.entry_list[i].to_select {
+                println!("{i}");
+            }
+        }
+    }
     fn toggle_real_size(&mut self) {
         self.real_size = !self.real_size;
     }
@@ -270,11 +316,11 @@ fn create_thumbnail(source: String, target: String, number: usize, total: usize)
                 },
                 Ok(file) => file,
             };
-            write_thunbnail(reader, source_extension, output_file)
+            write_thumbnail(reader, source_extension, output_file)
         },
     }
 }
-fn write_thunbnail<R: std::io::Seek + std::io::Read>(reader: BufReader<R>, extension: &str, mut output_file: File) -> ThumbResult<()> {
+fn write_thumbnail<R: std::io::Seek + std::io::Read>(reader: BufReader<R>, extension: &str, mut output_file: File) -> ThumbResult<()> {
     let mime = match extension {
         "jpg" | "jpeg" | "JPG" | "JPEG" => mime::IMAGE_JPEG,
         "png" | "PNG" => mime::IMAGE_PNG,
@@ -752,10 +798,22 @@ fn main() {
                         window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
                     },
                     "a" => {
-                        entries.start_area();
+                        if args.thumbnails {
+                            let offset: Ref<'_, usize> = offset_rc.borrow();
+                            entries.start_area_with_offset(*offset);
+                        } else {
+                            entries.start_area();
+                        };
+                        show_grid(&grid, &entries.clone());
                     },
                     "e" => {
-                        entries.end_area();
+                        if args.thumbnails && stack.visible_child().unwrap() == grid_scrolled_window {
+                            let offset: Ref<'_, usize> = offset_rc.borrow();
+                            entries.end_area_with_offset(*offset);
+                        } else {
+                            entries.end_area();
+                        }
+                        show_grid(&grid, &entries.clone());
                     },
                     "period"|"Shift_L" => {
                         if stack.visible_child().unwrap() == grid_scrolled_window {

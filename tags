@@ -6305,6 +6305,7 @@ enables_undo	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4
 enables_undo	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_buffer.rs	/^    fn enables_undo(&self) -> bool;$/;"	f
 end	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/page_range.rs	/^    pub fn end(&self) -> i32 {$/;"	f
 end_area	/home/tof/Coding/gallsh-rust/src/main.rs	/^    fn end_area(&mut self) {$/;"	f
+end_area_with_offset	/home/tof/Coding/gallsh-rust/src/main.rs	/^    fn end_area_with_offset(&mut self, offset: usize) {$/;"	f
 end_child	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/paned.rs	/^    pub fn end_child(&self) -> Option<Widget> {$/;"	f
 end_child	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/paned.rs	/^    pub fn end_child(self, end_child: &impl IsA<Widget>) -> Self {$/;"	f
 end_irreversible_action	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_buffer.rs	/^    fn end_irreversible_action(&self) {$/;"	f
@@ -12317,6 +12318,7 @@ primary_sort_order	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001
 print_pages	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/print_settings.rs	/^    pub fn print_pages(&self) -> PrintPages {$/;"	f
 print_run_page_setup_dialog	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/functions.rs	/^pub fn print_run_page_setup_dialog($/;"	f
 print_run_page_setup_dialog_async	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/functions.rs	/^pub fn print_run_page_setup_dialog_async<P: FnOnce(&PageSetup) + Send + Sync + 'static>($/;"	f
+print_selection	/home/tof/Coding/gallsh-rust/src/main.rs	/^    fn print_selection(self) {$/;"	f
 print_settings	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/page_setup_unix_dialog.rs	/^    pub fn print_settings(&self) -> Option<PrintSettings> {$/;"	f
 print_settings	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/print_operation.rs	/^    fn print_settings(&self) -> Option<PrintSettings> {$/;"	f
 print_settings	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/print_operation.rs	/^    fn print_settings(&self) -> Option<PrintSettings>;$/;"	f
@@ -14733,6 +14735,7 @@ set_title_size_group	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba150
 set_title_widget	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/header_bar.rs	/^    pub fn set_title_widget(&self, title_widget: Option<&impl IsA<Widget>>) {$/;"	f
 set_titlebar	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/window.rs	/^    fn set_titlebar(&self, titlebar: Option<&impl IsA<Widget>>) {$/;"	f
 set_titlebar	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/window.rs	/^    fn set_titlebar(&self, titlebar: Option<&impl IsA<Widget>>);$/;"	f
+set_to_select	/home/tof/Coding/gallsh-rust/src/main.rs	/^    fn set_to_select(&mut self, start: usize, end: usize) {$/;"	f
 set_tooltip_cell	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/icon_view.rs	/^    pub fn set_tooltip_cell($/;"	f
 set_tooltip_cell	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/tree_view.rs	/^    fn set_tooltip_cell($/;"	f
 set_tooltip_column	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/icon_view.rs	/^    pub fn set_tooltip_column(&self, column: i32) {$/;"	f
@@ -15187,6 +15190,7 @@ stack	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/
 start	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/spinner.rs	/^    pub fn start(&self) {$/;"	f
 start	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/page_range.rs	/^    pub fn start(&self) -> i32 {$/;"	f
 start_area	/home/tof/Coding/gallsh-rust/src/main.rs	/^    fn start_area(&mut self) {$/;"	f
+start_area_with_offset	/home/tof/Coding/gallsh-rust/src/main.rs	/^    fn start_area_with_offset(&mut self, offset: usize) {$/;"	f
 start_child	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/paned.rs	/^    pub fn start_child(&self) -> Option<Widget> {$/;"	f
 start_child	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/paned.rs	/^    pub fn start_child(self, start_child: &impl IsA<Widget>) -> Self {$/;"	f
 start_editing	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_editable.rs	/^    fn start_editing(&self, event: Option<impl AsRef<gdk::Event>>) {$/;"	f
@@ -17035,7 +17039,7 @@ wraps_mode_set	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gt
 wraps_mode_set	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_tag.rs	/^    fn wraps_mode_set(&self) -> bool;$/;"	f
 write_jpeg	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/thumbnailer-0.5.1/src/lib.rs	/^    pub fn write_jpeg<W: Write + Seek>(self, writer: &mut W, quality: u8) -> ThumbResult<()> {$/;"	f
 write_png	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/thumbnailer-0.5.1/src/lib.rs	/^    pub fn write_png<W: Write + Seek>(self, writer: &mut W) -> ThumbResult<()> {$/;"	f
-write_thunbnail	/home/tof/Coding/gallsh-rust/src/main.rs	/^fn write_thunbnail<R: std::io::Seek + std::io::Read>(reader: BufReader<R>, extension: &str, mut output_file: File) -> ThumbResult<()> {$/;"	f
+write_thumbnail	/home/tof/Coding/gallsh-rust/src/main.rs	/^fn write_thumbnail<R: std::io::Seek + std::io::Read>(reader: BufReader<R>, extension: &str, mut output_file: File) -> ThumbResult<()> {$/;"	f
 x_offset	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/tree_view_column.rs	/^    pub fn x_offset(&self) -> i32 {$/;"	f
 xalign	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/aspect_frame.rs	/^    pub fn xalign(&self) -> f32 {$/;"	f
 xalign	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/aspect_frame.rs	/^    pub fn xalign(self, xalign: f32) -> Self {$/;"	f
