@@ -591,8 +591,6 @@ fn main() {
         let offset_rc = Rc::new(RefCell::new(0));
         entry_list_rc.get_or_init(|| entry_list.clone());
 
-
-
         let width = if args.width < 3000 && args.width > 100 {
             args.width
         } else { 1000 } ;
@@ -665,21 +663,20 @@ fn main() {
                     let entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
                     if entries.grid_size == 1 { return };
                     let offset = col * grid_size + row;
-                    let entry = entries.clone().offset_entry(offset);
-                    let file_path = remove_thumb_suffix(&entry.file_path);
                     stack.set_visible_child(&view_scrolled_window);
-                    show_view(&view, &file_path);
+                    show_view(&view, &entries, offset);
                     window.set_title(Some(&entries.clone().show_status(offset)));
                 }));
                 image.add_controller(view_gesture);
 
                 let motion_controller = EventControllerMotion::new(); 
                 motion_controller.connect_enter(clone!(@strong entries_rc, @strong offset_rc, @strong window => move |_,_,_| {
-                    let entries = entries_rc.borrow();
+                    if let Ok(entries) = entries_rc.try_borrow() {
                         let mut offset: RefMut<'_,usize> = offset_rc.borrow_mut();
-                    let position = col * grid_size + row;
-                    *offset = position;
-                    window.set_title(Some(&entries.clone().show_status(position)));
+                        *offset = col * grid_size + row;
+                        window.set_title(Some(&entries.clone().show_status(*offset)));
+                    } else {
+                    }
                 }));
 
                 image.add_controller(motion_controller)
@@ -740,7 +737,7 @@ fn main() {
                         show_grid(&grid, &entries.clone());
                         window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
                     }
-                    "q" => {
+                    "q"|"Escape" => {
                         entries.save_marked_file_lists(args.thumbnails);
                         window.close();
                     },
@@ -760,20 +757,15 @@ fn main() {
                     "e" => {
                         entries.end_area();
                     },
-                    "period" => {
-                        // let w = stack.visible_child().unwrap();
-                        // if w == grid_scrolled_window {
-                        //     println!("view");
-                        //     let offset: Ref<'_,usize> = offset_rc.borrow();
-                        //     let entry = entries.clone().offset_entry(*offset);
-                        //     let file_path = remove_thumb_suffix(&entry.file_path);
-                        //     stack.set_visible_child(&view_scrolled_window);
-                        //     show_view(&view, &file_path);
+                    "period"|"Shift_L" => {
+                        if stack.visible_child().unwrap() == grid_scrolled_window {
+                            let offset: Ref<'_,usize> = offset_rc.borrow();
+                            stack.set_visible_child(&view_scrolled_window);
+                            show_view(&view, &entries, *offset);
 
-                        // } else {
-                        //     println!("grid");
-                        //     stack.set_visible_child(&grid_scrolled_window);
-                        // }
+                        } else {
+                            stack.set_visible_child(&grid_scrolled_window);
+                        }
                     },
                     "space" => { 
                         if let Some(_) = args.ordered { 
@@ -821,7 +813,7 @@ fn main() {
                             .expect("Failed to get vadjustment");
                         v_adj.set_value(v_adj.value() - step as f64);
                     }
-                    _ => {  },
+                    s => { },
                 };
                 gtk::Inhibit(false)
             }
@@ -882,7 +874,10 @@ fn show_grid(grid: &Grid, entries: &Entries) {
         picture.set_filename(Some(filename.clone()));
     }
 }
-fn show_view(grid: &Grid, picture_file_path: &str) {
+
+fn show_view(grid: &Grid, entries: &Entries, offset: usize) {
+    let entry = entries.clone().offset_entry(offset);
+    let file_path = remove_thumb_suffix(&entry.file_path);
     let picture = grid.child_at(0,0).unwrap().downcast::<gtk::Picture>().unwrap();
-    picture.set_filename(Some(picture_file_path));
+    picture.set_filename(Some(file_path));
 }
