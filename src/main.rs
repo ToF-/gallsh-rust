@@ -115,13 +115,24 @@ impl Entries {
     }
 
     fn next(&mut self) {
-        if self.maximum <= self.max_cells { return };
-        let mut next_pos = self.current + self.max_cells;
-        if next_pos > self.maximum {
-            next_pos -= self.maximum + 1
-        };
-        self.current = next_pos;
         self.register = 0;
+        if self.max_cells == 1 {
+            if self.current == self.maximum {
+                return
+            } else  {
+                self.current += 1
+            }
+        } else {
+            if self.maximum <= self.max_cells {
+                return
+            } else {
+                let mut next_pos = self.current + self.max_cells;
+                if next_pos > self.maximum {
+                    next_pos -= self.maximum + 1
+                }
+                self.current = next_pos;
+            }
+        }
     }
 
     fn prev(&mut self) {
@@ -292,6 +303,8 @@ fn get_files_from_reading_list(reading_list: &String) -> io::Result<EntryList> {
                         if ! filenames.contains(&entry_name) {
                             filenames.insert(entry_name.clone());
                             entry_list.push(make_entry(entry_name, file_size, modified_time));
+                        } else {
+                            println!("{} already in reading list", entry_name);
                         }
                     }
                     Err(err) => {
