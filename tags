@@ -755,7 +755,7 @@ ListView	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6
 ListViewBuilder	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/list_view.rs	/^pub struct ListViewBuilder {$/;"	s
 LockButton	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/lock_button.rs	/^    pub struct LockButton(Object<ffi::GtkLockButton>) @extends Button, Widget, @implements Accessible, Buildable, ConstraintTarget, Actionable;$/;"	s
 LockButtonBuilder	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/lock_button.rs	/^pub struct LockButtonBuilder {$/;"	s
-MAX_THUMBNAILS	/home/tof/Coding/gallsh-rust/src/main.rs	/^const MAX_THUMBNAILS :usize = 100;$/;"	c
+MAX_THUMBNAILS	/home/tof/Coding/gallsh-rust/src/main.rs	/^const MAX_THUMBNAILS: usize = 100;$/;"	c
 MEDIA_FILE_EXTENSION_POINT_NAME	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/constants.rs	/^pub static MEDIA_FILE_EXTENSION_POINT_NAME: &GStr =$/;"	c
 MODAL	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/flags.rs	/^        const MODAL = ffi::GTK_DIALOG_MODAL as _;$/;"	c
 MODULES	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/flags.rs	/^        const MODULES = ffi::GTK_DEBUG_MODULES as _;$/;"	c
@@ -1311,6 +1311,7 @@ TEXT_ONLY	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.
 TEXT_VIEW_PRIORITY_VALIDATE	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/lib.rs	/^pub const TEXT_VIEW_PRIORITY_VALIDATE: u32 = ffi::GTK_TEXT_VIEW_PRIORITY_VALIDATE as _;$/;"	c
 THREAD_RNG_KEY	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/rngs/thread.rs	/^    static THREAD_RNG_KEY: Rc<UnsafeCell<ReseedingRng<Core, OsRng>>> = {$/;"	c
 THREAD_RNG_RESEED_THRESHOLD	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/rngs/thread.rs	/^const THREAD_RNG_RESEED_THRESHOLD: u64 = 1024 * 64;$/;"	c
+THUMB_SUFFIX	/home/tof/Coding/gallsh-rust/src/main.rs	/^const THUMB_SUFFIX: &str = "THUMB";$/;"	c
 TOKEN_MAP	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/mime-0.3.17/src/parse.rs	/^static TOKEN_MAP: [bool; 256] = byte_map![$/;"	c
 TOUCHSCREEN	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/flags.rs	/^        const TOUCHSCREEN = ffi::GTK_DEBUG_TOUCHSCREEN as _;$/;"	c
 TREE	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/flags.rs	/^        const TREE = ffi::GTK_DEBUG_TREE as _;$/;"	c
@@ -1961,7 +1962,6 @@ append_string	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ran
 append_text	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/combo_box_text.rs	/^    pub fn append_text(&self, text: &str) {$/;"	f
 append_texture	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/snapshot.rs	/^    fn append_texture(&self, texture: &impl IsA<gdk::Texture>, bounds: &graphene::Rect) {$/;"	f
 append_texture	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/snapshot.rs	/^    fn append_texture(&self, texture: &impl IsA<gdk::Texture>, bounds: &graphene::Rect);$/;"	f
-append_thumb_suffix	/home/tof/Coding/gallsh-rust/src/main.rs	/^fn append_thumb_suffix(file_name: &str) -> String {$/;"	f
 application	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/about_dialog.rs	/^    pub fn application(self, application: &impl IsA<Application>) -> Self {$/;"	f
 application	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/application_window.rs	/^    pub fn application(self, application: &impl IsA<Application>) -> Self {$/;"	f
 application	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/assistant.rs	/^    pub fn application(self, application: &impl IsA<Application>) -> Self {$/;"	f
@@ -11346,6 +11346,7 @@ orientation	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-
 orientation	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/spin_button.rs	/^    pub fn orientation(self, orientation: Orientation) -> Self {$/;"	f
 orientation	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/stack_switcher.rs	/^    pub fn orientation(self, orientation: Orientation) -> Self {$/;"	f
 orientation	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/volume_button.rs	/^    pub fn orientation(self, orientation: Orientation) -> Self {$/;"	f
+original_file_path	/home/tof/Coding/gallsh-rust/src/main.rs	/^    fn original_file_path(self) -> String {$/;"	f
 output_bin	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/print_settings.rs	/^    pub fn output_bin(&self) -> Option<glib::GString> {$/;"	f
 overflow	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/about_dialog.rs	/^    pub fn overflow(self, overflow: Overflow) -> Self {$/;"	f
 overflow	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/action_bar.rs	/^    pub fn overflow(self, overflow: Overflow) -> Self {$/;"	f
@@ -12674,7 +12675,6 @@ remove_tag	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0
 remove_tag	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/text_buffer.rs	/^    fn remove_tag(&self, tag: &TextTag, start: &TextIter, end: &TextIter) {$/;"	f
 remove_tag_by_name	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_buffer.rs	/^    fn remove_tag_by_name(&self, name: &str, start: &TextIter, end: &TextIter) {$/;"	f
 remove_tag_by_name	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_buffer.rs	/^    fn remove_tag_by_name(&self, name: &str, start: &TextIter, end: &TextIter);$/;"	f
-remove_thumb_suffix	/home/tof/Coding/gallsh-rust/src/main.rs	/^fn remove_thumb_suffix(file_name: &str) -> String {$/;"	f
 remove_widget	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_editable.rs	/^    fn remove_widget(&self) {$/;"	f
 remove_widget	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_editable.rs	/^    fn remove_widget(&self);$/;"	f
 remove_widget	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/size_group.rs	/^    pub fn remove_widget(&self, widget: &impl IsA<Widget>) {$/;"	f
@@ -15622,6 +15622,7 @@ theme_name	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0
 this_expression	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/expression.rs	/^    fn this_expression(property_name: &str) -> crate::PropertyExpression {$/;"	f
 this_expression	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/expression.rs	/^    fn this_expression(property_name: &str) -> crate::PropertyExpression;$/;"	f
 thread_rng	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/rngs/thread.rs	/^pub fn thread_rng() -> ThreadRng {$/;"	f
+thumbnail_file_path	/home/tof/Coding/gallsh-rust/src/main.rs	/^    fn thumbnail_file_path(self) -> String {$/;"	f
 timestamp	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/media_stream.rs	/^    fn timestamp(&self) -> i64 {$/;"	f
 timestamp	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/media_stream.rs	/^    fn timestamp(&self) -> i64;$/;"	f
 title	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/about_dialog.rs	/^    pub fn title(self, title: impl Into<glib::GString>) -> Self {$/;"	f

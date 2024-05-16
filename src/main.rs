@@ -31,31 +31,9 @@ use thumbnailer::error::{ThumbResult, ThumbError};
 use thumbnailer::{create_thumbnails, ThumbnailSize};
 use walkdir::WalkDir;
 const FIRST_CELL: usize = 0;
-const MAX_THUMBNAILS :usize = 100;
+const MAX_THUMBNAILS: usize = 100;
+const THUMB_SUFFIX: &str = "THUMB";
 
-fn append_thumb_suffix(file_name: &str) -> String {
-    let file_path = PathBuf::from(file_name);
-    let parent = file_path.parent().unwrap();
-    let extension = file_path.extension().unwrap();
-    let file_stem = file_path.file_stem().unwrap();
-    let new_file_name = format!("{}THUMB.{}", file_stem.to_str().unwrap(), extension.to_str().unwrap());
-    let new_path = parent.join(new_file_name);
-    new_path.to_str().unwrap().to_string()
-}
-
-fn remove_thumb_suffix(file_name: &str) -> String {
-    let file_path = PathBuf::from(file_name);
-    let parent = file_path.parent().unwrap();
-    let extension = file_path.extension().unwrap();
-    let file_stem = file_path.file_stem().unwrap().to_str().unwrap();
-    let new_file_stem = match file_stem.strip_suffix("THUMB") {
-        Some(s) => s,
-        None => &file_stem,
-    };
-    let new_file_name = format!("{}.{}", new_file_stem, extension.to_str().unwrap());
-    let new_path = parent.join(new_file_name);
-    new_path.to_str().unwrap().to_string()
-}
 
 #[derive(Clone, Debug)]
 struct Entry {
@@ -82,6 +60,38 @@ impl Entry {
             self.file_path,
             if self.to_select { "△" } else { "" },
             self.file_size)
+    }
+
+    fn thumbnail_file_path(self) -> String {
+        if self.file_path.contains(&THUMB_SUFFIX) {
+            self.file_path
+        } else {
+            let path = PathBuf::from(self.file_path);
+            let parent = path.parent().unwrap();
+            let extension = path.extension().unwrap();
+            let file_stem = path.file_stem().unwrap();
+            let new_file_name = format!("{}{}.{}", file_stem.to_str().unwrap(), THUMB_SUFFIX, extension.to_str().unwrap());
+            let new_path = parent.join(new_file_name);
+            new_path.to_str().unwrap().to_string()
+        }
+    }
+
+    fn original_file_path(self) -> String {
+        if !self.file_path.contains(THUMB_SUFFIX) {
+            self.file_path
+        } else {
+            let path = PathBuf::from(self.file_path);
+            let parent = path.parent().unwrap();
+            let extension = path.extension().unwrap();
+            let file_stem = path.file_stem().unwrap().to_str().unwrap();
+            let new_file_stem = match file_stem.strip_suffix("THUMB") {
+                Some(s) => s,
+                None => &file_stem,
+            };
+            let new_file_name = format!("{}.{}", new_file_stem, extension.to_str().unwrap());
+            let new_path = parent.join(new_file_name);
+            new_path.to_str().unwrap().to_string()
+        }
     }
 }
 
@@ -286,9 +296,10 @@ impl Entries {
                 .create(true)
                 .open(dest_file_path);
             if let Ok(mut file) = result {
-                for entry in selection.iter() {
+                for e in selection.iter() {
+                    let entry = e.clone();
                     let file_path = if thumbnails {
-                        remove_thumb_suffix(&entry.file_path.clone())
+                        entry.clone().original_file_path().clone()
                     } else { entry.file_path.clone() };
                     println!("saving {} for reference", file_path);
                     let _ = file.write(format!("{}\n", file_path).as_bytes());
@@ -408,7 +419,7 @@ fn update_thumbnails(dir_path: &str) -> ThumbResult<(usize,usize)> {
     let total_images = image_entry_list.len();
     for entry in image_entry_list {
         let source = entry.file_path.clone();
-        let target = append_thumb_suffix(&source);
+        let target = entry.thumbnail_file_path();
         if let Err(_) = thumbnail_entry_list.binary_search_by(|probe|
             probe.file_path.cmp(&target)) {
             let _ = create_thumbnail(source, target, number, total_images);
@@ -419,7 +430,7 @@ fn update_thumbnails(dir_path: &str) -> ThumbResult<(usize,usize)> {
     let mut deleted: usize = 0;
     for entry in thumbnail_entry_list {
         let source = entry.file_path.clone();
-        let target = remove_thumb_suffix(&source);
+        let target = entry.thumbnail_file_path().clone();
         let image_path = PathBuf::from(target.clone());
         if ! image_path.exists() {
             println!("deleting thumbnails {} with no matching image", source.clone());
@@ -1006,7 +1017,7 @@ fn show_grid(grid: &Grid, entries: &Entries) {
 
 fn show_view(grid: &Grid, entries: &Entries, offset: usize) {
     let entry = entries.clone().offset_entry(offset);
-    let file_path = remove_thumb_suffix(&entry.file_path);
+    let file_path = entry.original_file_path();
     let picture = grid.child_at(0,0).unwrap().downcast::<gtk::Picture>().unwrap();
     picture.set_filename(Some(file_path));
 }
