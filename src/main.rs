@@ -397,7 +397,7 @@ impl Entries {
                 .open(dest_file_path);
             if let Ok(mut file) = result {
                 for e in selection.iter() {
-                    let entry = e.clone();
+                    let entry = *e;
                     let file_path = if thumbnails {
                         entry.clone().original_file_path().clone()
                     } else { entry.file_path.clone() };
@@ -580,11 +580,11 @@ struct Args {
     grid: Option<usize>,
 
     /// Low Limit on file size
-    #[arg(short, long)]
+    #[arg(long)]
     low: Option<u64>,
 
     /// High Limit on file size
-    #[arg(short, long)]
+    #[arg(long)]
     high: Option<u64>,
 
     /// File to view
@@ -592,11 +592,11 @@ struct Args {
     file: Option<String>, 
 
     /// Thumbnails only
-    #[arg(long)]
+    #[arg(short,long)]
     thumbnails: bool,
 
     /// Update thumbnails and then quit
-    #[arg(long)]
+    #[arg(short,long)]
     update_thumbnails: bool,
 
     /// Window width (and height)
