@@ -96,7 +96,7 @@ struct Entries {
     grid_size: usize,
     max_cells: usize,
     real_size: bool,
-    register: usize,
+    register: Option<usize>,
 }
 
 impl Entries {
@@ -110,32 +110,19 @@ impl Entries {
             grid_size: grid_size,
             max_cells: grid_size * grid_size,
             real_size: false,
-            register: 0,
+            register: None,
         }
     }
 
     fn next(&mut self) {
-        self.register = 0;
-        if self.max_cells == 1 {
-            if self.current == self.maximum {
-                return
-            } else  {
-                self.current += 1
-            }
-        } else {
-            if self.maximum <= self.max_cells {
-                return
-            } else {
-                let mut next_pos = self.current + self.max_cells;
-                if next_pos > self.maximum {
-                    next_pos -= self.maximum + 1
-                }
-                self.current = next_pos;
-            }
+        self.register = None;
+        if (self.maximum + 1) > self.max_cells {
+            self.current = (self.current + self.max_cells) % (self.maximum + 1)
         }
     }
 
     fn prev(&mut self) {
+        self.register = None;
         if self.maximum <= self.max_cells { return };
         if self.max_cells >= self.maximum {
             return
@@ -145,28 +132,60 @@ impl Entries {
             next_pos = self.maximum - (usize::MAX - next_pos)
         }
         self.current = next_pos;
-        self.register = 0;
+        self.register = None;
     }
 
     fn random(&mut self) {
+        self.register = None;
         let position = thread_rng().gen_range(0..self.maximum + 1);
-        self.set(position);
+        self.current = position;
     }
 
-    fn set(&mut self, value: usize) {
-        if value < self.maximum {
-            self.current = value;
+    fn jump(&mut self, value: usize) {
+        if value <= self.maximum {
+            self.current = value
         } else {
-            println!("index {} out of range, set to 0", value);
-            self.current = 0;
+            println!("index too large: {}", value);
         }
+    }
+
+    fn add_digit_to_resiter(&mut self, digit: usize) {
+        self.register = if let Some(r) = self.register {
+            let new = r * 10 + digit;
+            if new <= self.maximum {
+                Some(new)
+            } else {
+                Some(r)
+            }
+        } else {
+            Some(digit)
+        }
+    }
+
+    fn remove_digit_to_register(&mut self) {
+        self.register = if let Some(n) = self.register {
+            if n > 0 {
+                Some(n / 10)
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    }
+
+    fn go_to_register(&mut self) {
+        if !self.register.is_none() {
+            self.current = self.register.unwrap()
+        };
+        self.register = None;
     }
 
     fn show_status(self, offset: usize) -> String {
         format!("{} {} {} {}",
             self.current + offset,
             self.clone().offset_entry(offset).show_status(),
-            self.register,
+            if self.register.is_none() { String::from("") } else { format!("{}", self.register.unwrap()) },
             if self.real_size { "*" } else { "" })
     }
 
@@ -174,11 +193,6 @@ impl Entries {
         let start = self.current;
         let position = (start + offset) % (self.maximum + 1);
         self.entry_list[position].clone()
-    }
-
-    fn set_register(&mut self) {
-        self.set(self.register);
-        self.register = 0;
     }
 
     fn start_area(&mut self) {
@@ -659,7 +673,7 @@ fn main() {
             entries.random()
         };
         if let Some(index_number) = args.index {
-            entries.set(index_number);
+            entries.jump(index_number);
         }
         let entries_rc = Rc::new(RefCell::new(entries));
         let entry_list_rc = Rc::new(OnceCell::<EntryList>::new());
@@ -780,12 +794,17 @@ fn main() {
                 match s.as_str() {
                     "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" => {
                         let digit:usize = s.parse().unwrap();
-                        entries.register = entries.register * 10 + digit;
+                        entries.add_digit_to_resiter(digit);
+                        show_grid(&grid, &entries.clone());
+                        window.set_title(Some(&(entries.clone().show_status(FIRST_CELL))));
+                    },
+                    "BackSpace" => {
+                        entries.remove_digit_to_register();
                         show_grid(&grid, &entries.clone());
                         window.set_title(Some(&(entries.clone().show_status(FIRST_CELL))));
                     },
                     "g" => {
-                        entries.set_register();
+                        entries.go_to_register();
                         show_grid(&grid, &entries.clone());
                         window.set_title(Some(&(entries.clone().show_status(FIRST_CELL))));
                     },
@@ -811,7 +830,7 @@ fn main() {
                         }
                     },
                     "z" => {
-                        entries.set(0);
+                        entries.jump(0);
                         show_grid(&grid, &entries.clone());
                         window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
                     }
@@ -923,7 +942,7 @@ fn main() {
                             .expect("Failed to get vadjustment");
                         v_adj.set_value(v_adj.value() - step as f64);
                     }
-                    s => { },
+                    s => { println!("{} ?", s) },
                 };
                 gtk::Inhibit(false)
             }
