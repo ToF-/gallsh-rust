@@ -1,3 +1,4 @@
+use rand::seq::SliceRandom;
 use std::fs::OpenOptions;
 use rand::{thread_rng,Rng}; 
 use std::io::Write;
@@ -33,6 +34,7 @@ use walkdir::WalkDir;
 const FIRST_CELL: usize = 0;
 const MAX_THUMBNAILS: usize = 100;
 const THUMB_SUFFIX: &str = "THUMB";
+const SELECTION_FILE_NAME: &str = "selections";
 
 
 #[derive(Clone, Debug)]
@@ -121,6 +123,104 @@ impl Entries {
             max_cells: grid_size * grid_size,
             real_size: false,
             register: None,
+        }
+    }
+
+    fn sort_by(&mut self, order: Order) {
+        match order {
+            Order::Date => self.entry_list.sort_by(|a, b| { a.modified_time.cmp(&b.modified_time) }),
+            Order::Name => self.entry_list.sort_by(|a, b| { a.file_path.cmp(&b.file_path) }),
+            Order::Size => self.entry_list.sort_by(|a, b| { a.file_size.cmp(&b.file_size) }),
+            Order::Random => self.entry_list.shuffle(&mut thread_rng()),
+        }
+    }
+
+    fn len(self) -> usize {
+        self.maximum + 1
+    }
+
+    fn from_directory(dir_path: &str, thumbnails: bool, opt_pattern: &Option<String>, opt_low_size: Option<u64>, opt_high_size: Option<u64>, grid_size: usize) -> io::Result<Self> {
+        let mut entry_list: EntryList = Vec::new();
+        let valid_extensions = vec!["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];
+        for dir_entry in WalkDir::new(dir_path).into_iter().filter_map(|e| e.ok()) {
+            let path = dir_entry.into_path();
+            let check_extension = match path.extension() {
+                Some(extension) => {
+                    let s = extension.to_str().unwrap();
+                    valid_extensions.contains(&s)
+                },
+                None => false,
+            };
+            let check_pattern = path.is_file() && match opt_pattern {
+                Some(pattern) => match path.to_str().map(|filename| filename.contains(pattern)) {
+                    Some(result) => result,
+                    None => false,
+                },
+                None => true,
+            };
+            let check_thumbnails = match path.to_str().map(|filename| filename.contains(THUMB_SUFFIX)) {
+                    Some(result) => result == thumbnails,
+                    None => false,
+            };
+            let high_size_limit = match opt_high_size {
+                Some(high) => high,
+                None => std::u64::MAX,
+            };
+            let low_size_limit = match opt_low_size {
+                Some(low) => low,
+                None => 0,
+            };
+            if check_extension && check_pattern && check_thumbnails {
+                if let Ok(metadata) = fs::metadata(&path) {
+                    let file_size = metadata.len();
+                    if file_size == 0 {
+                        println!("file {} has a size of 0", path.to_str().unwrap())
+                    };
+                    let modified_time = metadata.modified().unwrap();
+                    if low_size_limit <= file_size && file_size <= high_size_limit {
+                        if let Some(full_name) = path.to_str() {
+                            let entry_name = full_name.to_string().to_owned();
+                            entry_list.push(make_entry(entry_name, file_size, modified_time));
+                        }
+                    }
+                } else {
+                    println!("can't open: {}", path.display());
+                }
+            }
+        };
+        Ok(Entries::new(entry_list.clone(), grid_size))
+    } 
+
+    fn from_list(list_file_path: &str, grid_size: usize) -> io::Result<Self> {
+        match read_to_string(list_file_path) {
+            Ok(content) => {
+                let mut entry_list = Vec::new();
+                let mut file_paths_set: HashSet<String> = HashSet::new();
+                for path in content.lines().map(String::from).collect::<Vec<_>>() {
+                    match fs::metadata(&path) {
+                        Ok(metadata) => {
+                            let file_size = metadata.len();
+                            let entry_name = path.to_string().to_owned();
+                            let modified_time = metadata.modified().unwrap();
+                            if ! file_paths_set.contains(&entry_name) {
+                                file_paths_set.insert(entry_name.clone());
+                                entry_list.push(make_entry(entry_name, file_size, modified_time));
+                            } else {
+                                println!("{} already in reading list", entry_name);
+                            }
+                        },
+                        Err(err) => {
+                            println!("can't open: {}: {}", path, err);
+                        }
+
+                    }
+                };
+                Ok(Self::new(entry_list.clone(), grid_size))
+            },
+            Err(err) => {
+                println!("error reading list {}: {}", list_file_path, err);
+                Err(err)
+            }
         }
     }
 
@@ -310,38 +410,8 @@ impl Entries {
 
     fn save_marked_file_lists(&mut self, thumbnails: bool) {
         let entry_list = &self.entry_list.clone();
-        let _ = &self.save_marked_file_list(entry_list.iter().filter(|e| e.to_select).collect(), "selections", thumbnails);
+        let _ = &self.save_marked_file_list(entry_list.iter().filter(|e| e.to_select).collect(), SELECTION_FILE_NAME, thumbnails);
     }
-}
-
-fn get_files_from_reading_list(reading_list: &String) -> io::Result<EntryList> {
-    match read_to_string(reading_list) {
-        Ok(content) => {
-            let mut entry_list: EntryList = Vec::new();
-            let mut filenames: HashSet<String> = HashSet::new();
-            for path in content.lines().map(String::from).collect::<Vec<_>>() {
-                match fs::metadata(&path) {
-                    Ok(metadata) => {
-                        let file_size = metadata.len();
-                        let entry_name = path.to_string().to_owned();
-                        let modified_time = metadata.modified().unwrap();
-                        if ! filenames.contains(&entry_name) {
-                            filenames.insert(entry_name.clone());
-                            entry_list.push(make_entry(entry_name, file_size, modified_time));
-                        } else {
-                            println!("{} already in reading list", entry_name);
-                        }
-                    }
-                    Err(err) => {
-                        println!("can't open: {}: {}", path, err);
-                    }
-                }
-            };
-            Ok(entry_list)
-        },
-        Err(msg) => Err(msg)
-    }
-
 }
 
 fn create_thumbnail(source: String, target: String, number: usize, total: usize) -> ThumbResult<()> {
@@ -402,14 +472,12 @@ fn write_thumbnail<R: std::io::Seek + std::io::Read>(reader: BufReader<R>, exten
     }
 }
 fn update_thumbnails(dir_path: &str) -> ThumbResult<(usize,usize)> {
-    let result_images = get_files_in_directory(dir_path, false, &None, None, None);
-    let mut image_entry_list = match result_images {
-        Ok(entry_list) => entry_list,
+    let mut image_entry_list = match Entries::from_directory(dir_path, false, &None, None, None, 1) {
+        Ok(image_entries) => image_entries.entry_list.clone(),
         Err(err) => return Err(ThumbError::IO(err)),
     };
-    let result_thumbnails = get_files_in_directory(dir_path, true, &None, None, None);
-    let mut thumbnail_entry_list = match result_thumbnails {
-        Ok(entry_list) => entry_list,
+    let mut thumbnail_entry_list = match  Entries::from_directory(dir_path, true, &None, None, None, 1) {
+        Ok(thumbnail_entries) => thumbnail_entries.entry_list.clone(),
         Err(err) => return Err(ThumbError::IO(err)),
     };
     image_entry_list.sort_by(|a, b| { a.file_path.cmp(&b.file_path) });
@@ -458,55 +526,9 @@ fn get_file(file_path: &str) -> io::Result<EntryList> {
     };
     Ok(entry_list)
 }
-fn get_files_in_directory(dir_path: &str, thumbnails_only: bool, opt_pattern: &Option<String>, opt_low_size: Option<u64>, opt_high_size: Option<u64>) -> io::Result<EntryList> {
-    let mut entry_list: EntryList = Vec::new();
-    for entry in WalkDir::new(dir_path).into_iter().filter_map(|e| e.ok()) {
-        let path = entry.into_path();
-        let valid_ext = if let Some(ext) = path.extension() {
-            ext == "jpg" || ext == "jpeg" || ext == "png" || ext == "JPG" || ext == "JPEG" || ext == "PNG"
-        } else {
-            false
-        };
-        let pattern_present = if let Some(pattern) = opt_pattern {
-            path.is_file() && path.to_str().map(|filename| filename.contains(pattern)) == Some(true)
-        } else {
-            path.is_file()
-        };
-        let check_thumbnails = pattern_present && path.to_str().map(|filename| filename.contains("THUMB")) == Some(thumbnails_only);
-        let low_size_limit = if let Some(low) = opt_low_size {
-            low
-        } else {
-            0
-        };
-        let high_size_limit = if let Some(high) = opt_high_size {
-            high
-        } else {
-            std::u64::MAX
-        };
-        if valid_ext && pattern_present && check_thumbnails {
-            if let Ok(metadata) = fs::metadata(&path) {
-                let file_size = metadata.len();
-                if file_size == 0 {
-                    println!("file {} has a size of 0", path.to_str().unwrap())
-                };
-                let modified_time = metadata.modified().unwrap();
-                if low_size_limit <= file_size && file_size <= high_size_limit  {
-                    if let Some(full_name) = path.to_str() {
-                        let entry_name = full_name.to_string().to_owned();
-                        entry_list.push(make_entry(entry_name, file_size, modified_time));
-                    }
-                }
-            } else {
-                println!("can't open: {}", path.display());
-            }
-        }
-    };
-    Ok(entry_list)
-}
-
 #[derive(Clone, Copy, Debug, ValueEnum)]
 enum Order {
-    Name, Size, Date,
+    Name, Size, Date, Random,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -608,7 +630,7 @@ fn main() {
     // clone! passes a strong reference to pattern in the closure that activates the application
     application.connect_activate(clone!(@strong args => move |application: &gtk::Application| { 
 
-        let order: Order = if let Some(result) = args.clone().ordered { result } else { Order::Name };
+        let order: Order = if let Some(result) = args.clone().ordered { result } else { Order::Random };
         let pattern = &args.pattern;
         let path = if let Some(directory_arg) = &args.directory {
             String::from(directory_arg)
@@ -647,49 +669,30 @@ fn main() {
             }
             std::process::exit(0);
         }
-        // get all the entries in the directory that match pattern (or all if None) or from a
-        // reading list
-        let mut entry_list = if let Some(reading_list_filename) = &reading_list {
-            match get_files_from_reading_list(reading_list_filename) {
-                Err(msg) => panic!("{}", msg),
+        let mut entries = if let Some(list_file_name) = &reading_list {
+            match Entries::from_list(list_file_name, grid_size) {
                 Ok(result) => result,
+                Err(err) => std::process::exit(1),
             }
         } else {
-            if let Some(file) = &args.file {
-                match get_file(file) {
-                    Err(msg) => panic!("{}", msg),
-                    Ok(result) => result,
-                } 
-            } else {
-                match get_files_in_directory(&path, args.thumbnails, &pattern, args.low, args.high) {
-                    Err(msg) => panic!("{}", msg),
-                    Ok(result) => result,
-                }
+            match Entries::from_directory(&path, args.thumbnails, &args.pattern, args.low, args.high, grid_size) {
+                Ok(result) => result,
+                Err(err) => std::process::exit(1),
             }
         };
-        match order {
-            Order::Size => entry_list.sort_by(|a, b| { a.file_size.cmp(&b.file_size) }),
-            Order::Date => entry_list.sort_by(|a, b| { a.modified_time.cmp(&b.modified_time) }),
-            Order::Name => entry_list.sort_by(|a, b| { a.file_path.cmp(&b.file_path) }),
-        }
+        entries.sort_by(order);
 
-        println!("{} files selected", entry_list.len());
-        if entry_list.len() == 0 {
+        println!("{} files selected", entries.entry_list.len());
+        if entries.clone().len() == 0 {
             application.quit();
             return
         }
 
-        let mut entries = Entries::new(entry_list.clone(), grid_size);
-        if let None = args.ordered {
-            entries.random()
-        };
         if let Some(index_number) = args.index {
             entries.jump(index_number);
         }
         let entries_rc = Rc::new(RefCell::new(entries));
-        let entry_list_rc = Rc::new(OnceCell::<EntryList>::new());
         let offset_rc = Rc::new(RefCell::new(0));
-        entry_list_rc.get_or_init(|| entry_list.clone());
 
         let width = if args.width < 3000 && args.width > 100 {
             args.width
@@ -747,7 +750,7 @@ fn main() {
 
                 let select_gesture = gtk::GestureClick::new();
                 select_gesture.set_button(3);
-                select_gesture.connect_pressed(clone!(@strong entry_list_rc, @strong entries_rc, @strong grid, @strong window => move |_,_, _, _| {
+                select_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_,_, _, _| {
                     let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
                     let offset = col * grid_size + row;
                     if entries.clone().offset_entry(offset).to_select {
@@ -979,7 +982,7 @@ fn main() {
         if args.maximized { window.fullscreen() };
         // if a timer has been passed, set a timeout routine
         if let Some(t) = args.timer {
-            timeout_add_local(Duration::new(t,0), clone!(@strong entries_rc, @strong grid, @strong entry_list_rc, @strong window => move | | { 
+            timeout_add_local(Duration::new(t,0), clone!(@strong entries_rc, @strong grid, @strong window => move | | { 
                 let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
                 if let Some(_) = args.ordered { 
                     entries.next();
