@@ -911,11 +911,7 @@ fn main() {
                         }
                     },
                     "space" => { 
-                        if let Some(_) = args.ordered { 
-                            entries.next()
-                        } else {
-                            entries.random()
-                        }
+                        entries.next();
                         show_grid(&grid, &entries.clone());
                         window.set_title(Some(&(entries.clone().show_status(FIRST_CELL))));
                     },
@@ -968,27 +964,15 @@ fn main() {
 
         window.add_controller(evk);
         // show the first file
-        if let Some(_) = args.ordered {
-            let entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-            show_grid(&grid, &entries);
-            window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
-        } else {
-            let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-            entries.random();
-            show_grid(&grid, &entries);
-            window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
-        }
-
+        let entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
+        show_grid(&grid, &entries);
+        window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
         if args.maximized { window.fullscreen() };
         // if a timer has been passed, set a timeout routine
         if let Some(t) = args.timer {
             timeout_add_local(Duration::new(t,0), clone!(@strong entries_rc, @strong grid, @strong window => move | | { 
                 let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-                if let Some(_) = args.ordered { 
-                    entries.next();
-                } else {
-                    entries.random();
-                };
+                entries.next();
                 show_grid(&grid, &entries.clone());
                 window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
                 Continue(true) 
