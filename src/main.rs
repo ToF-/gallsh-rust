@@ -1,11 +1,6 @@
-use rand::seq::SliceRandom;
-use std::fs::OpenOptions;
-use rand::{thread_rng,Rng}; 
-use std::io::Write;
-use std::time::SystemTime;
-use std::path::{PathBuf};
-use std::process::exit;
-use clap::{Parser,ValueEnum};
+use clap::Parser;
+use clap::ValueEnum;
+use clap::builder::PossibleValue;
 use clap_num::number_range;
 use glib::clone;
 use glib::prelude::*;
@@ -15,18 +10,24 @@ use gtk::prelude::*;
 use gtk::traits::WidgetExt;
 use gtk::{self, Application, ScrolledWindow, gdk, glib, Grid, Picture};
 use mime;
-use std::cell::{Ref,OnceCell,RefCell, RefMut};
+use rand::seq::SliceRandom;
+use rand::{thread_rng,Rng}; 
+use std::cell::{Ref, RefCell, RefMut};
 use std::collections::HashSet;
 use std::env;
 use std::ffi::OsStr;
 use std::fs::File;
+use std::fs::OpenOptions;
 use std::fs::read_to_string;
 use std::fs;
 use std::io::BufReader;
+use std::io::Write;
 use std::io::{Error,ErrorKind};
 use std::io;
 use std::path::Path;
+use std::path::{PathBuf};
 use std::rc::Rc;
+use std::time::SystemTime;
 use std::time::{Duration};
 use thumbnailer::error::{ThumbResult, ThumbError};
 use thumbnailer::{create_thumbnails, ThumbnailSize};
@@ -35,6 +36,7 @@ const FIRST_CELL: usize = 0;
 const MAX_THUMBNAILS: usize = 100;
 const THUMB_SUFFIX: &str = "THUMB";
 const SELECTION_FILE_NAME: &str = "selections";
+const VALID_EXTENSIONS: [&'static str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];
 
 
 #[derive(Clone, Debug)]
@@ -139,15 +141,19 @@ impl Entries {
         self.maximum + 1
     }
 
-    fn from_directory(dir_path: &str, thumbnails: bool, opt_pattern: &Option<String>, opt_low_size: Option<u64>, opt_high_size: Option<u64>, grid_size: usize) -> io::Result<Self> {
+    fn from_directory(dir_path: &str,
+                      thumbnails: bool,
+                      opt_pattern: &Option<String>,
+                      opt_low_size: Option<u64>,
+                      opt_high_size: Option<u64>,
+                      grid_size: usize) -> io::Result<Self> {
         let mut entry_list: EntryList = Vec::new();
-        let valid_extensions = vec!["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];
         for dir_entry in WalkDir::new(dir_path).into_iter().filter_map(|e| e.ok()) {
             let path = dir_entry.into_path();
             let check_extension = match path.extension() {
                 Some(extension) => {
                     let s = extension.to_str().unwrap();
-                    valid_extensions.contains(&s)
+                    VALID_EXTENSIONS.contains(&s)
                 },
                 None => false,
             };
@@ -159,8 +165,8 @@ impl Entries {
                 None => true,
             };
             let check_thumbnails = match path.to_str().map(|filename| filename.contains(THUMB_SUFFIX)) {
-                    Some(result) => result == thumbnails,
-                    None => false,
+                Some(result) => result == thumbnails,
+                None => false,
             };
             let high_size_limit = match opt_high_size {
                 Some(high) => high,
@@ -369,16 +375,6 @@ impl Entries {
         self.end_index = None;
     }
 
-    fn selection_size(self) -> usize {
-        let mut result = 0;
-        for i in 0..self.maximum+1 {
-            if self.entry_list[i].to_select {
-                result += 1
-            }
-        };
-        result
-    }
-    
     fn toggle_real_size(&mut self) {
         self.real_size = !self.real_size;
     }
@@ -514,23 +510,30 @@ fn update_thumbnails(dir_path: &str) -> ThumbResult<(usize,usize)> {
     Ok((created,deleted))
 }
 
-fn get_file(file_path: &str) -> io::Result<EntryList> {
-    let mut entry_list: EntryList = Vec::new();
-    if let Ok(metadata) = fs::metadata(&file_path) {
-        let file_size = metadata.len();
-        let modified_time = metadata.modified().unwrap();
-        let entry_name = file_path.to_string().to_owned();
-        entry_list.push(make_entry(entry_name, file_size, modified_time));
-    } else {
-        println!("can't open: {}", file_path);
-    };
-    Ok(entry_list)
-}
-#[derive(Clone, Copy, Debug, ValueEnum)]
+#[derive(Clone, Copy, Debug)]
 enum Order {
-    Name, Size, Date, Random,
+    Date, Name, Random, Size,
 }
 
+impl clap::ValueEnum for Order {
+    fn value_variants<'a>() -> &'a [Self] {
+        &[Order::Date, Order::Name, Order::Random, Order::Size]
+    }
+
+    fn to_possible_value(&self) -> Option<PossibleValue> {
+        Some(match self {
+            Order::Date => PossibleValue::new("date"),
+            Order::Name => PossibleValue::new("name"),
+            Order::Random => PossibleValue::new("random").help("this is default"),
+            Order::Size => PossibleValue::new("size"),
+        })
+    }
+}
+impl std::fmt::Display for Order {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
 #[derive(Debug, PartialEq, Eq)]
 struct ParseOrderError;
 
@@ -552,8 +555,8 @@ struct Args {
     maximized: bool,
 
     /// Ordered display (or random)
-    #[arg(short, long,value_name("order"),value_parser(clap::value_parser!(Order)))]
-    ordered: Option<Order>,
+    #[arg(short, long,value_name("order"), ignore_case(true), default_value_t = Order::Random)]
+    order: Order,
 
     /// Timer delay for next picture
     #[arg(long)]
@@ -627,11 +630,9 @@ fn main() {
         );
     });
 
-    // clone! passes a strong reference to pattern in the closure that activates the application
+    // clone! passes a strong reference to a variable in the closure that activates the application
+    // move converts any variables captured by reference or mutable reference to variables captured by value.
     application.connect_activate(clone!(@strong args => move |application: &gtk::Application| { 
-
-        let order: Order = if let Some(result) = args.clone().ordered { result } else { Order::Random };
-        let pattern = &args.pattern;
         let path = if let Some(directory_arg) = &args.directory {
             String::from(directory_arg)
         } else if let Ok(standard_dir) = &gallshdir {
@@ -672,15 +673,15 @@ fn main() {
         let mut entries = if let Some(list_file_name) = &reading_list {
             match Entries::from_list(list_file_name, grid_size) {
                 Ok(result) => result,
-                Err(err) => std::process::exit(1),
+                _ => std::process::exit(1),
             }
         } else {
             match Entries::from_directory(&path, args.thumbnails, &args.pattern, args.low, args.high, grid_size) {
                 Ok(result) => result,
-                Err(err) => std::process::exit(1),
+                _ => std::process::exit(1),
             }
         };
-        entries.sort_by(order);
+        entries.sort_by(args.order);
 
         println!("{} files selected", entries.entry_list.len());
         if entries.clone().len() == 0 {
