@@ -1,4 +1,5 @@
 use clap::Parser;
+use regex::Regex;
 use clap::builder::PossibleValue;
 use clap_num::number_range;
 use glib::clone;
@@ -103,7 +104,6 @@ struct Entries {
     maximum:  usize,
     start_index: Option<usize>,
     end_index: Option<usize>,
-    grid_size: usize,
     max_cells: usize,
     real_size: bool,
     register: Option<usize>,
@@ -117,7 +117,6 @@ impl Entries {
             maximum: entry_list.len() - 1,
             start_index: None,
             end_index: None,
-            grid_size: grid_size,
             max_cells: grid_size * grid_size,
             real_size: false,
             register: None,
@@ -154,9 +153,17 @@ impl Entries {
                 None => false,
             };
             let check_pattern = path.is_file() && match opt_pattern {
-                Some(pattern) => match path.to_str().map(|filename| filename.contains(pattern)) {
-                    Some(result) => result,
-                    None => false,
+                Some(pattern) => {
+                    match Regex::new(pattern) {
+                        Ok(re) => match re.captures(path.to_str().unwrap()) {
+                            Some(_) => true,
+                            None => false,
+                        },
+                        Err(err) => {
+                            println!("error: {}",err);
+                            std::process::exit(1);
+                        },
+                    }
                 },
                 None => true,
             };
@@ -795,7 +802,7 @@ fn main() {
 
                 view_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong view, @strong stack, @strong view_scrolled_window, @strong grid_scrolled_window, @strong window => move |_,_, _, _| {
                     let entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-                    if entries.grid_size == 1 { return };
+                    if entries.max_cells == 1 { return };
                     let offset = col * grid_size + row;
                     stack.set_visible_child(&view_scrolled_window);
                     show_view(&view, &entries, offset);
@@ -1005,12 +1012,12 @@ fn main() {
 
 fn show_grid(grid: &Grid, entries: &Entries) {
     let max_cells = entries.clone().max_cells;
-    let grid_size = entries.clone().grid_size;
+    let side = match max_cells { 4 => 2, 9 => 3, 16 => 4, 25 => 5, 36 => 6, 49 => 7, 64 => 8, 81 => 9, 100 => 10, _ => 1, };
     for cell_index in 0 .. max_cells {
-        let row = (cell_index / grid_size) as i32;
-        let col = (cell_index % grid_size) as i32;
+        let row = (cell_index / side) as i32;
+        let col = (cell_index % side) as i32;
         let picture = grid.child_at(col,row).unwrap().downcast::<gtk::Picture>().unwrap();
-        let offset = row as usize * grid_size + col as usize;
+        let offset = row as usize * side + col as usize;
         let entry = entries.clone().offset_entry(offset);
         let opacity = if entry.to_select { 0.50 } else { 1.0 };
         picture.set_opacity(opacity);
