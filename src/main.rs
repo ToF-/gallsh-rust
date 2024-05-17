@@ -1,5 +1,4 @@
 use clap::Parser;
-use clap::ValueEnum;
 use clap::builder::PossibleValue;
 use clap_num::number_range;
 use glib::clone;
@@ -16,13 +15,10 @@ use std::cell::{Ref, RefCell, RefMut};
 use std::collections::HashSet;
 use std::env;
 use std::ffi::OsStr;
-use std::fs::File;
-use std::fs::OpenOptions;
-use std::fs::read_to_string;
-use std::fs;
-use std::io::BufReader;
-use std::io::Write;
+use std::fs::{File, OpenOptions, read_to_string};
+use std::io::{BufReader, Write};
 use std::io::{Error,ErrorKind};
+use std::fs;
 use std::io;
 use std::path::Path;
 use std::path::{PathBuf};
@@ -197,6 +193,22 @@ impl Entries {
         Ok(Entries::new(entry_list.clone(), grid_size))
     } 
 
+    fn from_file(file_path: &str, grid_size: usize) -> io::Result<Self> {
+        let mut entry_list =Vec::new();
+        match fs::metadata(&file_path) {
+            Ok(metadata) => {
+                let file_size = metadata.len();
+                let entry_name = file_path.to_string().to_owned();
+                let modified_time = metadata.modified().unwrap();
+                entry_list.push(make_entry(entry_name, file_size, modified_time));
+                Ok(Entries::new(entry_list, grid_size))
+            },
+            Err(err) => {
+                println!("can't open: {}: {}", file_path, err);
+                Err(err)
+            },
+        }
+    }
     fn from_list(list_file_path: &str, grid_size: usize) -> io::Result<Self> {
         match read_to_string(list_file_path) {
             Ok(content) => {
@@ -672,6 +684,11 @@ fn main() {
         }
         let mut entries = if let Some(list_file_name) = &reading_list {
             match Entries::from_list(list_file_name, grid_size) {
+                Ok(result) => result,
+                _ => std::process::exit(1),
+            }
+        } else if let Some(file_name) = &args.file {
+            match Entries::from_file(file_name, grid_size) {
                 Ok(result) => result,
                 _ => std::process::exit(1),
             }
