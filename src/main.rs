@@ -407,7 +407,7 @@ fn main() {
                         show_grid(&grid, &entries.clone());
                         window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
                     },
-                    "period" => {
+                    "period"|"k" => {
                         if stack.visible_child().unwrap() == grid_scrolled_window {
                             let offset: Ref<'_,usize> = offset_rc.borrow();
                             stack.set_visible_child(&view_scrolled_window);
