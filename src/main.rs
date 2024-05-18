@@ -553,8 +553,6 @@ impl std::fmt::Display for Order {
         write!(f, "{:?}", self)
     }
 }
-#[derive(Debug, PartialEq, Eq)]
-struct ParseOrderError;
 
 fn less_than_11(s: &str) -> Result<usize, String> {
     number_range(s,1,10)
@@ -566,30 +564,39 @@ fn less_than_11(s: &str) -> Result<usize, String> {
 #[command(infer_subcommands = true, infer_long_args = true, author, version, about, long_about = None)]
 /// Pattern that displayed files must have
 struct Args {
+
+    /// Pattern (only files with names matching the regular expression will be displayed)
     #[arg(short, long)]
     pattern: Option<String>,
 
     /// Maximized window
-    #[arg(short, long, default_value_t = false)]
+    #[arg(short, long, default_value_t = false, help("show the images in full screen"))]
     maximized: bool,
 
     /// Ordered display (or random)
     #[arg(short, long,value_name("order"), ignore_case(true), default_value_t = Order::Random)]
     order: Order,
 
+    /// Date ordered display
+    #[arg(short, long, default_value_t = false)]
+    date: bool,
+
+    /// Name ordered display
+    #[arg(short, long, default_value_t = false)]
+    name: bool,
+
+    /// Size ordered display
+    #[arg(short, long, default_value_t = false)]
+    size: bool,
+
     /// Timer delay for next picture
     #[arg(long)]
     timer: Option<u64>,
 
-    /// Directory to search
-    #[arg(short, long)]
+    /// Directory to search (default is set with variable GALLSHDIR)
     directory: Option<String>,
 
-    /// Selection File
-    #[arg(short, long)]
-    selection: Option<String>,
-
-    /// Reading List
+    /// Reading List (only files in the list are displayed)
     #[arg(short, long)]
     reading: Option<String>,
 
@@ -597,7 +604,7 @@ struct Args {
     #[arg(short, long)]
     index: Option<usize>,
 
-    /// Grid Size
+    /// Grid Size 
     #[arg(short, long, value_parser=less_than_11)]
     grid: Option<usize>,
 
@@ -705,7 +712,15 @@ fn main() {
                 _ => std::process::exit(1),
             }
         };
-        entries.sort_by(args.order);
+        if args.name {
+            entries.sort_by(Order::Name)
+        } else if args.date {
+            entries.sort_by(Order::Date)
+        } else if args.size {
+            entries.sort_by(Order::Size)
+        } else {
+            entries.sort_by(args.order)
+        };
 
         println!("{} files selected", entries.entry_list.len());
         if entries.clone().len() == 0 {
