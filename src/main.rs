@@ -1,3 +1,5 @@
+
+use entry::{Entry, EntryList, THUMB_SUFFIX, make_entry};
 use clap::Parser;
 use regex::Regex;
 use clap::builder::PossibleValue;
@@ -22,84 +24,51 @@ use std::io::{Error,ErrorKind};
 use std::fs;
 use std::io;
 use std::path::Path;
-use std::path::{PathBuf};
 use std::rc::Rc;
-use std::time::SystemTime;
 use std::time::{Duration};
 use thumbnailer::error::{ThumbResult, ThumbError};
 use thumbnailer::{create_thumbnails, ThumbnailSize};
 use walkdir::WalkDir;
+use std::path::{PathBuf};
 const FIRST_CELL: usize = 0;
 const MAX_THUMBNAILS: usize = 100;
-const THUMB_SUFFIX: &str = "THUMB";
 const SELECTION_FILE_NAME: &str = "selections";
 const VALID_EXTENSIONS: [&'static str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];
 
 
-#[derive(Clone, Debug)]
-struct Entry {
-    file_path: String,
-    file_size: u64,
-    modified_time: SystemTime,
-    to_select: bool,
+
+mod entry;
+
+
+#[derive(Clone, Copy, Debug)]
+enum Order {
+    Date, Name, Random, Size,
 }
 
-type EntryList = Vec<Entry>;
+impl clap::ValueEnum for Order {
+    fn value_variants<'a>() -> &'a [Self] {
+        &[Order::Date, Order::Name, Order::Random, Order::Size]
+    }
 
-fn make_entry(s:String, l:u64, t:SystemTime) -> Entry {
-    return Entry { 
-        file_path: s.clone(),
-        file_size: l,
-        modified_time: t,
-        to_select: false,
+    fn to_possible_value(&self) -> Option<PossibleValue> {
+        Some(match self {
+            Order::Date => PossibleValue::new("date"),
+            Order::Name => PossibleValue::new("name"),
+            Order::Random => PossibleValue::new("random").help("this is default"),
+            Order::Size => PossibleValue::new("size"),
+        })
     }
 }
-
-impl Entry {
-    fn show_status(self,) -> String {
-        format!("{} {} [{}]",
-            self.file_path,
-            if self.to_select { "△" } else { "" },
-            self.file_size)
-    }
-
-    fn thumbnail_file_path(self) -> String {
-        if self.file_path.contains(&THUMB_SUFFIX) {
-            self.file_path
-        } else {
-            let path = PathBuf::from(self.file_path);
-            let parent = path.parent().unwrap();
-            let extension = path.extension().unwrap();
-            let file_stem = path.file_stem().unwrap();
-            let new_file_name = format!("{}{}.{}", file_stem.to_str().unwrap(), THUMB_SUFFIX, extension.to_str().unwrap());
-            let new_path = parent.join(new_file_name);
-            new_path.to_str().unwrap().to_string()
-        }
-    }
-
-    fn original_file_path(self) -> String {
-        if !self.file_path.contains(THUMB_SUFFIX) {
-            self.file_path
-        } else {
-            let path = PathBuf::from(self.file_path);
-            let parent = path.parent().unwrap();
-            let extension = path.extension().unwrap();
-            let file_stem = path.file_stem().unwrap().to_str().unwrap();
-            let new_file_stem = match file_stem.strip_suffix("THUMB") {
-                Some(s) => s,
-                None => &file_stem,
-            };
-            let new_file_name = format!("{}.{}", new_file_stem, extension.to_str().unwrap());
-            let new_path = parent.join(new_file_name);
-            new_path.to_str().unwrap().to_string()
-        }
+impl std::fmt::Display for Order {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self)
     }
 }
 
 // a struct to keep track of navigating in a list of image files
 #[derive(Clone, Debug)]
 struct Entries {
-    entry_list: Vec<Entry>,
+    entry_list: EntryList,
     current: usize,
     maximum:  usize,
     start_index: Option<usize>,
@@ -137,11 +106,11 @@ impl Entries {
     }
 
     fn from_directory(dir_path: &str,
-                      thumbnails: bool,
-                      opt_pattern: &Option<String>,
-                      opt_low_size: Option<u64>,
-                      opt_high_size: Option<u64>,
-                      grid_size: usize) -> io::Result<Self> {
+        thumbnails: bool,
+        opt_pattern: &Option<String>,
+        opt_low_size: Option<u64>,
+        opt_high_size: Option<u64>,
+        grid_size: usize) -> io::Result<Self> {
         let mut entry_list: EntryList = Vec::new();
         for dir_entry in WalkDir::new(dir_path).into_iter().filter_map(|e| e.ok()) {
             let path = dir_entry.into_path();
@@ -346,7 +315,7 @@ impl Entries {
                 self.set_to_select(self.current + offset, end_index)
             }
         } else {
-        self.start_index = Some(self.current + offset)
+            self.start_index = Some(self.current + offset)
         }
     }
 
@@ -527,31 +496,6 @@ fn update_thumbnails(dir_path: &str) -> ThumbResult<(usize,usize)> {
         }
     }
     Ok((created,deleted))
-}
-
-#[derive(Clone, Copy, Debug)]
-enum Order {
-    Date, Name, Random, Size,
-}
-
-impl clap::ValueEnum for Order {
-    fn value_variants<'a>() -> &'a [Self] {
-        &[Order::Date, Order::Name, Order::Random, Order::Size]
-    }
-
-    fn to_possible_value(&self) -> Option<PossibleValue> {
-        Some(match self {
-            Order::Date => PossibleValue::new("date"),
-            Order::Name => PossibleValue::new("name"),
-            Order::Random => PossibleValue::new("random").help("this is default"),
-            Order::Size => PossibleValue::new("size"),
-        })
-    }
-}
-impl std::fmt::Display for Order {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
-    }
 }
 
 fn less_than_11(s: &str) -> Result<usize, String> {
