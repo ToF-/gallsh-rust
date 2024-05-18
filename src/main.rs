@@ -85,6 +85,14 @@ struct Args {
     #[arg(long)]
     high: Option<u64>,
 
+    /// From index number
+    #[arg(long)]
+    from: Option<usize>,
+
+    /// To index number
+    #[arg(long)]
+    to: Option<usize>,
+
     /// File to view
     #[arg(short, long)]
     file: Option<String>, 
@@ -176,7 +184,7 @@ fn main() {
                 _ => std::process::exit(1),
             }
         } else {
-            match Entries::from_directory(&path, args.thumbnails, &args.pattern, args.low, args.high, grid_size) {
+            match Entries::from_directory(&path, args.thumbnails, &args.pattern, args.low, args.high, args.from, args.to, grid_size) {
                 Ok(result) => result,
                 _ => std::process::exit(1),
             }

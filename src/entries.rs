@@ -65,6 +65,8 @@ impl Entries {
         opt_pattern: &Option<String>,
         opt_low_size: Option<u64>,
         opt_high_size: Option<u64>,
+        from_index: Option<usize>,
+        to_index: Option<usize>,
         grid_size: usize) -> io::Result<Self> {
         let mut entry_list: EntryList = Vec::new();
         for dir_entry in WalkDir::new(dir_path).into_iter().filter_map(|e| e.ok()) {
@@ -121,7 +123,19 @@ impl Entries {
                 }
             }
         };
-        Ok(Entries::new(entry_list.clone(), grid_size))
+        let start = match from_index {
+            Some(n) => if n <= entry_list.len() - 1 { n } else { entry_list.len() - 1 },
+            None => 0,
+        };
+        let end = match to_index {
+            Some(n) => if n < entry_list.len() { n+1 } else { entry_list.len() },
+            None => entry_list.len(),
+        };
+        let mut result_entry_list: EntryList = Vec::new();
+        for i in start .. end {
+            result_entry_list.push(entry_list[i].clone())
+        };
+        Ok(Entries::new(result_entry_list.clone(), grid_size))
     } 
 
     pub fn from_file(file_path: &str, grid_size: usize) -> io::Result<Self> {
@@ -415,11 +429,11 @@ pub fn write_thumbnail<R: std::io::Seek + std::io::Read>(reader: BufReader<R>, e
 }
 
 pub fn update_thumbnails(dir_path: &str) -> ThumbResult<(usize,usize)> {
-    let mut image_entry_list = match Entries::from_directory(dir_path, false, &None, None, None, 1) {
+    let mut image_entry_list = match Entries::from_directory(dir_path, false, &None, None, None, None, None, 1) {
         Ok(image_entries) => image_entries.entry_list.clone(),
         Err(err) => return Err(ThumbError::IO(err)),
     };
-    let mut thumbnail_entry_list = match  Entries::from_directory(dir_path, true, &None, None, None, 1) {
+    let mut thumbnail_entry_list = match  Entries::from_directory(dir_path, true, &None, None, None, None, None, 1) {
         Ok(thumbnail_entries) => thumbnail_entries.entry_list.clone(),
         Err(err) => return Err(ThumbError::IO(err)),
     };
