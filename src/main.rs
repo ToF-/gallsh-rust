@@ -389,6 +389,17 @@ fn main() {
                         show_grid(&grid, &entries.clone());
                         window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
                     },
+                    "t" => {
+                        let offset = if args.thumbnails {
+                            let offset: Ref<'_, usize> = offset_rc.borrow();
+                            *offset
+                        } else {
+                            FIRST_CELL
+                        };
+                        entries.toggle_select_offset(offset);
+                        show_grid(&grid, &entries.clone());
+                        window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                    }
                     "a" => {
                         if args.thumbnails {
                             let offset: Ref<'_, usize> = offset_rc.borrow();

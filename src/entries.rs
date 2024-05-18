@@ -272,7 +272,44 @@ impl Entries {
             if self.register.is_none() { String::from("") } else { format!("{}", self.register.unwrap()) },
             if self.real_size { "*" } else { "" })
     }
+    
+    pub fn offset_position(self, offset: usize) -> Option<usize> {
+        let position = self.current + offset;
+        if position <= self.maximum {
+            Some(position)
+        } else {
+            None
+        }
+    }
 
+    pub fn toggle_select_offset(&mut self, offset: usize) {
+        match <Entries as Clone>::clone(&self).offset_position(offset) {
+            Some(position) => {
+                if self.entry_list[position].to_select {
+                    if self.start_index.is_none() {
+                        self.entry_list[position].to_select = false
+                    } else { }
+                } if self.start_index.is_none() {
+                    self.start_index = Some(position)
+                } else {
+                    let mut start = self.start_index.unwrap();
+                    let mut end = position;
+                    if start > end {
+                        let x = start;
+                        let start = end;
+                        let end = x;
+                    };
+                    for i in start..end+1 {
+                        self.entry_list[i].to_select = true
+                    };
+                    self.start_index = None
+                }
+            },
+            None => (),
+        }
+    }
+
+    
     pub fn offset_entry(self, offset: usize) -> Entry {
         let start = self.current;
         let position = (start + offset) % (self.maximum + 1);
