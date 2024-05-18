@@ -352,7 +352,7 @@ EmojiChooser	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d2
 EmojiChooserBuilder	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/emoji_chooser.rs	/^pub struct EmojiChooserBuilder {$/;"	s
 EmptySlice	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/distributions/slice.rs	/^pub struct EmptySlice;$/;"	s
 EndsWithPredicate	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/predicates-3.1.0/src/str/basics.rs	/^pub struct EndsWithPredicate {$/;"	s
-Entries	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^struct Entries {$/;"	s
+Entries	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^pub struct Entries {$/;"	s
 Entry	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/entry.rs	/^    pub struct Entry(Object<ffi::GtkEntry, ffi::GtkEntryClass>) @extends Widget, @implements Accessible, Buildable, ConstraintTarget, CellEditable, Editable;$/;"	s
 Entry	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^pub struct Entry {$/;"	s
 EntryBuffer	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/entry_buffer.rs	/^    pub struct EntryBuffer(Object<ffi::GtkEntryBuffer, ffi::GtkEntryBufferClass>);$/;"	s
@@ -791,7 +791,7 @@ Locations	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bb
 Locations	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/regex-1.10.4/src/regex/string.rs	/^pub type Locations = CaptureLocations;$/;"	T
 LockButton	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/lock_button.rs	/^    pub struct LockButton(Object<ffi::GtkLockButton>) @extends Button, Widget, @implements Accessible, Buildable, ConstraintTarget, Actionable;$/;"	s
 LockButtonBuilder	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/lock_button.rs	/^pub struct LockButtonBuilder {$/;"	s
-MAX_THUMBNAILS	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^const MAX_THUMBNAILS: usize = 100;$/;"	c
+MAX_THUMBNAILS	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^const MAX_THUMBNAILS: usize = 100;$/;"	c
 MEDIA_FILE_EXTENSION_POINT_NAME	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/constants.rs	/^pub static MEDIA_FILE_EXTENSION_POINT_NAME: &GStr =$/;"	c
 MODAL	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/flags.rs	/^        const MODAL = ffi::GTK_DIALOG_MODAL as _;$/;"	c
 MODULES	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/flags.rs	/^        const MODULES = ffi::GTK_DEBUG_MODULES as _;$/;"	c
@@ -977,7 +977,7 @@ OrPredicate	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22
 OrdInPredicate	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/predicates-3.1.0/src/iter.rs	/^pub struct OrdInPredicate<T>$/;"	s
 OrdOps	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/predicates-3.1.0/src/ord.rs	/^enum OrdOps {$/;"	g
 OrdPredicate	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/predicates-3.1.0/src/ord.rs	/^pub struct OrdPredicate<T> {$/;"	s
-Order	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^enum Order {$/;"	g
+Order	/Users/christophethibaut/Coding/gallsh-rust/src/order.rs	/^pub enum Order {$/;"	g
 Ordering	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/enums.rs	/^pub enum Ordering {$/;"	g
 Orientable	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/orientable.rs	/^    pub struct Orientable(Interface<ffi::GtkOrientable, ffi::GtkOrientableIface>);$/;"	s
 OrientableExt	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/orientable.rs	/^pub trait OrientableExt: 'static {$/;"	t
@@ -1181,7 +1181,7 @@ SCALE	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba150
 SCALE	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/distributions/bernoulli.rs	/^const SCALE: f64 = 2.0 * (1u64 << 63) as f64;$/;"	c
 SELECTED	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/flags.rs	/^        const SELECTED = ffi::GTK_CELL_RENDERER_SELECTED as _;$/;"	c
 SELECTED	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/flags.rs	/^        const SELECTED = ffi::GTK_STATE_FLAG_SELECTED as _;$/;"	c
-SELECTION_FILE_NAME	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^const SELECTION_FILE_NAME: &str = "selections";$/;"	c
+SELECTION_FILE_NAME	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^const SELECTION_FILE_NAME: &str = "selections";$/;"	c
 SHOW_ABOUT_DIALOG_QUARK	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/functions.rs	/^static SHOW_ABOUT_DIALOG_QUARK: Lazy<Quark> = Lazy::new(|| Quark::from_str("gtk-rs-about-dialog"));$/;"	c
 SHOW_CHANGE	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/flags.rs	/^        const SHOW_CHANGE = ffi::GTK_STYLE_CONTEXT_PRINT_SHOW_CHANGE as _;$/;"	c
 SHOW_STYLE	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/flags.rs	/^        const SHOW_STYLE = ffi::GTK_STYLE_CONTEXT_PRINT_SHOW_STYLE as _;$/;"	c
@@ -1503,7 +1503,7 @@ Unit	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba1500
 UriLauncher	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/uri_launcher.rs	/^    pub struct UriLauncher(Object<ffi::GtkUriLauncher, ffi::GtkUriLauncherClass>);$/;"	s
 UriLauncherBuilder	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/uri_launcher.rs	/^pub struct UriLauncherBuilder {$/;"	s
 Utf8Predicate	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/predicates-3.1.0/src/str/adapters.rs	/^pub struct Utf8Predicate<P>$/;"	s
-VALID_EXTENSIONS	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^const VALID_EXTENSIONS: [&'static str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];$/;"	c
+VALID_EXTENSIONS	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^const VALID_EXTENSIONS: [&'static str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];$/;"	c
 VARIATIONS	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/flags.rs	/^        const VARIATIONS = ffi::GTK_FONT_CHOOSER_LEVEL_VARIATIONS as _;$/;"	c
 VERTICAL	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/flags.rs	/^        const VERTICAL = ffi::GTK_EVENT_CONTROLLER_SCROLL_VERTICAL as _;$/;"	c
 VERTICAL_WRITING	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/flags.rs	/^        const VERTICAL_WRITING = ffi::GTK_INPUT_HINT_VERTICAL_WRITING as _;$/;"	c
@@ -1848,7 +1848,7 @@ add_credit_section	/Users/christophethibaut/.cargo/registry/src/index.crates.io-
 add_css_class	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/widget.rs	/^    fn add_css_class(&self, css_class: &str) {$/;"	f
 add_css_class	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/widget.rs	/^    fn add_css_class(&self, css_class: &str);$/;"	f
 add_custom_tab	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/print_unix_dialog.rs	/^    pub fn add_custom_tab(&self, child: &impl IsA<Widget>, tab_label: &impl IsA<Widget>) {$/;"	f
-add_digit_to_resiter	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn add_digit_to_resiter(&mut self, digit: usize) {$/;"	f
+add_digit_to_resiter	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn add_digit_to_resiter(&mut self, digit: usize) {$/;"	f
 add_filter	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/file_chooser.rs	/^    fn add_filter(&self, filter: &FileFilter) {$/;"	f
 add_filter	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/file_chooser.rs	/^    fn add_filter(&self, filter: &FileFilter);$/;"	f
 add_focus_sibling	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_area.rs	/^    fn add_focus_sibling($/;"	f
@@ -5322,7 +5322,7 @@ create_pango_layout	/Users/christophethibaut/.cargo/registry/src/index.crates.io
 create_row_drag_icon	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/tree_view.rs	/^    fn create_row_drag_icon(&self, path: &TreePath) -> Option<gdk::Paintable> {$/;"	f
 create_row_drag_icon	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/tree_view.rs	/^    fn create_row_drag_icon(&self, path: &TreePath) -> Option<gdk::Paintable>;$/;"	f
 create_tag	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/text_buffer.rs	/^    fn create_tag($/;"	f
-create_thumbnail	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn create_thumbnail(source: String, target: String, number: usize, total: usize) -> ThumbResult<()> {$/;"	f
+create_thumbnail	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^pub fn create_thumbnail(source: String, target: String, number: usize, total: usize) -> ThumbResult<()> {$/;"	f
 create_thumbnails	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/thumbnailer-0.5.1/src/lib.rs	/^pub fn create_thumbnails<R: BufRead + Seek, I: IntoIterator<Item = ThumbnailSize>>($/;"	f
 create_widget_for_value	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/drag_icon.rs	/^    pub fn create_widget_for_value(value: &glib::Value) -> Option<Widget> {$/;"	f
 creates_folders	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/file_chooser.rs	/^    fn creates_folders(&self) -> bool {$/;"	f
@@ -6425,8 +6425,8 @@ enables_undo	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d2
 end	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/page_range.rs	/^    pub fn end(&self) -> i32 {$/;"	f
 end	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/regex-1.10.4/src/regex/bytes.rs	/^    pub fn end(&self) -> usize {$/;"	f
 end	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/regex-1.10.4/src/regex/string.rs	/^    pub fn end(&self) -> usize {$/;"	f
-end_area	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn end_area(&mut self) {$/;"	f
-end_area_with_offset	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn end_area_with_offset(&mut self, offset: usize) {$/;"	f
+end_area	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn end_area(&mut self) {$/;"	f
+end_area_with_offset	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn end_area_with_offset(&mut self, offset: usize) {$/;"	f
 end_child	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/paned.rs	/^    pub fn end_child(&self) -> Option<Widget> {$/;"	f
 end_child	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/paned.rs	/^    pub fn end_child(self, end_child: &impl IsA<Widget>) -> Self {$/;"	f
 end_irreversible_action	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_buffer.rs	/^    fn end_irreversible_action(&self) {$/;"	f
@@ -7065,7 +7065,7 @@ fmt	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001
 fmt	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/walkdir-2.4.0/src/dent.rs	/^    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {$/;"	f
 fmt	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/walkdir-2.4.0/src/error.rs	/^    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {$/;"	f
 fmt	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/walkdir-2.4.0/src/lib.rs	/^    fn fmt($/;"	f
-fmt	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {$/;"	f
+fmt	/Users/christophethibaut/Coding/gallsh-rust/src/order.rs	/^    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {$/;"	f
 fn_name	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/predicates-3.1.0/src/function.rs	/^    pub fn fn_name(mut self, name: &'static str) -> Self {$/;"	f
 focus	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_area.rs	/^    fn focus(&self, direction: DirectionType) -> bool {$/;"	f
 focus	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_area.rs	/^    fn focus(&self, direction: DirectionType) -> bool;$/;"	f
@@ -7609,12 +7609,12 @@ from	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba1500
 from	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/walkdir-2.4.0/src/error.rs	/^    fn from(walk_err: Error) -> io::Error {$/;"	f
 from_bytes	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/builder_list_item_factory.rs	/^    pub fn from_bytes($/;"	f
 from_char	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/clap-num-1.1.1/src/lib.rs	/^    fn from_char(symbol: char) -> Option<Self> {$/;"	f
-from_directory	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn from_directory(dir_path: &str,$/;"	f
+from_directory	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn from_directory(dir_path: &str,$/;"	f
 from_file	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/image.rs	/^    pub fn from_file(filename: impl AsRef<std::path::Path>) -> Image {$/;"	f
 from_file	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/page_setup.rs	/^    pub fn from_file(file_name: impl AsRef<std::path::Path>) -> Result<PageSetup, glib::Error> {$/;"	f
 from_file	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/print_settings.rs	/^    pub fn from_file(file_name: impl AsRef<std::path::Path>) -> Result<PrintSettings, glib::Error> {$/;"	f
 from_file	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/builder.rs	/^    pub fn from_file(file_path: impl AsRef<Path>) -> Self {$/;"	f
-from_file	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn from_file(file_path: &str, grid_size: usize) -> io::Result<Self> {$/;"	f
+from_file	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn from_file(file_path: &str, grid_size: usize) -> io::Result<Self> {$/;"	f
 from_file_path	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/predicates-3.1.0/src/path/fc.rs	/^    fn from_file_path(self) -> FileContentPredicate<Self> {$/;"	f
 from_gicon	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/image.rs	/^    pub fn from_gicon(icon: &impl IsA<gio::Icon>) -> Image {$/;"	f
 from_glib	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/enums.rs	/^    unsafe fn from_glib(value: ffi::GtkAccessibleAutocomplete) -> Self {$/;"	f
@@ -7752,7 +7752,7 @@ from_iter	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bb
 from_key_file	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/page_setup.rs	/^    pub fn from_key_file($/;"	f
 from_key_file	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/paper_size.rs	/^    pub fn from_key_file($/;"	f
 from_key_file	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/print_settings.rs	/^    pub fn from_key_file($/;"	f
-from_list	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn from_list(list_file_path: &str, grid_size: usize) -> io::Result<Self> {$/;"	f
+from_list	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn from_list(list_file_path: &str, grid_size: usize) -> io::Result<Self> {$/;"	f
 from_model	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/popover_menu.rs	/^    pub fn from_model(model: Option<&impl IsA<gio::MenuModel>>) -> PopoverMenu {$/;"	f
 from_model	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/popover_menu_bar.rs	/^    pub fn from_model(model: Option<&impl IsA<gio::MenuModel>>) -> PopoverMenuBar {$/;"	f
 from_model_full	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/popover_menu.rs	/^    pub fn from_model_full($/;"	f
@@ -7852,7 +7852,7 @@ gicon	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba150
 gicon	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/recent_info.rs	/^    pub fn gicon(&self) -> Option<gio::Icon> {$/;"	f
 gl_shader_pop_texture	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/snapshot.rs	/^    fn gl_shader_pop_texture(&self) {$/;"	f
 gl_shader_pop_texture	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/snapshot.rs	/^    fn gl_shader_pop_texture(&self);$/;"	f
-go_to_register	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn go_to_register(&mut self) {$/;"	f
+go_to_register	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn go_to_register(&mut self) {$/;"	f
 got_page_size	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/print_operation_preview.rs	/^    fn got_page_size(&self, context: &PrintContext, page_setup: &PageSetup) {$/;"	f
 grab_focus	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/widget.rs	/^    fn grab_focus(&self) -> bool {$/;"	f
 grab_focus	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/widget.rs	/^    fn grab_focus(&self) -> bool;$/;"	f
@@ -9673,7 +9673,7 @@ job_name	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba
 job_name	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/print_operation.rs	/^    fn job_name(&self) -> Option<glib::GString>;$/;"	f
 job_name	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/print_operation.rs	/^    pub fn job_name(self, job_name: impl Into<glib::GString>) -> Self {$/;"	f
 join	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/walkdir-2.4.0/src/tests/util.rs	/^    pub fn join<P: AsRef<Path>>(&self, path: P) -> PathBuf {$/;"	f
-jump	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn jump(&mut self, value: usize) {$/;"	f
+jump	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn jump(&mut self, value: usize) {$/;"	f
 justification	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_tag.rs	/^    fn justification(&self) -> Justification {$/;"	f
 justification	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_tag.rs	/^    fn justification(&self) -> Justification;$/;"	f
 justification	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_tag.rs	/^    pub fn justification(self, justification: Justification) -> Self {$/;"	f
@@ -9893,7 +9893,7 @@ len	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001
 len	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/regex-1.10.4/src/regex/string.rs	/^    pub fn len(&self) -> usize {$/;"	f
 len	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/regex-1.10.4/src/regexset/bytes.rs	/^    pub fn len(&self) -> usize {$/;"	f
 len	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/regex-1.10.4/src/regexset/string.rs	/^    pub fn len(&self) -> usize {$/;"	f
-len	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn len(self) -> usize {$/;"	f
+len	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn len(self) -> usize {$/;"	f
 length	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/print_settings.rs	/^    pub fn length(&self, key: &str, unit: Unit) -> f64 {$/;"	f
 length	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/entry_buffer.rs	/^    fn length(&self) -> u16 {$/;"	f
 length	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/entry_buffer.rs	/^    fn length(&self) -> u16;$/;"	f
@@ -11334,7 +11334,7 @@ new	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001
 new	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/walkdir-2.4.0/src/lib.rs	/^    fn new(dent: &DirEntry) -> io::Result<Ancestor> {$/;"	f
 new	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/walkdir-2.4.0/src/lib.rs	/^    pub fn new<P: AsRef<Path>>(root: P) -> Self {$/;"	f
 new	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/walkdir-2.4.0/src/tests/util.rs	/^    pub fn new() -> Result<TempDir> {$/;"	f
-new	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn new(entry_list: Vec<Entry>, grid_size: usize) -> Self {$/;"	f
+new	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    fn new(entry_list: Vec<Entry>, grid_size: usize) -> Self {$/;"	f
 new_constant	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/constraint.rs	/^    pub fn new_constant($/;"	f
 new_custom	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/paper_size.rs	/^    pub fn new_custom($/;"	f
 new_empty	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/bitset.rs	/^    pub fn new_empty() -> Bitset {$/;"	f
@@ -11370,7 +11370,7 @@ next	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba1500
 next	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/regex-1.10.4/src/regexset/bytes.rs	/^    fn next(&mut self) -> Option<usize> {$/;"	f
 next	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/regex-1.10.4/src/regexset/string.rs	/^    fn next(&mut self) -> Option<usize> {$/;"	f
 next	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/walkdir-2.4.0/src/lib.rs	/^    fn next(&mut self) -> Option<Result<DirEntry>> {$/;"	f
-next	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn next(&mut self) {$/;"	f
+next	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn next(&mut self) {$/;"	f
 next_accessible_sibling	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/accessible.rs	/^    fn next_accessible_sibling(&self) -> Option<Accessible> {$/;"	f
 next_accessible_sibling	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/accessible.rs	/^    fn next_accessible_sibling(&self) -> Option<Accessible>;$/;"	f
 next_accessible_sibling	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/accessible.rs	/^    fn next_accessible_sibling(&self) -> Option<Accessible> {$/;"	f
@@ -11435,7 +11435,7 @@ offset	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15
 offset	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/slice_list_model.rs	/^    pub fn offset(&self) -> u32 {$/;"	f
 offset	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/slice_list_model.rs	/^    pub fn offset(self, offset: u32) -> Self {$/;"	f
 offset	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_iter.rs	/^    pub fn offset(&self) -> i32 {$/;"	f
-offset_entry	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn offset_entry(self, offset: usize) -> Entry {$/;"	f
+offset_entry	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn offset_entry(self, offset: usize) -> Entry {$/;"	f
 offset_value	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/level_bar.rs	/^    pub fn offset_value(&self, name: Option<&str>) -> Option<f64> {$/;"	f
 one	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/seq/index.rs	/^    fn one() -> Self {$/;"	f
 one	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/seq/index.rs	/^    fn one() -> Self;$/;"	f
@@ -12521,7 +12521,7 @@ present	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba1
 present_with_time	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/window.rs	/^    fn present_with_time(&self, timestamp: u32) {$/;"	f
 present_with_time	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/window.rs	/^    fn present_with_time(&self, timestamp: u32);$/;"	f
 prev	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/tree_path.rs	/^    pub fn prev(&mut self) -> bool {$/;"	f
-prev	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn prev(&mut self) {$/;"	f
+prev	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn prev(&mut self) {$/;"	f
 prev_page	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/notebook.rs	/^    pub fn prev_page(&self) {$/;"	f
 prev_sibling	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/widget.rs	/^    fn prev_sibling(&self) -> Option<Widget> {$/;"	f
 prev_sibling	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/widget.rs	/^    fn prev_sibling(&self) -> Option<Widget>;$/;"	f
@@ -12690,7 +12690,7 @@ queue_resize	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d2
 queue_resize	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/widget.rs	/^    fn queue_resize(&self);$/;"	f
 radio	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_renderer_toggle.rs	/^    pub fn radio(self, radio: bool) -> Self {$/;"	f
 random	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/lib.rs	/^pub fn random<T>() -> T$/;"	f
-random	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn random(&mut self) {$/;"	f
+random	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn random(&mut self) {$/;"	f
 range	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/spin_button.rs	/^    pub fn range(&self) -> (f64, f64) {$/;"	f
 range	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/distributions/uniform.rs	/^        fn range<T: SampleUniform>(low: T, high: T) {$/;"	f
 range	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/regex-1.10.4/src/regex/bytes.rs	/^    pub fn range(&self) -> core::ops::Range<usize> {$/;"	f
@@ -12887,7 +12887,7 @@ remove_controller	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6
 remove_controller	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/shortcut_manager.rs	/^    fn remove_controller(&self, controller: &ShortcutController) {$/;"	f
 remove_css_class	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/widget.rs	/^    fn remove_css_class(&self, css_class: &str) {$/;"	f
 remove_css_class	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/widget.rs	/^    fn remove_css_class(&self, css_class: &str);$/;"	f
-remove_digit_to_register	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn remove_digit_to_register(&mut self) {$/;"	f
+remove_digit_to_register	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn remove_digit_to_register(&mut self) {$/;"	f
 remove_filter	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/file_chooser.rs	/^    fn remove_filter(&self, filter: &FileFilter) {$/;"	f
 remove_filter	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/file_chooser.rs	/^    fn remove_filter(&self, filter: &FileFilter);$/;"	f
 remove_focus_sibling	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_area.rs	/^    fn remove_focus_sibling($/;"	f
@@ -13003,12 +13003,12 @@ reset	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba150
 reset	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/im_context.rs	/^    fn reset(&self);$/;"	f
 reset	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/cell_area_context.rs	/^    fn reset(&self) {$/;"	f
 reset	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/im_context.rs	/^    fn reset(&self) {$/;"	f
-reset_all_select	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn reset_all_select(&mut self) {$/;"	f
+reset_all_select	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn reset_all_select(&mut self) {$/;"	f
 reset_cursor_blink	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_view.rs	/^    fn reset_cursor_blink(&self) {$/;"	f
 reset_cursor_blink	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_view.rs	/^    fn reset_cursor_blink(&self);$/;"	f
 reset_default_sort_func	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/tree_model_sort.rs	/^    fn reset_default_sort_func(&self) {$/;"	f
 reset_default_sort_func	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/tree_model_sort.rs	/^    fn reset_default_sort_func(&self);$/;"	f
-reset_grid_select	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn reset_grid_select(&mut self) {$/;"	f
+reset_grid_select	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn reset_grid_select(&mut self) {$/;"	f
 reset_im_context	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/entry.rs	/^    fn reset_im_context(&self) {$/;"	f
 reset_im_context	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/entry.rs	/^    fn reset_im_context(&self);$/;"	f
 reset_im_context	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_view.rs	/^    fn reset_im_context(&self) {$/;"	f
@@ -13226,8 +13226,8 @@ save	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba1500
 save	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/style_context.rs	/^    fn save(&self) {$/;"	f
 save	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/style_context.rs	/^    fn save(&self);$/;"	f
 save_future	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/file_dialog.rs	/^    pub fn save_future($/;"	f
-save_marked_file_list	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn save_marked_file_list(&mut self, selection: Vec<&Entry>, dest_file_path: &str, thumbnails: bool) {$/;"	f
-save_marked_file_lists	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn save_marked_file_lists(&mut self, thumbnails: bool) {$/;"	f
+save_marked_file_list	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn save_marked_file_list(&mut self, selection: Vec<&Entry>, dest_file_path: &str, thumbnails: bool) {$/;"	f
+save_marked_file_lists	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn save_marked_file_lists(&mut self, thumbnails: bool) {$/;"	f
 scalar_float_impl	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/distributions/utils.rs	/^macro_rules! scalar_float_impl {$/;"	d
 scale	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_renderer_accel.rs	/^    pub fn scale(self, scale: f64) -> Self {$/;"	f
 scale	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_renderer_combo.rs	/^    pub fn scale(self, scale: f64) -> Self {$/;"	f
@@ -14994,7 +14994,7 @@ set_title_size_group	/Users/christophethibaut/.cargo/registry/src/index.crates.i
 set_title_widget	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/header_bar.rs	/^    pub fn set_title_widget(&self, title_widget: Option<&impl IsA<Widget>>) {$/;"	f
 set_titlebar	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/window.rs	/^    fn set_titlebar(&self, titlebar: Option<&impl IsA<Widget>>) {$/;"	f
 set_titlebar	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/window.rs	/^    fn set_titlebar(&self, titlebar: Option<&impl IsA<Widget>>);$/;"	f
-set_to_select	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn set_to_select(&mut self, start: usize, end: usize) {$/;"	f
+set_to_select	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn set_to_select(&mut self, start: usize, end: usize) {$/;"	f
 set_tooltip_cell	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/icon_view.rs	/^    pub fn set_tooltip_cell($/;"	f
 set_tooltip_cell	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/tree_view.rs	/^    fn set_tooltip_cell($/;"	f
 set_tooltip_column	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/icon_view.rs	/^    pub fn set_tooltip_column(&self, column: i32) {$/;"	f
@@ -15252,8 +15252,8 @@ show_spaces	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22
 show_spaces	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_tag.rs	/^    fn show_spaces(&self) -> pango::ShowFlags;$/;"	f
 show_spaces	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_tag.rs	/^    pub fn show_spaces(self, show_spaces: pango::ShowFlags) -> Self {$/;"	f
 show_spaces_set	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_tag.rs	/^    pub fn show_spaces_set(self, show_spaces_set: bool) -> Self {$/;"	f
+show_status	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn show_status(self, offset: usize) -> String {$/;"	f
 show_status	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^    pub fn show_status(self,) -> String {$/;"	f
-show_status	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn show_status(self, offset: usize) -> String {$/;"	f
 show_tabs	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/notebook.rs	/^    pub fn show_tabs(self, show_tabs: bool) -> Self {$/;"	f
 show_text	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/progress_bar.rs	/^    pub fn show_text(self, show_text: bool) -> Self {$/;"	f
 show_title_buttons	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/header_bar.rs	/^    pub fn show_title_buttons(self, show_title_buttons: bool) -> Self {$/;"	f
@@ -15403,7 +15403,7 @@ some_helper_function	/Users/christophethibaut/.cargo/registry/src/index.crates.i
 sort	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/predicates-3.1.0/src/iter.rs	/^    pub fn sort(self) -> OrdInPredicate<T> {$/;"	f
 sort_by	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/walkdir-2.4.0/src/lib.rs	/^    pub fn sort_by<F>(mut self, cmp: F) -> Self$/;"	f
 sort_by	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/walkdir-2.4.0/src/tests/recursive.rs	/^fn sort_by() {$/;"	f
-sort_by	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn sort_by(&mut self, order: Order) {$/;"	f
+sort_by	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn sort_by(&mut self, order: Order) {$/;"	f
 sort_by_column	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/column_view.rs	/^    pub fn sort_by_column(&self, column: Option<&ColumnViewColumn>, direction: SortType) {$/;"	f
 sort_by_file_name	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/walkdir-2.4.0/src/lib.rs	/^    pub fn sort_by_file_name(self) -> Self {$/;"	f
 sort_by_file_name	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/walkdir-2.4.0/src/tests/recursive.rs	/^fn sort_by_file_name() {$/;"	f
@@ -15466,8 +15466,8 @@ start	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba150
 start	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/page_range.rs	/^    pub fn start(&self) -> i32 {$/;"	f
 start	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/regex-1.10.4/src/regex/bytes.rs	/^    pub fn start(&self) -> usize {$/;"	f
 start	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/regex-1.10.4/src/regex/string.rs	/^    pub fn start(&self) -> usize {$/;"	f
-start_area	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn start_area(&mut self) {$/;"	f
-start_area_with_offset	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn start_area_with_offset(&mut self, offset: usize) {$/;"	f
+start_area	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn start_area(&mut self) {$/;"	f
+start_area_with_offset	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn start_area_with_offset(&mut self, offset: usize) {$/;"	f
 start_child	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/paned.rs	/^    pub fn start_child(&self) -> Option<Widget> {$/;"	f
 start_child	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/paned.rs	/^    pub fn start_child(self, start_child: &impl IsA<Widget>) -> Self {$/;"	f
 start_editing	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_editable.rs	/^    fn start_editing(&self, event: Option<impl AsRef<gdk::Event>>) {$/;"	f
@@ -15951,7 +15951,7 @@ to_node	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba1
 to_optional_bool_value	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/accessible.rs	/^        fn to_optional_bool_value(b: &Option<bool>) -> Value {$/;"	f
 to_paintable	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/snapshot.rs	/^    fn to_paintable(self, size: Option<&graphene::Size>) -> Option<gdk::Paintable> {$/;"	f
 to_paintable	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/snapshot.rs	/^    fn to_paintable(self, size: Option<&graphene::Size>) -> Option<gdk::Paintable>;$/;"	f
-to_possible_value	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn to_possible_value(&self) -> Option<PossibleValue> {$/;"	f
+to_possible_value	/Users/christophethibaut/Coding/gallsh-rust/src/order.rs	/^    fn to_possible_value(&self) -> Option<PossibleValue> {$/;"	f
 to_property_value	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/accessible.rs	/^    fn to_property_value(&self) -> (AccessibleProperty, Value) {$/;"	f
 to_ref_list_value	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/accessible.rs	/^        fn to_ref_list_value(objects: &[&Accessible]) -> Value {$/;"	f
 to_relation_value	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/accessible.rs	/^    fn to_relation_value(&self) -> (AccessibleRelation, Value) {$/;"	f
@@ -15978,8 +15978,8 @@ to_value_optional	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6
 to_value_optional	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/param_spec_expression.rs	/^    fn to_value_optional(s: Option<&Self>) -> Value {$/;"	f
 toggle_cursor_row	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/tree_view.rs	/^    fn toggle_cursor_row(&self) -> bool {$/;"	f
 toggle_overwrite	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/text_view.rs	/^    fn toggle_overwrite(&self) {$/;"	f
-toggle_real_size	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn toggle_real_size(&mut self) {$/;"	f
-toggle_to_select_with_offset	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn toggle_to_select_with_offset(&mut self, offset: usize) {$/;"	f
+toggle_real_size	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn toggle_real_size(&mut self) {$/;"	f
+toggle_to_select_with_offset	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn toggle_to_select_with_offset(&mut self, offset: usize) {$/;"	f
 toggled	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/toggle_button.rs	/^    fn toggled(&self) {$/;"	f
 toggled	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/toggle_button.rs	/^    fn toggled(&self);$/;"	f
 toggled	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/check_button.rs	/^    fn toggled(&self) {$/;"	f
@@ -16441,7 +16441,7 @@ update_relation	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f1
 update_relation	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/accessible.rs	/^    fn update_relation(&self, relations: &[Relation]);$/;"	f
 update_state	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/accessible.rs	/^    fn update_state(&self, states: &[State]) {$/;"	f
 update_state	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/accessible.rs	/^    fn update_state(&self, states: &[State]);$/;"	f
-update_thumbnails	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn update_thumbnails(dir_path: &str) -> ThumbResult<(usize,usize)> {$/;"	f
+update_thumbnails	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^pub fn update_thumbnails(dir_path: &str) -> ThumbResult<(usize,usize)> {$/;"	f
 update_weights	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/distributions/weighted_index.rs	/^    pub fn update_weights(&mut self, new_weights: &[(usize, &X)]) -> Result<(), WeightedError>$/;"	f
 upper	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/adjustment.rs	/^    fn upper(&self) -> f64 {$/;"	f
 upper	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/adjustment.rs	/^    fn upper(&self) -> f64;$/;"	f
@@ -16670,7 +16670,7 @@ value_type	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22b
 value_type	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/expression.rs	/^    fn value_type(&self) -> glib::Type {$/;"	f
 value_type	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/param_spec_expression.rs	/^    fn value_type(&self) -> glib::Type {$/;"	f
 value_type	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/response_type.rs	/^    fn value_type(&self) -> Type {$/;"	f
-value_variants	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^    fn value_variants<'a>() -> &'a [Self] {$/;"	f
+value_variants	/Users/christophethibaut/Coding/gallsh-rust/src/order.rs	/^    fn value_variants<'a>() -> &'a [Self] {$/;"	f
 variant	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_renderer_accel.rs	/^    pub fn variant(self, variant: pango::Variant) -> Self {$/;"	f
 variant	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_renderer_combo.rs	/^    pub fn variant(self, variant: pango::Variant) -> Self {$/;"	f
 variant	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_renderer_spin.rs	/^    pub fn variant(self, variant: pango::Variant) -> Self {$/;"	f
@@ -17296,7 +17296,7 @@ wraps_mode_set	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17
 wraps_mode_set	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_tag.rs	/^    fn wraps_mode_set(&self) -> bool;$/;"	f
 write_jpeg	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/thumbnailer-0.5.1/src/lib.rs	/^    pub fn write_jpeg<W: Write + Seek>(self, writer: &mut W, quality: u8) -> ThumbResult<()> {$/;"	f
 write_png	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/thumbnailer-0.5.1/src/lib.rs	/^    pub fn write_png<W: Write + Seek>(self, writer: &mut W) -> ThumbResult<()> {$/;"	f
-write_thumbnail	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn write_thumbnail<R: std::io::Seek + std::io::Read>(reader: BufReader<R>, extension: &str, mut output_file: File) -> ThumbResult<()> {$/;"	f
+write_thumbnail	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^pub fn write_thumbnail<R: std::io::Seek + std::io::Read>(reader: BufReader<R>, extension: &str, mut output_file: File) -> ThumbResult<()> {$/;"	f
 x_offset	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/tree_view_column.rs	/^    pub fn x_offset(&self) -> i32 {$/;"	f
 xalign	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/aspect_frame.rs	/^    pub fn xalign(&self) -> f32 {$/;"	f
 xalign	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/aspect_frame.rs	/^    pub fn xalign(self, xalign: f32) -> Self {$/;"	f
