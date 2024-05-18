@@ -67,6 +67,7 @@ impl Entries {
         opt_high_size: Option<u64>,
         from_index: Option<usize>,
         to_index: Option<usize>,
+        order: Order,
         grid_size: usize) -> io::Result<Self> {
         let mut entry_list: EntryList = Vec::new();
         for dir_entry in WalkDir::new(dir_path).into_iter().filter_map(|e| e.ok()) {
@@ -131,11 +132,13 @@ impl Entries {
             Some(n) => if n < entry_list.len() { n+1 } else { entry_list.len() },
             None => entry_list.len(),
         };
+        let mut sorted_entries = Entries::new(entry_list.clone(), grid_size);
+        sorted_entries.sort_by(order);
         let mut result_entry_list: EntryList = Vec::new();
         for i in start .. end {
-            result_entry_list.push(entry_list[i].clone())
+            result_entry_list.push(sorted_entries.entry_list[i].clone())
         };
-        Ok(Entries::new(result_entry_list.clone(), grid_size))
+        Ok(Entries::new(result_entry_list, grid_size))
     } 
 
     pub fn from_file(file_path: &str, grid_size: usize) -> io::Result<Self> {
@@ -154,7 +157,7 @@ impl Entries {
             },
         }
     }
-    pub fn from_list(list_file_path: &str, grid_size: usize) -> io::Result<Self> {
+    pub fn from_list(list_file_path: &str, order: Order, grid_size: usize) -> io::Result<Self> {
         match read_to_string(list_file_path) {
             Ok(content) => {
                 let mut entry_list = Vec::new();
@@ -178,7 +181,9 @@ impl Entries {
 
                     }
                 };
-                Ok(Self::new(entry_list.clone(), grid_size))
+                let mut result = Self::new(entry_list.clone(), grid_size);
+                result.sort_by(order);
+                Ok(result)
             },
             Err(err) => {
                 println!("error reading list {}: {}", list_file_path, err);
@@ -429,11 +434,11 @@ pub fn write_thumbnail<R: std::io::Seek + std::io::Read>(reader: BufReader<R>, e
 }
 
 pub fn update_thumbnails(dir_path: &str) -> ThumbResult<(usize,usize)> {
-    let mut image_entry_list = match Entries::from_directory(dir_path, false, &None, None, None, None, None, 1) {
+    let mut image_entry_list = match Entries::from_directory(dir_path, false, &None, None, None, None, None, Order::Name, 1) {
         Ok(image_entries) => image_entries.entry_list.clone(),
         Err(err) => return Err(ThumbError::IO(err)),
     };
-    let mut thumbnail_entry_list = match  Entries::from_directory(dir_path, true, &None, None, None, None, None, 1) {
+    let mut thumbnail_entry_list = match  Entries::from_directory(dir_path, true, &None, None, None, None, None, Order::Name, 1) {
         Ok(thumbnail_entries) => thumbnail_entries.entry_list.clone(),
         Err(err) => return Err(ThumbError::IO(err)),
     };

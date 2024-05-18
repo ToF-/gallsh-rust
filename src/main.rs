@@ -173,8 +173,18 @@ fn main() {
             }
             std::process::exit(0);
         }
+        let order = if args.name {
+            Order::Name
+        } else if args.date {
+            Order::Date
+        } else if args.size {
+            Order::Size
+        } else {
+            args.order
+        };
+
         let mut entries = if let Some(list_file_name) = &reading_list {
-            match Entries::from_list(list_file_name, grid_size) {
+            match Entries::from_list(list_file_name, order, grid_size) {
                 Ok(result) => result,
                 _ => std::process::exit(1),
             }
@@ -184,21 +194,11 @@ fn main() {
                 _ => std::process::exit(1),
             }
         } else {
-            match Entries::from_directory(&path, args.thumbnails, &args.pattern, args.low, args.high, args.from, args.to, grid_size) {
+            match Entries::from_directory(&path, args.thumbnails, &args.pattern, args.low, args.high, args.from, args.to, order, grid_size) {
                 Ok(result) => result,
                 _ => std::process::exit(1),
             }
         };
-        if args.name {
-            entries.sort_by(Order::Name)
-        } else if args.date {
-            entries.sort_by(Order::Date)
-        } else if args.size {
-            entries.sort_by(Order::Size)
-        } else {
-            entries.sort_by(args.order)
-        };
-
         println!("{} files selected", entries.entry_list.len());
         if entries.clone().len() == 0 {
             application.quit();

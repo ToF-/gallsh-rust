@@ -7752,7 +7752,7 @@ from_iter	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bb
 from_key_file	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/page_setup.rs	/^    pub fn from_key_file($/;"	f
 from_key_file	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/paper_size.rs	/^    pub fn from_key_file($/;"	f
 from_key_file	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/print_settings.rs	/^    pub fn from_key_file($/;"	f
-from_list	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn from_list(list_file_path: &str, grid_size: usize) -> io::Result<Self> {$/;"	f
+from_list	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn from_list(list_file_path: &str, order: Order, grid_size: usize) -> io::Result<Self> {$/;"	f
 from_model	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/popover_menu.rs	/^    pub fn from_model(model: Option<&impl IsA<gio::MenuModel>>) -> PopoverMenu {$/;"	f
 from_model	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/popover_menu_bar.rs	/^    pub fn from_model(model: Option<&impl IsA<gio::MenuModel>>) -> PopoverMenuBar {$/;"	f
 from_model_full	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/popover_menu.rs	/^    pub fn from_model_full($/;"	f
