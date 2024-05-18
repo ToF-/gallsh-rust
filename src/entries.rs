@@ -1,3 +1,4 @@
+use core::cmp::{min};
 use crate::{THUMB_SUFFIX, Entry, EntryList, make_entry, Order};
 use rand::seq::SliceRandom;
 use rand::{thread_rng,Rng}; 
@@ -54,6 +55,22 @@ impl Entries {
             Order::Size => self.entry_list.sort_by(|a, b| { a.file_size.cmp(&b.file_size) }),
             Order::Random => self.entry_list.shuffle(&mut thread_rng()),
         }
+    }
+    
+    pub fn slice(&mut self, from: Option<usize>, to: Option<usize>) {
+        let start_index = match from {
+            Some(n) => min(n, self.maximum),
+            None => 0,
+        };
+        let end_index = match to {
+            Some(n) => min(n, self.maximum) + 1,
+            None => self.maximum + 1,
+        };
+        self.entry_list = self.entry_list[start_index..end_index].to_vec();
+        self.maximum = self.entry_list.len() - 1;
+        self.current = 0;
+        self.start_index = None;
+        self.end_index = None;
     }
 
     pub fn len(self) -> usize {
@@ -124,21 +141,10 @@ impl Entries {
                 }
             }
         };
-        let start = match from_index {
-            Some(n) => if n <= entry_list.len() - 1 { n } else { entry_list.len() - 1 },
-            None => 0,
-        };
-        let end = match to_index {
-            Some(n) => if n < entry_list.len() { n+1 } else { entry_list.len() },
-            None => entry_list.len(),
-        };
         let mut sorted_entries = Entries::new(entry_list.clone(), grid_size);
         sorted_entries.sort_by(order);
-        let mut result_entry_list: EntryList = Vec::new();
-        for i in start .. end {
-            result_entry_list.push(sorted_entries.entry_list[i].clone())
-        };
-        Ok(Entries::new(result_entry_list, grid_size))
+        sorted_entries.slice(from_index, to_index);
+        Ok(sorted_entries)
     } 
 
     pub fn from_file(file_path: &str, grid_size: usize) -> io::Result<Self> {

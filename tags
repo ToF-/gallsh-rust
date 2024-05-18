@@ -15385,6 +15385,7 @@ skippable	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bb
 slice	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_buffer.rs	/^    fn slice(&self, start: &TextIter, end: &TextIter, include_hidden_chars: bool) -> glib::GString {$/;"	f
 slice	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_buffer.rs	/^    fn slice(&self, start: &TextIter, end: &TextIter, include_hidden_chars: bool) -> glib::GString;$/;"	f
 slice	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_iter.rs	/^    pub fn slice(&self, end: &TextIter) -> glib::GString {$/;"	f
+slice	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn slice(&mut self, from: Option<usize>, to: Option<usize>) {$/;"	f
 slider_range	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/range.rs	/^    fn slider_range(&self) -> (i32, i32) {$/;"	f
 slider_range	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/range.rs	/^    fn slider_range(&self) -> (i32, i32);$/;"	f
 snap_to_ticks	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/spin_button.rs	/^    pub fn snap_to_ticks(self, snap_to_ticks: bool) -> Self {$/;"	f
