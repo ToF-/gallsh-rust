@@ -242,7 +242,7 @@ fn main() {
         let stack = gtk::Stack::new();
         let image_view = Picture::new();
         let view_gesture = gtk::GestureClick::new();
-        view_gesture.set_button(1);
+        view_gesture.set_button(0);
         view_gesture.connect_pressed(clone!(@strong entries_rc, @strong stack, @strong grid_scrolled_window, @strong window => move |_,_, _, _| {
             stack.set_visible_child(&grid_scrolled_window);
         }));
@@ -266,31 +266,18 @@ fn main() {
                 grid.attach(&image, row as i32, col as i32, 1, 1);
 
                 let select_gesture = gtk::GestureClick::new();
-                select_gesture.set_button(3);
+                select_gesture.set_button(1);
                 select_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_,_, _, _| {
                     let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
                     let offset = col * grid_size + row;
-                    if entries.clone().offset_entry(offset).to_select {
-                        entries.toggle_to_select_with_offset(offset)
-                    } else {
-                        if ! (entries.start_index.is_none() || entries.end_index.is_none()) {
-                            entries.end_index = None;
-                            entries.start_area_with_offset(offset);
-                        } else {
-                            if entries.start_index.is_none() {
-                                entries.start_area_with_offset(offset)
-                            } else {
-                                entries.end_area_with_offset(offset)
-                            }
-                        };
-                    };
+                    entries.toggle_select_area(offset);
                     show_grid(&grid, &entries.clone());
                     window.set_title(Some(&entries.clone().show_status(offset)));
                 }));
                 image.add_controller(select_gesture);
 
                 let view_gesture = gtk::GestureClick::new();
-                view_gesture.set_button(1);
+                view_gesture.set_button(3);
 
                 view_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong view, @strong stack, @strong view_scrolled_window, @strong grid_scrolled_window, @strong window => move |_,_, _, _| {
                     let entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
@@ -322,6 +309,10 @@ fn main() {
             let step = 100;
             let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
             if let Some(s) = key.name() {
+                if stack.visible_child().unwrap() == view_scrolled_window {
+                    stack.set_visible_child(&grid_scrolled_window);
+                    return gtk::Inhibit(false)
+                };
                 match s.as_str() {
                     "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" => {
                         let digit:usize = s.parse().unwrap();
@@ -365,12 +356,12 @@ fn main() {
                         show_grid(&grid, &entries.clone());
                         window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
                     }
-                    "n" => {
+                    "n"|"e" => {
                         entries.next();
                         show_grid(&grid, &entries.clone());
                         window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
                     }
-                    "p" => {
+                    "p"|"i" => {
                         entries.prev();
                         show_grid(&grid, &entries.clone());
                         window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
@@ -384,40 +375,28 @@ fn main() {
                         show_grid(&grid, &entries.clone());
                         window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
                     },
-                    "s" => {
-                        entries.toggle_to_select_with_offset(0);
-                        show_grid(&grid, &entries.clone());
-                        window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
-                    },
-                    "t" => {
+                    "comma" => {
                         let offset = if args.thumbnails {
                             let offset: Ref<'_, usize> = offset_rc.borrow();
                             *offset
                         } else {
                             FIRST_CELL
                         };
-                        entries.toggle_select_offset(offset);
+                        entries.toggle_select(offset);
+                        show_grid(&grid, &entries.clone());
+                        window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                    },
+                    "Return" => {
+                        let offset = if args.thumbnails {
+                            let offset: Ref<'_, usize> = offset_rc.borrow();
+                            *offset
+                        } else {
+                            FIRST_CELL
+                        };
+                        entries.toggle_select_area(offset);
                         show_grid(&grid, &entries.clone());
                         window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
                     }
-                    "a" => {
-                        if args.thumbnails {
-                            let offset: Ref<'_, usize> = offset_rc.borrow();
-                            entries.start_area_with_offset(*offset);
-                        } else {
-                            entries.start_area();
-                        };
-                        show_grid(&grid, &entries.clone());
-                    },
-                    "e" => {
-                        if args.thumbnails && stack.visible_child().unwrap() == grid_scrolled_window {
-                            let offset: Ref<'_, usize> = offset_rc.borrow();
-                            entries.end_area_with_offset(*offset);
-                        } else {
-                            entries.end_area();
-                        }
-                        show_grid(&grid, &entries.clone());
-                    },
                     "u" => {
                         entries.reset_grid_select();
                         show_grid(&grid, &entries.clone());
@@ -479,7 +458,7 @@ fn main() {
                             .and_then(|sw| Some(sw.vadjustment()))
                             .expect("Failed to get vadjustment");
                         v_adj.set_value(v_adj.value() - step as f64);
-                    }
+                    },
                     s => { println!("{} ?", s) },
                 };
                 gtk::Inhibit(false)
@@ -488,10 +467,10 @@ fn main() {
                 gtk::Inhibit(false)
             };
             gtk::Inhibit(false)
-        }));
+    }));
 
-        window.add_controller(evk);
-        // show the first file
+    window.add_controller(evk);
+    // show the first file
         let entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
         show_grid(&grid, &entries);
         window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));

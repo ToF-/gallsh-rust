@@ -28,7 +28,6 @@ pub struct Entries {
     pub current: usize,
     pub maximum:  usize,
     pub start_index: Option<usize>,
-    pub end_index: Option<usize>,
     pub max_cells: usize,
     pub real_size: bool,
     pub register: Option<usize>,
@@ -41,7 +40,6 @@ impl Entries {
             current: 0,
             maximum: entry_list.len() - 1,
             start_index: None,
-            end_index: None,
             max_cells: grid_size * grid_size,
             real_size: false,
             register: None,
@@ -70,7 +68,6 @@ impl Entries {
         self.maximum = self.entry_list.len() - 1;
         self.current = 0;
         self.start_index = None;
-        self.end_index = None;
     }
 
     pub fn len(self) -> usize {
@@ -282,86 +279,37 @@ impl Entries {
         }
     }
 
-    pub fn toggle_select_offset(&mut self, offset: usize) {
+    pub fn toggle_select_area(&mut self, offset: usize) {
         match <Entries as Clone>::clone(&self).offset_position(offset) {
             Some(position) => {
                 if self.entry_list[position].to_select {
-                    if self.start_index.is_none() {
-                        self.entry_list[position].to_select = false
-                    } else { }
-                } if self.start_index.is_none() {
-                    self.start_index = Some(position)
+                    return
                 } else {
-                    let mut start = self.start_index.unwrap();
-                    let mut end = position;
-                    if start > end {
-                        let x = start;
-                        let start = end;
-                        let end = x;
-                    };
-                    for i in start..end+1 {
-                        self.entry_list[i].to_select = true
-                    };
-                    self.start_index = None
+                    if self.start_index.is_none() {
+                        self.start_index = Some(position)
+                    } else {
+                        let mut start = self.start_index.unwrap();
+                        let mut end = position;
+                        if start > end {
+                            let x = start;
+                            start = end;
+                            end = x;
+                        };
+                        for i in start..end+1 {
+                            self.entry_list[i].to_select = true
+                        };
+                        self.start_index = None
+                    }
                 }
             },
             None => (),
-        }
+        };
     }
 
-    
     pub fn offset_entry(self, offset: usize) -> Entry {
         let start = self.current;
         let position = (start + offset) % (self.maximum + 1);
         self.entry_list[position].clone()
-    }
-
-    pub fn start_area(&mut self) {
-        if let Some(end_index) = self.end_index {
-            if self.current <= end_index {
-                self.set_to_select(self.current, end_index);
-            }
-        } else {
-            self.start_index = Some(self.current)
-        } 
-    }
-
-    pub fn start_area_with_offset(&mut self, offset: usize) {
-        if let Some(end_index) = self.end_index {
-            if self.current + offset <= end_index {
-                self.set_to_select(self.current + offset, end_index)
-            }
-        } else {
-            self.start_index = Some(self.current + offset)
-        }
-    }
-
-    pub fn end_area(&mut self) {
-        if let Some(start_index) = self.start_index {
-            if self.current >= start_index {
-                self.set_to_select(start_index, self.current);
-                self.end_index = Some(self.current);
-            }
-        } else {
-            self.end_index = Some(self.current)
-        }
-    }
-    pub fn end_area_with_offset(&mut self, offset: usize) {
-        if let Some(start_index) = self.start_index {
-            if self.current + offset >= start_index {
-                self.end_index = Some(self.current + offset);
-                self.set_to_select(start_index, self.current + offset)
-            }
-        } else {
-            self.end_index = Some(self.current + offset)
-        }
-    }
-
-    pub fn set_to_select(&mut self, start: usize, end: usize) {
-        if self.start_index.is_none() || self.end_index.is_none() { return };
-        for i in start..end+1 {
-            self.entry_list[i].to_select = true;
-        }
     }
 
     pub fn reset_all_select(&mut self) {
@@ -369,7 +317,6 @@ impl Entries {
             self.entry_list[i].to_select = false;
         };
         self.start_index = None;
-        self.end_index = None;
     }
 
     pub fn reset_grid_select(&mut self) {
@@ -377,14 +324,13 @@ impl Entries {
             self.entry_list[self.current+i].to_select = false;
         };
         self.start_index = None;
-        self.end_index = None;
     }
 
     pub fn toggle_real_size(&mut self) {
         self.real_size = !self.real_size;
     }
 
-    pub fn toggle_to_select_with_offset(&mut self, offset: usize) {
+    pub fn toggle_select(&mut self, offset: usize) {
         let position = (self.current + offset) % (self.maximum + 1);
         self.entry_list[position].to_select = ! self.entry_list[position].to_select
     }
