@@ -449,7 +449,7 @@ pub fn update_thumbnails(dir_path: &str) -> ThumbResult<(usize,usize)> {
     let mut deleted: usize = 0;
     for entry in thumbnail_entry_list {
         let source = entry.file_path.clone();
-        let target = entry.thumbnail_file_path().clone();
+        let target = entry.original_file_path().clone();
         let image_path = PathBuf::from(target.clone());
         if ! image_path.exists() {
             println!("deleting thumbnails {} with no matching image", source.clone());
