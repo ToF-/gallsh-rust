@@ -1,5 +1,6 @@
 use core::cmp::{min};
 use crate::{THUMB_SUFFIX, Entry, EntryList, make_entry, Order, get_image_color_size};
+use crate::entry::color_size_file_path;
 use rand::seq::SliceRandom;
 use rand::{thread_rng,Rng}; 
 use regex::Regex;
@@ -33,6 +34,47 @@ pub struct Entries {
     pub register: Option<usize>,
 }
 
+fn get_or_set_image_color_size(file_path: &str) -> Result<usize,String> {
+    let cs_file_path = PathBuf::from(color_size_file_path(file_path));
+    if ! cs_file_path.exists() {
+        match read_to_string(cs_file_path.clone()) {
+            Ok(content) => match content.parse() {
+                Ok(n) => Ok(n),
+                Err(err) => {
+                    println!("error reading {}: {}", cs_file_path.clone().to_str().unwrap(), err);
+                    Err(err.to_string())
+                },
+            },
+            Err(err) => {
+                println!("error reading {}: {}", cs_file_path.to_str().unwrap(), err);
+                Err(err.to_string())
+            }
+        }
+    } else {
+        match get_image_color_size(file_path) {
+            Ok(n) => {
+                let path = PathBuf::from(cs_file_path);
+                match File::create(path.clone()) {
+                    Ok(mut output_file) => {
+                        match output_file.write(format!("{}",n).as_bytes()) {
+                            Ok(_) => Ok(n),
+                            Err(err) => {
+                                println!("error writing {}: {}", path.to_str().unwrap(), err);
+                                Err(err.to_string())
+                            }
+                        }
+                    },
+                    Err(err) => {
+                        println!("error openinng {}: {}", path.to_str().unwrap(),err);
+                        Err(err.to_string())
+                    },
+                }
+            },
+            Err(err) => Err(err.to_string()),
+        }
+    }
+}
+
 impl Entries {
     fn new(entry_list: Vec<Entry>, grid_size: usize) -> Self {
         Entries {
@@ -48,6 +90,7 @@ impl Entries {
 
     pub fn sort_by(&mut self, order: Order) {
         match order {
+            Order::ColorSize => self.entry_list.sort_by(|a, b| { a.color_size.cmp(&b.color_size) }),
             Order::Date => self.entry_list.sort_by(|a, b| { a.modified_time.cmp(&b.modified_time) }),
             Order::Name => self.entry_list.sort_by(|a, b| { a.file_path.cmp(&b.file_path) }),
             Order::Size => self.entry_list.sort_by(|a, b| { a.file_size.cmp(&b.file_size) }),
@@ -126,7 +169,7 @@ impl Entries {
                     if file_size == 0 {
                         println!("file {} has a size of 0", path.to_str().unwrap())
                     };
-                    let color_size = match get_image_color_size(path.to_str().unwrap()) {
+                    let color_size = match get_or_set_image_color_size(path.to_str().unwrap()) {
                         Ok(n) => n,
                         Err(err) => {
                             println!("can't find color size of: {}, {}", path.to_str().unwrap(), err);
@@ -158,7 +201,7 @@ impl Entries {
                 let file_size = metadata.len();
                 let entry_name = file_path.to_string().to_owned();
                 let modified_time = metadata.modified().unwrap();
-                let color_size = match get_image_color_size(&file_path) {
+                let color_size = match get_or_set_image_color_size(&file_path) {
                     Ok(n) => n,
                     Err(err) => {
                         println!("can't find color size of: {}, {}", file_path, err);
@@ -185,7 +228,7 @@ impl Entries {
                             let file_size = metadata.len();
                             let entry_name = path.to_string().to_owned();
                             let modified_time = metadata.modified().unwrap();
-                            let color_size = match get_image_color_size(path.as_str()) {
+                            let color_size = match get_or_set_image_color_size(path.as_str()) {
                                 Ok(n) => n,
                                 Err(err) => {
                                     println!("can't find color size of: {}, {}", path.as_str(), err);
