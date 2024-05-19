@@ -60,6 +60,10 @@ struct Args {
     #[arg(short, long, default_value_t = false)]
     size: bool,
 
+    /// Color size ordered display
+    #[arg(short, long, default_value_t = false)]
+    color: bool,
+
     /// Timer delay for next picture
     #[arg(long)]
     timer: Option<u64>,
@@ -203,6 +207,8 @@ fn main() {
             Order::Date
         } else if args.size {
             Order::Size
+        } else if args.color {
+            Order::ColorSize
         } else {
             args.order
         };

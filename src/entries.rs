@@ -36,7 +36,7 @@ pub struct Entries {
 
 fn get_or_set_image_color_size(file_path: &str) -> Result<usize,String> {
     let cs_file_path = PathBuf::from(color_size_file_path(file_path));
-    if ! cs_file_path.exists() {
+    if cs_file_path.exists() {
         match read_to_string(cs_file_path.clone()) {
             Ok(content) => match content.parse() {
                 Ok(n) => Ok(n),
