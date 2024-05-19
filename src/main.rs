@@ -425,6 +425,11 @@ fn main() {
                         show_grid(&grid, &entries.clone());
                         window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
                     }
+                    "a" => {
+                        entries.set_grid_select();
+                        show_grid(&grid, &entries.clone());
+                        window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                    },
                     "u" => {
                         entries.reset_grid_select();
                         show_grid(&grid, &entries.clone());

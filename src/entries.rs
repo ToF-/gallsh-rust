@@ -377,6 +377,15 @@ impl Entries {
         self.entry_list[position].clone()
     }
 
+    pub fn set_grid_select(&mut self) {
+        for i in 0..MAX_THUMBNAILS {
+            let position = self.current + i;
+            if position <= self.maximum {
+                self.entry_list[position].to_select = true;
+            }
+        }
+    }
+
     pub fn reset_all_select(&mut self) {
         for i in 0..self.maximum+1 {
             self.entry_list[i].to_select = false;
@@ -386,7 +395,10 @@ impl Entries {
 
     pub fn reset_grid_select(&mut self) {
         for i in 0..MAX_THUMBNAILS {
-            self.entry_list[self.current+i].to_select = false;
+            let position = self.current + i;
+            if position <= self.maximum {
+                self.entry_list[position].to_select = false;
+            }
         };
         self.start_index = None;
     }

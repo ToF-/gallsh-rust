@@ -15352,6 +15352,7 @@ set_gicon	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bb
 set_gicon	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/image.rs	/^    pub fn set_gicon<P: IsA<gio::Icon>>(&self, gicon: Option<&P>) {$/;"	f
 set_grid_lines	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/tree_view.rs	/^    fn set_grid_lines(&self, grid_lines: TreeViewGridLines) {$/;"	f
 set_grid_lines	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/tree_view.rs	/^    fn set_grid_lines(&self, grid_lines: TreeViewGridLines);$/;"	f
+set_grid_select	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn set_grid_select(&mut self) {$/;"	f
 set_group	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/check_button.rs	/^    fn set_group(&self, group: Option<&impl IsA<CheckButton>>) {$/;"	f
 set_group	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/check_button.rs	/^    fn set_group(&self, group: Option<&impl IsA<CheckButton>>);$/;"	f
 set_group	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/toggle_button.rs	/^    fn set_group(&self, group: Option<&impl IsA<ToggleButton>>) {$/;"	f
