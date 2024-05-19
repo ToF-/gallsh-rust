@@ -105,18 +105,20 @@ struct Args {
     #[arg(short,long)]
     update_thumbnails: bool,
 
-    /// Window width (and height)
+    /// Window width (default is set with GALLSHWIDTH)
     #[arg(short, long, default_value_t = 1000)]
     width: i32,
 }
 
 const DEFAULT_DIR :&str  = "images/";
-const ENV_VARIABLE :&str = "GALLSHDIR";
+const DIR_ENV_VAR :&str = "GALLSHDIR";
+const WIDTH_ENV_VAR :&str = "GALLSHWIDTH";
 
 fn main() {
 
     let args = Args::parse();
-    let gallshdir = env::var(ENV_VARIABLE);
+    let gallshdir = env::var(DIR_ENV_VAR);
+    let gallshwidth = env::var(WIDTH_ENV_VAR);
 
     // build an application with some css characteristics
     let application = Application::builder()
@@ -144,7 +146,27 @@ fn main() {
             println!("GALLSHDIR variable not set. Using {} as default.", DEFAULT_DIR);
             String::from(DEFAULT_DIR)
         };
-
+        let width = if let Ok(standard_width) = &gallshwidth {
+            match standard_width.parse::<i32>() {
+                Ok(n) => if n < 3000 && n > 100 {
+                    n
+                } else {
+                    println!("invalid width in GALLSHWIDTH");
+                    std::process::exit(1);
+                },
+                    Err(err) => {
+                        println!("invalid number in GALLSHWIDTH: {}", err);
+                        std::process::exit(1);
+                    },
+            }
+        } else {
+            if args.width < 3000 && args.width > 100 {
+                args.width
+            } 
+            else { 
+                1000 
+            } 
+        };
         let reading_list = &args.reading;
 
         let grid_size = if args.thumbnails && args.grid == None {
@@ -211,9 +233,6 @@ fn main() {
         let entries_rc = Rc::new(RefCell::new(entries));
         let offset_rc = Rc::new(RefCell::new(0));
 
-        let width = if args.width < 3000 && args.width > 100 {
-            args.width
-        } else { 1000 } ;
         let height = width;
         // build the main window
         let window = gtk::ApplicationWindow::builder()

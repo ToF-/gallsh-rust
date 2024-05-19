@@ -287,6 +287,7 @@ DEFAULT_DIR	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^const DEFA
 DENOM	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/distributions/bernoulli.rs	/^        const DENOM: u32 = 10;$/;"	c
 DENOM	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/rng.rs	/^        const DENOM: u32 = 10;$/;"	c
 DESTROY_WITH_PARENT	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/flags.rs	/^        const DESTROY_WITH_PARENT = ffi::GTK_DIALOG_DESTROY_WITH_PARENT as _;$/;"	c
+DIR_ENV_VAR	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^const DIR_ENV_VAR :&str = "GALLSHDIR";$/;"	c
 DIR_LTR	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/flags.rs	/^        const DIR_LTR = ffi::GTK_STATE_FLAG_DIR_LTR as _;$/;"	c
 DIR_RTL	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/flags.rs	/^        const DIR_RTL = ffi::GTK_STATE_FLAG_DIR_RTL as _;$/;"	c
 DISCRETE	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/flags.rs	/^        const DISCRETE = ffi::GTK_EVENT_CONTROLLER_SCROLL_DISCRETE as _;$/;"	c
@@ -333,7 +334,6 @@ DropTargetAsyncBuilder	/Users/christophethibaut/.cargo/registry/src/index.crates
 DropTargetBuilder	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/drop_target.rs	/^pub struct DropTargetBuilder {$/;"	s
 EDITABLE_GET_DELEGATE_QUARK	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/editable.rs	/^static EDITABLE_GET_DELEGATE_QUARK: Lazy<Quark> =$/;"	c
 EMOJI	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/flags.rs	/^        const EMOJI = ffi::GTK_INPUT_HINT_EMOJI as _;$/;"	c
-ENV_VARIABLE	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^const ENV_VARIABLE :&str = "GALLSHDIR";$/;"	c
 EPSILON32	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/distributions/float.rs	/^    const EPSILON32: f32 = ::core::f32::EPSILON;$/;"	c
 EPSILON64	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/distributions/float.rs	/^    const EPSILON64: f64 = ::core::f64::EPSILON;$/;"	c
 EXCLUSIVE	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/flags.rs	/^        const EXCLUSIVE = ffi::GTK_SHORTCUT_ACTION_EXCLUSIVE as _;$/;"	c
@@ -1518,6 +1518,7 @@ ViewportBuilder	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f1
 VolumeButton	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/volume_button.rs	/^    pub struct VolumeButton(Object<ffi::GtkVolumeButton>) @extends ScaleButton, Widget, @implements Accessible, Buildable, ConstraintTarget, AccessibleRange, Orientable;$/;"	s
 VolumeButton	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/volume_button.rs	/^    pub struct VolumeButton(Object<ffi::GtkVolumeButton>) @extends ScaleButton, Widget, @implements Accessible, Buildable, ConstraintTarget, Orientable;$/;"	s
 VolumeButtonBuilder	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/volume_button.rs	/^pub struct VolumeButtonBuilder {$/;"	s
+WIDTH_ENV_VAR	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^const WIDTH_ENV_VAR :&str = "GALLSHWIDTH";$/;"	c
 WORD_COMPLETION	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/flags.rs	/^        const WORD_COMPLETION = ffi::GTK_INPUT_HINT_WORD_COMPLETION as _;$/;"	c
 WalkDir	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/walkdir-2.4.0/src/lib.rs	/^pub struct WalkDir {$/;"	s
 WalkDirOptions	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/walkdir-2.4.0/src/lib.rs	/^struct WalkDirOptions {$/;"	s
