@@ -16,6 +16,7 @@ use std::env;
 use std::rc::Rc;
 use std::time::{Duration};
 const FIRST_CELL: usize = 0;
+const DEFAULT_WIDTH: i32 = 1000;
 
 
 
@@ -112,8 +113,8 @@ struct Args {
     update_thumbnails: bool,
 
     /// Window width (default is set with GALLSHWIDTH)
-    #[arg(short, long, default_value_t = 1000)]
-    width: i32,
+    #[arg(short, long)]
+    width: Option<i32>,
 }
 
 const DEFAULT_DIR :&str  = "images/";
@@ -152,26 +153,26 @@ fn main() {
             println!("GALLSHDIR variable not set. Using {} as default.", DEFAULT_DIR);
             String::from(DEFAULT_DIR)
         };
-        let width = if let Ok(standard_width) = &gallshwidth {
-            match standard_width.parse::<i32>() {
-                Ok(n) => if n < 3000 && n > 100 {
-                    n
-                } else {
-                    println!("invalid width in GALLSHWIDTH");
-                    std::process::exit(1);
-                },
+        let candidate_width = match args.width {
+            Some(n) => n,
+            None => match env::var(WIDTH_ENV_VAR) {
+                Ok(s) => match s.parse::<i32>() {
+                    Ok(n) => n,
                     Err(err) => {
-                        println!("invalid number in GALLSHWIDTH: {}", err);
-                        std::process::exit(1);
-                    },
+                        println!("illegal width value, setting to default");
+                        DEFAULT_WIDTH
+                    }
+                },
+                Err(err) => {
+                    DEFAULT_WIDTH
+                }
             }
+        };
+        let width = if candidate_width < 3000 && candidate_width > 100 {
+            candidate_width
         } else {
-            if args.width < 3000 && args.width > 100 {
-                args.width
-            } 
-            else { 
-                1000 
-            } 
+            println!("illegal width value, setting to default");
+            DEFAULT_WIDTH
         };
         let reading_list = &args.reading;
 

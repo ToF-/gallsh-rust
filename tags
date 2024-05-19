@@ -359,6 +359,7 @@ DEFAULT_MAX_VALUE	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6
 DEFAULT_MAX_VALUE	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/traits.rs	/^    const DEFAULT_MAX_VALUE: Self;$/;"	c
 DEFAULT_MIN_VALUE	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/traits.rs	/^            const DEFAULT_MIN_VALUE: Self = $from;$/;"	c
 DEFAULT_MIN_VALUE	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/traits.rs	/^    const DEFAULT_MIN_VALUE: Self;$/;"	c
+DEFAULT_WIDTH	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^const DEFAULT_WIDTH: i32 = 1000;$/;"	c
 DENOM	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/distributions/bernoulli.rs	/^        const DENOM: u32 = 10;$/;"	c
 DENOM	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/rng.rs	/^        const DENOM: u32 = 10;$/;"	c
 DESTROY_WITH_PARENT	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/flags.rs	/^        const DESTROY_WITH_PARENT = ffi::GTK_DIALOG_DESTROY_WITH_PARENT as _;$/;"	c
