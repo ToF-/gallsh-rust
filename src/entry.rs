@@ -9,15 +9,17 @@ pub type EntryList = Vec<Entry>;
 pub struct Entry {
     pub file_path: String,
     pub file_size: u64,
+    pub color_size: usize,
     pub modified_time: SystemTime,
     pub to_select: bool,
 }
 
 
-pub fn make_entry(s:String, l:u64, t:SystemTime) -> Entry {
+pub fn make_entry(s:String, l:u64, c:usize, t:SystemTime) -> Entry {
     return Entry { 
         file_path: s.clone(),
         file_size: l,
+        color_size: c,
         modified_time: t,
         to_select: false,
     }

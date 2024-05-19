@@ -7824,6 +7824,7 @@ get	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001
 get_base_image	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/thumbnailer-0.5.1/src/formats/mod.rs	/^pub fn get_base_image<R: BufRead + Seek>(reader: R, mime: Mime) -> ThumbResult<DynamicImage> {$/;"	f
 get_deferred_dir	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/walkdir-2.4.0/src/lib.rs	/^    fn get_deferred_dir(&mut self) -> Option<DirEntry> {$/;"	f
 get_fork_counter	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/rngs/adapter/reseeding.rs	/^    pub fn get_fork_counter() -> usize {$/;"	f
+get_image_color_size	/Users/christophethibaut/Coding/gallsh-rust/src/image.rs	/^pub fn get_image_color_size(file_path: &str) -> Result<usize,String> {$/;"	f
 get_insert	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_buffer.rs	/^    fn get_insert(&self) -> TextMark {$/;"	f
 get_insert	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_buffer.rs	/^    fn get_insert(&self) -> TextMark;$/;"	f
 get_param	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/mime-0.3.17/src/lib.rs	/^    pub fn get_param<'a, N>(&'a self, attr: N) -> Option<Name<'a>>$/;"	f
@@ -9989,7 +9990,7 @@ main	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn main() {$/;"	f
 major_version	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/functions.rs	/^pub fn major_version() -> u32 {$/;"	f
 make_current	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/gl_area.rs	/^    fn make_current(&self) {$/;"	f
 make_current	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/gl_area.rs	/^    fn make_current(&self);$/;"	f
-make_entry	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^pub fn make_entry(s:String, l:u64, t:SystemTime) -> Entry {$/;"	f
+make_entry	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^pub fn make_entry(s:String, l:u64, c:usize, t:SystemTime) -> Entry {$/;"	f
 manual_capabilities	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/print_unix_dialog.rs	/^    pub fn manual_capabilities(&self) -> PrintCapabilities {$/;"	f
 manual_capabilities	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/print_unix_dialog.rs	/^    pub fn manual_capabilities(self, manual_capabilities: PrintCapabilities) -> Self {$/;"	f
 many_dirs	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/walkdir-2.4.0/src/tests/recursive.rs	/^fn many_dirs() {$/;"	f

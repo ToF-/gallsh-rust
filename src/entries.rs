@@ -1,5 +1,5 @@
 use core::cmp::{min};
-use crate::{THUMB_SUFFIX, Entry, EntryList, make_entry, Order};
+use crate::{THUMB_SUFFIX, Entry, EntryList, make_entry, Order, get_image_color_size};
 use rand::seq::SliceRandom;
 use rand::{thread_rng,Rng}; 
 use regex::Regex;
@@ -126,11 +126,18 @@ impl Entries {
                     if file_size == 0 {
                         println!("file {} has a size of 0", path.to_str().unwrap())
                     };
+                    let color_size = match get_image_color_size(path.to_str().unwrap()) {
+                        Ok(n) => n,
+                        Err(err) => {
+                            println!("can't find color size of: {}, {}", path.to_str().unwrap(), err);
+                            0
+                        },
+                    };
                     let modified_time = metadata.modified().unwrap();
                     if low_size_limit <= file_size && file_size <= high_size_limit {
                         if let Some(full_name) = path.to_str() {
                             let entry_name = full_name.to_string().to_owned();
-                            entry_list.push(make_entry(entry_name, file_size, modified_time));
+                            entry_list.push(make_entry(entry_name, file_size, color_size, modified_time));
                         }
                     }
                 } else {
@@ -151,7 +158,14 @@ impl Entries {
                 let file_size = metadata.len();
                 let entry_name = file_path.to_string().to_owned();
                 let modified_time = metadata.modified().unwrap();
-                entry_list.push(make_entry(entry_name, file_size, modified_time));
+                let color_size = match get_image_color_size(&file_path) {
+                    Ok(n) => n,
+                    Err(err) => {
+                        println!("can't find color size of: {}, {}", file_path, err);
+                        0
+                    },
+                };
+                entry_list.push(make_entry(entry_name, file_size, color_size, modified_time));
                 Ok(Entries::new(entry_list, grid_size))
             },
             Err(err) => {
@@ -171,9 +185,16 @@ impl Entries {
                             let file_size = metadata.len();
                             let entry_name = path.to_string().to_owned();
                             let modified_time = metadata.modified().unwrap();
+                            let color_size = match get_image_color_size(path.as_str()) {
+                                Ok(n) => n,
+                                Err(err) => {
+                                    println!("can't find color size of: {}, {}", path.as_str(), err);
+                                    0
+                                },
+                            };
                             if ! file_paths_set.contains(&entry_name) {
                                 file_paths_set.insert(entry_name.clone());
-                                entry_list.push(make_entry(entry_name, file_size, modified_time));
+                                entry_list.push(make_entry(entry_name, file_size, color_size, modified_time));
                             } else {
                                 println!("{} already in reading list", entry_name);
                             }

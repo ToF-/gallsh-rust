@@ -1,6 +1,7 @@
 use clap::Parser;
 use clap_num::number_range;
 use entries::{Entries, update_thumbnails};
+use image::get_image_color_size;
 use entry::{Entry, EntryList, THUMB_SUFFIX, make_entry};
 use glib::clone;
 use glib::prelude::*;
@@ -21,6 +22,7 @@ const FIRST_CELL: usize = 0;
 mod entry;
 mod order;
 mod entries;
+mod image;
 
 
 fn less_than_11(s: &str) -> Result<usize, String> {
