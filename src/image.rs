@@ -15,9 +15,9 @@ fn rgba_key(rgba: Rgba<u8>) -> u32 {
     result 
 }
 pub fn get_image_color_size(file_path: &str) -> ImageResult<usize> {
+    println!("getting color size of {}", file_path);
     match open(file_path) {
         Ok(dynamic_image) => {
-            println!("getting color size of {}..", file_path);
             let iter: Vec<_>= dynamic_image.pixels().collect();
             let mut colors: HashSet<u32> = HashSet::new();
             for i in iter {
