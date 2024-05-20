@@ -456,22 +456,34 @@ fn main() {
                         window.set_title(Some(&(entries.clone().show_status(FIRST_CELL))));
                     },
                     "Right" => {
-                        let h_adj = window
-                            .child()
-                            .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
-                            .and_then(|child| child.downcast::<ScrolledWindow>().ok())
-                            .and_then(|sw| Some(sw.hadjustment()))
-                            .expect("Failed to get hadjustment");
-                        h_adj.set_value(h_adj.value() + step as f64);
+                        if entries.real_size { 
+                            let h_adj = window
+                                .child()
+                                .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
+                                .and_then(|child| child.downcast::<ScrolledWindow>().ok())
+                                .and_then(|sw| Some(sw.hadjustment()))
+                                .expect("Failed to get hadjustment");
+                            h_adj.set_value(h_adj.value() + step as f64);
+                        } else {
+                            entries.next();
+                            show_grid(&grid, &entries.clone());
+                            window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                        }
                     },
                     "Left" => {
-                        let h_adj = window
-                            .child()
-                            .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
-                            .and_then(|child| child.downcast::<ScrolledWindow>().ok())
-                            .and_then(|sw| Some(sw.hadjustment()))
-                            .expect("Failed to get hadjustment");
-                        h_adj.set_value(h_adj.value() - step as f64);
+                        if entries.real_size { 
+                            let h_adj = window
+                                .child()
+                                .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
+                                .and_then(|child| child.downcast::<ScrolledWindow>().ok())
+                                .and_then(|sw| Some(sw.hadjustment()))
+                                .expect("Failed to get hadjustment");
+                            h_adj.set_value(h_adj.value() - step as f64);
+                        } else {
+                            entries.prev();
+                            show_grid(&grid, &entries.clone());
+                            window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                        }
                     },
                     "Down" => {
                         // Scroll down
