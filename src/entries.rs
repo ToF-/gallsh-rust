@@ -416,7 +416,6 @@ impl Entries {
         if selection.len() > 0 {
             let result = OpenOptions::new()
                 .write(true)
-                .append(true)
                 .create(true)
                 .open(dest_file_path);
             if let Ok(mut file) = result {
@@ -435,6 +434,21 @@ impl Entries {
     pub fn save_marked_file_lists(&mut self, thumbnails: bool) {
         let entry_list = &self.entry_list.clone();
         let _ = &self.save_marked_file_list(entry_list.iter().filter(|e| e.to_select).collect(), SELECTION_FILE_NAME, thumbnails);
+    }
+
+    pub fn set_selected_images(&mut self) {
+        match read_to_string(SELECTION_FILE_NAME) {
+            Ok(content) => {
+                for path in content.lines().map(String::from).collect::<Vec<_>>() {
+                    let mut iter = self.entry_list.iter_mut();
+                    match iter.find(|e| e.file_path == path) {
+                        Some(entry) => entry.to_select = true,
+                        _ => { },
+                    }
+                }
+            },
+            Err(_) => { },
+        }
     }
 }
 

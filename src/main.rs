@@ -225,10 +225,12 @@ fn main() {
                 _ => std::process::exit(1),
             }
         } else {
-            match Entries::from_directory(&path, args.thumbnails, &args.pattern, args.low, args.high, args.from, args.to, order, grid_size) {
+            let mut entries = match Entries::from_directory(&path, args.thumbnails, &args.pattern, args.low, args.high, args.from, args.to, order, grid_size) {
                 Ok(result) => result,
                 _ => std::process::exit(1),
-            }
+            };
+            entries.set_selected_images();
+            entries
         };
         println!("{} files selected", entries.entry_list.len());
         if entries.clone().len() == 0 {
