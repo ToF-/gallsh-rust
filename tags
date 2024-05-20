@@ -3659,7 +3659,6 @@ color	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba150
 color	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/widget.rs	/^    fn color(&self) -> gdk::RGBA;$/;"	f
 color	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/dynimage.rs	/^    pub fn color(&self) -> color::ColorType {$/;"	f
 color_activated	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/color_chooser.rs	/^    fn color_activated(&self, rgba: RGBA) {$/;"	f
-color_size_file_path	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^    pub fn color_size_file_path(self) -> String {$/;"	f
 color_size_file_path	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^pub fn color_size_file_path(file_path: &str) -> String {$/;"	f
 color_type	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/codecs/avif/decoder.rs	/^    fn color_type(&self) -> ColorType {$/;"	f
 color_type	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/codecs/bmp/decoder.rs	/^    fn color_type(&self) -> ColorType {$/;"	f

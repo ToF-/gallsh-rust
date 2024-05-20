@@ -82,8 +82,4 @@ impl Entry {
     pub fn original_file_path(self) -> String {
         original_file_path(&self.file_path)
     }
-
-    pub fn color_size_file_path(self) -> String {
-        color_size_file_path(&self.file_path)
-    }
 }

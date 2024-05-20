@@ -125,7 +125,6 @@ fn main() {
 
     let args = Args::parse();
     let gallshdir = env::var(DIR_ENV_VAR);
-    let gallshwidth = env::var(WIDTH_ENV_VAR);
 
     // build an application with some css characteristics
     let application = Application::builder()
@@ -158,12 +157,12 @@ fn main() {
             None => match env::var(WIDTH_ENV_VAR) {
                 Ok(s) => match s.parse::<i32>() {
                     Ok(n) => n,
-                    Err(err) => {
+                    _ => {
                         println!("illegal width value, setting to default");
                         DEFAULT_WIDTH
                     }
                 },
-                Err(err) => {
+                _ => {
                     DEFAULT_WIDTH
                 }
             }

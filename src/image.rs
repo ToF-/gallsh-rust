@@ -1,6 +1,5 @@
 use image;
-use image::{Rgba, ImageError, ImageResult, open};
-use std::io::{Error, ErrorKind};
+use image::{Rgba, ImageResult, open};
 use image::GenericImageView;
 use std::collections::HashSet;
 
