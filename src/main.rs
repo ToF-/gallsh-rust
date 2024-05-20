@@ -371,7 +371,7 @@ fn main() {
                         show_grid(&grid, &entries.clone());
                         window.set_title(Some(&(entries.clone().show_status(FIRST_CELL))));
                     },
-                    "b" => {
+                    "l" => {
                         for _ in 0..10 {
                             entries.prev()
                         }
@@ -432,7 +432,7 @@ fn main() {
                         show_grid(&grid, &entries.clone());
                         window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
                     },
-                    "asterisk"|"A" => {
+                    "asterisk"|"A"|"a" => {
                         let offset = if args.thumbnails || args.grid > Some(1) {
                             let offset: Ref<'_, usize> = offset_rc.borrow();
                             *offset
@@ -443,7 +443,7 @@ fn main() {
                         show_grid(&grid, &entries.clone());
                         window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
                     },
-                    "slash"|"B" => {
+                    "slash"|"B"|"b" => {
                         let offset = if args.thumbnails || args.grid > Some(1) {
                             let offset: Ref<'_, usize> = offset_rc.borrow();
                             *offset
@@ -454,7 +454,7 @@ fn main() {
                         show_grid(&grid, &entries.clone());
                         window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
                     },
-                    "minus"|"C" => {
+                    "minus"|"C"|"c" => {
                         let offset = if args.thumbnails || args.grid > Some(1) {
                             let offset: Ref<'_, usize> = offset_rc.borrow();
                             *offset
@@ -465,7 +465,7 @@ fn main() {
                         show_grid(&grid, &entries.clone());
                         window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
                     },
-                    "plus"|"D" => {
+                    "plus"|"D"|"d" => {
                         let offset = if args.thumbnails || args.grid > Some(1) {
                             let offset: Ref<'_, usize> = offset_rc.borrow();
                             *offset
