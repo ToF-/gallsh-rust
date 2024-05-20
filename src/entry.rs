@@ -101,4 +101,8 @@ impl Entry {
     pub fn original_file_path(self) -> String {
         original_file_path(&self.file_path)
     }
+
+    pub fn image_data_file_path(self) -> String {
+        image_data_file_path(&self.file_path)
+    }
 }

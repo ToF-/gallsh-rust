@@ -506,6 +506,44 @@ impl Entries {
             Err(_) => { },
         }
     }
+
+    pub fn copy_file_to_target_directory(file_path: &Path, target_directory: &Path) -> Result<u64,Error> {
+        let file_name = file_path.file_name().unwrap();
+        let target_file_path = target_directory.join(file_name);
+        println!("copy {} to {}", file_path.display(), target_file_path.display());
+        std::fs::copy(file_path, target_file_path)
+    }
+
+    pub fn copy_selection(&mut self, target: &str) {
+        let target_path = Path::new(target);
+        if target_path.exists() {
+            let selection: Vec<&Entry> = self.entry_list.iter().filter(|e| e.to_select).collect();
+            for e in selection.iter() {
+                let entry = *e;
+                let file_name = original_file_path(&entry.file_path);
+                let thumbnail_name = thumbnail_file_path(&file_name);
+                let image_data_name = image_data_file_path(&file_name);
+                let file_path = Path::new(&file_name);
+                let thumbnail_path = Path::new(&thumbnail_name);
+                let image_data_path = Path::new(&image_data_name);
+                println!("about to copy seletion: {}", file_path.display());
+                match Entries::copy_file_to_target_directory(file_path, target_path) {
+                    Ok(_) => match Entries::copy_file_to_target_directory(thumbnail_path, target_path) {
+                        Ok(_) => match Entries::copy_file_to_target_directory(image_data_path, target_path) {
+                            Ok(_) => {},
+                            Err(err) => println!("error: {}", err),
+                        },
+                        Err(err) => println!("error: {}", err),
+                    },
+                    Err(err) => println!("error: {}", err),
+                }
+
+            }
+        } else {
+            println!("directory doesn't exist: {}", target)
+        }
+    }
+
 }
 
 

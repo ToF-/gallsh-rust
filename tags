@@ -6538,9 +6538,11 @@ copy_clipboard	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17
 copy_context	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_area.rs	/^    fn copy_context(&self, context: &impl IsA<CellAreaContext>) -> CellAreaContext {$/;"	f
 copy_context	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_area.rs	/^    fn copy_context(&self, context: &impl IsA<CellAreaContext>) -> CellAreaContext;$/;"	f
 copy_context	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/cell_area.rs	/^    fn copy_context<P: IsA<CellAreaContext>>(&self, context: &P) -> Option<CellAreaContext> {$/;"	f
+copy_file_to_target_directory	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn copy_file_to_target_directory(file_path: &Path, target_directory: &Path) -> Result<u64,Error> {$/;"	f
 copy_from	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/image.rs	/^    fn copy_from<O>(&mut self, other: &O, x: u32, y: u32) -> ImageResult<()>$/;"	f
 copy_into_action_entry	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/pad_action_entry.rs	/^unsafe fn copy_into_action_entry($/;"	f
 copy_into_recent_data	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/recent_data.rs	/^unsafe fn copy_into_recent_data(dest: *mut ffi::GtkRecentData, src: *const ffi::GtkRecentData) {$/;"	f
+copy_selection	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn copy_selection(&mut self, target: &str) {$/;"	f
 copy_within	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/buffer.rs	/^    fn copy_within(&mut self, source: Rect, x: u32, y: u32) -> bool {$/;"	f
 copy_within	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/image.rs	/^    fn copy_within(&mut self, source: Rect, x: u32, y: u32) -> bool {$/;"	f
 copy_within_impl_	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/image.rs	/^        macro_rules! copy_within_impl_ {$/;"	d
@@ -10694,6 +10696,7 @@ image_access_col_by_col	/Users/christophethibaut/.cargo/registry/src/index.crate
 image_access_row_by_row	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/buffer.rs	/^    fn image_access_row_by_row(b: &mut test::Bencher) {$/;"	f
 image_buffer_conversion	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/flat.rs	/^    fn image_buffer_conversion() {$/;"	f
 image_buffer_len	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/buffer.rs	/^    fn image_buffer_len(width: u32, height: u32) -> Option<usize> {$/;"	f
+image_data_file_path	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^    pub fn image_data_file_path(self) -> String {$/;"	f
 image_data_file_path	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^pub fn image_data_file_path(file_path: &str) -> String {$/;"	f
 image_dimensions	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/dynimage.rs	/^    fn image_dimensions() {$/;"	f
 image_dimensions	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/dynimage.rs	/^pub fn image_dimensions<P>(path: P) -> ImageResult<(u32, u32)>$/;"	f

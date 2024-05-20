@@ -36,6 +36,9 @@ fn less_than_11(s: &str) -> Result<usize, String> {
 /// Pattern that displayed files must have
 struct Args {
 
+    /// Directory to search (default is set with variable GALLSHDIR)
+    directory: Option<String>,
+
     /// Pattern (only files with names matching the regular expression will be displayed)
     #[arg(short, long)]
     pattern: Option<String>,
@@ -71,9 +74,6 @@ struct Args {
     /// Timer delay for next picture
     #[arg(long)]
     timer: Option<u64>,
-
-    /// Directory to search (default is set with variable GALLSHDIR)
-    directory: Option<String>,
 
     /// Reading List (only files in the list are displayed)
     #[arg(short, long)]
@@ -114,6 +114,10 @@ struct Args {
     /// Update thumbnails and then quit
     #[arg(short,long)]
     update_thumbnails: bool,
+
+    /// Move selection to a target folder
+    #[arg(long)]
+    copy_selection: Option<String>,
 
     /// Window width (default is set with GALLSHWIDTH)
     #[arg(short, long)]
@@ -177,6 +181,10 @@ fn main() {
             DEFAULT_WIDTH
         };
         let reading_list = &args.reading;
+        let copy_selection_target: Option<String> = match &args.copy_selection {
+            Some(target) => Some(target.clone()),
+            None => None,
+        };
 
         let grid_size = if args.thumbnails && args.grid == None {
             10
@@ -404,6 +412,14 @@ fn main() {
                         entries.save_marked_file_lists(args.thumbnails);
                         entries.save_updated_ranks();
                         window.close();
+                    },
+                    "m" => {
+                        if let Some(target_path) = &copy_selection_target {
+                            entries.copy_selection(&target_path);
+                            entries.save_marked_file_lists(args.thumbnails);
+                            entries.save_updated_ranks();
+                            window.close();
+                        }
                     },
                     "r" => {
                         entries.random();
