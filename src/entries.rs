@@ -1,6 +1,6 @@
 use core::cmp::{min};
 use crate::{THUMB_SUFFIX, Entry, EntryList, make_entry, Order, get_image_color_size};
-use crate::entry::color_size_file_path;
+use crate::entry::{color_size_file_path, thumbnail_file_path};
 use rand::seq::SliceRandom;
 use rand::{thread_rng,Rng}; 
 use regex::Regex;
@@ -413,20 +413,19 @@ impl Entries {
     }
 
     pub fn save_marked_file_list(&mut self, selection: Vec<&Entry>, dest_file_path: &str, thumbnails: bool) {
-        if selection.len() > 0 {
-            let result = OpenOptions::new()
-                .write(true)
-                .create(true)
-                .open(dest_file_path);
-            if let Ok(mut file) = result {
-                for e in selection.iter() {
-                    let entry = *e;
-                    let file_path = if thumbnails {
-                        entry.clone().original_file_path().clone()
-                    } else { entry.file_path.clone() };
-                    println!("saving {} for reference", file_path);
-                    let _ = file.write(format!("{}\n", file_path).as_bytes());
-                }
+        let result = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .truncate(true)
+            .open(dest_file_path);
+        if let Ok(mut file) = result {
+            for e in selection.iter() {
+                let entry = *e;
+                let file_path = if thumbnails {
+                    entry.clone().original_file_path().clone()
+                } else { entry.file_path.clone() };
+                println!("saving {} for reference", file_path);
+                let _ = file.write(format!("{}\n", file_path).as_bytes());
             }
         }
     }
@@ -441,8 +440,11 @@ impl Entries {
             Ok(content) => {
                 for path in content.lines().map(String::from).collect::<Vec<_>>() {
                     let mut iter = self.entry_list.iter_mut();
-                    match iter.find(|e| e.file_path == path) {
-                        Some(entry) => entry.to_select = true,
+                    match iter.find(|e| e.file_path == path || e.file_path == thumbnail_file_path(&path)) {
+                        Some(entry) => { 
+                            println!("selected: {}", entry.file_path);
+                            entry.to_select = true
+                        },
                         _ => { },
                     }
                 }
