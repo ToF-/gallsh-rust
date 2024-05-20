@@ -400,6 +400,15 @@ impl Entries {
         }
     }
 
+    pub fn unset_grid_ranks(&mut self) {
+        for i in 0..MAX_THUMBNAILS {
+            let position = self.current + i;
+            if position <= self.maximum {
+                self.entry_list[position].rank = NO_STAR;
+            }
+        }
+    }
+
     pub fn reset_all_select(&mut self) {
         for i in 0..self.maximum+1 {
             self.entry_list[i].to_select = false;

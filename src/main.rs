@@ -476,6 +476,11 @@ fn main() {
                         show_grid(&grid, &entries.clone());
                         window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
                     },
+                    "at" => {
+                        entries.unset_grid_ranks();
+                        show_grid(&grid, &entries.clone());
+                        window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                    }
                     "a" => {
                         entries.set_grid_select();
                         show_grid(&grid, &entries.clone());

@@ -19654,6 +19654,7 @@ unset_filter_func	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6
 unset_format_value_func	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/scale.rs	/^    fn unset_format_value_func(&self) {$/;"	f
 unset_format_value_func	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/scale.rs	/^    fn unset_format_value_func(&self);$/;"	f
 unset_forward_page_func	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/assistant.rs	/^    pub fn unset_forward_page_func(&self) {$/;"	f
+unset_grid_ranks	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn unset_grid_ranks(&mut self) {$/;"	f
 unset_header_func	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/list_box.rs	/^    pub fn unset_header_func(&self) {$/;"	f
 unset_invisible_char	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/entry.rs	/^    fn unset_invisible_char(&self) {$/;"	f
 unset_invisible_char	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/entry.rs	/^    fn unset_invisible_char(&self);$/;"	f
