@@ -1,6 +1,7 @@
+use core::cmp::Ordering::Equal;
 use crate::image::get_image_color;
 use serde_json::{from_str};
-use crate::entry::original_file_path;
+use crate::entry::{NO_STAR,original_file_path};
 use core::cmp::{min};
 use crate::{THUMB_SUFFIX, Entry, EntryList, make_entry, Order};
 use crate::entry::{image_data_file_path, thumbnail_file_path};
@@ -61,7 +62,7 @@ fn get_or_set_image_data(file_path: &str) -> Result<(usize,usize),String> {
                 let path = PathBuf::from(image_data_path);
                 match File::create(path.clone()) {
                     Ok(mut output_file) => {
-                        let data = (colors,0);
+                        let data = (colors,NO_STAR);
                         match serde_json::to_writer(output_file, &data) {
                             Ok(_) => Ok(data),
                             Err(err) => {
@@ -100,6 +101,14 @@ impl Entries {
             Order::Date => self.entry_list.sort_by(|a, b| { a.modified_time.cmp(&b.modified_time) }),
             Order::Name => self.entry_list.sort_by(|a, b| { a.file_path.cmp(&b.file_path) }),
             Order::Size => self.entry_list.sort_by(|a, b| { a.file_size.cmp(&b.file_size) }),
+            Order::Value => self.entry_list.sort_by(|a,b| {
+                let cmp = a.rank.cmp(&b.rank);
+                if cmp == Equal {
+                    a.file_path.cmp(&b.file_path)
+                } else {
+                    cmp
+                }
+            }),
             Order::Random => self.entry_list.shuffle(&mut thread_rng()),
         }
     }
@@ -179,7 +188,7 @@ impl Entries {
                         Ok(data) => data,
                         Err(err) => {
                             println!("can't find image data for file {}, {}", path.to_str().unwrap(), err);
-                            (0,0)
+                            (0,NO_STAR)
                         },
                     };
                     let modified_time = metadata.modified().unwrap();
@@ -211,7 +220,7 @@ impl Entries {
                     Ok(data) => data,
                     Err(err) => {
                         println!("can't find color size of: {}, {}", file_path, err);
-                        (0,0)
+                        (0,NO_STAR)
                     },
                 };
                 entry_list.push(make_entry(entry_name, file_size, colors, modified_time,rank));
@@ -238,7 +247,7 @@ impl Entries {
                                 Ok(n) => n,
                                 Err(err) => {
                                     println!("can't find color size of: {}, {}", path.as_str(), err);
-                                    (0,0)
+                                    (0,NO_STAR)
                                 },
                             };
                             if ! file_paths_set.contains(&entry_name) {

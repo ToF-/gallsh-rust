@@ -56,6 +56,10 @@ struct Args {
     #[arg(short, long, default_value_t = false)]
     name: bool,
 
+    /// Rank value ordered display
+    #[arg(short, long, default_value_t = false)]
+    value:bool,
+
     /// Size ordered display
     #[arg(short, long, default_value_t = false)]
     size: bool,
@@ -208,6 +212,8 @@ fn main() {
             Order::Size
         } else if args.colors {
             Order::Colors
+        } else if args.value {
+            Order::Value
         } else {
             args.order
         };

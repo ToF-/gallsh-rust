@@ -4,6 +4,10 @@ use std::path::{PathBuf};
 
 pub const THUMB_SUFFIX: &str = "THUMB";
 pub const IMAGE_DATA: &str = "IMAGE_DATA";
+pub const NO_STAR: usize = 3;
+pub const ONE_STAR: usize = 2;
+pub const TWO_STARS: usize = 1;
+pub const THREE_STARS: usize = 0;
 
 pub type EntryList = Vec<Entry>;
 
@@ -72,13 +76,23 @@ pub fn original_file_path(file_path: &str) -> String {
         new_path.to_str().unwrap().to_string()
     }
 }
+
+fn show_rank(rank: usize) -> String {
+    let limit = if rank > 3 { 0 } else { 3 - rank };
+    let mut result: String = String::from("");
+    for i in 0..limit {
+        result.push('☆')
+    };
+    result.clone()
+}
 impl Entry {
     pub fn show_status(self,) -> String {
-        format!("{} {} [{} {}]",
+        format!("{} {} [{} {} {}]",
             self.file_path,
             if self.to_select { "△" } else { "" },
             self.file_size,
-            self.colors)
+            self.colors,
+            show_rank(self.rank))
     }
 
     pub fn thumbnail_file_path(self) -> String {
