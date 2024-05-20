@@ -1,6 +1,5 @@
 use core::cmp::Ordering::Equal;
 use crate::image::get_image_color;
-use serde_json::{from_str};
 use crate::entry::{NO_STAR,original_file_path};
 use core::cmp::{min};
 use crate::{THUMB_SUFFIX, Entry, EntryList, make_entry, Order};
@@ -61,7 +60,7 @@ fn get_or_set_image_data(file_path: &str) -> Result<(usize,usize),String> {
                 let image_data_path = image_data_file_path(file_path);
                 let path = PathBuf::from(image_data_path);
                 match File::create(path.clone()) {
-                    Ok(mut output_file) => {
+                    Ok(output_file) => {
                         let data = (colors,NO_STAR);
                         match serde_json::to_writer(output_file, &data) {
                             Ok(_) => Ok(data),
@@ -451,7 +450,7 @@ impl Entries {
 
     pub fn save_marked_file_lists(&mut self, thumbnails: bool) {
         let entry_list = &self.entry_list.clone();
-        let _ = &self.save_marked_file_list(entry_list.iter().filter(|e| e.to_select).collect(), SELECTION_FILE_NAME, thumbnails);
+        self.save_marked_file_list(entry_list.iter().filter(|e| e.to_select).collect(), SELECTION_FILE_NAME, thumbnails)
     }
 
     pub fn save_updated_rank_entries(&mut self, selection: Vec<&Entry>) {
@@ -460,7 +459,7 @@ impl Entries {
             let image_data_path = image_data_file_path(&entry.file_path);
             let path = PathBuf::from(image_data_path);
             match File::create(path.clone()) {
-                Ok(mut output_file) => {
+                Ok(output_file) => {
                     let data = (entry.colors,entry.rank);
                     match serde_json::to_writer(output_file, &data) {
                         Ok(_) => { },
@@ -478,7 +477,7 @@ impl Entries {
 
     pub fn save_updated_ranks(&mut self) {
         let entry_list = &self.entry_list.clone();
-        &self.save_updated_rank_entries(entry_list.iter().filter(|e| e.rank != e.initial_rank).collect());
+        self.save_updated_rank_entries(entry_list.iter().filter(|e| e.rank != e.initial_rank).collect())
     }
 
     pub fn set_selected_images(&mut self) {
@@ -578,8 +577,7 @@ pub fn update_thumbnails(dir_path: &str) -> ThumbResult<(usize,usize)> {
     for entry in image_entry_list {
         let source = entry.file_path.clone();
         let target = entry.thumbnail_file_path();
-        if let Err(_) = thumbnail_entry_list.binary_search_by(|probe|
-            probe.file_path.cmp(&target)) {
+        if let Err(_) = thumbnail_entry_list.binary_search_by(|probe| probe.file_path.cmp(&target)) {
             let _ = create_thumbnail(source, target, number, total_images);
             created += 1;
         } else { }
@@ -600,6 +598,16 @@ pub fn update_thumbnails(dir_path: &str) -> ThumbResult<(usize,usize)> {
             };
             deleted += 1;
         }
-    }
+        let data_path = PathBuf::from(image_data_file_path(&target.clone()));
+        if ! image_path.exists() {
+            println!("deleting data file {} with no matching image", data_path.display());
+            match std::fs::remove_file(data_path.clone()) {
+                Err(err) => {
+                    println!("error while deleting file {}: {}", data_path.display(), err);
+                },
+                Ok(_) => {},
+            };
+        }
+    };
     Ok((created,deleted))
 }

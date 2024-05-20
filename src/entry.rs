@@ -1,4 +1,3 @@
-use serde::{Serialize, Deserialize};
 use std::time::SystemTime;
 use std::path::{PathBuf};
 
@@ -79,11 +78,11 @@ pub fn original_file_path(file_path: &str) -> String {
 
 fn show_rank(rank: usize) -> String {
     let limit = if rank > 3 { 0 } else { 3 - rank };
-    let mut result: String = String::from("");
-    for i in 0..limit {
-        result.push('☆')
-    };
-    result.clone()
+    if limit > 0 {
+        "☆".repeat(limit)
+    } else {
+        "".to_string()
+    }
 }
 impl Entry {
     pub fn show_status(self,) -> String {
