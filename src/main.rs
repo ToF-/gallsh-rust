@@ -1,7 +1,6 @@
 use clap::Parser;
 use clap_num::number_range;
 use entries::{Entries, update_thumbnails};
-use image::get_image_color_size;
 use entry::{Entry, EntryList, THUMB_SUFFIX, make_entry};
 use glib::clone;
 use glib::prelude::*;
@@ -61,9 +60,9 @@ struct Args {
     #[arg(short, long, default_value_t = false)]
     size: bool,
 
-    /// Color size ordered display
+    /// Colors size ordered display
     #[arg(short, long, default_value_t = false)]
-    color: bool,
+    colors: bool,
 
     /// Timer delay for next picture
     #[arg(long)]
@@ -207,8 +206,8 @@ fn main() {
             Order::Date
         } else if args.size {
             Order::Size
-        } else if args.color {
-            Order::ColorSize
+        } else if args.colors {
+            Order::Colors
         } else {
             args.order
         };

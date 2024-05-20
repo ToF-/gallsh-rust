@@ -1,7 +1,9 @@
+use serde::{Serialize, Deserialize};
 use std::time::SystemTime;
 use std::path::{PathBuf};
 
 pub const THUMB_SUFFIX: &str = "THUMB";
+pub const IMAGE_DATA: &str = "IMAGE_DATA";
 
 pub type EntryList = Vec<Entry>;
 
@@ -9,19 +11,23 @@ pub type EntryList = Vec<Entry>;
 pub struct Entry {
     pub file_path: String,
     pub file_size: u64,
-    pub color_size: usize,
+    pub colors: usize,
     pub modified_time: SystemTime,
     pub to_select: bool,
+    pub initial_rank: usize,
+    pub rank: usize,
 }
 
 
-pub fn make_entry(s:String, l:u64, c:usize, t:SystemTime) -> Entry {
+pub fn make_entry(file_path:String, file_size:u64, colors:usize, modified_time:SystemTime, initial_rank: usize) -> Entry {
     return Entry { 
-        file_path: s.clone(),
-        file_size: l,
-        color_size: c,
-        modified_time: t,
+        file_path: file_path.clone(),
+        file_size: file_size,
+        colors: colors,
+        modified_time: modified_time,
         to_select: false,
+        initial_rank: initial_rank,
+        rank: initial_rank,
     }
 }
 
@@ -37,6 +43,16 @@ pub fn thumbnail_file_path(file_path: &str) -> String {
         let new_path = parent.join(new_file_name);
         new_path.to_str().unwrap().to_string()
     }
+}
+
+pub fn image_data_file_path(file_path: &str) -> String {
+    let image_file_path = original_file_path(file_path);
+    let path = PathBuf::from(image_file_path);
+    let parent = path.parent().unwrap();
+    let file_stem = path.file_stem().unwrap().to_str().unwrap();
+    let new_file_name = format!("{}{}.json", file_stem, IMAGE_DATA);
+    let new_path = parent.join(new_file_name);
+    new_path.to_str().unwrap().to_string()
 }
 
 pub fn original_file_path(file_path: &str) -> String {
@@ -56,23 +72,13 @@ pub fn original_file_path(file_path: &str) -> String {
         new_path.to_str().unwrap().to_string()
     }
 }
-pub fn color_size_file_path(file_path: &str) -> String {
-    let image_file_path = original_file_path(file_path);
-    let path = PathBuf::from(image_file_path);
-    let parent = path.parent().unwrap();
-    let file_stem = path.file_stem().unwrap().to_str().unwrap();
-    let new_file_name = format!("{}COLORSIZE.txt", file_stem);
-    let new_path = parent.join(new_file_name);
-    new_path.to_str().unwrap().to_string()
-}
-
 impl Entry {
     pub fn show_status(self,) -> String {
         format!("{} {} [{} {}]",
             self.file_path,
             if self.to_select { "△" } else { "" },
             self.file_size,
-            self.color_size)
+            self.colors)
     }
 
     pub fn thumbnail_file_path(self) -> String {

@@ -1,6 +1,9 @@
+use crate::image::get_image_color;
+use serde_json::{from_str};
+use crate::entry::original_file_path;
 use core::cmp::{min};
-use crate::{THUMB_SUFFIX, Entry, EntryList, make_entry, Order, get_image_color_size};
-use crate::entry::{color_size_file_path, thumbnail_file_path};
+use crate::{THUMB_SUFFIX, Entry, EntryList, make_entry, Order};
+use crate::entry::{image_data_file_path, thumbnail_file_path};
 use rand::seq::SliceRandom;
 use rand::{thread_rng,Rng}; 
 use regex::Regex;
@@ -34,39 +37,41 @@ pub struct Entries {
     pub register: Option<usize>,
 }
 
-fn get_or_set_image_color_size(file_path: &str) -> Result<usize,String> {
+fn get_or_set_image_data(file_path: &str) -> Result<(usize,usize),String> {
 
-    let cs_file_path = PathBuf::from(color_size_file_path(file_path));
+    let cs_file_path = PathBuf::from(image_data_file_path(file_path));
     if cs_file_path.exists() {
         match read_to_string(cs_file_path.clone()) {
-            Ok(content) => match content.parse() {
-                Ok(n) => Ok(n),
+            Ok(content) => match serde_json::from_str(&content) {
+                Ok((colors,rank)) => Ok((colors, rank)),
                 Err(err) => {
-                    println!("error reading {}: {}", cs_file_path.clone().to_str().unwrap(), err);
+                    println!("error parsing {}: {}", cs_file_path.clone().to_str().unwrap(), err);
                     Err(err.to_string())
                 },
             },
             Err(err) => {
                 println!("error reading {}: {}", cs_file_path.to_str().unwrap(), err);
                 Err(err.to_string())
-            }
+            },
         }
     } else {
-        match get_image_color_size(file_path) {
-            Ok(n) => {
-                let path = PathBuf::from(cs_file_path);
+        match get_image_color(&original_file_path(file_path)) {
+            Ok(colors) => {
+                let image_data_path = image_data_file_path(file_path);
+                let path = PathBuf::from(image_data_path);
                 match File::create(path.clone()) {
                     Ok(mut output_file) => {
-                        match output_file.write(format!("{}",n).as_bytes()) {
-                            Ok(_) => Ok(n),
+                        let data = (colors,0);
+                        match serde_json::to_writer(output_file, &data) {
+                            Ok(_) => Ok(data),
                             Err(err) => {
                                 println!("error writing {}: {}", path.to_str().unwrap(), err);
                                 Err(err.to_string())
-                            }
+                            },
                         }
                     },
                     Err(err) => {
-                        println!("error openinng {}: {}", path.to_str().unwrap(),err);
+                        println!("error creating file {}: {}", path.to_str().unwrap(),err);
                         Err(err.to_string())
                     },
                 }
@@ -91,7 +96,7 @@ impl Entries {
 
     pub fn sort_by(&mut self, order: Order) {
         match order {
-            Order::ColorSize => self.entry_list.sort_by(|a, b| { a.color_size.cmp(&b.color_size) }),
+            Order::Colors => self.entry_list.sort_by(|a, b| { a.colors.cmp(&b.colors) }),
             Order::Date => self.entry_list.sort_by(|a, b| { a.modified_time.cmp(&b.modified_time) }),
             Order::Name => self.entry_list.sort_by(|a, b| { a.file_path.cmp(&b.file_path) }),
             Order::Size => self.entry_list.sort_by(|a, b| { a.file_size.cmp(&b.file_size) }),
@@ -170,18 +175,18 @@ impl Entries {
                     if file_size == 0 {
                         println!("file {} has a size of 0", path.to_str().unwrap())
                     };
-                    let color_size = match get_or_set_image_color_size(path.to_str().unwrap()) {
-                        Ok(n) => n,
+                    let (colors,rank) = match get_or_set_image_data(path.to_str().unwrap()) {
+                        Ok(data) => data,
                         Err(err) => {
-                            println!("can't find color size of: {}, {}", path.to_str().unwrap(), err);
-                            0
+                            println!("can't find image data for file {}, {}", path.to_str().unwrap(), err);
+                            (0,0)
                         },
                     };
                     let modified_time = metadata.modified().unwrap();
                     if low_size_limit <= file_size && file_size <= high_size_limit {
                         if let Some(full_name) = path.to_str() {
                             let entry_name = full_name.to_string().to_owned();
-                            entry_list.push(make_entry(entry_name, file_size, color_size, modified_time));
+                            entry_list.push(make_entry(entry_name, file_size, colors, modified_time, rank));
                         }
                     }
                 } else {
@@ -202,14 +207,14 @@ impl Entries {
                 let file_size = metadata.len();
                 let entry_name = file_path.to_string().to_owned();
                 let modified_time = metadata.modified().unwrap();
-                let color_size = match get_or_set_image_color_size(&file_path) {
-                    Ok(n) => n,
+                let (colors,rank) = match get_or_set_image_data(&file_path) {
+                    Ok(data) => data,
                     Err(err) => {
                         println!("can't find color size of: {}, {}", file_path, err);
-                        0
+                        (0,0)
                     },
                 };
-                entry_list.push(make_entry(entry_name, file_size, color_size, modified_time));
+                entry_list.push(make_entry(entry_name, file_size, colors, modified_time,rank));
                 Ok(Entries::new(entry_list, grid_size))
             },
             Err(err) => {
@@ -229,16 +234,16 @@ impl Entries {
                             let file_size = metadata.len();
                             let entry_name = path.to_string().to_owned();
                             let modified_time = metadata.modified().unwrap();
-                            let color_size = match get_or_set_image_color_size(path.as_str()) {
+                            let (colors,rank) = match get_or_set_image_data(path.as_str()) {
                                 Ok(n) => n,
                                 Err(err) => {
                                     println!("can't find color size of: {}, {}", path.as_str(), err);
-                                    0
+                                    (0,0)
                                 },
                             };
                             if ! file_paths_set.contains(&entry_name) {
                                 file_paths_set.insert(entry_name.clone());
-                                entry_list.push(make_entry(entry_name, file_size, color_size, modified_time));
+                                entry_list.push(make_entry(entry_name, file_size, colors, modified_time, rank));
                             } else {
                                 println!("{} already in reading list", entry_name);
                             }
