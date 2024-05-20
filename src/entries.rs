@@ -427,6 +427,10 @@ impl Entries {
         self.entry_list[position].to_select = ! self.entry_list[position].to_select
     }
 
+    pub fn set_rank(&mut self, offset: usize, rank: usize) {
+        let position = (self.current + offset) % (self.maximum + 1);
+        self.entry_list[position].rank = rank;
+    }
     pub fn save_marked_file_list(&mut self, selection: Vec<&Entry>, dest_file_path: &str, thumbnails: bool) {
         let result = OpenOptions::new()
             .write(true)
@@ -448,6 +452,33 @@ impl Entries {
     pub fn save_marked_file_lists(&mut self, thumbnails: bool) {
         let entry_list = &self.entry_list.clone();
         let _ = &self.save_marked_file_list(entry_list.iter().filter(|e| e.to_select).collect(), SELECTION_FILE_NAME, thumbnails);
+    }
+
+    pub fn save_updated_rank_entries(&mut self, selection: Vec<&Entry>) {
+        for e in selection.iter() {
+            let entry = *e;
+            let image_data_path = image_data_file_path(&entry.file_path);
+            let path = PathBuf::from(image_data_path);
+            match File::create(path.clone()) {
+                Ok(mut output_file) => {
+                    let data = (entry.colors,entry.rank);
+                    match serde_json::to_writer(output_file, &data) {
+                        Ok(_) => { },
+                        Err(err) => {
+                            println!("error writing {}: {}", path.to_str().unwrap(), err);
+                        },
+                    }
+                },
+                Err(err) => {
+                    println!("error creating file {}: {}", path.to_str().unwrap(),err);
+                },
+            }
+        }
+    }
+
+    pub fn save_updated_ranks(&mut self) {
+        let entry_list = &self.entry_list.clone();
+        &self.save_updated_rank_entries(entry_list.iter().filter(|e| e.rank != e.initial_rank).collect());
     }
 
     pub fn set_selected_images(&mut self) {

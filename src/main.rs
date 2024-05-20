@@ -1,7 +1,7 @@
 use clap::Parser;
 use clap_num::number_range;
 use entries::{Entries, update_thumbnails};
-use entry::{Entry, EntryList, THUMB_SUFFIX, make_entry};
+use entry::{NO_STAR, ONE_STAR, TWO_STARS, THREE_STARS, Entry, EntryList, THUMB_SUFFIX, make_entry};
 use glib::clone;
 use glib::prelude::*;
 use glib::timeout_add_local;
@@ -402,6 +402,7 @@ fn main() {
                     }
                     "q"|"Escape" => {
                         entries.save_marked_file_lists(args.thumbnails);
+                        entries.save_updated_ranks();
                         window.close();
                     },
                     "r" => {
@@ -410,7 +411,7 @@ fn main() {
                         window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
                     },
                     "comma" => {
-                        let offset = if args.thumbnails {
+                        let offset = if args.thumbnails || args.grid > Some(1) {
                             let offset: Ref<'_, usize> = offset_rc.borrow();
                             *offset
                         } else {
@@ -421,7 +422,7 @@ fn main() {
                         window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
                     },
                     "Return" => {
-                        let offset = if args.thumbnails {
+                        let offset = if args.thumbnails || args.grid > Some(1) {
                             let offset: Ref<'_, usize> = offset_rc.borrow();
                             *offset
                         } else {
@@ -430,7 +431,52 @@ fn main() {
                         entries.toggle_select_area(offset);
                         show_grid(&grid, &entries.clone());
                         window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
-                    }
+                    },
+                    "asterisk"|"A" => {
+                        let offset = if args.thumbnails || args.grid > Some(1) {
+                            let offset: Ref<'_, usize> = offset_rc.borrow();
+                            *offset
+                        } else {
+                            FIRST_CELL
+                        };
+                        entries.set_rank(offset, THREE_STARS);
+                        show_grid(&grid, &entries.clone());
+                        window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                    },
+                    "slash"|"B" => {
+                        let offset = if args.thumbnails || args.grid > Some(1) {
+                            let offset: Ref<'_, usize> = offset_rc.borrow();
+                            *offset
+                        } else {
+                            FIRST_CELL
+                        };
+                        entries.set_rank(offset, TWO_STARS);
+                        show_grid(&grid, &entries.clone());
+                        window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                    },
+                    "minus"|"C" => {
+                        let offset = if args.thumbnails || args.grid > Some(1) {
+                            let offset: Ref<'_, usize> = offset_rc.borrow();
+                            *offset
+                        } else {
+                            FIRST_CELL
+                        };
+                        entries.set_rank(offset, ONE_STAR);
+                        show_grid(&grid, &entries.clone());
+                        window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                    },
+                    "plus"|"D" => {
+                        let offset = if args.thumbnails || args.grid > Some(1) {
+                            let offset: Ref<'_, usize> = offset_rc.borrow();
+                            *offset
+                        } else {
+                            FIRST_CELL
+                        };
+                        entries.set_rank(offset, NO_STAR);
+                        show_grid(&grid, &entries.clone());
+                        window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                    },
+
                     "a" => {
                         entries.set_grid_select();
                         show_grid(&grid, &entries.clone());

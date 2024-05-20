@@ -15937,6 +15937,8 @@ save_buffer_with_format	/Users/christophethibaut/.cargo/registry/src/index.crate
 save_future	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/file_dialog.rs	/^    pub fn save_future($/;"	f
 save_marked_file_list	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn save_marked_file_list(&mut self, selection: Vec<&Entry>, dest_file_path: &str, thumbnails: bool) {$/;"	f
 save_marked_file_lists	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn save_marked_file_lists(&mut self, thumbnails: bool) {$/;"	f
+save_updated_rank_entries	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn save_updated_rank_entries(&mut self, selection: Vec<&Entry>) {$/;"	f
+save_updated_ranks	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn save_updated_ranks(&mut self) {$/;"	f
 save_with_format	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/buffer.rs	/^    pub fn save_with_format<Q>(&self, path: Q, format: ImageFormat) -> ImageResult<()>$/;"	f
 save_with_format	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/dynimage.rs	/^    pub fn save_with_format<Q>(&self, path: Q, format: ImageFormat) -> ImageResult<()>$/;"	f
 scalar_float_impl	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/distributions/utils.rs	/^macro_rules! scalar_float_impl {$/;"	d
@@ -17666,6 +17668,7 @@ set_radio	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bb
 set_range	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/range.rs	/^    fn set_range(&self, min: f64, max: f64) {$/;"	f
 set_range	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/range.rs	/^    fn set_range(&self, min: f64, max: f64);$/;"	f
 set_range	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/spin_button.rs	/^    pub fn set_range(&self, min: f64, max: f64) {$/;"	f
+set_rank	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn set_rank(&mut self, offset: usize, rank: usize) {$/;"	f
 set_ratio	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/aspect_frame.rs	/^    pub fn set_ratio(&self, ratio: f32) {$/;"	f
 set_receives_default	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/widget.rs	/^    fn set_receives_default(&self, receives_default: bool) {$/;"	f
 set_receives_default	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/widget.rs	/^    fn set_receives_default(&self, receives_default: bool);$/;"	f
