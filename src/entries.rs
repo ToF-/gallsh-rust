@@ -262,23 +262,22 @@ impl Entries {
 
     pub fn next(&mut self) {
         self.register = None;
-        if (self.maximum + 1) > self.max_cells {
-            self.current = (self.current + self.max_cells) % (self.maximum + 1)
+        let new_position = self.current + self.max_cells;
+        self.current = if new_position <= self.maximum {
+            new_position
+        } else {
+            0
         }
     }
 
     pub fn prev(&mut self) {
         self.register = None;
-        if self.maximum <= self.max_cells { return };
-        if self.max_cells >= self.maximum {
-            return
-        };
-        let mut next_pos = self.current - self.max_cells;
-        if next_pos > self.maximum {
-            next_pos = self.maximum - (usize::MAX - next_pos)
+        let new_position:i32 = self.current as i32 - self.max_cells as i32;
+        self.current = if new_position >= 0 {
+            new_position as usize
+        } else {
+            self.maximum - (self.maximum % self.max_cells)
         }
-        self.current = next_pos;
-        self.register = None;
     }
 
     pub fn random(&mut self) {
@@ -287,11 +286,12 @@ impl Entries {
         self.current = position;
     }
 
-    pub fn jump(&mut self, value: usize) {
-        if value <= self.maximum {
-            self.current = value
+    pub fn jump(&mut self, position: usize) {
+        if position <= self.maximum {
+            self.register = None;
+            self.current = position - (position % self.max_cells)
         } else {
-            println!("index too large: {}", value);
+            println!("index too large: {}", position);
         }
     }
 
@@ -321,10 +321,11 @@ impl Entries {
     }
 
     pub fn go_to_register(&mut self) {
-        if !self.register.is_none() {
-            self.current = self.register.unwrap()
-        };
-        self.register = None;
+        if self.register.is_none() {
+            return
+        } else {
+            self.jump(self.register.unwrap())
+        }
     }
 
     pub fn show_status(self, offset: usize) -> String {
