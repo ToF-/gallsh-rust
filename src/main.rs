@@ -368,9 +368,15 @@ fn main() {
                         window.set_title(Some(&(entries.clone().show_status(FIRST_CELL))));
                     },
                     "g" => {
-                        entries.go_to_register();
-                        show_grid(&grid, &entries.clone());
-                        window.set_title(Some(&(entries.clone().show_status(FIRST_CELL))));
+                        match entries.register {
+                            Some(position) => {
+                                entries.go_to_register();
+                                show_grid(&grid, &entries.clone());
+                                let offset = position - entries.current;
+                                window.set_title(Some(&(entries.clone().show_status(offset))))
+                            },
+                            None => { },
+                        }
                     },
                     "j" => {
                         for _ in 0..10 {
