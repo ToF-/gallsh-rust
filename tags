@@ -2842,7 +2842,7 @@ add_credit_section	/Users/christophethibaut/.cargo/registry/src/index.crates.io-
 add_css_class	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/widget.rs	/^    fn add_css_class(&self, css_class: &str) {$/;"	f
 add_css_class	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/widget.rs	/^    fn add_css_class(&self, css_class: &str);$/;"	f
 add_custom_tab	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/print_unix_dialog.rs	/^    pub fn add_custom_tab(&self, child: &impl IsA<Widget>, tab_label: &impl IsA<Widget>) {$/;"	f
-add_digit_to_resiter	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn add_digit_to_resiter(&mut self, digit: usize) {$/;"	f
+add_digit_to_register	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn add_digit_to_register(&mut self, digit: usize) {$/;"	f
 add_filter	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/file_chooser.rs	/^    fn add_filter(&self, filter: &FileFilter) {$/;"	f
 add_filter	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/file_chooser.rs	/^    fn add_filter(&self, filter: &FileFilter);$/;"	f
 add_focus_sibling	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_area.rs	/^    fn add_focus_sibling($/;"	f
@@ -18249,6 +18249,7 @@ show_border	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22
 show_close_button	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/info_bar.rs	/^    pub fn show_close_button(self, show_close_button: bool) -> Self {$/;"	f
 show_close_button	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/search_bar.rs	/^    pub fn show_close_button(self, show_close_button: bool) -> Self {$/;"	f
 show_column_separators	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/column_view.rs	/^    pub fn show_column_separators(self, show_column_separators: bool) -> Self {$/;"	f
+show_current_status	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn show_current_status(self) -> String {$/;"	f
 show_day_names	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/calendar.rs	/^    pub fn show_day_names(self, show_day_names: bool) -> Self {$/;"	f
 show_default	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/app_chooser_widget.rs	/^    pub fn show_default(self, show_default: bool) -> Self {$/;"	f
 show_default_item	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/app_chooser_button.rs	/^    pub fn show_default_item(self, show_default_item: bool) -> Self {$/;"	f

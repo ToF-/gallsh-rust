@@ -277,6 +277,7 @@ impl Entries {
 
     pub fn next(&mut self) {
         self.register = None;
+        self.offset = 0;
         let new_position = self.current + self.max_cells;
         self.current = if new_position <= self.maximum {
             new_position
@@ -287,6 +288,7 @@ impl Entries {
 
     pub fn prev(&mut self) {
         self.register = None;
+        self.offset = 0;
         let new_position:i32 = self.current as i32 - self.max_cells as i32;
         self.current = if new_position >= 0 {
             new_position as usize
@@ -298,19 +300,21 @@ impl Entries {
     pub fn random(&mut self) {
         self.register = None;
         let position = thread_rng().gen_range(0..self.maximum + 1);
-        self.current = position;
+        self.offset = position % self.max_cells;
+        self.current = position - self.offset
     }
 
     pub fn jump(&mut self, position: usize) {
         if position <= self.maximum {
             self.register = None;
-            self.current = position - (position % self.max_cells)
+            self.offset = position % self.max_cells;
+            self.current = position - self.offset
         } else {
             println!("index too large: {}", position);
         }
     }
 
-    pub fn add_digit_to_resiter(&mut self, digit: usize) {
+    pub fn add_digit_to_register(&mut self, digit: usize) {
         self.register = if let Some(r) = self.register {
             let new = r * 10 + digit;
             if new <= self.maximum {
@@ -344,13 +348,28 @@ impl Entries {
     }
 
     pub fn show_status(self, offset: usize) -> String {
-        format!("{} {} {} {}",
+        format!("{}/{}  {} {} {}",
             self.current + offset,
+            self.maximum,
             self.clone().offset_entry(offset).show_status(),
             if self.register.is_none() { String::from("") } else { format!("{}", self.register.unwrap()) },
             if self.real_size { "*" } else { "" })
     }
-    
+
+    pub fn show_current_status(self) -> String {
+        let position = self.current + self.offset;
+        if position <= self.maximum {
+            let entry_status = <Entry as Clone>::clone(&self.entry_list[position]).show_status();
+            format!("{} {} {} {}",
+                position,
+                entry_status,
+                if self.register.is_none() { String::from("") } else { format!("{}", self.register.unwrap()) },
+                if self.real_size { "*" } else { "" })
+        } else {
+            println!("unexpected: position + offset = {} > maximum {}", position, self.maximum);
+            "".to_string()
+        }
+    }
     pub fn offset_position(self, offset: usize) -> Option<usize> {
         let position = self.current + offset;
         if position <= self.maximum {

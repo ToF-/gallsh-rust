@@ -88,7 +88,7 @@ fn show_rank(rank: usize) -> String {
 impl Entry {
     pub fn show_status(self,) -> String {
         format!("{} {} [{} {} {}]",
-            self.file_path,
+            self.clone().original_file_path(),
             if self.to_select { "△" } else { "" },
             self.file_size,
             self.colors,

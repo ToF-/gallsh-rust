@@ -352,7 +352,6 @@ fn main() {
         let evk = gtk::EventControllerKey::new();
         evk.connect_key_pressed(clone!(@strong entries_rc, @strong offset_rc, @strong grid, @strong window => move |_, key, _, _| {
             let step = 100;
-            // let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
             if let Ok(mut entries) = entries_rc.try_borrow_mut() {
                 if let Some(s) = key.name() {
                     if stack.visible_child().unwrap() == view_scrolled_window {
@@ -362,22 +361,21 @@ fn main() {
                     match s.as_str() {
                         "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" => {
                             let digit:usize = s.parse().unwrap();
-                            entries.add_digit_to_resiter(digit);
+                            entries.add_digit_to_register(digit);
                             show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&(entries.clone().show_status(FIRST_CELL))));
+                            window.set_title(Some(&(entries.clone().show_current_status())));
                         },
                         "BackSpace" => {
                             entries.remove_digit_to_register();
                             show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&(entries.clone().show_status(FIRST_CELL))));
+                            window.set_title(Some(&(entries.clone().show_current_status())));
                         },
                         "g" => {
                             match entries.register {
                                 Some(position) => {
                                     entries.go_to_register();
                                     show_grid(&grid, &entries.clone());
-                                    let offset = position - entries.current;
-                                    window.set_title(Some(&(entries.clone().show_status(offset))))
+                                    window.set_title(Some(&(entries.clone().show_current_status())));
                                 },
                                 None => { },
                             }
@@ -387,36 +385,36 @@ fn main() {
                                 entries.next()
                             }
                             show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&(entries.clone().show_status(FIRST_CELL))));
+                            window.set_title(Some(&(entries.clone().show_current_status())));
                         },
                         "l" => {
                             for _ in 0..10 {
                                 entries.prev()
                             }
                             show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                            window.set_title(Some(&(entries.clone().show_current_status())));
                         },
                         "f" => {
                             if (entries.clone().max_cells) == 1 {
                                 entries.toggle_real_size();
                                 show_grid(&grid, &entries.clone());
-                                window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                                window.set_title(Some(&(entries.clone().show_current_status())));
                             }
                         },
                         "z" => {
                             entries.jump(0);
                             show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                            window.set_title(Some(&(entries.clone().show_current_status())));
                         }
                         "n"|"e" => {
                             entries.next();
                             show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                            window.set_title(Some(&(entries.clone().show_current_status())));
                         }
                         "p"|"i" => {
                             entries.prev();
                             show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                            window.set_title(Some(&(entries.clone().show_current_status())));
                         }
                         "q"|"Escape" => {
                             entries.save_marked_file_lists(args.thumbnails);
@@ -434,7 +432,7 @@ fn main() {
                         "r" => {
                             entries.random();
                             show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                            window.set_title(Some(&(entries.clone().show_current_status())));
                         },
                         "comma" => {
                             let offset = if args.thumbnails || args.grid > Some(1) {
@@ -640,7 +638,7 @@ fn show_grid(grid: &Grid, entries: &Entries) {
 }
 
 fn show_view(grid: &Grid, entries: &Entries, offset: usize) {
-    let entry = entries.clone().offset_entry(offset);
+    let entry = <Entries as Clone>::clone(&entries).offset_entry(offset);
     let file_path = entry.original_file_path();
     let picture = grid.child_at(0,0).unwrap().downcast::<gtk::Picture>().unwrap();
     picture.set_filename(Some(file_path));
