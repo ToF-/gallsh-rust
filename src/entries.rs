@@ -30,6 +30,7 @@ const SELECTION_FILE_NAME: &str = "selections";
 pub struct Entries {
     pub entry_list: EntryList,
     pub current: usize,
+    pub offset: usize,
     pub maximum:  usize,
     pub start_index: Option<usize>,
     pub max_cells: usize,
@@ -86,6 +87,7 @@ impl Entries {
         Entries {
             entry_list: entry_list.clone(),
             current: 0,
+            offset: 0,
             maximum: entry_list.len() - 1,
             start_index: None,
             max_cells: grid_size * grid_size,

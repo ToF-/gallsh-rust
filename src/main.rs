@@ -311,7 +311,8 @@ fn main() {
                 select_gesture.set_button(1);
                 select_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_,_, _, _| {
                     let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-                    let offset = col * grid_size + row;
+                    let offset = col * grid_size + row; 
+                    entries.offset = offset;
                     entries.toggle_select_area(offset);
                     show_grid(&grid, &entries.clone());
                     window.set_title(Some(&entries.clone().show_status(offset)));
@@ -322,9 +323,10 @@ fn main() {
                 view_gesture.set_button(3);
 
                 view_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong view, @strong stack, @strong view_scrolled_window, @strong grid_scrolled_window, @strong window => move |_,_, _, _| {
-                    let entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
+                    let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
                     if entries.max_cells == 1 { return };
                     let offset = col * grid_size + row;
+                    entries.offset = offset;
                     stack.set_visible_child(&view_scrolled_window);
                     show_view(&view, &entries, offset);
                     window.set_title(Some(&entries.clone().show_status(offset)));
@@ -333,12 +335,11 @@ fn main() {
 
                 let motion_controller = EventControllerMotion::new(); 
                 motion_controller.connect_enter(clone!(@strong entries_rc, @strong offset_rc, @strong window => move |_,_,_| {
-                    if let Ok(entries) = entries_rc.try_borrow() {
+                    let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
                         let mut offset: RefMut<'_,usize> = offset_rc.borrow_mut();
                         *offset = col * grid_size + row;
+                        entries.offset = *offset;
                         window.set_title(Some(&entries.clone().show_status(*offset)));
-                    } else {
-                    }
                 }));
 
                 image.add_controller(motion_controller)
