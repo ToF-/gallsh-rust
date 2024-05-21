@@ -451,8 +451,8 @@ impl Entries {
             for e in selection.iter() {
                 let entry = *e;
                 let file_path = if thumbnails {
-                    entry.clone().original_file_path().clone()
-                } else { entry.file_path.clone() };
+                     <Entry as Clone>::clone(&entry).original_file_path()
+                } else { entry.file_path.to_string() };
                 println!("saving {} for reference", file_path);
                 let _ = file.write(format!("{}\n", file_path).as_bytes());
             }
@@ -496,7 +496,7 @@ impl Entries {
             Ok(content) => {
                 for path in content.lines().map(String::from).collect::<Vec<_>>() {
                     let mut iter = self.entry_list.iter_mut();
-                    match iter.find(|e| e.file_path == path || e.file_path == thumbnail_file_path(&path)) {
+                    match iter.find(|e| e.file_path.to_string() == path || e.file_path.to_string() == thumbnail_file_path(&path)) {
                         Some(entry) => { 
                             println!("selected: {}", entry.file_path);
                             entry.to_select = true
@@ -626,20 +626,20 @@ pub fn update_thumbnails(dir_path: &str) -> ThumbResult<(usize,usize)> {
     for entry in image_entry_list {
         let source = entry.file_path.clone();
         let target = entry.thumbnail_file_path();
-        if let Err(_) = thumbnail_entry_list.binary_search_by(|probe| probe.file_path.cmp(&target)) {
-            let _ = create_thumbnail(source, target, number, total_images);
+        if let Err(_) = thumbnail_entry_list.binary_search_by(|probe| probe.file_path.to_string().cmp(&target)) {
+            let _ = create_thumbnail(source.to_string(), target, number, total_images);
             created += 1;
         } else { }
         number += 1;
     };
     let mut deleted: usize = 0;
     for entry in thumbnail_entry_list {
-        let source = entry.file_path.clone();
+        let source = entry.file_path.to_string();
         let target = entry.original_file_path().clone();
         let image_path = PathBuf::from(target.clone());
         if ! image_path.exists() {
             println!("deleting thumbnails {} with no matching image", source.clone());
-            match std::fs::remove_file(source.clone()) {
+            match std::fs::remove_file(source.to_string()) {
                 Err(err) => {
                     println!("error while deleting file {}: {}", source, err);
                 },

@@ -1,3 +1,4 @@
+use std::rc::Rc;
 use std::time::SystemTime;
 use std::path::{PathBuf};
 
@@ -12,7 +13,7 @@ pub type EntryList = Vec<Entry>;
 
 #[derive(Clone, Debug)]
 pub struct Entry {
-    pub file_path: String,
+    pub file_path: Rc<String>,
     pub file_size: u64,
     pub colors: usize,
     pub modified_time: SystemTime,
@@ -24,7 +25,7 @@ pub struct Entry {
 
 pub fn make_entry(file_path:String, file_size:u64, colors:usize, modified_time:SystemTime, initial_rank: usize) -> Entry {
     return Entry { 
-        file_path: file_path.clone(),
+        file_path: Rc::new(file_path),
         file_size: file_size,
         colors: colors,
         modified_time: modified_time,

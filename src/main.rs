@@ -634,7 +634,7 @@ fn show_grid(grid: &Grid, entries: &Entries) {
         picture.set_opacity(opacity);
         let filename = entry.file_path;
         picture.set_can_shrink(!entries.clone().real_size);
-        picture.set_filename(Some(filename.clone()));
+        picture.set_filename(Some(filename.to_string()));
         picture.set_visible(entries.current + offset <= entries.maximum);
     }
 }
