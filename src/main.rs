@@ -315,7 +315,7 @@ fn main() {
                     entries.offset = offset;
                     entries.toggle_select_area(offset);
                     show_grid(&grid, &entries.clone());
-                    window.set_title(Some(&entries.clone().show_status(offset)));
+                    window.set_title(Some(&entries.clone().show_current_status()));
                 }));
                 image.add_controller(select_gesture);
 
@@ -328,19 +328,18 @@ fn main() {
                     let offset = col * grid_size + row;
                     entries.offset = offset;
                     stack.set_visible_child(&view_scrolled_window);
-                    show_view(&view, &entries, offset);
-                    window.set_title(Some(&entries.clone().show_status(offset)));
+                    show_view(&view, &entries);
+                    window.set_title(Some(&entries.clone().show_current_status()));
                 }));
                 image.add_controller(view_gesture);
 
                 let motion_controller = EventControllerMotion::new(); 
-                motion_controller.connect_enter(clone!(@strong entries_rc, @strong offset_rc, @strong window => move |_,_,_| {
+                motion_controller.connect_enter(clone!(@strong entries_rc, @strong window => move |_,_,_| {
                     // let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
                     if let Ok(mut entries) = entries_rc.try_borrow_mut() {
-                        let mut offset: RefMut<'_,usize> = offset_rc.borrow_mut();
-                        *offset = col * grid_size + row;
-                        entries.offset = *offset;
-                        window.set_title(Some(&entries.clone().show_status(*offset)));
+                        let offset = col * grid_size + row;
+                        entries.offset = offset;
+                        window.set_title(Some(&(entries.clone().show_current_status())));
                     } else { }
                 }));
 
@@ -522,9 +521,10 @@ fn main() {
                         },
                         "period"|"k" => {
                             if stack.visible_child().unwrap() == grid_scrolled_window {
-                                let offset: Ref<'_,usize> = offset_rc.borrow();
+                                show_grid(&grid, &entries.clone());
                                 stack.set_visible_child(&view_scrolled_window);
-                                show_view(&view, &entries, *offset);
+                                show_view(&view, &entries);
+                                window.set_title(Some(&entries.clone().show_current_status()));
 
                             } else {
                                 stack.set_visible_child(&grid_scrolled_window);
@@ -637,8 +637,8 @@ fn show_grid(grid: &Grid, entries: &Entries) {
     }
 }
 
-fn show_view(grid: &Grid, entries: &Entries, offset: usize) {
-    let entry = <Entries as Clone>::clone(&entries).offset_entry(offset);
+fn show_view(grid: &Grid, entries: &Entries) {
+    let entry = <Entries as Clone>::clone(&entries).entry();
     let file_path = entry.original_file_path();
     let picture = grid.child_at(0,0).unwrap().downcast::<gtk::Picture>().unwrap();
     picture.set_filename(Some(file_path));

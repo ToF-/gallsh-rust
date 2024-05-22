@@ -8055,6 +8055,7 @@ ends_word	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bb
 ensure_no_decoder_off_by_one	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/codecs/png.rs	/^    fn ensure_no_decoder_off_by_one() {$/;"	f
 entry	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/entry_completion.rs	/^    pub fn entry(&self) -> Option<Entry> {$/;"	f
 entry	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_json-1.0.117/src/map.rs	/^    pub fn entry<S>(&mut self, key: S) -> Entry$/;"	f
+entry	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn entry(self) -> Entry {$/;"	f
 entry_text_column	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/combo_box.rs	/^    fn entry_text_column(&self) -> i32 {$/;"	f
 entry_text_column	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/combo_box.rs	/^    fn entry_text_column(&self) -> i32;$/;"	f
 entry_text_column	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/combo_box.rs	/^    pub fn entry_text_column(self, entry_text_column: i32) -> Self {$/;"	f
@@ -18287,7 +18288,7 @@ show_title_buttons	/Users/christophethibaut/.cargo/registry/src/index.crates.io-
 show_uri	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/functions.rs	/^pub fn show_uri(parent: Option<&impl IsA<Window>>, uri: &str, timestamp: u32) {$/;"	f
 show_uri_full	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/functions.rs	/^pub fn show_uri_full<P: FnOnce(Result<(), glib::Error>) + 'static>($/;"	f
 show_uri_full_future	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/functions.rs	/^pub fn show_uri_full_future($/;"	f
-show_view	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn show_view(grid: &Grid, entries: &Entries, offset: usize) {$/;"	f
+show_view	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn show_view(grid: &Grid, entries: &Entries) {$/;"	f
 show_week_numbers	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/calendar.rs	/^    pub fn show_week_numbers(self, show_week_numbers: bool) -> Self {$/;"	f
 shows_all	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/app_chooser_widget.rs	/^    pub fn shows_all(&self) -> bool {$/;"	f
 shows_arrow	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/drop_down.rs	/^    pub fn shows_arrow(&self) -> bool {$/;"	f

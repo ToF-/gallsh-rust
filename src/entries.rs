@@ -360,8 +360,9 @@ impl Entries {
         let position = self.current + self.offset;
         if position <= self.maximum {
             let entry_status = <Entry as Clone>::clone(&self.entry_list[position]).show_status();
-            format!("{} {} {} {}",
+            format!("{}/{}  {} {} {}",
                 position,
+                self.maximum,
                 entry_status,
                 if self.register.is_none() { String::from("") } else { format!("{}", self.register.unwrap()) },
                 if self.real_size { "*" } else { "" })
@@ -410,6 +411,15 @@ impl Entries {
         let start = self.current;
         let position = (start + offset) % (self.maximum + 1);
         self.entry_list[position].clone()
+    }
+
+    pub fn entry(self) -> Entry {
+        let position = self.current + self.offset;
+        if position <= self.maximum {
+            self.entry_list[position].clone()
+        } else {
+            self.entry_list[self.current].clone()
+        }
     }
 
     pub fn set_grid_select(&mut self) {
