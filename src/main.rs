@@ -14,7 +14,6 @@ use std::cell::{RefCell, RefMut};
 use std::env;
 use std::rc::Rc;
 use std::time::{Duration};
-const FIRST_CELL: usize = 0;
 const DEFAULT_WIDTH: i32 = 1000;
 const DEFAULT_HEIGHT: i32 = 1000;
 
@@ -209,7 +208,7 @@ fn main() {
         };
         let reading_list = &args.reading;
         let copy_selection_target: Option<String> = match &args.copy_selection {
-            Some(target) => Some(target.clone()),
+            Some(target) => Some(target.to_string()),
             None => None,
         };
 
@@ -272,7 +271,7 @@ fn main() {
             entries
         };
         println!("{} files selected", entries.entry_list.len());
-        if entries.clone().len() == 0 {
+        if entries.len() == 0 {
             application.quit();
             return
         }
@@ -339,8 +338,7 @@ fn main() {
                     let offset = col * grid_size + row; 
                     entries.offset = offset;
                     entries.toggle_select_area();
-                    show_grid(&grid, &entries.clone());
-                    window.set_title(Some(&entries.clone().show_current_status()));
+                    show_grid(&grid, &entries, &window);
                 }));
                 image.add_controller(select_gesture);
 
@@ -353,8 +351,7 @@ fn main() {
                     let offset = col * grid_size + row;
                     entries.offset = offset;
                     stack.set_visible_child(&view_scrolled_window);
-                    show_view(&view, &entries);
-                    window.set_title(Some(&entries.clone().show_current_status()));
+                    show_view(&view, &entries, &window);
                 }));
                 image.add_controller(view_gesture);
 
@@ -364,7 +361,7 @@ fn main() {
                     if let Ok(mut entries) = entries_rc.try_borrow_mut() {
                         let offset = col * grid_size + row;
                         entries.offset = offset;
-                        window.set_title(Some(&(entries.clone().show_current_status())));
+                        window.set_title(Some(&(entries.status())));
                     } else { }
                 }));
 
@@ -382,58 +379,41 @@ fn main() {
                         stack.set_visible_child(&grid_scrolled_window);
                         return gtk::Inhibit(false)
                     };
+                    let mut show = true;
                     match s.as_str() {
                         "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" => {
                             let digit:usize = s.parse().unwrap();
                             entries.add_digit_to_register(digit);
-                            show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&(entries.clone().show_current_status())));
                         },
                         "BackSpace" => {
                             entries.remove_digit_to_register();
-                            show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&(entries.clone().show_current_status())));
                         },
                         "g" => if ! entries.register.is_none() {
-                                entries.go_to_register();
-                                show_grid(&grid, &entries.clone());
-                                window.set_title(Some(&(entries.clone().show_current_status())));
-                            },
+                            entries.go_to_register();
+                        },
                         "j" => {
                             for _ in 0..10 {
                                 entries.next()
                             }
-                            show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&(entries.clone().show_current_status())));
                         },
                         "l" => {
                             for _ in 0..10 {
                                 entries.prev()
                             }
-                            show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&(entries.clone().show_current_status())));
                         },
                         "f" => {
-                            if (entries.clone().max_cells) == 1 {
+                            if (entries.max_cells) == 1 {
                                 entries.toggle_real_size();
-                                show_grid(&grid, &entries.clone());
-                                window.set_title(Some(&(entries.clone().show_current_status())));
                             }
                         },
                         "z" => {
                             entries.jump(0);
-                            show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&(entries.clone().show_current_status())));
                         }
                         "n"|"e" => {
                             entries.next();
-                            show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&(entries.clone().show_current_status())));
                         }
                         "p"|"i" => {
                             entries.prev();
-                            show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&(entries.clone().show_current_status())));
                         }
                         "q"|"Escape" => {
                             entries.save_marked_file_lists(args.thumbnails);
@@ -450,77 +430,53 @@ fn main() {
                         },
                         "r" => {
                             entries.random();
-                            show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&(entries.clone().show_current_status())));
                         },
                         "comma" => {
                             entries.toggle_select();
-                            show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&entries.clone().show_current_status()));
                         },
                         "Return" => {
                             entries.toggle_select_area();
-                            show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&entries.clone().show_current_status()));
                         },
                         "asterisk"|"A" => {
                             entries.set_rank(THREE_STARS);
-                            show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&entries.clone().show_current_status()));
                         },
                         "slash"|"B" => {
                             entries.set_rank(TWO_STARS);
-                            show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&entries.clone().show_current_status()));
                         },
                         "minus"|"C" => {
                             entries.set_rank(ONE_STAR);
-                            show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&entries.clone().show_current_status()));
                         },
                         "plus"|"D" => {
                             entries.set_rank(NO_STAR);
-                            show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&entries.clone().show_current_status()));
                         },
                         "at" => {
                             entries.unset_grid_ranks();
-                            show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&entries.clone().show_current_status()));
                         }
                         "a" => {
                             entries.set_grid_select();
-                            show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&entries.clone().show_current_status()));
                         },
                         "u" => {
                             entries.reset_grid_select();
-                            show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&entries.clone().show_current_status()));
                         },
                         "U" => {
                             entries.reset_all_select();
-                            show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&entries.clone().show_current_status()));
                         },
                         "period"|"k" => {
                             if stack.visible_child().unwrap() == grid_scrolled_window {
-                                show_grid(&grid, &entries.clone());
+                                show_grid(&grid, &entries, &window);
                                 stack.set_visible_child(&view_scrolled_window);
-                                show_view(&view, &entries);
-                                window.set_title(Some(&entries.clone().show_current_status()));
-
+                                show_view(&view, &entries, &window);
+                                show = false;
                             } else {
                                 stack.set_visible_child(&grid_scrolled_window);
                             }
                         },
                         "space" => { 
                             entries.next();
-                            show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&(entries.clone().show_status(FIRST_CELL))));
                         },
                         "Right" => {
                             if entries.real_size { 
+                                show = false;
                                 let h_adj = window
                                     .child()
                                     .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
@@ -530,12 +486,11 @@ fn main() {
                                 h_adj.set_value(h_adj.value() + step as f64);
                             } else {
                                 entries.next();
-                                show_grid(&grid, &entries.clone());
-                                window.set_title(Some(&entries.clone().show_current_status()));
                             }
                         },
                         "Left" => {
                             if entries.real_size { 
+                                show = false;
                                 let h_adj = window
                                     .child()
                                     .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
@@ -545,31 +500,37 @@ fn main() {
                                 h_adj.set_value(h_adj.value() - step as f64);
                             } else {
                                 entries.prev();
-                                show_grid(&grid, &entries.clone());
-                                window.set_title(Some(&entries.clone().show_current_status()));
                             }
                         },
                         "Down" => {
-                            // Scroll down
-                            let v_adj = window
-                                .child()
-                                .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
-                                .and_then(|child| child.downcast::<ScrolledWindow>().ok())
-                                .and_then(|sw| Some(sw.vadjustment()))
-                                .expect("Failed to get vadjustment");
-                            v_adj.set_value(v_adj.value() + step as f64);
+                            if entries.real_size {
+                                show = false;
+                                let v_adj = window
+                                    .child()
+                                    .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
+                                    .and_then(|child| child.downcast::<ScrolledWindow>().ok())
+                                    .and_then(|sw| Some(sw.vadjustment()))
+                                    .expect("Failed to get vadjustment");
+                                v_adj.set_value(v_adj.value() + step as f64);
+                            }
                         },
                         "Up" => {
-                            let v_adj = window
-                                .child()
-                                .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
-                                .and_then(|child| child.downcast::<ScrolledWindow>().ok())
-                                .and_then(|sw| Some(sw.vadjustment()))
-                                .expect("Failed to get vadjustment");
-                            v_adj.set_value(v_adj.value() - step as f64);
+                            if entries.real_size {
+                                show = false;
+                                let v_adj = window
+                                    .child()
+                                    .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
+                                    .and_then(|child| child.downcast::<ScrolledWindow>().ok())
+                                    .and_then(|sw| Some(sw.vadjustment()))
+                                    .expect("Failed to get vadjustment");
+                                v_adj.set_value(v_adj.value() - step as f64);
+                            }
                         },
                         s => { println!("{} ?", s) },
                     };
+                    if show {
+                        show_grid(&grid, &entries, &window);
+                    }
                     gtk::Inhibit(false)
                 }
                 else {
@@ -578,21 +539,20 @@ fn main() {
             } else {
                 gtk::Inhibit(false)
             }
-    }));
+        }));
 
-    window.add_controller(evk);
-    // show the first file
+        window.add_controller(evk);
+        // show the first file
         let entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-        show_grid(&grid, &entries);
-        window.set_title(Some(&entries.clone().show_current_status()));
+        show_grid(&grid, &entries, &window);
         if args.maximized { window.fullscreen() };
         // if a timer has been passed, set a timeout routine
         if let Some(t) = args.timer {
             timeout_add_local(Duration::new(t,0), clone!(@strong entries_rc, @strong grid, @strong window => move | | { 
                 let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
                 entries.next();
-                show_grid(&grid, &entries.clone());
-                window.set_title(Some(&entries.clone().show_current_status()));
+                show_grid(&grid, &entries, &window);
+                window.set_title(Some(&entries.status()));
                 Continue(true) 
             }));
         };
@@ -603,27 +563,34 @@ fn main() {
     application.run_with_args(&empty);
 }
 
-fn show_grid(grid: &Grid, entries: &Entries) {
-    let max_cells = entries.clone().max_cells;
-    let side = match max_cells { 4 => 2, 9 => 3, 16 => 4, 25 => 5, 36 => 6, 49 => 7, 64 => 8, 81 => 9, 100 => 10, _ => 1, };
+fn show_grid(grid: &Grid, entries: &Entries, window: &gtk::ApplicationWindow) {
+    let max_cells = entries.max_cells;
+    let cells_per_row = entries.cells_per_row;
+    let current = entries.current;
+    let maximum = entries.maximum;
     for cell_index in 0 .. max_cells {
-        let row = (cell_index / side) as i32;
-        let col = (cell_index % side) as i32;
+        let row = (cell_index / cells_per_row) as i32;
+        let col = (cell_index % cells_per_row) as i32;
         let picture = grid.child_at(col,row).unwrap().downcast::<gtk::Picture>().unwrap();
-        let offset = row as usize * side + col as usize;
-        let entry = entries.clone().offset_entry(offset);
-        let opacity = if entry.to_select { 0.50 } else { 1.0 };
-        picture.set_opacity(opacity);
-        let filename = entry.file_path;
-        picture.set_can_shrink(!entries.clone().real_size);
-        picture.set_filename(Some(filename.to_string()));
-        picture.set_visible(entries.current + offset <= entries.maximum);
+        let offset = row as usize * cells_per_row + col as usize;
+        let position = current + offset;
+        if position <= maximum {
+            let entry = &entries.entry_list[position];
+            let opacity = if entry.to_select { 0.50 } else { 1.0 };
+            picture.set_opacity(opacity);
+            let filename = &entry.file_path;
+            picture.set_can_shrink(!entries.real_size);
+            picture.set_filename(Some(filename.to_string()));
+            picture.set_visible(entries.current + offset <= entries.maximum);
+        }
     }
+    window.set_title(Some(&entries.status()));
 }
 
-fn show_view(grid: &Grid, entries: &Entries) {
-    let entry = <Entries as Clone>::clone(&entries).entry();
+fn show_view(grid: &Grid, entries: &Entries, window: &gtk::ApplicationWindow) {
+    let entry = entries.entry();
     let file_path = entry.original_file_path();
     let picture = grid.child_at(0,0).unwrap().downcast::<gtk::Picture>().unwrap();
     picture.set_filename(Some(file_path));
+    window.set_title(Some(&entries.status()));
 }

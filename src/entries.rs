@@ -34,6 +34,7 @@ pub struct Entries {
     pub maximum:  usize,
     pub start_index: Option<usize>,
     pub max_cells: usize,
+    pub cells_per_row: usize,
     pub real_size: bool,
     pub register: Option<usize>,
 }
@@ -90,6 +91,7 @@ impl Entries {
             offset: 0,
             maximum: entry_list.len() - 1,
             start_index: None,
+            cells_per_row: grid_size,
             max_cells: grid_size * grid_size,
             real_size: false,
             register: None,
@@ -129,7 +131,7 @@ impl Entries {
         self.start_index = None;
     }
 
-    pub fn len(self) -> usize {
+    pub fn len(&self) -> usize {
         self.maximum + 1
     }
 
@@ -347,16 +349,7 @@ impl Entries {
         }
     }
 
-    pub fn show_status(self, offset: usize) -> String {
-        format!("{}/{}  {} {} {}",
-            self.current + offset,
-            self.maximum,
-            self.clone().offset_entry(offset).show_status(),
-            if self.register.is_none() { String::from("") } else { format!("{}", self.register.unwrap()) },
-            if self.real_size { "*" } else { "" })
-    }
-
-    pub fn show_current_status(self) -> String {
+    pub fn status(&self) -> String {
         let position = self.current + self.offset;
         if position <= self.maximum {
             let entry_status = <Entry as Clone>::clone(&self.entry_list[position]).show_status();
@@ -397,13 +390,7 @@ impl Entries {
         }
     }
 
-    pub fn offset_entry(self, offset: usize) -> Entry {
-        let start = self.current;
-        let position = (start + offset) % (self.maximum + 1);
-        self.entry_list[position].clone()
-    }
-
-    pub fn entry(self) -> Entry {
+    pub fn entry(&self) -> Entry {
         let position = self.current + self.offset;
         if position <= self.maximum {
             self.entry_list[position].clone()
@@ -464,7 +451,7 @@ impl Entries {
             self.entry_list[position].rank = rank;
         }
     }
-    pub fn save_marked_file_list(&mut self, selection: Vec<&Entry>, dest_file_path: &str, thumbnails: bool) {
+    pub fn save_marked_file_list(&self, selection: &Vec<&Entry>, dest_file_path: &str, thumbnails: bool) {
         let result = OpenOptions::new()
             .write(true)
             .create(true)
@@ -474,7 +461,7 @@ impl Entries {
             for e in selection.iter() {
                 let entry = *e;
                 let file_path = if thumbnails {
-                     <Entry as Clone>::clone(&entry).original_file_path()
+                     entry.original_file_path()
                 } else { entry.file_path.to_string() };
                 println!("saving {} for reference", file_path);
                 let _ = file.write(format!("{}\n", file_path).as_bytes());
@@ -482,17 +469,16 @@ impl Entries {
         }
     }
 
-    pub fn save_marked_file_lists(&mut self, thumbnails: bool) {
-        let entry_list = &self.entry_list.clone();
-        self.save_marked_file_list(entry_list.iter().filter(|e| e.to_select).collect(), SELECTION_FILE_NAME, thumbnails)
+    pub fn save_marked_file_lists(&self, thumbnails: bool) {
+        self.save_marked_file_list(&self.entry_list.iter().filter(|e| e.to_select).collect(), SELECTION_FILE_NAME, thumbnails)
     }
 
-    pub fn save_updated_rank_entries(&mut self, selection: Vec<&Entry>) {
+    pub fn save_updated_rank_entries(&self, selection: Vec<&Entry>) {
         for e in selection.iter() {
             let entry = *e;
             let image_data_path = image_data_file_path(&entry.file_path);
             let path = PathBuf::from(image_data_path);
-            match File::create(path.clone()) {
+            match File::create(&path) {
                 Ok(output_file) => {
                     let data = (entry.colors,entry.rank);
                     match serde_json::to_writer(output_file, &data) {
@@ -509,9 +495,8 @@ impl Entries {
         }
     }
 
-    pub fn save_updated_ranks(&mut self) {
-        let entry_list = &self.entry_list.clone();
-        self.save_updated_rank_entries(entry_list.iter().filter(|e| e.rank != e.initial_rank).collect())
+    pub fn save_updated_ranks(&self) {
+        self.save_updated_rank_entries(self.entry_list.iter().filter(|e| e.rank != e.initial_rank).collect())
     }
 
     pub fn set_selected_images(&mut self) {
@@ -573,8 +558,8 @@ impl Entries {
 
 
 pub fn create_thumbnail(source: String, target: String, number: usize, total: usize) -> ThumbResult<()> {
-    println!("creating thumbnails {:6}/{:6} {}", number, total, target.clone());
-    match File::open(source.clone()) {
+    println!("creating thumbnails {:6}/{:6} {}", number, total, &target);
+    match File::open(&source) {
         Err(err) => {
             println!("error opening file {}: {}", source, err);
             return Err(ThumbError::IO(err))
@@ -583,17 +568,15 @@ pub fn create_thumbnail(source: String, target: String, number: usize, total: us
             let source_path = Path::new(source.as_str());
             let source_extension = match source_path.extension().and_then(OsStr::to_str) {
                 None => {
-                    println!("error: file {} has no extension", source.clone());
+                    println!("error: file {} has no extension", &source);
                     return Err(ThumbError::IO(Error::new(ErrorKind::Other, "no extension")))
                 },
                 Some(s) => s,
             };
             let reader = BufReader::new(input_file);
-            let output_file = match File::create(target.clone()) {
+            let output_file = match File::create(&target) {
                 Err(err) => {
-                    println!("error while creating file {}: {}",
-                        target.clone(),
-                        err);
+                    println!("error while creating file {}: {}", &target, err);
                     return Err(ThumbError::IO(err))
                 },
                 Ok(file) => file,
@@ -647,7 +630,7 @@ pub fn update_thumbnails(dir_path: &str) -> ThumbResult<(usize,usize)> {
     let mut created: usize = 0;
     let total_images = image_entry_list.len();
     for entry in image_entry_list {
-        let source = entry.file_path.clone();
+        let source = &entry.file_path;
         let target = entry.thumbnail_file_path();
         if let Err(_) = thumbnail_entry_list.binary_search_by(|probe| probe.file_path.to_string().cmp(&target)) {
             let _ = create_thumbnail(source.to_string(), target, number, total_images);
@@ -658,11 +641,11 @@ pub fn update_thumbnails(dir_path: &str) -> ThumbResult<(usize,usize)> {
     let mut deleted: usize = 0;
     for entry in thumbnail_entry_list {
         let source = entry.file_path.to_string();
-        let target = entry.original_file_path().clone();
-        let image_path = PathBuf::from(target.clone());
+        let target = entry.original_file_path();
+        let image_path = PathBuf::from(&target);
         if ! image_path.exists() {
             println!("deleting thumbnails {} with no matching image", source.clone());
-            match std::fs::remove_file(source.to_string()) {
+            match std::fs::remove_file(&source) {
                 Err(err) => {
                     println!("error while deleting file {}: {}", source, err);
                 },
@@ -670,10 +653,10 @@ pub fn update_thumbnails(dir_path: &str) -> ThumbResult<(usize,usize)> {
             };
             deleted += 1;
         }
-        let data_path = PathBuf::from(image_data_file_path(&target.clone()));
+        let data_path = PathBuf::from(image_data_file_path(&target));
         if ! image_path.exists() {
             println!("deleting data file {} with no matching image", data_path.display());
-            match std::fs::remove_file(data_path.clone()) {
+            match std::fs::remove_file(&data_path) {
                 Err(err) => {
                     println!("error while deleting file {}: {}", data_path.display(), err);
                 },

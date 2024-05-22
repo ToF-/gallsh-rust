@@ -88,18 +88,18 @@ fn show_rank(rank: usize) -> String {
 impl Entry {
     pub fn show_status(self,) -> String {
         format!("{} {} [{} {} {}]",
-            self.clone().original_file_path(),
+            self.original_file_path(),
             if self.to_select { "△" } else { "" },
             self.file_size,
             self.colors,
             show_rank(self.rank))
     }
 
-    pub fn thumbnail_file_path(self) -> String {
+    pub fn thumbnail_file_path(&self) -> String {
         thumbnail_file_path(&self.file_path)
     }
 
-    pub fn original_file_path(self) -> String {
+    pub fn original_file_path(&self) -> String {
         original_file_path(&self.file_path)
     }
 }
