@@ -371,14 +371,6 @@ impl Entries {
             "".to_string()
         }
     }
-    pub fn offset_position(self, offset: usize) -> Option<usize> {
-        let position = self.current + offset;
-        if position <= self.maximum {
-            Some(position)
-        } else {
-            None
-        }
-    }
 
     pub fn toggle_select_area(&mut self) {
         let position = self.current + self.offset;

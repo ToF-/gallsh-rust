@@ -10,7 +10,7 @@ use gtk::prelude::*;
 use gtk::traits::WidgetExt;
 use gtk::{self, Application, ScrolledWindow, gdk, glib, Grid, Picture};
 use order::{Order};
-use std::cell::{Ref, RefCell, RefMut};
+use std::cell::{RefCell, RefMut};
 use std::env;
 use std::rc::Rc;
 use std::time::{Duration};
@@ -394,16 +394,11 @@ fn main() {
                             show_grid(&grid, &entries.clone());
                             window.set_title(Some(&(entries.clone().show_current_status())));
                         },
-                        "g" => {
-                            match entries.register {
-                                Some(position) => {
-                                    entries.go_to_register();
-                                    show_grid(&grid, &entries.clone());
-                                    window.set_title(Some(&(entries.clone().show_current_status())));
-                                },
-                                None => { },
-                            }
-                        },
+                        "g" => if ! entries.register.is_none() {
+                                entries.go_to_register();
+                                show_grid(&grid, &entries.clone());
+                                window.set_title(Some(&(entries.clone().show_current_status())));
+                            },
                         "j" => {
                             for _ in 0..10 {
                                 entries.next()
