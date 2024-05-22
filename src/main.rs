@@ -281,7 +281,6 @@ fn main() {
             entries.jump(index_number);
         }
         let entries_rc = Rc::new(RefCell::new(entries));
-        let offset_rc = Rc::new(RefCell::new(0));
 
         // build the main window
         let window = gtk::ApplicationWindow::builder()
@@ -339,7 +338,7 @@ fn main() {
                     let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
                     let offset = col * grid_size + row; 
                     entries.offset = offset;
-                    entries.toggle_select_area(offset);
+                    entries.toggle_select_area();
                     show_grid(&grid, &entries.clone());
                     window.set_title(Some(&entries.clone().show_current_status()));
                 }));
@@ -375,7 +374,7 @@ fn main() {
         grid_scrolled_window.set_child(Some(&grid));
 
         let evk = gtk::EventControllerKey::new();
-        evk.connect_key_pressed(clone!(@strong entries_rc, @strong offset_rc, @strong grid, @strong window => move |_, key, _, _| {
+        evk.connect_key_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_, key, _, _| {
             let step = 100;
             if let Ok(mut entries) = entries_rc.try_borrow_mut() {
                 if let Some(s) = key.name() {
@@ -460,90 +459,54 @@ fn main() {
                             window.set_title(Some(&(entries.clone().show_current_status())));
                         },
                         "comma" => {
-                            let offset = if args.thumbnails || args.grid > Some(1) {
-                                let offset: Ref<'_, usize> = offset_rc.borrow();
-                                *offset
-                            } else {
-                                FIRST_CELL
-                            };
-                            entries.toggle_select(offset);
+                            entries.toggle_select();
                             show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                            window.set_title(Some(&entries.clone().show_current_status()));
                         },
                         "Return" => {
-                            let offset = if args.thumbnails || args.grid > Some(1) {
-                                let offset: Ref<'_, usize> = offset_rc.borrow();
-                                *offset
-                            } else {
-                                FIRST_CELL
-                            };
-                            entries.toggle_select_area(offset);
+                            entries.toggle_select_area();
                             show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                            window.set_title(Some(&entries.clone().show_current_status()));
                         },
                         "asterisk"|"A" => {
-                            let offset = if args.thumbnails || args.grid > Some(1) {
-                                let offset: Ref<'_, usize> = offset_rc.borrow();
-                                *offset
-                            } else {
-                                FIRST_CELL
-                            };
-                            entries.set_rank(offset, THREE_STARS);
+                            entries.set_rank(THREE_STARS);
                             show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                            window.set_title(Some(&entries.clone().show_current_status()));
                         },
                         "slash"|"B" => {
-                            let offset = if args.thumbnails || args.grid > Some(1) {
-                                let offset: Ref<'_, usize> = offset_rc.borrow();
-                                *offset
-                            } else {
-                                FIRST_CELL
-                            };
-                            entries.set_rank(offset, TWO_STARS);
+                            entries.set_rank(TWO_STARS);
                             show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                            window.set_title(Some(&entries.clone().show_current_status()));
                         },
                         "minus"|"C" => {
-                            let offset = if args.thumbnails || args.grid > Some(1) {
-                                let offset: Ref<'_, usize> = offset_rc.borrow();
-                                *offset
-                            } else {
-                                FIRST_CELL
-                            };
-                            entries.set_rank(offset, ONE_STAR);
+                            entries.set_rank(ONE_STAR);
                             show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                            window.set_title(Some(&entries.clone().show_current_status()));
                         },
                         "plus"|"D" => {
-                            let offset = if args.thumbnails || args.grid > Some(1) {
-                                let offset: Ref<'_, usize> = offset_rc.borrow();
-                                *offset
-                            } else {
-                                FIRST_CELL
-                            };
-                            entries.set_rank(offset, NO_STAR);
+                            entries.set_rank(NO_STAR);
                             show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                            window.set_title(Some(&entries.clone().show_current_status()));
                         },
                         "at" => {
                             entries.unset_grid_ranks();
                             show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                            window.set_title(Some(&entries.clone().show_current_status()));
                         }
                         "a" => {
                             entries.set_grid_select();
                             show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                            window.set_title(Some(&entries.clone().show_current_status()));
                         },
                         "u" => {
                             entries.reset_grid_select();
                             show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                            window.set_title(Some(&entries.clone().show_current_status()));
                         },
                         "U" => {
                             entries.reset_all_select();
                             show_grid(&grid, &entries.clone());
-                            window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                            window.set_title(Some(&entries.clone().show_current_status()));
                         },
                         "period"|"k" => {
                             if stack.visible_child().unwrap() == grid_scrolled_window {
@@ -573,7 +536,7 @@ fn main() {
                             } else {
                                 entries.next();
                                 show_grid(&grid, &entries.clone());
-                                window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                                window.set_title(Some(&entries.clone().show_current_status()));
                             }
                         },
                         "Left" => {
@@ -588,7 +551,7 @@ fn main() {
                             } else {
                                 entries.prev();
                                 show_grid(&grid, &entries.clone());
-                                window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                                window.set_title(Some(&entries.clone().show_current_status()));
                             }
                         },
                         "Down" => {
@@ -626,7 +589,7 @@ fn main() {
     // show the first file
         let entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
         show_grid(&grid, &entries);
-        window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+        window.set_title(Some(&entries.clone().show_current_status()));
         if args.maximized { window.fullscreen() };
         // if a timer has been passed, set a timeout routine
         if let Some(t) = args.timer {
@@ -634,7 +597,7 @@ fn main() {
                 let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
                 entries.next();
                 show_grid(&grid, &entries.clone());
-                window.set_title(Some(&entries.clone().show_status(FIRST_CELL)));
+                window.set_title(Some(&entries.clone().show_current_status()));
                 Continue(true) 
             }));
         };

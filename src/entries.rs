@@ -380,31 +380,29 @@ impl Entries {
         }
     }
 
-    pub fn toggle_select_area(&mut self, offset: usize) {
-        match <Entries as Clone>::clone(&self).offset_position(offset) {
-            Some(position) => {
-                if self.entry_list[position].to_select {
-                    return
+    pub fn toggle_select_area(&mut self) {
+        let position = self.current + self.offset;
+        if position <= self.maximum {
+            if self.entry_list[position].to_select {
+                return
+            } else {
+                if self.start_index.is_none() {
+                    self.start_index = Some(position)
                 } else {
-                    if self.start_index.is_none() {
-                        self.start_index = Some(position)
-                    } else {
-                        let mut start = self.start_index.unwrap();
-                        let mut end = position;
-                        if start > end {
-                            let x = start;
-                            start = end;
-                            end = x;
-                        };
-                        for i in start..end+1 {
-                            self.entry_list[i].to_select = true
-                        };
-                        self.start_index = None
-                    }
+                    let mut start = self.start_index.unwrap();
+                    let mut end = position;
+                    if start > end {
+                        let x = start;
+                        start = end;
+                        end = x;
+                    };
+                    for i in start..end+1 {
+                        self.entry_list[i].to_select = true
+                    };
+                    self.start_index = None
                 }
-            },
-            None => (),
-        };
+            }
+        }
     }
 
     pub fn offset_entry(self, offset: usize) -> Entry {
@@ -461,14 +459,18 @@ impl Entries {
         self.real_size = !self.real_size;
     }
 
-    pub fn toggle_select(&mut self, offset: usize) {
-        let position = (self.current + offset) % (self.maximum + 1);
+    pub fn toggle_select(&mut self) {
+        let position = self.current + self.offset;
+        if position <= self.maximum {
         self.entry_list[position].to_select = ! self.entry_list[position].to_select
+        }
     }
 
-    pub fn set_rank(&mut self, offset: usize, rank: usize) {
-        let position = (self.current + offset) % (self.maximum + 1);
-        self.entry_list[position].rank = rank;
+    pub fn set_rank(&mut self, rank: usize) {
+        let position = self.current + self.offset;
+        if position <= self.maximum {
+            self.entry_list[position].rank = rank;
+        }
     }
     pub fn save_marked_file_list(&mut self, selection: Vec<&Entry>, dest_file_path: &str, thumbnails: bool) {
         let result = OpenOptions::new()
