@@ -16,6 +16,7 @@ use std::rc::Rc;
 use std::time::{Duration};
 const FIRST_CELL: usize = 0;
 const DEFAULT_WIDTH: i32 = 1000;
+const DEFAULT_HEIGHT: i32 = 1000;
 
 
 
@@ -122,11 +123,16 @@ struct Args {
     /// Window width (default is set with GALLSHWIDTH)
     #[arg(short, long)]
     width: Option<i32>,
+    ///
+    /// Window width (default is set with GALLSHHEIGHT)
+    #[arg(short, long)]
+    height: Option<i32>,
 }
 
 const DEFAULT_DIR :&str  = "images/";
 const DIR_ENV_VAR :&str = "GALLSHDIR";
 const WIDTH_ENV_VAR :&str = "GALLSHWIDTH";
+const HEIGHT_ENV_VAR :&str = "GALLSHHEIGHT";
 
 fn main() {
 
@@ -179,6 +185,27 @@ fn main() {
         } else {
             println!("illegal width value, setting to default");
             DEFAULT_WIDTH
+        };
+        let candidate_height = match args.height {
+            Some(n) => n,
+            None => match env::var(HEIGHT_ENV_VAR) {
+                Ok(s) => match s.parse::<i32>() {
+                    Ok(n) => n,
+                    _ => {
+                        println!("illegal height value, setting to default");
+                        DEFAULT_HEIGHT
+                    }
+                },
+                _ => {
+                    DEFAULT_HEIGHT
+                }
+            }
+        };
+        let height = if candidate_height < 3000 && candidate_height > 100 {
+            candidate_height
+        } else {
+            println!("illegal height value, setting to default");
+            DEFAULT_HEIGHT
         };
         let reading_list = &args.reading;
         let copy_selection_target: Option<String> = match &args.copy_selection {
@@ -256,7 +283,6 @@ fn main() {
         let entries_rc = Rc::new(RefCell::new(entries));
         let offset_rc = Rc::new(RefCell::new(0));
 
-        let height = width;
         // build the main window
         let window = gtk::ApplicationWindow::builder()
             .application(application)
