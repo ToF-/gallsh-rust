@@ -581,9 +581,11 @@ fn show_grid(grid: &Grid, entries: &Entries, window: &gtk::ApplicationWindow) {
             let filename = &entry.file_path;
             picture.set_can_shrink(!entries.real_size);
             picture.set_filename(Some(filename.to_string()));
-            picture.set_visible(entries.current + offset <= entries.maximum);
+            picture.set_visible(true)
+        } else {
+            picture.set_visible(false)
         }
-    }
+    };
     window.set_title(Some(&entries.status()));
 }
 
