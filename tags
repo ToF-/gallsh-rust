@@ -19297,6 +19297,7 @@ toggle_overwrite	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/
 toggle_real_size	/home/tof/Coding/gallsh-rust/src/entries.rs	/^    pub fn toggle_real_size(&mut self) {$/;"	f
 toggle_select	/home/tof/Coding/gallsh-rust/src/entries.rs	/^    pub fn toggle_select(&mut self) {$/;"	f
 toggle_select_area	/home/tof/Coding/gallsh-rust/src/entries.rs	/^    pub fn toggle_select_area(&mut self) {$/;"	f
+toggle_star_area	/home/tof/Coding/gallsh-rust/src/entries.rs	/^    pub fn toggle_star_area(&mut self) {$/;"	f
 toggled	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/toggle_button.rs	/^    fn toggled(&self) {$/;"	f
 toggled	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/toggle_button.rs	/^    fn toggled(&self);$/;"	f
 toggled	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/check_button.rs	/^    fn toggled(&self) {$/;"	f

@@ -391,7 +391,7 @@ impl Entries {
             }
         }
     }
-    pub fn toggle_star_area(&mut self) {
+    pub fn toggle_rank_area(&mut self, rank: usize) {
         let position = self.current + self.offset;
         if position <= self.maximum {
             if self.entry_list[position].rank == THREE_STARS {
@@ -408,7 +408,7 @@ impl Entries {
                         end = x;
                     };
                     for i in start..end+1 {
-                        self.entry_list[i].rank = THREE_STARS
+                        self.entry_list[i].rank = rank
                     };
                     self.star3_index = None
                 }

@@ -405,7 +405,9 @@ fn main() {
                                 window.close()
                             },
                         "r" => entries.random(),
-                        "o" => entries.toggle_star_area(),
+                        "M" => entries.toggle_rank_area(ONE_STAR),
+                        "N" => entries.toggle_rank_area(TWO_STARS),
+                        "O" => entries.toggle_rank_area(THREE_STARS),
                         "comma" => entries.toggle_select(),
                         "Return" => entries.toggle_select_area(),
                         "asterisk"|"A" => entries.set_rank(THREE_STARS),
