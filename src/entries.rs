@@ -3,7 +3,7 @@ use crate::image::get_image_color;
 use crate::entry::{NO_STAR,original_file_path};
 use core::cmp::{min};
 use crate::{THUMB_SUFFIX, Entry, EntryList, make_entry, Order};
-use crate::entry::{image_data_file_path, thumbnail_file_path};
+use crate::entry::{THREE_STARS, image_data_file_path, thumbnail_file_path};
 use rand::seq::SliceRandom;
 use rand::{thread_rng,Rng}; 
 use regex::Regex;
@@ -33,6 +33,7 @@ pub struct Entries {
     pub offset: usize,
     pub maximum:  usize,
     pub start_index: Option<usize>,
+    pub star3_index: Option<usize>,
     pub max_cells: usize,
     pub cells_per_row: usize,
     pub real_size: bool,
@@ -91,6 +92,7 @@ impl Entries {
             offset: 0,
             maximum: entry_list.len() - 1,
             start_index: None,
+            star3_index: None,
             cells_per_row: grid_size,
             max_cells: grid_size * grid_size,
             real_size: false,
@@ -385,6 +387,30 @@ impl Entries {
                         self.entry_list[i].to_select = true
                     };
                     self.start_index = None
+                }
+            }
+        }
+    }
+    pub fn toggle_star_area(&mut self) {
+        let position = self.current + self.offset;
+        if position <= self.maximum {
+            if self.entry_list[position].rank == THREE_STARS {
+                return
+            } else {
+                if self.star3_index.is_none() {
+                    self.star3_index = Some(position)
+                } else {
+                    let mut start = self.star3_index.unwrap();
+                    let mut end = position;
+                    if start > end {
+                        let x = start;
+                        start = end;
+                        end = x;
+                    };
+                    for i in start..end+1 {
+                        self.entry_list[i].rank = THREE_STARS
+                    };
+                    self.star3_index = None
                 }
             }
         }

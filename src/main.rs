@@ -398,13 +398,14 @@ fn main() {
                             entries.save_updated_ranks();
                             window.close();
                         },
-                        "m" => if let Some(target_path) = &copy_selection_target {
+                        "Q" => if let Some(target_path) = &copy_selection_target {
                                 entries.copy_selection(&target_path);
                                 entries.save_marked_file_lists(args.thumbnails);
                                 entries.save_updated_ranks();
                                 window.close()
                             },
                         "r" => entries.random(),
+                        "o" => entries.toggle_star_area(),
                         "comma" => entries.toggle_select(),
                         "Return" => entries.toggle_select_area(),
                         "asterisk"|"A" => entries.set_rank(THREE_STARS),
