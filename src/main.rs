@@ -385,97 +385,60 @@ fn main() {
                             let digit:usize = s.parse().unwrap();
                             entries.add_digit_to_register(digit);
                         },
-                        "BackSpace" => {
-                            entries.remove_digit_to_register();
-                        },
-                        "g" => if ! entries.register.is_none() {
-                            entries.go_to_register();
-                        },
-                        "j" => {
-                            for _ in 0..10 {
-                                entries.next()
-                            }
-                        },
-                        "l" => {
-                            for _ in 0..10 {
-                                entries.prev()
-                            }
-                        },
-                        "f" => {
-                            if (entries.max_cells) == 1 {
-                                entries.toggle_real_size();
-                            }
-                        },
-                        "z" => {
-                            entries.jump(0);
-                        }
-                        "n"|"e" => {
-                            entries.next();
-                        }
-                        "p"|"i" => {
-                            entries.prev();
-                        }
+                        "BackSpace" => entries.remove_digit_to_register(),
+                        "g" => if ! entries.register.is_none() { entries.go_to_register() },
+                        "j" => for _ in 0..10 { entries.next() },
+                        "l" => for _ in 0..10 { entries.prev() },
+                        "f" => if (entries.max_cells) == 1 { entries.toggle_real_size() },
+                        "z" => entries.jump(0),
+                        "n"|"e" => entries.next(),
+                        "p"|"i" => entries.prev(),
                         "q"|"Escape" => {
                             entries.save_marked_file_lists(args.thumbnails);
                             entries.save_updated_ranks();
                             window.close();
                         },
-                        "m" => {
-                            if let Some(target_path) = &copy_selection_target {
+                        "m" => if let Some(target_path) = &copy_selection_target {
                                 entries.copy_selection(&target_path);
                                 entries.save_marked_file_lists(args.thumbnails);
                                 entries.save_updated_ranks();
-                                window.close();
-                            }
-                        },
-                        "r" => {
-                            entries.random();
-                        },
-                        "comma" => {
-                            entries.toggle_select();
-                        },
-                        "Return" => {
-                            entries.toggle_select_area();
-                        },
-                        "asterisk"|"A" => {
-                            entries.set_rank(THREE_STARS);
-                        },
-                        "slash"|"B" => {
-                            entries.set_rank(TWO_STARS);
-                        },
-                        "minus"|"C" => {
-                            entries.set_rank(ONE_STAR);
-                        },
-                        "plus"|"D" => {
-                            entries.set_rank(NO_STAR);
-                        },
-                        "at" => {
-                            entries.unset_grid_ranks();
-                        }
-                        "a" => {
-                            entries.set_grid_select();
-                        },
-                        "u" => {
-                            entries.reset_grid_select();
-                        },
-                        "U" => {
-                            entries.reset_all_select();
-                        },
+                                window.close()
+                            },
+                        "r" => entries.random(),
+                        "comma" => entries.toggle_select(),
+                        "Return" => entries.toggle_select_area(),
+                        "asterisk"|"A" => entries.set_rank(THREE_STARS),
+                        "slash"|"B" => entries.set_rank(TWO_STARS),
+                        "minus"|"C" => entries.set_rank(ONE_STAR),
+                        "plus"|"D" => entries.set_rank(NO_STAR),
+                        "at" => entries.unset_grid_ranks(),
+                        "a" => entries.set_grid_select(),
+                        "u" => entries.reset_grid_select(),
+                        "U" => entries.reset_all_select(),
                         "period"|"k" => {
                             if stack.visible_child().unwrap() == grid_scrolled_window {
                                 show_grid(&grid, &entries, &window);
                                 stack.set_visible_child(&view_scrolled_window);
                                 show_view(&view, &entries, &window);
-                                show = false;
+                                show = false
                             } else {
-                                stack.set_visible_child(&grid_scrolled_window);
+                                stack.set_visible_child(&grid_scrolled_window)
                             }
                         },
-                        "space" => { 
-                            entries.next();
+                        "space" => entries.next(),
+                        "Right" => if entries.real_size { 
+                            show = false;
+                            let h_adj = window
+                                .child()
+                                .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
+                                .and_then(|child| child.downcast::<ScrolledWindow>().ok())
+                                .and_then(|sw| Some(sw.hadjustment()))
+                                .expect("Failed to get hadjustment");
+                            h_adj.set_value(h_adj.value() + step as f64)
+                        } else {
+                            entries.next()
                         },
-                        "Right" => {
-                            if entries.real_size { 
+                        "Left" => if entries.real_size { 
                                 show = false;
                                 let h_adj = window
                                     .child()
@@ -483,27 +446,11 @@ fn main() {
                                     .and_then(|child| child.downcast::<ScrolledWindow>().ok())
                                     .and_then(|sw| Some(sw.hadjustment()))
                                     .expect("Failed to get hadjustment");
-                                h_adj.set_value(h_adj.value() + step as f64);
+                                h_adj.set_value(h_adj.value() - step as f64)
                             } else {
-                                entries.next();
-                            }
-                        },
-                        "Left" => {
-                            if entries.real_size { 
-                                show = false;
-                                let h_adj = window
-                                    .child()
-                                    .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
-                                    .and_then(|child| child.downcast::<ScrolledWindow>().ok())
-                                    .and_then(|sw| Some(sw.hadjustment()))
-                                    .expect("Failed to get hadjustment");
-                                h_adj.set_value(h_adj.value() - step as f64);
-                            } else {
-                                entries.prev();
-                            }
-                        },
-                        "Down" => {
-                            if entries.real_size {
+                                entries.prev()
+                            },
+                        "Down" => if entries.real_size {
                                 show = false;
                                 let v_adj = window
                                     .child()
@@ -511,11 +458,9 @@ fn main() {
                                     .and_then(|child| child.downcast::<ScrolledWindow>().ok())
                                     .and_then(|sw| Some(sw.vadjustment()))
                                     .expect("Failed to get vadjustment");
-                                v_adj.set_value(v_adj.value() + step as f64);
-                            }
-                        },
-                        "Up" => {
-                            if entries.real_size {
+                                v_adj.set_value(v_adj.value() + step as f64)
+                            },
+                        "Up" => if entries.real_size {
                                 show = false;
                                 let v_adj = window
                                     .child()
@@ -523,9 +468,8 @@ fn main() {
                                     .and_then(|child| child.downcast::<ScrolledWindow>().ok())
                                     .and_then(|sw| Some(sw.vadjustment()))
                                     .expect("Failed to get vadjustment");
-                                v_adj.set_value(v_adj.value() - step as f64);
-                            }
-                        },
+                                v_adj.set_value(v_adj.value() - step as f64)
+                            },
                         s => { println!("{} ?", s) },
                     };
                     if show {
