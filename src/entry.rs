@@ -75,14 +75,6 @@ pub fn original_file_path(file_path: &str) -> String {
     }
 }
 
-fn show_rank(rank: Rank) -> String {
-    let limit = rank as usize;
-    if limit > 0 {
-        "☆".repeat(limit)
-    } else {
-        "".to_string()
-    }
-}
 impl Entry {
     pub fn show_status(self,) -> String {
         format!("{} {} [{} {} {}]",
@@ -90,7 +82,7 @@ impl Entry {
             if self.to_select { "△" } else { "" },
             self.file_size,
             self.colors,
-            show_rank(self.rank))
+            self.rank.show())
     }
 
     pub fn thumbnail_file_path(&self) -> String {

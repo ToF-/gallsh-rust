@@ -65,9 +65,9 @@ fn get_or_set_image_data(file_path: &str) -> Result<(usize,Rank),String> {
                 let path = PathBuf::from(image_data_path);
                 match File::create(path.clone()) {
                     Ok(output_file) => {
-                        let data = (colors, Rank::NO_STAR as usize);
+                        let data = (colors, Rank::NoStar as usize);
                         match serde_json::to_writer(output_file, &data) {
-                            Ok(_) => Ok((colors, Rank::NO_STAR)),
+                            Ok(_) => Ok((colors, Rank::NoStar)),
                             Err(err) => {
                                 println!("error writing {}: {}", path.to_str().unwrap(), err);
                                 Err(err.to_string())
@@ -194,7 +194,7 @@ impl Entries {
                         Ok(data) => data,
                         Err(err) => {
                             println!("can't find image data for file {}, {}", path.to_str().unwrap(), err);
-                            (0,Rank::NO_STAR)
+                            (0,Rank::NoStar)
                         },
                     };
                     let modified_time = metadata.modified().unwrap();
@@ -226,7 +226,7 @@ impl Entries {
                     Ok(data) => data,
                     Err(err) => {
                         println!("can't find color size of: {}, {}", file_path, err);
-                        (0,Rank::NO_STAR)
+                        (0,Rank::NoStar)
                     },
                 };
                 entry_list.push(make_entry(entry_name, file_size, colors, modified_time,rank));
@@ -253,7 +253,7 @@ impl Entries {
                                 Ok(n) => n,
                                 Err(err) => {
                                     println!("can't find color size of: {}, {}", path.as_str(), err);
-                                    (0,Rank::NO_STAR)
+                                    (0,Rank::NoStar)
                                 },
                             };
                             if ! file_paths_set.contains(&entry_name) {
@@ -395,7 +395,7 @@ impl Entries {
     pub fn toggle_rank_area(&mut self, rank: Rank) {
         let position = self.current + self.offset;
         if position <= self.maximum {
-            if self.entry_list[position].rank == Rank::THREE_STARS {
+            if self.entry_list[position].rank == Rank::ThreeStars {
                 return
             } else {
                 if self.star3_index.is_none() {
@@ -439,7 +439,7 @@ impl Entries {
         for i in 0..MAX_THUMBNAILS {
             let position = self.current + i;
             if position <= self.maximum {
-                self.entry_list[position].rank = Rank::NO_STAR;
+                self.entry_list[position].rank = Rank::NoStar;
             }
         }
     }
