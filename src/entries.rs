@@ -46,8 +46,8 @@ fn get_or_set_image_data(file_path: &str) -> Result<(usize,Rank),String> {
     let cs_file_path = PathBuf::from(image_data_file_path(file_path));
     if cs_file_path.exists() {
         match read_to_string(cs_file_path.clone()) {
-            Ok(content) => match serde_json::from_str::<(usize, usize)>(&content) {
-                Ok((colors,v)) => Ok((colors, Rank::from_usize(v))),
+            Ok(content) => match serde_json::from_str(&content) {
+                Ok((colors,rank)) => Ok((colors,rank)),
                 Err(err) => {
                     println!("error parsing {}: {}", cs_file_path.clone().to_str().unwrap(), err);
                     Err(err.to_string())
@@ -65,7 +65,7 @@ fn get_or_set_image_data(file_path: &str) -> Result<(usize,Rank),String> {
                 let path = PathBuf::from(image_data_path);
                 match File::create(path.clone()) {
                     Ok(output_file) => {
-                        let data = (colors, Rank::NoStar as usize);
+                        let data = (colors, Rank::NoStar);
                         match serde_json::to_writer(output_file, &data) {
                             Ok(_) => Ok((colors, Rank::NoStar)),
                             Err(err) => {
@@ -507,7 +507,7 @@ impl Entries {
             let path = PathBuf::from(image_data_path);
             match File::create(&path) {
                 Ok(output_file) => {
-                    let data = (entry.colors,entry.rank as usize);
+                    let data = (entry.colors,entry.rank);
                     match serde_json::to_writer(output_file, &data) {
                         Ok(_) => { },
                         Err(err) => {

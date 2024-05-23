@@ -1,4 +1,6 @@
-#[derive(Clone,Copy,PartialEq,Debug)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Serialize, Deserialize, Clone,Copy,PartialEq,Debug)]
 pub enum Rank {
    ThreeStars, TwoStars, OneStar, NoStar, 
 }
