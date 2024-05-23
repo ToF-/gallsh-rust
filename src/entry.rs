@@ -1,13 +1,11 @@
 use std::rc::Rc;
 use std::time::SystemTime;
 use std::path::{PathBuf};
+use crate::rank::Rank;
+
 
 pub const THUMB_SUFFIX: &str = "THUMB";
 pub const IMAGE_DATA: &str = "IMAGE_DATA";
-pub const NO_STAR: usize = 3;
-pub const ONE_STAR: usize = 2;
-pub const TWO_STARS: usize = 1;
-pub const THREE_STARS: usize = 0;
 
 pub type EntryList = Vec<Entry>;
 
@@ -18,12 +16,12 @@ pub struct Entry {
     pub colors: usize,
     pub modified_time: SystemTime,
     pub to_select: bool,
-    pub initial_rank: usize,
-    pub rank: usize,
+    pub initial_rank: Rank,
+    pub rank: Rank,
 }
 
 
-pub fn make_entry(file_path:String, file_size:u64, colors:usize, modified_time:SystemTime, initial_rank: usize) -> Entry {
+pub fn make_entry(file_path:String, file_size:u64, colors:usize, modified_time:SystemTime, initial_rank: Rank) -> Entry {
     return Entry { 
         file_path: Rc::new(file_path),
         file_size: file_size,
@@ -77,8 +75,8 @@ pub fn original_file_path(file_path: &str) -> String {
     }
 }
 
-fn show_rank(rank: usize) -> String {
-    let limit = if rank > 3 { 0 } else { 3 - rank };
+fn show_rank(rank: Rank) -> String {
+    let limit = rank as usize;
     if limit > 0 {
         "☆".repeat(limit)
     } else {

@@ -1,9 +1,10 @@
 use core::cmp::Ordering::Equal;
 use crate::image::get_image_color;
-use crate::entry::{NO_STAR,original_file_path};
+use crate::entry::{original_file_path};
 use core::cmp::{min};
 use crate::{THUMB_SUFFIX, Entry, EntryList, make_entry, Order};
-use crate::entry::{THREE_STARS, image_data_file_path, thumbnail_file_path};
+use crate::entry::{image_data_file_path, thumbnail_file_path};
+use crate::rank::{Rank};
 use rand::seq::SliceRandom;
 use rand::{thread_rng,Rng}; 
 use regex::Regex;
@@ -40,13 +41,13 @@ pub struct Entries {
     pub register: Option<usize>,
 }
 
-fn get_or_set_image_data(file_path: &str) -> Result<(usize,usize),String> {
+fn get_or_set_image_data(file_path: &str) -> Result<(usize,Rank),String> {
 
     let cs_file_path = PathBuf::from(image_data_file_path(file_path));
     if cs_file_path.exists() {
         match read_to_string(cs_file_path.clone()) {
-            Ok(content) => match serde_json::from_str(&content) {
-                Ok((colors,rank)) => Ok((colors, rank)),
+            Ok(content) => match serde_json::from_str::<(usize, usize)>(&content) {
+                Ok((colors,v)) => Ok((colors, Rank::from_usize(v))),
                 Err(err) => {
                     println!("error parsing {}: {}", cs_file_path.clone().to_str().unwrap(), err);
                     Err(err.to_string())
@@ -64,9 +65,9 @@ fn get_or_set_image_data(file_path: &str) -> Result<(usize,usize),String> {
                 let path = PathBuf::from(image_data_path);
                 match File::create(path.clone()) {
                     Ok(output_file) => {
-                        let data = (colors,NO_STAR);
+                        let data = (colors, Rank::NO_STAR as usize);
                         match serde_json::to_writer(output_file, &data) {
-                            Ok(_) => Ok(data),
+                            Ok(_) => Ok((colors, Rank::NO_STAR)),
                             Err(err) => {
                                 println!("error writing {}: {}", path.to_str().unwrap(), err);
                                 Err(err.to_string())
@@ -107,7 +108,7 @@ impl Entries {
             Order::Name => self.entry_list.sort_by(|a, b| { a.file_path.cmp(&b.file_path) }),
             Order::Size => self.entry_list.sort_by(|a, b| { a.file_size.cmp(&b.file_size) }),
             Order::Value => self.entry_list.sort_by(|a,b| {
-                let cmp = a.rank.cmp(&b.rank);
+                let cmp = (a.rank as usize).cmp(&(b.rank as usize));
                 if cmp == Equal {
                     a.file_path.cmp(&b.file_path)
                 } else {
@@ -193,7 +194,7 @@ impl Entries {
                         Ok(data) => data,
                         Err(err) => {
                             println!("can't find image data for file {}, {}", path.to_str().unwrap(), err);
-                            (0,NO_STAR)
+                            (0,Rank::NO_STAR)
                         },
                     };
                     let modified_time = metadata.modified().unwrap();
@@ -225,7 +226,7 @@ impl Entries {
                     Ok(data) => data,
                     Err(err) => {
                         println!("can't find color size of: {}, {}", file_path, err);
-                        (0,NO_STAR)
+                        (0,Rank::NO_STAR)
                     },
                 };
                 entry_list.push(make_entry(entry_name, file_size, colors, modified_time,rank));
@@ -252,7 +253,7 @@ impl Entries {
                                 Ok(n) => n,
                                 Err(err) => {
                                     println!("can't find color size of: {}, {}", path.as_str(), err);
-                                    (0,NO_STAR)
+                                    (0,Rank::NO_STAR)
                                 },
                             };
                             if ! file_paths_set.contains(&entry_name) {
@@ -391,10 +392,10 @@ impl Entries {
             }
         }
     }
-    pub fn toggle_rank_area(&mut self, rank: usize) {
+    pub fn toggle_rank_area(&mut self, rank: Rank) {
         let position = self.current + self.offset;
         if position <= self.maximum {
-            if self.entry_list[position].rank == THREE_STARS {
+            if self.entry_list[position].rank == Rank::THREE_STARS {
                 return
             } else {
                 if self.star3_index.is_none() {
@@ -438,7 +439,7 @@ impl Entries {
         for i in 0..MAX_THUMBNAILS {
             let position = self.current + i;
             if position <= self.maximum {
-                self.entry_list[position].rank = NO_STAR;
+                self.entry_list[position].rank = Rank::NO_STAR;
             }
         }
     }
@@ -471,7 +472,7 @@ impl Entries {
         }
     }
 
-    pub fn set_rank(&mut self, rank: usize) {
+    pub fn set_rank(&mut self, rank: Rank) {
         let position = self.current + self.offset;
         if position <= self.maximum {
             self.entry_list[position].rank = rank;
@@ -506,7 +507,7 @@ impl Entries {
             let path = PathBuf::from(image_data_path);
             match File::create(&path) {
                 Ok(output_file) => {
-                    let data = (entry.colors,entry.rank);
+                    let data = (entry.colors,entry.rank as usize);
                     match serde_json::to_writer(output_file, &data) {
                         Ok(_) => { },
                         Err(err) => {

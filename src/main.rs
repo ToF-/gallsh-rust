@@ -1,7 +1,7 @@
 use clap::Parser;
 use clap_num::number_range;
 use entries::{Entries, update_thumbnails};
-use entry::{NO_STAR, ONE_STAR, TWO_STARS, THREE_STARS, Entry, EntryList, THUMB_SUFFIX, make_entry};
+use entry::{Entry, EntryList, THUMB_SUFFIX, make_entry};
 use glib::clone;
 use glib::prelude::*;
 use glib::timeout_add_local;
@@ -10,6 +10,7 @@ use gtk::prelude::*;
 use gtk::traits::WidgetExt;
 use gtk::{self, Application, ScrolledWindow, gdk, glib, Grid, Picture};
 use order::{Order};
+use rank::{Rank};
 use std::cell::{RefCell, RefMut};
 use std::env;
 use std::rc::Rc;
@@ -23,6 +24,7 @@ mod entry;
 mod order;
 mod entries;
 mod image;
+mod rank;
 
 
 fn less_than_11(s: &str) -> Result<usize, String> {
@@ -405,15 +407,15 @@ fn main() {
                                 window.close()
                             },
                         "r" => entries.random(),
-                        "M" => entries.toggle_rank_area(ONE_STAR),
-                        "N" => entries.toggle_rank_area(TWO_STARS),
-                        "O" => entries.toggle_rank_area(THREE_STARS),
+                        "M" => entries.toggle_rank_area(Rank::ONE_STAR),
+                        "N" => entries.toggle_rank_area(Rank::TWO_STARS),
+                        "O" => entries.toggle_rank_area(Rank::THREE_STARS),
                         "comma" => entries.toggle_select(),
                         "Return" => entries.toggle_select_area(),
-                        "asterisk"|"A" => entries.set_rank(THREE_STARS),
-                        "slash"|"B" => entries.set_rank(TWO_STARS),
-                        "minus"|"C" => entries.set_rank(ONE_STAR),
-                        "plus"|"D" => entries.set_rank(NO_STAR),
+                        "asterisk"|"A" => entries.set_rank(Rank::THREE_STARS),
+                        "slash"|"B" => entries.set_rank(Rank::TWO_STARS),
+                        "minus"|"C" => entries.set_rank(Rank::ONE_STAR),
+                        "plus"|"D" => entries.set_rank(Rank::NO_STAR),
                         "at" => entries.unset_grid_ranks(),
                         "a" => entries.set_grid_select(),
                         "u" => entries.reset_grid_select(),
