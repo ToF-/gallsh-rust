@@ -6,14 +6,6 @@ pub enum Rank {
 }
 
 impl Rank {
-    pub fn from_usize(v: usize) -> Self {
-        match v {
-            0 => Rank::ThreeStars,
-            1 => Rank::TwoStars,
-            2 => Rank::OneStar,
-            _ => Rank::NoStar,
-        }
-    }
 
     pub fn show(&self) -> String {
         let limit = 3 - *self as usize;

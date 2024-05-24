@@ -9640,7 +9640,6 @@ from_tiff_decode	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f
 from_tiff_encode	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/codecs/tiff.rs	/^    fn from_tiff_encode(err: tiff::TiffError) -> ImageError {$/;"	f
 from_trait	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_json-1.0.117/src/de.rs	/^fn from_trait<'de, R, T>(read: R) -> Result<T>$/;"	f
 from_u64	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_json-1.0.117/src/lexical/math.rs	/^    fn from_u64(x: u64) -> Self {$/;"	f
-from_usize	/Users/christophethibaut/Coding/gallsh-rust/src/rank.rs	/^    pub fn from_usize(v: usize) -> Self {$/;"	f
 from_utf8	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/predicates-3.1.0/src/str/adapters.rs	/^    fn from_utf8(self) -> Utf8Predicate<Self> {$/;"	f
 from_utf8_lossy	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.202/src/private/mod.rs	/^    pub fn from_utf8_lossy(bytes: &[u8]) -> &str {$/;"	f
 from_utf8_lossy	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.202/src/private/mod.rs	/^    pub fn from_utf8_lossy(bytes: &[u8]) -> Cow<str> {$/;"	f

@@ -8,7 +8,7 @@ use glib::timeout_add_local;
 use gtk::EventControllerMotion;
 use gtk::prelude::*;
 use gtk::traits::WidgetExt;
-use gtk::{self, Align, Application, Button, Box, CssProvider, StyleContext, Orientation, Label, ScrolledWindow, gdk, glib, Grid, Picture};
+use gtk::{self, Align, Application, CssProvider, Orientation, Label, ScrolledWindow, gdk, glib, Grid, Picture};
 use order::{Order};
 use rank::{Rank};
 use std::cell::{RefCell, RefMut};
@@ -420,24 +420,6 @@ fn main() {
         }
         grid_scrolled_window.set_child(Some(&panel));
 
-        let navigation_gesture = gtk::GestureClick::new();
-        navigation_gesture.set_button(3);
-        navigation_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_,n_press, x, y| {
-            let width = window.size(Orientation::Horizontal);
-            let threshold = 30.0;
-            if x >= (width as f64 - threshold) {
-                let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-                entries.next();
-                show_grid(&grid, &entries, &window);
-            }
-            if x <= threshold {
-                let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-                entries.prev();
-                show_grid(&grid, &entries, &window);
-            }
-        }));
-        grid_scrolled_window.add_controller(navigation_gesture);
-
         let evk = gtk::EventControllerKey::new();
         evk.connect_key_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_, key, _, _| {
             let step = 100;
@@ -466,7 +448,6 @@ fn main() {
                         } else {
                             entries.next()
                         },
-                        "n"|"e" => entries.next(),
                         "p"|"i" => entries.prev(),
                         "q"|"Escape" => {
                             entries.save_marked_file_lists(args.thumbnails);
@@ -479,7 +460,6 @@ fn main() {
                                 entries.save_updated_ranks();
                                 window.close()
                             },
-                        "r" => entries.random(),
                         "B" => entries.toggle_rank_area(Rank::NoStar),
                         "M"|"Eacute"=> entries.toggle_rank_area(Rank::OneStar),
                         "N"|"P" => entries.toggle_rank_area(Rank::TwoStars),
@@ -487,7 +467,7 @@ fn main() {
                         "comma" => entries.toggle_select(),
                         "Return" => entries.toggle_select_area(),
                         "asterisk"|"A" => entries.set_rank(Rank::ThreeStars),
-                        "slash"|"B" => entries.set_rank(Rank::TwoStars),
+                        "slash" => entries.set_rank(Rank::TwoStars),
                         "minus"|"C" => entries.set_rank(Rank::OneStar),
                         "c" => if entries.sort_command {
                             entries.reorder(Order::Colors);
@@ -502,8 +482,10 @@ fn main() {
                         "r" => if entries.sort_command {
                             entries.reorder(Order::Random);
                             show_grid(&grid, &entries, &window)
+                        } else {
+                            entries.random()
                         },
-                        "a" => entries.set_grid_select(),
+                            "a" => entries.set_grid_select(),
                         "u" => entries.reset_grid_select(),
                         "U" => entries.reset_all_select(),
                         "s" => if !entries.sort_command {
