@@ -459,6 +459,13 @@ fn main() {
                         "l" => for _ in 0..10 { entries.prev() },
                         "f" => if (entries.max_cells) == 1 { entries.toggle_real_size() },
                         "z" => entries.jump(0),
+                        "e" => entries.next(),
+                        "n" => if entries.sort_command {
+                            entries.reorder(Order::Name);
+                            show_grid(&grid, &entries, &window)
+                        } else {
+                            entries.next()
+                        },
                         "n"|"e" => entries.next(),
                         "p"|"i" => entries.prev(),
                         "q"|"Escape" => {
@@ -473,19 +480,42 @@ fn main() {
                                 window.close()
                             },
                         "r" => entries.random(),
-                        "M" => entries.toggle_rank_area(Rank::OneStar),
-                        "N" => entries.toggle_rank_area(Rank::TwoStars),
+                        "B" => entries.toggle_rank_area(Rank::NoStar),
+                        "M"|"Eacute"=> entries.toggle_rank_area(Rank::OneStar),
+                        "N"|"P" => entries.toggle_rank_area(Rank::TwoStars),
                         "O" => entries.toggle_rank_area(Rank::ThreeStars),
                         "comma" => entries.toggle_select(),
                         "Return" => entries.toggle_select_area(),
                         "asterisk"|"A" => entries.set_rank(Rank::ThreeStars),
                         "slash"|"B" => entries.set_rank(Rank::TwoStars),
                         "minus"|"C" => entries.set_rank(Rank::OneStar),
+                        "c" => if entries.sort_command {
+                            entries.reorder(Order::Colors);
+                            show_grid(&grid, &entries, &window)
+                        },
                         "plus"|"D" => entries.set_rank(Rank::NoStar),
+                        "d" => if entries.sort_command {
+                            entries.reorder(Order::Date);
+                            show_grid(&grid, &entries, &window)
+                        },
                         "R" => entries.unset_grid_ranks(),
+                        "r" => if entries.sort_command {
+                            entries.reorder(Order::Random);
+                            show_grid(&grid, &entries, &window)
+                        },
                         "a" => entries.set_grid_select(),
                         "u" => entries.reset_grid_select(),
                         "U" => entries.reset_all_select(),
+                        "s" => if !entries.sort_command {
+                            entries.sort_command = true
+                        } else {
+                            entries.reorder(Order::Size);
+                            show_grid(&grid, &entries, &window)
+                        },
+                        "v" => if entries.sort_command {
+                            entries.reorder(Order::Value);
+                            show_grid(&grid, &entries, &window)
+                        },
                         "period"|"k" => {
                             if stack.visible_child().unwrap() == grid_scrolled_window {
                                 show_grid(&grid, &entries, &window);
@@ -589,6 +619,7 @@ fn show_grid(grid: &Grid, entries: &Entries, window: &gtk::ApplicationWindow) {
         let vbox = grid.child_at(col,row).unwrap().downcast::<gtk::Box>().unwrap();
         let picture = vbox.first_child().unwrap().downcast::<gtk::Picture>().unwrap();
         let label = vbox.last_child().unwrap().downcast::<gtk::Label>().unwrap();
+        label.set_text("");
         let offset = row as usize * cells_per_row + col as usize;
         let position = current + offset;
         if position <= maximum {

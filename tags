@@ -11827,6 +11827,7 @@ json_internal	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d
 json_internal_vec	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_json-1.0.117/src/macros.rs	/^macro_rules! json_internal_vec {$/;"	d
 json_unexpected	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_json-1.0.117/src/macros.rs	/^macro_rules! json_unexpected {$/;"	d
 jump	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn jump(&mut self, position: usize) {$/;"	f
+jump_to_name	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn jump_to_name(&mut self, original_name: &str)  {$/;"	f
 justification	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_tag.rs	/^    fn justification(&self) -> Justification {$/;"	f
 justification	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_tag.rs	/^    fn justification(&self) -> Justification;$/;"	f
 justification	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_tag.rs	/^    pub fn justification(self, justification: Justification) -> Self {$/;"	f
@@ -15586,6 +15587,7 @@ reorder	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba1
 reorder	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/list_store.rs	/^    pub fn reorder(&self, new_order: &[u32]) {$/;"	f
 reorder	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/cell_layout.rs	/^    fn reorder<R: IsA<CellRenderer>>(&self, cell: &R, position: i32) {$/;"	f
 reorder	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/tree_store.rs	/^    pub fn reorder(&self, parent: &TreeIter, new_order: &[u32]) {$/;"	f
+reorder	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn reorder(&mut self, order: Order) {$/;"	f
 reorder_child	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/notebook.rs	/^    pub fn reorder_child(&self, child: &impl IsA<Widget>, position: Option<u32>) {$/;"	f
 reorder_child_after	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/box_.rs	/^    fn reorder_child_after(&self, child: &impl IsA<Widget>, sibling: Option<&impl IsA<Widget>>) {$/;"	f
 reorder_child_after	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/box_.rs	/^    fn reorder_child_after(&self, child: &impl IsA<Widget>, sibling: Option<&impl IsA<Widget>>);$/;"	f
