@@ -81,11 +81,11 @@ struct Args {
     #[arg(short, long)]
     reading: Option<String>,
 
-    /// Index of first image to read 
+    /// Index of first image to read
     #[arg(short, long)]
     index: Option<usize>,
 
-    /// Grid Size 
+    /// Grid Size
     #[arg(short, long, value_parser=less_than_11)]
     grid: Option<usize>,
 
@@ -107,7 +107,7 @@ struct Args {
 
     /// File to view
     #[arg(short, long)]
-    file: Option<String>, 
+    file: Option<String>,
 
     /// Thumbnails only
     #[arg(short,long)]
@@ -157,7 +157,7 @@ fn main() {
 
     // clone! passes a strong reference to a variable in the closure that activates the application
     // move converts any variables captured by reference or mutable reference to variables captured by value.
-    application.connect_activate(clone!(@strong args => move |application: &gtk::Application| { 
+    application.connect_activate(clone!(@strong args => move |application: &gtk::Application| {
         let path = if let Some(directory_arg) = &args.directory {
             String::from(directory_arg)
         } else if let Ok(standard_dir) = &gallshdir {
@@ -217,7 +217,7 @@ fn main() {
         let grid_size = if args.thumbnails && args.grid == None {
             10
         } else {
-            if let Some(size) = args.grid { 
+            if let Some(size) = args.grid {
                 if size <= 10 {
                     size
                 } else {
@@ -387,7 +387,7 @@ fn main() {
                 select_gesture.set_button(1);
                 select_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_,_, _, _| {
                     let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-                    let offset = row * grid_size + col; 
+                    let offset = row * grid_size + col;
                     entries.offset = offset;
                     entries.toggle_select_area();
                     show_grid(&grid, &entries, &window);
@@ -407,7 +407,7 @@ fn main() {
                 }));
                 image.add_controller(view_gesture);
 
-                let motion_controller = EventControllerMotion::new(); 
+                let motion_controller = EventControllerMotion::new();
                 motion_controller.connect_enter(clone!(@strong entries_rc, @strong window => move |_,_,_| {
                     if let Ok(mut entries) = entries_rc.try_borrow_mut() {
                         let offset = row * grid_size + col;
@@ -442,11 +442,13 @@ fn main() {
                         "f" => if (entries.max_cells) == 1 { entries.toggle_real_size() },
                         "z" => entries.jump(0),
                         "e" => entries.next(),
-                        "n" => if entries.sort_command {
-                            entries.reorder(Order::Name);
-                            show_grid(&grid, &entries, &window)
-                        } else {
-                            entries.next()
+                        "n" => {
+                            if entries.sort_command {
+                                entries.reorder(Order::Name);
+                                show_grid(&grid, &entries, &window)
+                            } else {
+                                entries.next()
+                            }
                         },
                         "p"|"i" => entries.prev(),
                         "q"|"Escape" => {
@@ -454,12 +456,14 @@ fn main() {
                             entries.save_updated_ranks();
                             window.close();
                         },
-                        "Q" => if let Some(target_path) = &copy_selection_target {
+                        "Q" => {
+                            if let Some(target_path) = &copy_selection_target {
                                 entries.copy_selection(&target_path);
                                 entries.save_marked_file_lists(args.thumbnails);
                                 entries.save_updated_ranks();
                                 window.close()
-                            },
+                            }
+                        },
                         "B" => entries.toggle_rank_area(Rank::NoStar),
                         "M"|"Eacute"=> entries.toggle_rank_area(Rank::OneStar),
                         "N"|"P" => entries.toggle_rank_area(Rank::TwoStars),
@@ -479,20 +483,24 @@ fn main() {
                             show_grid(&grid, &entries, &window)
                         },
                         "R" => entries.unset_grid_ranks(),
-                        "r" => if entries.sort_command {
-                            entries.reorder(Order::Random);
-                            show_grid(&grid, &entries, &window)
-                        } else {
-                            entries.random()
+                        "r" => {
+                            if entries.sort_command {
+                                entries.reorder(Order::Random);
+                                show_grid(&grid, &entries, &window)
+                            } else {
+                                entries.random()
+                            }
                         },
-                            "a" => entries.set_grid_select(),
+                        "a" => entries.set_grid_select(),
                         "u" => entries.reset_grid_select(),
                         "U" => entries.reset_all_select(),
-                        "s" => if !entries.sort_command {
-                            entries.sort_command = true
-                        } else {
-                            entries.reorder(Order::Size);
-                            show_grid(&grid, &entries, &window)
+                        "s" => {
+                            if !entries.sort_command {
+                                entries.sort_command = true
+                            } else {
+                                entries.reorder(Order::Size);
+                                show_grid(&grid, &entries, &window)
+                            }
                         },
                         "v" => if entries.sort_command {
                             entries.reorder(Order::Value);
@@ -509,19 +517,22 @@ fn main() {
                             }
                         },
                         "space" => entries.next(),
-                        "Right" => if entries.real_size { 
-                            show = false;
-                            let h_adj = window
-                                .child()
-                                .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
-                                .and_then(|child| child.downcast::<ScrolledWindow>().ok())
-                                .and_then(|sw| Some(sw.hadjustment()))
-                                .expect("Failed to get hadjustment");
-                            h_adj.set_value(h_adj.value() + step as f64)
-                        } else {
-                            entries.next()
+                        "Right" => {
+                            if entries.real_size {
+                                show = false;
+                                let h_adj = window
+                                    .child()
+                                    .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
+                                    .and_then(|child| child.downcast::<ScrolledWindow>().ok())
+                                    .and_then(|sw| Some(sw.hadjustment()))
+                                    .expect("Failed to get hadjustment");
+                                h_adj.set_value(h_adj.value() + step as f64)
+                            } else {
+                                entries.next()
+                            }
                         },
-                        "Left" => if entries.real_size { 
+                        "Left" => {
+                            if entries.real_size {
                                 show = false;
                                 let h_adj = window
                                     .child()
@@ -532,8 +543,10 @@ fn main() {
                                 h_adj.set_value(h_adj.value() - step as f64)
                             } else {
                                 entries.prev()
-                            },
-                        "Down" => if entries.real_size {
+                            }
+                        },
+                        "Down" => {
+                            if entries.real_size {
                                 show = false;
                                 let v_adj = window
                                     .child()
@@ -542,8 +555,10 @@ fn main() {
                                     .and_then(|sw| Some(sw.vadjustment()))
                                     .expect("Failed to get vadjustment");
                                 v_adj.set_value(v_adj.value() + step as f64)
-                            },
-                        "Up" => if entries.real_size {
+                            }
+                        },
+                        "Up" => {
+                            if entries.real_size {
                                 show = false;
                                 let v_adj = window
                                     .child()
@@ -552,14 +567,15 @@ fn main() {
                                     .and_then(|sw| Some(sw.vadjustment()))
                                     .expect("Failed to get vadjustment");
                                 v_adj.set_value(v_adj.value() - step as f64)
-                            },
+                            }
+                        },
                         s => { println!("{} ?", s) },
                     };
-                    if show {
-                        show_grid(&grid, &entries, &window);
+                        if show {
+                            show_grid(&grid, &entries, &window);
+                        }
+                        gtk::Inhibit(false)
                     }
-                    gtk::Inhibit(false)
-                }
                 else {
                     gtk::Inhibit(false)
                 }
@@ -575,12 +591,12 @@ fn main() {
         if args.maximized { window.fullscreen() };
         // if a timer has been passed, set a timeout routine
         if let Some(t) = args.timer {
-            timeout_add_local(Duration::new(t,0), clone!(@strong entries_rc, @strong grid, @strong window => move | | { 
+            timeout_add_local(Duration::new(t,0), clone!(@strong entries_rc, @strong grid, @strong window => move | | {
                 let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
                 entries.next();
                 show_grid(&grid, &entries, &window);
                 window.set_title(Some(&entries.status()));
-                Continue(true) 
+                Continue(true)
             }));
         };
         window.present();

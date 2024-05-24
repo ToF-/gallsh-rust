@@ -443,7 +443,7 @@ impl Entries {
     }
 
     pub fn set_grid_select(&mut self) {
-        for i in 0..MAX_THUMBNAILS {
+        for i in 0..self.max_cells {
             let position = self.current + i;
             if position <= self.maximum {
                 self.entry_list[position].to_select = true;
@@ -452,7 +452,7 @@ impl Entries {
     }
 
     pub fn unset_grid_ranks(&mut self) {
-        for i in 0..MAX_THUMBNAILS {
+        for i in 0..self.max_cells {
             let position = self.current + i;
             if position <= self.maximum {
                 self.entry_list[position].rank = Rank::NoStar;
