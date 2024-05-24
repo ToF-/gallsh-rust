@@ -8,7 +8,7 @@ use glib::timeout_add_local;
 use gtk::EventControllerMotion;
 use gtk::prelude::*;
 use gtk::traits::WidgetExt;
-use gtk::{self, Align, Application, Box, CssProvider, StyleContext, Orientation, Label, ScrolledWindow, gdk, glib, Grid, Picture};
+use gtk::{self, Align, Application, Button, Box, CssProvider, StyleContext, Orientation, Label, ScrolledWindow, gdk, glib, Grid, Picture};
 use order::{Order};
 use rank::{Rank};
 use std::cell::{RefCell, RefMut};
@@ -302,6 +302,17 @@ fn main() {
             .name("view")
             .build();
 
+        let css_provider = CssProvider::new();
+        css_provider.load_from_data(
+            "
+            label {
+                color: gray;
+                font-size: 12px;
+            }
+            text-button {
+                background-color: black;
+            }
+            ");
         let view = Grid::new();
         view.set_row_homogeneous(true);
         view.set_column_homogeneous(true);
@@ -318,6 +329,20 @@ fn main() {
         view.attach(&image_view, 0, 0, 1, 1);
         view_scrolled_window.set_child(Some(&view));
 
+        let panel = Grid::new();
+        panel.set_hexpand(true);
+        panel.set_vexpand(true);
+        panel.set_row_homogeneous(true);
+        panel.set_column_homogeneous(false);
+        let left_button = Label::new(Some("←"));
+        let right_button = Label::new(Some("→"));
+        left_button.set_width_chars(10);
+        right_button.set_width_chars(10);
+        left_button.style_context().add_provider(&css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
+        right_button.style_context().add_provider(&css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
+        let left_gesture = gtk::GestureClick::new();
+        
+
         let grid = Grid::new();
         let _ = stack.add_child(&grid_scrolled_window);
         let _ = stack.add_child(&view_scrolled_window);
@@ -328,14 +353,24 @@ fn main() {
         grid.set_column_homogeneous(true);
         grid.set_hexpand(true);
         grid.set_vexpand(true);
-        let css_provider = CssProvider::new();
-        css_provider.load_from_data(
-            "
-            label {
-                color: gray;
-                font-size: 12px;
-            }
-            ");
+        panel.attach(&left_button, 0, 0, 1, 1);
+        panel.attach(&grid, 1, 0, 1, 1);
+        panel.attach(&right_button, 2, 0, 1, 1);
+        left_gesture.set_button(1);
+        left_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_,_,_,_| {
+            let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
+            entries.prev();
+            show_grid(&grid, &entries, &window);
+            }));
+        left_button.add_controller(left_gesture);
+        let right_gesture = gtk::GestureClick::new();
+        right_gesture.set_button(1);
+        right_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_,_,_,_| {
+            let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
+            entries.next();
+            show_grid(&grid, &entries, &window);
+        }));
+        right_button.add_controller(right_gesture);
         for col in 0 .. grid_size {
             for row in 0 .. grid_size {
                 let vbox = gtk::Box::new(Orientation::Vertical, 0);
@@ -365,7 +400,6 @@ fn main() {
 
                 view_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong image, @strong view, @strong stack, @strong view_scrolled_window, @strong grid_scrolled_window, @strong window => move |_, _, x, _| {
                     let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-                    println!("{} {} {}", col, x, width);
                     if col == 0 || col == grid_size -1 {
                         let threshold: f64 = 30.0;
                         let width = image.size(Orientation::Horizontal);
@@ -399,7 +433,7 @@ fn main() {
                 image.add_controller(motion_controller)
             }
         }
-        grid_scrolled_window.set_child(Some(&grid));
+        grid_scrolled_window.set_child(Some(&panel));
 
         let navigation_gesture = gtk::GestureClick::new();
         navigation_gesture.set_button(3);
