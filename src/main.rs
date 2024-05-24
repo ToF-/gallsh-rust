@@ -8,7 +8,7 @@ use glib::timeout_add_local;
 use gtk::EventControllerMotion;
 use gtk::prelude::*;
 use gtk::traits::WidgetExt;
-use gtk::{self, Application, ScrolledWindow, gdk, glib, Grid, Picture};
+use gtk::{self, Align, Application, Box, CssProvider, StyleContext, Orientation, Label, ScrolledWindow, gdk, glib, Grid, Picture};
 use order::{Order};
 use rank::{Rank};
 use std::cell::{RefCell, RefMut};
@@ -328,10 +328,26 @@ fn main() {
         grid.set_column_homogeneous(true);
         grid.set_hexpand(true);
         grid.set_vexpand(true);
+        let css_provider = CssProvider::new();
+        css_provider.load_from_data(
+            "
+            label {
+                color: gray;
+                font-size: 12px;
+            }
+            ");
         for row in 0 .. grid_size {
             for col in 0 .. grid_size {
+                let vbox = gtk::Box::new(Orientation::Vertical, 0);
                 let image = Picture::new();
-                grid.attach(&image, row as i32, col as i32, 1, 1);
+                let label = Label::new(Some(&format!("({},{})", row, col)));
+                let style_context = label.style_context();
+                style_context.add_provider(&css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
+                vbox.set_valign(Align::Center);
+                vbox.set_halign(Align::Center);
+                vbox.append(&image);
+                vbox.append(&label);
+                grid.attach(&vbox, row as i32, col as i32, 1, 1);
 
                 let select_gesture = gtk::GestureClick::new();
                 select_gesture.set_button(1);
@@ -520,11 +536,15 @@ fn show_grid(grid: &Grid, entries: &Entries, window: &gtk::ApplicationWindow) {
     for cell_index in 0 .. max_cells {
         let row = (cell_index / cells_per_row) as i32;
         let col = (cell_index % cells_per_row) as i32;
-        let picture = grid.child_at(col,row).unwrap().downcast::<gtk::Picture>().unwrap();
+        let vbox = grid.child_at(col,row).unwrap().downcast::<gtk::Box>().unwrap();
+        let picture = vbox.first_child().unwrap().downcast::<gtk::Picture>().unwrap();
+        let label = vbox.last_child().unwrap().downcast::<gtk::Label>().unwrap();
         let offset = row as usize * cells_per_row + col as usize;
         let position = current + offset;
         if position <= maximum {
             let entry = &entries.entry_list[position];
+            let status = format!("{} {}", entry.rank.show(), if entry.to_select { "△" } else { "" });
+            label.set_text(&status);
             let opacity = if entry.to_select { 0.50 } else { 1.0 };
             picture.set_opacity(opacity);
             let filename = &entry.file_path;
@@ -541,7 +561,7 @@ fn show_grid(grid: &Grid, entries: &Entries, window: &gtk::ApplicationWindow) {
 fn show_view(grid: &Grid, entries: &Entries, window: &gtk::ApplicationWindow) {
     let entry = entries.entry();
     let file_path = entry.original_file_path();
-    let picture = grid.child_at(0,0).unwrap().downcast::<gtk::Picture>().unwrap();
+    let picture = grid.first_child().unwrap().downcast::<gtk::Picture>().unwrap();
     picture.set_filename(Some(file_path));
     window.set_title(Some(&entries.status()));
 }
