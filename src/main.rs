@@ -336,24 +336,24 @@ fn main() {
                 font-size: 12px;
             }
             ");
-        for row in 0 .. grid_size {
-            for col in 0 .. grid_size {
+        for col in 0 .. grid_size {
+            for row in 0 .. grid_size {
                 let vbox = gtk::Box::new(Orientation::Vertical, 0);
                 let image = Picture::new();
-                let label = Label::new(Some(&format!("({},{})", row, col)));
+                let label = Label::new(Some(&format!("({},{})", col, row)));
                 let style_context = label.style_context();
                 style_context.add_provider(&css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
                 vbox.set_valign(Align::Center);
                 vbox.set_halign(Align::Center);
                 vbox.append(&image);
                 vbox.append(&label);
-                grid.attach(&vbox, row as i32, col as i32, 1, 1);
+                grid.attach(&vbox, col as i32, row as i32, 1, 1);
 
                 let select_gesture = gtk::GestureClick::new();
                 select_gesture.set_button(1);
                 select_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_,_, _, _| {
                     let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-                    let offset = col * grid_size + row; 
+                    let offset = row * grid_size + col; 
                     entries.offset = offset;
                     entries.toggle_select_area();
                     show_grid(&grid, &entries, &window);
@@ -363,10 +363,24 @@ fn main() {
                 let view_gesture = gtk::GestureClick::new();
                 view_gesture.set_button(3);
 
-                view_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong view, @strong stack, @strong view_scrolled_window, @strong grid_scrolled_window, @strong window => move |_,_, _, _| {
+                view_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong image, @strong view, @strong stack, @strong view_scrolled_window, @strong grid_scrolled_window, @strong window => move |_, _, x, _| {
                     let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
+                    println!("{} {} {}", col, x, width);
+                    if col == 0 || col == grid_size -1 {
+                        let threshold: f64 = 30.0;
+                        let width = image.size(Orientation::Horizontal);
+                        if x >= (width as f64 - threshold) {
+                            entries.next();
+                            show_grid(&grid, &entries, &window);
+                            return
+                        } else if x <= threshold {
+                            entries.prev();
+                            show_grid(&grid, &entries, &window);
+                            return
+                        }
+                    };
                     if entries.max_cells == 1 { return };
-                    let offset = col * grid_size + row;
+                    let offset = row * grid_size + col;
                     entries.offset = offset;
                     stack.set_visible_child(&view_scrolled_window);
                     show_view(&view, &entries, &window);
@@ -377,16 +391,33 @@ fn main() {
                 motion_controller.connect_enter(clone!(@strong entries_rc, @strong window => move |_,_,_| {
                     // let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
                     if let Ok(mut entries) = entries_rc.try_borrow_mut() {
-                        let offset = col * grid_size + row;
+                        let offset = row * grid_size + col;
                         entries.offset = offset;
                         window.set_title(Some(&(entries.status())));
                     } else { }
                 }));
-
                 image.add_controller(motion_controller)
             }
         }
         grid_scrolled_window.set_child(Some(&grid));
+
+        let navigation_gesture = gtk::GestureClick::new();
+        navigation_gesture.set_button(3);
+        navigation_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_,n_press, x, y| {
+            let width = window.size(Orientation::Horizontal);
+            let threshold = 30.0;
+            if x >= (width as f64 - threshold) {
+                let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
+                entries.next();
+                show_grid(&grid, &entries, &window);
+            }
+            if x <= threshold {
+                let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
+                entries.prev();
+                show_grid(&grid, &entries, &window);
+            }
+        }));
+        grid_scrolled_window.add_controller(navigation_gesture);
 
         let evk = gtk::EventControllerKey::new();
         evk.connect_key_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_, key, _, _| {
@@ -433,7 +464,6 @@ fn main() {
                         "minus"|"C" => entries.set_rank(Rank::OneStar),
                         "plus"|"D" => entries.set_rank(Rank::NoStar),
                         "R" => entries.unset_grid_ranks(),
-                        
                         "a" => entries.set_grid_select(),
                         "u" => entries.reset_grid_select(),
                         "U" => entries.reset_all_select(),
