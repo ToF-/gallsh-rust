@@ -432,7 +432,8 @@ fn main() {
                         "slash"|"B" => entries.set_rank(Rank::TwoStars),
                         "minus"|"C" => entries.set_rank(Rank::OneStar),
                         "plus"|"D" => entries.set_rank(Rank::NoStar),
-                        "at" => entries.unset_grid_ranks(),
+                        "R" => entries.unset_grid_ranks(),
+                        
                         "a" => entries.set_grid_select(),
                         "u" => entries.reset_grid_select(),
                         "U" => entries.reset_all_select(),
