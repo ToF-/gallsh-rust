@@ -341,7 +341,6 @@ fn main() {
         left_button.style_context().add_provider(&css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
         right_button.style_context().add_provider(&css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
         let left_gesture = gtk::GestureClick::new();
-        
 
         let grid = Grid::new();
         let _ = stack.add_child(&grid_scrolled_window);
@@ -375,7 +374,7 @@ fn main() {
             for row in 0 .. grid_size {
                 let vbox = gtk::Box::new(Orientation::Vertical, 0);
                 let image = Picture::new();
-                let label = Label::new(Some(&format!("({},{})", col, row)));
+                let label = Label::new(None);
                 let style_context = label.style_context();
                 style_context.add_provider(&css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
                 vbox.set_valign(Align::Center);
@@ -398,21 +397,8 @@ fn main() {
                 let view_gesture = gtk::GestureClick::new();
                 view_gesture.set_button(3);
 
-                view_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong image, @strong view, @strong stack, @strong view_scrolled_window, @strong grid_scrolled_window, @strong window => move |_, _, x, _| {
+                view_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong image, @strong view, @strong stack, @strong view_scrolled_window, @strong grid_scrolled_window, @strong window => move |_, _, _, _| {
                     let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-                    if col == 0 || col == grid_size -1 {
-                        let threshold: f64 = 30.0;
-                        let width = image.size(Orientation::Horizontal);
-                        if x >= (width as f64 - threshold) {
-                            entries.next();
-                            show_grid(&grid, &entries, &window);
-                            return
-                        } else if x <= threshold {
-                            entries.prev();
-                            show_grid(&grid, &entries, &window);
-                            return
-                        }
-                    };
                     if entries.max_cells == 1 { return };
                     let offset = row * grid_size + col;
                     entries.offset = offset;
@@ -423,7 +409,6 @@ fn main() {
 
                 let motion_controller = EventControllerMotion::new(); 
                 motion_controller.connect_enter(clone!(@strong entries_rc, @strong window => move |_,_,_| {
-                    // let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
                     if let Ok(mut entries) = entries_rc.try_borrow_mut() {
                         let offset = row * grid_size + col;
                         entries.offset = offset;
