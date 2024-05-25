@@ -105,6 +105,21 @@ impl Entries {
         }
     }
 
+    pub fn at(&self, col: i32, row: i32) -> Option<&Entry> {
+        if col < 0 || col as usize >= self.cells_per_row || row < 0 || row as usize >= self.cells_per_row {
+            println!("error col {} and row {} out of grid", col, row);
+            None
+        } else {
+            let offset = (row as usize) * self.cells_per_row + (col as usize);
+            if self.current + offset > self.maximum {
+                println!("error col {} and row {} out beyond number of entries {}/{}", col, row, self.current + offset, self.maximum);
+                None
+            } else {
+                Some(&self.entry_list[self.current + offset])
+            }
+        }
+    }
+
     pub fn sort_by(&mut self, order: Order) {
         match order {
             Order::Colors => self.entry_list.sort_by(|a, b| { a.colors.cmp(&b.colors) }),

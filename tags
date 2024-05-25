@@ -3177,6 +3177,7 @@ assert_send	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22
 assert_send_sync	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/error.rs	/^        fn assert_send_sync<T: Send + Sync>() {}$/;"	f
 assert_sync	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/walkdir-2.4.0/src/tests/recursive.rs	/^    fn assert_sync<T: Sync>() {}$/;"	f
 assign	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_iter.rs	/^    pub fn assign(&mut self, other: &TextIter) {$/;"	f
+at	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn at(&self, col: i32, row: i32) -> Option<&Entry> {$/;"	f
 at_context	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/accessible.rs	/^    fn at_context(&self) -> ATContext {$/;"	f
 at_context	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/accessible.rs	/^    fn at_context(&self) -> ATContext;$/;"	f
 at_context	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/accessible.rs	/^    fn at_context(&self) -> Option<ATContext> {$/;"	f
@@ -11879,8 +11880,10 @@ label	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba150
 label	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/menu_button.rs	/^    pub fn label(self, label: impl Into<glib::GString>) -> Self {$/;"	f
 label	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/toggle_button.rs	/^    pub fn label(self, label: impl Into<glib::GString>) -> Self {$/;"	f
 label	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/pad_action_entry.rs	/^    pub fn label(&self) -> &str {$/;"	f
+label	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^    pub fn label(&self, has_focus: bool) -> String {$/;"	f
 label_align	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/frame.rs	/^    fn label_align(&self) -> f32 {$/;"	f
 label_align	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/frame.rs	/^    fn label_align(&self) -> f32;$/;"	f
+label_at	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn label_at(grid: &gtk::Grid, col: i32, row: i32) -> gtk::Label {$/;"	f
 label_widget	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/expander.rs	/^    pub fn label_widget(&self) -> Option<Widget> {$/;"	f
 label_widget	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/expander.rs	/^    pub fn label_widget(self, label_widget: &impl IsA<Widget>) -> Self {$/;"	f
 label_widget	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/frame.rs	/^    fn label_widget(&self) -> Option<Widget> {$/;"	f
@@ -18279,7 +18282,7 @@ show_spaces	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22
 show_spaces	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_tag.rs	/^    fn show_spaces(&self) -> pango::ShowFlags;$/;"	f
 show_spaces	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_tag.rs	/^    pub fn show_spaces(self, show_spaces: pango::ShowFlags) -> Self {$/;"	f
 show_spaces_set	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_tag.rs	/^    pub fn show_spaces_set(self, show_spaces_set: bool) -> Self {$/;"	f
-show_status	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^    pub fn show_status(self,) -> String {$/;"	f
+show_status	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^    pub fn show_status(self) -> String {$/;"	f
 show_tabs	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/notebook.rs	/^    pub fn show_tabs(self, show_tabs: bool) -> Self {$/;"	f
 show_text	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/progress_bar.rs	/^    pub fn show_text(self, show_text: bool) -> Self {$/;"	f
 show_title_buttons	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/header_bar.rs	/^    pub fn show_title_buttons(self, show_title_buttons: bool) -> Self {$/;"	f

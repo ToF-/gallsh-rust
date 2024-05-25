@@ -370,8 +370,8 @@ fn main() {
                 show_grid(&grid, &entries, &window);
             }));
             right_button.add_controller(right_gesture);
-            for col in 0 .. grid_size {
-                for row in 0 .. grid_size {
+            for col in 0 .. grid_size as i32 {
+                for row in 0 .. grid_size as i32 {
                     let vbox = gtk::Box::new(Orientation::Vertical, 0);
                     let image = Picture::new();
                     let label = Label::new(None);
@@ -387,8 +387,8 @@ fn main() {
                     select_gesture.set_button(1);
                     select_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_,_, _, _| {
                         let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-                        let offset = row * grid_size + col;
-                        entries.offset = offset;
+                        let offset = row * grid_size as i32 + col;
+                        entries.offset = offset as usize;
                         entries.toggle_select_area();
                         show_grid(&grid, &entries, &window);
                     }));
@@ -400,21 +400,29 @@ fn main() {
                     view_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong image, @strong view, @strong stack, @strong view_scrolled_window, @strong grid_scrolled_window, @strong window => move |_, _, _, _| {
                         let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
                         if entries.max_cells == 1 { return };
-                        let offset = row * grid_size + col;
-                        entries.offset = offset;
+                        let offset = row * grid_size as i32 + col;
+                        entries.offset = offset as usize;
                         stack.set_visible_child(&view_scrolled_window);
                         show_view(&view, &entries, &window);
                     }));
                     image.add_controller(view_gesture);
 
                     let motion_controller = EventControllerMotion::new();
-                    motion_controller.connect_enter(clone!(@strong entries_rc, @strong grid, @strong window => move |_,_,_| {
+                    motion_controller.connect_enter(clone!(@strong entries_rc, @strong grid, @strong label, @strong window => move |_,_,_| {
                         if let Ok(mut entries) = entries_rc.try_borrow_mut() {
-                            let offset = row * grid_size + col;
-                            entries.offset = offset;
-                            show_grid(&grid, &entries, &window);
+                            if let Some(entry) = &entries.at(col, row) {
+                                label.set_text(&entry.label(true));
+                            }
+                            entries.offset = (row * grid_size as i32 + col) as usize;
                             window.set_title(Some(&(entries.status())));
-                        } else { }
+                        }
+                    }));
+                    motion_controller.connect_leave(clone!(@strong entries_rc, @strong grid, @strong label, @strong window => move |_| {
+                        if let Ok(entries) = entries_rc.try_borrow_mut() {
+                            if let Some(entry) = &entries.at(col, row) {
+                                label.set_text(&entry.label(false));
+                            }
+                        };
                     }));
                     image.add_controller(motion_controller)
                 }
@@ -568,8 +576,8 @@ fn main() {
                             },
                             "space" => entries.next(),
                             "Right" => {
+                                show = false;
                                 if entries.real_size {
-                                    show = false;
                                     let h_adj = window
                                         .child()
                                         .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
@@ -579,20 +587,32 @@ fn main() {
                                     h_adj.set_value(h_adj.value() + step as f64)
                                 } else {
                                     if entries.max_cells == 1 {
-                                        entries.next()
+                                        entries.next();
+                                        show = true;
                                     } else {
                                         let side = entries.cells_per_row;
                                         let col = entries.offset % side;
-                                        if col+1 < side && entries.current + entries.offset+1 <= entries.maximum {
-                                            entries.offset += 1
+                                        let row = entries.offset / side;
+                                        let c = col as i32;
+                                        let r = row as i32;
+                                        if col + 1 < side {
+                                            if let Some(entry) = &entries.at(c, r) {
+                                                let label = label_at(&grid, c, r);
+                                                label.set_text(&entry.label(false));
+                                                entries.offset += 1;
+                                                if let Some(next_entry) = &entries.at(c + 1, r) {
+                                                    let next_label = label_at(&grid, c+1, r);
+                                                    next_label.set_text(&next_entry.label(true))
+                                                }
+                                            }
                                         };
-                                        show_grid(&grid, &entries, &window)
+                                        window.set_title(Some(&entries.status()));
                                     }
                                 }
                             },
                             "Left" => {
+                                show = false;
                                 if entries.real_size {
-                                    show = false;
                                     let h_adj = window
                                         .child()
                                         .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
@@ -602,21 +622,32 @@ fn main() {
                                     h_adj.set_value(h_adj.value() - step as f64)
                                 } else {
                                     if entries.max_cells == 1 {
-                                        entries.prev()
+                                        entries.prev();
+                                        show = true;
                                     } else {
                                         let side = entries.cells_per_row;
                                         let col = entries.offset % side;
+                                        let row = entries.offset / side;
+                                        let c = col as i32;
+                                        let r = row as i32;
                                         if col > 0 {
-                                            entries.offset -= 1
+                                            if let Some(entry) = &entries.at(c,r) {
+                                                let label = label_at(&grid, c, r);
+                                                label.set_text(&entry.label(false));
+                                                entries.offset -= 1;
+                                                if let Some(entry) = &entries.at(c-1, r) {
+                                                    let label = label_at(&grid, c-1, r);
+                                                label.set_text(&entry.label(true));
+                                                }
+                                            }
                                         };
-                                        show_grid(&grid, &entries, &window)
+                                        window.set_title(Some(&entries.status()));
                                     }
                                 }
-
                             },
                             "Down" => {
+                                show = false;
                                 if entries.real_size {
-                                    show = false;
                                     let v_adj = window
                                         .child()
                                         .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
@@ -629,18 +660,26 @@ fn main() {
                                         entries.next()
                                     } else {
                                         let side = entries.cells_per_row;
-                                        let row = entries.offset / side;
                                         let col = entries.offset % side;
-                                        if row+1 < side && entries.current + entries.offset + side <= entries.maximum {
-                                            entries.offset += side
+                                        let row = entries.offset / side;
+                                        if row + 1 < side && entries.current + entries.offset + side <= entries.maximum {
+                                            if let Some(entry) = &entries.at(col as i32,row as i32) {
+                                                let label = label_at(&grid, col as i32, row as i32);
+                                                label.set_text(&entry.label(false));
+                                                entries.offset += side;
+                                                if let Some(entry) = &entries.at(col as i32,(row+1) as i32) {
+                                                    let label = label_at(&grid, col as i32, (row+1) as i32);
+                                                label.set_text(&entry.label(true));
+                                                }
+                                            }
                                         };
-                                        show_grid(&grid, &entries, &window)
+                                        window.set_title(Some(&entries.status()));
                                     }
                                 }
                             },
                             "Up" => {
+                                show = false;
                                 if entries.real_size {
-                                    show = false;
                                     let v_adj = window
                                         .child()
                                         .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
@@ -653,12 +692,20 @@ fn main() {
                                         entries.prev()
                                     } else {
                                         let side = entries.cells_per_row;
-                                        let row = entries.offset / side;
                                         let col = entries.offset % side;
+                                        let row = entries.offset / side;
                                         if row > 0 {
-                                            entries.offset = (row - 1) * side + col
+                                            if let Some(entry) = &entries.at(col as i32,row as i32) {
+                                                let label = label_at(&grid, col as i32, row as i32);
+                                                label.set_text(&entry.label(false));
+                                                entries.offset -= side;
+                                                if let Some(entry) = &entries.at(col as i32,(row-1) as i32) {
+                                                    let label = label_at(&grid, col as i32, (row-1) as i32);
+                                                label.set_text(&entry.label(true));
+                                                }
+                                            }
                                         };
-                                        show_grid(&grid, &entries, &window)
+                                        window.set_title(Some(&entries.status()));
                                     }
                                 }
                             },
@@ -739,4 +786,11 @@ fn show_view(grid: &Grid, entries: &Entries, window: &gtk::ApplicationWindow) {
     let picture = grid.first_child().unwrap().downcast::<gtk::Picture>().unwrap();
     picture.set_filename(Some(file_path));
     window.set_title(Some(&entries.status()));
+}
+
+fn label_at(grid: &gtk::Grid, col: i32, row: i32) -> gtk::Label {
+    grid.child_at(col as i32, row as i32).unwrap()
+        .downcast::<gtk::Box>().unwrap()
+        .last_child().unwrap()
+        .downcast::<gtk::Label>().unwrap()
 }

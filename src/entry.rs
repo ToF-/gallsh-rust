@@ -82,13 +82,19 @@ pub fn original_file_name(file_path: &str) -> String  {
 }
 
 impl Entry {
-    pub fn show_status(self,) -> String {
+    pub fn show_status(self) -> String {
         format!("{} {} [{} {} {}]",
             self.original_file_name(),
             if self.to_select { "△" } else { "" },
             self.file_size,
             self.colors,
             self.rank.show())
+    }
+    pub fn label(&self, has_focus: bool) -> String {
+        format!("{}{}{}",
+            if has_focus { "▄" } else { "" },
+            self.rank.show(),
+            if self.to_select { "△" } else { "" })
     }
 
     pub fn thumbnail_file_path(&self) -> String {
