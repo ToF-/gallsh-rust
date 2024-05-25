@@ -152,7 +152,7 @@ fn main() {
             &gdk::Display::default().unwrap(),
             &css_provider,
             1000,
-            );
+        );
     });
 
     // clone! passes a strong reference to a variable in the closure that activates the application
@@ -464,20 +464,68 @@ fn main() {
                                     window.close()
                                 }
                             },
-                            "B" => entries.toggle_rank_area(Rank::NoStar),
-                            "M"|"Eacute"=> entries.toggle_rank_area(Rank::OneStar),
-                            "N"|"P" => entries.toggle_rank_area(Rank::TwoStars),
-                            "O" => entries.toggle_rank_area(Rank::ThreeStars),
+                            "B" => {
+                                if entries.star_select.is_none() {
+                                    entries.select_with_rank(Rank::NoStar)
+                                } else {
+                                    entries.toggle_rank_area(Rank::NoStar)
+                                }
+                            },
+                            "M"|"Eacute"=> {
+                                if entries.star_select.is_none() {
+                                    entries.select_with_rank(Rank::OneStar)
+                                } else {
+                                    entries.toggle_rank_area(Rank::OneStar)
+                                }
+                            },
+                            "N"|"P" => {
+                                if entries.star_select.is_none() {
+                                    entries.select_with_rank(Rank::TwoStars)
+                                } else {
+                                    entries.toggle_rank_area(Rank::TwoStars)
+                                }
+                            },
+                            "O" => {
+                                if entries.star_select.is_none() {
+                                    entries.select_with_rank(Rank::ThreeStars)
+                                } else {
+                                    entries.toggle_rank_area(Rank::ThreeStars)
+                                }
+                            },
                             "comma" => entries.toggle_select(),
                             "Return" => entries.toggle_select_area(),
-                            "asterisk"|"A" => entries.set_rank(Rank::ThreeStars),
-                            "slash" => entries.set_rank(Rank::TwoStars),
-                            "minus"|"C" => entries.set_rank(Rank::OneStar),
+                            "asterisk"|"A" => {
+                                if entries.star_select.is_none() {
+                                    entries.select_with_rank(Rank::ThreeStars)
+                                } else {
+                                    entries.set_rank(Rank::ThreeStars)
+                                }
+                            }
+                            "slash" => {
+                                if entries.star_select.is_none() {
+                                    entries.select_with_rank(Rank::TwoStars)
+                                } else {
+                                    entries.set_rank(Rank::TwoStars)
+                                }
+                            },
+                            "minus"|"C" => {
+                                if entries.star_select.is_none() {
+                                    entries.select_with_rank(Rank::OneStar)
+                                } else {
+                                    entries.set_rank(Rank::OneStar)
+                                }
+                            }
                             "c" => if entries.order.is_none() {
                                 entries.reorder(Order::Colors);
                                 show_grid(&grid, &entries, &window)
                             },
-                            "plus"|"D" => entries.set_rank(Rank::NoStar),
+                            "plus"|"D" => {
+                                if entries.star_select.is_none() {
+                                    entries.select_with_rank(Rank::NoStar)
+                                } else {
+                                    entries.set_rank(Rank::NoStar)
+                                }
+                            }
                             "d" => if entries.order.is_none() {
                                 entries.reorder(Order::Date);
                                 show_grid(&grid, &entries, &window)
@@ -498,6 +546,8 @@ fn main() {
                                 if entries.order.is_none() {
                                     entries.reorder(Order::Size);
                                     show_grid(&grid, &entries, &window)
+                                } else {
+                                    entries.star_select = None
                                 }
                             },
                             "o" => entries.order = None,

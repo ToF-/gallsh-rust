@@ -40,6 +40,7 @@ pub struct Entries {
     pub real_size: bool,
     pub register: Option<usize>,
     pub order: Option<Order>,
+    pub star_select: Option<Rank>,
 }
 
 fn get_or_set_image_data(file_path: &str) -> Result<(usize,Rank),String> {
@@ -100,6 +101,7 @@ impl Entries {
             real_size: false,
             register: None,
             order: Some(Order::Random),
+            star_select: Some(Rank::NoStar),
         }
     }
 
@@ -372,7 +374,8 @@ impl Entries {
         let position = self.current + self.offset;
         if position <= self.maximum {
             let entry_status = <Entry as Clone>::clone(&self.entry_list[position]).show_status();
-            format!("ordered by {} {}/{}  {} {} {}",
+            format!("{} ordered by {} {}/{}  {} {} {}",
+                if self.star_select.is_none() { "…" } else { "" },
                 if let Some(o) = self.order {
                     o.to_string()
                 } else {
@@ -563,6 +566,15 @@ impl Entries {
             },
             Err(_) => { },
         }
+    }
+
+    pub fn select_with_rank(&mut self, rank: Rank) {
+        for e in &mut self.entry_list {
+            if e.rank == rank {
+                e.to_select = true
+            }
+        };
+        self.star_select = Some(Rank::NoStar)
     }
 
     pub fn copy_file_to_target_directory(file_path: &Path, target_directory: &Path) -> Result<u64,Error> {
