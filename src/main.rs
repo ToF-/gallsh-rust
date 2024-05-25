@@ -272,7 +272,7 @@ fn main() {
             entries.set_selected_images();
             entries
         };
-        println!("{} files selected", entries.entry_list.len());
+        println!("{} entries", entries.entry_list.len());
         if entries.len() == 0 {
             application.quit();
             return
