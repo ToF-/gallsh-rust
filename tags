@@ -13140,6 +13140,7 @@ natural_width	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d
 natural_width	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_area_context.rs	/^    fn natural_width(&self) -> i32;$/;"	f
 natural_wrap_mode	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/label.rs	/^    pub fn natural_wrap_mode(&self) -> NaturalWrapMode {$/;"	f
 natural_wrap_mode	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/label.rs	/^    pub fn natural_wrap_mode(self, natural_wrap_mode: NaturalWrapMode) -> Self {$/;"	f
+navigate	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn navigate(entries: &mut Entries, grid: &gtk::Grid, window: &gtk::ApplicationWindow, col_move: i32, row_move: i32) {$/;"	f
 ne	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/predicates-3.1.0/src/ord.rs	/^pub fn ne<T>(constant: T) -> EqPredicate<T>$/;"	f
 nearest_error_is_accurate	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_json-1.0.117/src/lexical/errors.rs	/^fn nearest_error_is_accurate(errors: u64, fp: &ExtendedFloat, extrabits: u64) -> bool {$/;"	f
 needs_attention	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/stack_page.rs	/^    pub fn needs_attention(&self) -> bool {$/;"	f
@@ -13751,6 +13752,7 @@ next_element_seed	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6
 next_entry	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.202/src/de/mod.rs	/^    fn next_entry<K, V>(&mut self) -> Result<Option<(K, V)>, Self::Error>$/;"	f
 next_entry_seed	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.202/src/de/mod.rs	/^    fn next_entry_seed<K, V>($/;"	f
 next_entry_seed	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.202/src/de/value.rs	/^    fn next_entry_seed<TK, TV>($/;"	f
+next_image	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn next_image(&mut self) {$/;"	f
 next_key	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.202/src/de/mod.rs	/^    fn next_key<K>(&mut self) -> Result<Option<K>, Self::Error>$/;"	f
 next_key_seed	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.202/src/de/mod.rs	/^    fn next_key_seed<K>(&mut self, seed: K) -> Result<Option<K::Value>, Self::Error>$/;"	f
 next_key_seed	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.202/src/de/value.rs	/^    fn next_key_seed<T>(&mut self, seed: T) -> Result<Option<T::Value>, Self::Error>$/;"	f

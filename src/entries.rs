@@ -324,6 +324,12 @@ impl Entries {
         }
     }
 
+    pub fn next_image(&mut self) {
+        if self.current + self.offset + 1 <= self.maximum {
+            self.offset += 1
+        }
+    }
+
     pub fn prev(&mut self) {
         self.register = None;
         self.offset = 0;

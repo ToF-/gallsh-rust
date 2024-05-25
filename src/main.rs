@@ -590,23 +590,7 @@ fn main() {
                                         entries.next();
                                         show = true;
                                     } else {
-                                        let side = entries.cells_per_row;
-                                        let col = entries.offset % side;
-                                        let row = entries.offset / side;
-                                        let c = col as i32;
-                                        let r = row as i32;
-                                        if col + 1 < side {
-                                            if let Some(entry) = &entries.at(c, r) {
-                                                let label = label_at(&grid, c, r);
-                                                label.set_text(&entry.label(false));
-                                                entries.offset += 1;
-                                                if let Some(next_entry) = &entries.at(c + 1, r) {
-                                                    let next_label = label_at(&grid, c+1, r);
-                                                    next_label.set_text(&next_entry.label(true))
-                                                }
-                                            }
-                                        };
-                                        window.set_title(Some(&entries.status()));
+                                        navigate(&mut entries, &grid, &window, 1, 0);
                                     }
                                 }
                             },
@@ -625,23 +609,7 @@ fn main() {
                                         entries.prev();
                                         show = true;
                                     } else {
-                                        let side = entries.cells_per_row;
-                                        let col = entries.offset % side;
-                                        let row = entries.offset / side;
-                                        let c = col as i32;
-                                        let r = row as i32;
-                                        if col > 0 {
-                                            if let Some(entry) = &entries.at(c,r) {
-                                                let label = label_at(&grid, c, r);
-                                                label.set_text(&entry.label(false));
-                                                entries.offset -= 1;
-                                                if let Some(entry) = &entries.at(c-1, r) {
-                                                    let label = label_at(&grid, c-1, r);
-                                                label.set_text(&entry.label(true));
-                                                }
-                                            }
-                                        };
-                                        window.set_title(Some(&entries.status()));
+                                        navigate(&mut entries, &grid, &window, -1, 0);
                                     }
                                 }
                             },
@@ -659,21 +627,7 @@ fn main() {
                                     if entries.max_cells == 1 {
                                         entries.next()
                                     } else {
-                                        let side = entries.cells_per_row;
-                                        let col = entries.offset % side;
-                                        let row = entries.offset / side;
-                                        if row + 1 < side && entries.current + entries.offset + side <= entries.maximum {
-                                            if let Some(entry) = &entries.at(col as i32,row as i32) {
-                                                let label = label_at(&grid, col as i32, row as i32);
-                                                label.set_text(&entry.label(false));
-                                                entries.offset += side;
-                                                if let Some(entry) = &entries.at(col as i32,(row+1) as i32) {
-                                                    let label = label_at(&grid, col as i32, (row+1) as i32);
-                                                label.set_text(&entry.label(true));
-                                                }
-                                            }
-                                        };
-                                        window.set_title(Some(&entries.status()));
+                                        navigate(&mut entries, &grid, &window, 0, 1);
                                     }
                                 }
                             },
@@ -793,4 +747,31 @@ fn label_at(grid: &gtk::Grid, col: i32, row: i32) -> gtk::Label {
         .downcast::<gtk::Box>().unwrap()
         .last_child().unwrap()
         .downcast::<gtk::Label>().unwrap()
+}
+
+fn navigate(entries: &mut Entries, grid: &gtk::Grid, window: &gtk::ApplicationWindow, col_move: i32, row_move: i32) {
+    let side = entries.cells_per_row;
+    let col = entries.offset % side;
+    let row = entries.offset / side;
+    let c = col as i32;
+    let r = row as i32;
+    let s = side as i32;
+    if c + col_move < side as i32 && c + col_move >= 0 && r + row_move < s && r + row_move >= 0 {
+        if let Some(entry) = &entries.at(c, r) {
+            let label = label_at(&grid, c, r);
+            let current_text = label.text();
+            label.set_text(&entry.label(false));
+            let new_offset = (entries.offset as i32 + col_move + (row_move * s)) as usize;
+            if entries.current + new_offset <= entries.maximum {
+                entries.offset = new_offset;
+                if let Some(next_entry) = &entries.at(c + col_move, r) {
+                    let next_label = label_at(&grid, c + col_move, r);
+                    next_label.set_text(&next_entry.label(true))
+                } else {
+                    label.set_text(&current_text);
+                }
+            }
+        }
+    };
+    window.set_title(Some(&entries.status()));
 }
