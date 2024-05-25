@@ -75,10 +75,16 @@ pub fn original_file_path(file_path: &str) -> String {
     }
 }
 
+pub fn original_file_name(file_path: &str) -> String  {
+    let original = original_file_path(file_path);
+    let path = PathBuf::from(original);
+    path.file_name().unwrap().to_str().unwrap().to_string()
+}
+
 impl Entry {
     pub fn show_status(self,) -> String {
         format!("{} {} [{} {} {}]",
-            self.original_file_path(),
+            self.original_file_name(),
             if self.to_select { "△" } else { "" },
             self.file_size,
             self.colors,
@@ -91,5 +97,9 @@ impl Entry {
 
     pub fn original_file_path(&self) -> String {
         original_file_path(&self.file_path)
+    }
+
+    pub fn original_file_name(&self) -> String {
+        original_file_name(&self.file_path)
     }
 }

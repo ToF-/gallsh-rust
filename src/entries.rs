@@ -39,7 +39,7 @@ pub struct Entries {
     pub cells_per_row: usize,
     pub real_size: bool,
     pub register: Option<usize>,
-    pub sort_command: bool,
+    pub order: Option<Order>,
 }
 
 fn get_or_set_image_data(file_path: &str) -> Result<(usize,Rank),String> {
@@ -99,7 +99,7 @@ impl Entries {
             max_cells: grid_size * grid_size,
             real_size: false,
             register: None,
-            sort_command: false,
+            order: Some(Order::Random),
         }
     }
 
@@ -118,7 +118,8 @@ impl Entries {
                 }
             }),
             Order::Random => self.entry_list.shuffle(&mut thread_rng()),
-        }
+        };
+        self.order = Some(order)
     }
 
     pub fn jump_to_name(&mut self, original_name: &str)  {
@@ -132,7 +133,6 @@ impl Entries {
         let name = self.entry_list[self.current + self.offset].original_file_path();
         self.sort_by(order);
         self.jump_to_name(&name);
-        self.sort_command = false;
     }
     
     pub fn slice(&mut self, from: Option<usize>, to: Option<usize>) {
@@ -225,10 +225,10 @@ impl Entries {
                 }
             }
         };
-        let mut sorted_entries = Entries::new(entry_list.clone(), grid_size);
-        sorted_entries.sort_by(order);
-        sorted_entries.slice(from_index, to_index);
-        Ok(sorted_entries)
+        let mut result = Entries::new(entry_list.clone(), grid_size);
+        result.sort_by(order);
+        result.slice(from_index, to_index);
+        Ok(result)
     } 
 
     pub fn from_file(file_path: &str, grid_size: usize) -> io::Result<Self> {
@@ -372,7 +372,12 @@ impl Entries {
         let position = self.current + self.offset;
         if position <= self.maximum {
             let entry_status = <Entry as Clone>::clone(&self.entry_list[position]).show_status();
-            format!("{}/{}  {} {} {}",
+            format!("ordered by {} {}/{}  {} {} {}",
+                if let Some(o) = self.order {
+                    o.to_string()
+                } else {
+                    "??".to_string()
+                },
                 position,
                 self.maximum,
                 entry_status,
