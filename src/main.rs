@@ -408,10 +408,11 @@ fn main() {
                     image.add_controller(view_gesture);
 
                     let motion_controller = EventControllerMotion::new();
-                    motion_controller.connect_enter(clone!(@strong entries_rc, @strong window => move |_,_,_| {
+                    motion_controller.connect_enter(clone!(@strong entries_rc, @strong grid, @strong window => move |_,_,_| {
                         if let Ok(mut entries) = entries_rc.try_borrow_mut() {
                             let offset = row * grid_size + col;
                             entries.offset = offset;
+                            show_grid(&grid, &entries, &window);
                             window.set_title(Some(&(entries.status())));
                         } else { }
                     }));
@@ -577,7 +578,16 @@ fn main() {
                                         .expect("Failed to get hadjustment");
                                     h_adj.set_value(h_adj.value() + step as f64)
                                 } else {
-                                    entries.next()
+                                    if entries.max_cells == 1 {
+                                        entries.next()
+                                    } else {
+                                        let side = entries.cells_per_row;
+                                        let col = entries.offset % side;
+                                        if col+1 < side && entries.current + entries.offset+1 <= entries.maximum {
+                                            entries.offset += 1
+                                        };
+                                        show_grid(&grid, &entries, &window)
+                                    }
                                 }
                             },
                             "Left" => {
@@ -591,8 +601,18 @@ fn main() {
                                         .expect("Failed to get hadjustment");
                                     h_adj.set_value(h_adj.value() - step as f64)
                                 } else {
-                                    entries.prev()
+                                    if entries.max_cells == 1 {
+                                        entries.prev()
+                                    } else {
+                                        let side = entries.cells_per_row;
+                                        let col = entries.offset % side;
+                                        if col > 0 {
+                                            entries.offset -= 1
+                                        };
+                                        show_grid(&grid, &entries, &window)
+                                    }
                                 }
+
                             },
                             "Down" => {
                                 if entries.real_size {
@@ -604,6 +624,18 @@ fn main() {
                                         .and_then(|sw| Some(sw.vadjustment()))
                                         .expect("Failed to get vadjustment");
                                     v_adj.set_value(v_adj.value() + step as f64)
+                                } else {
+                                    if entries.max_cells == 1 {
+                                        entries.next()
+                                    } else {
+                                        let side = entries.cells_per_row;
+                                        let row = entries.offset / side;
+                                        let col = entries.offset % side;
+                                        if row+1 < side && entries.current + entries.offset + side <= entries.maximum {
+                                            entries.offset += side
+                                        };
+                                        show_grid(&grid, &entries, &window)
+                                    }
                                 }
                             },
                             "Up" => {
@@ -616,6 +648,18 @@ fn main() {
                                         .and_then(|sw| Some(sw.vadjustment()))
                                         .expect("Failed to get vadjustment");
                                     v_adj.set_value(v_adj.value() - step as f64)
+                                } else {
+                                    if entries.max_cells == 1 {
+                                        entries.prev()
+                                    } else {
+                                        let side = entries.cells_per_row;
+                                        let row = entries.offset / side;
+                                        let col = entries.offset % side;
+                                        if row > 0 {
+                                            entries.offset = (row - 1) * side + col
+                                        };
+                                        show_grid(&grid, &entries, &window)
+                                    }
                                 }
                             },
                             s => { println!("{} ?", s) },
@@ -671,7 +715,10 @@ fn show_grid(grid: &Grid, entries: &Entries, window: &gtk::ApplicationWindow) {
         let position = current + offset;
         if position <= maximum {
             let entry = &entries.entry_list[position];
-            let status = format!("{} {}", entry.rank.show(), if entry.to_select { "△" } else { "" });
+            let status = format!("{} {} {}",
+                    if offset == entries.offset && entries.max_cells > 1 { "█" } else { "" },
+                    entry.rank.show(),
+                    if entry.to_select { "△" } else { "" });
             label.set_text(&status);
             let opacity = if entry.to_select { 0.50 } else { 1.0 };
             picture.set_opacity(opacity);
