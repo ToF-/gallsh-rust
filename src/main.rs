@@ -391,8 +391,8 @@ fn main() {
                 select_gesture.set_button(1);
                 select_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_,_, _, _| {
                     let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-                    if entries.navigator.can_move_rel((col,row)) {
-                        entries.navigator.move_rel((col,row));
+                    if entries.navigator.can_move_abs((col,row)) {
+                        entries.navigator.move_abs((col,row));
                         entries.toggle_select_area();
                     }
                     show_grid(&grid, &entries, &window);
@@ -405,8 +405,8 @@ fn main() {
                 view_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong image, @strong view, @strong stack, @strong view_scrolled_window, @strong grid_scrolled_window, @strong window => move |_, _, _, _| {
                     let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
                     if entries.navigator.cells_per_row() == 1 { return };
-                    if entries.navigator.can_move_rel((col,row)) {
-                        entries.navigator.move_rel((col,row));
+                    if entries.navigator.can_move_abs((col,row)) {
+                        entries.navigator.move_abs((col,row));
                         entries.toggle_select_area();
                         stack.set_visible_child(&view_scrolled_window);
                         show_view(&view, &entries, &window);
