@@ -1,6 +1,7 @@
 use core::cmp::Ordering::Equal;
 use crate::image::get_image_color;
 use crate::entry::{original_file_path};
+use crate::navigator::*;
 use core::cmp::{min};
 use crate::{THUMB_SUFFIX, Entry, EntryList, make_entry, Order};
 use crate::entry::{image_data_file_path, thumbnail_file_path};
@@ -30,13 +31,9 @@ const SELECTION_FILE_NAME: &str = "selections";
 #[derive(Clone, Debug)]
 pub struct Entries {
     pub entry_list: EntryList,
-    pub current: usize,
-    pub offset: usize,
-    pub maximum:  usize,
+    pub navigator: Navigator,
     pub start_index: Option<usize>,
     pub star3_index: Option<usize>,
-    pub max_cells: usize,
-    pub cells_per_row: usize,
     pub real_size: bool,
     pub register: Option<usize>,
     pub order: Option<Order>,
@@ -91,13 +88,9 @@ impl Entries {
     fn new(entry_list: Vec<Entry>, grid_size: usize) -> Self {
         Entries {
             entry_list: entry_list.clone(),
-            current: 0,
-            offset: 0,
-            maximum: entry_list.len() - 1,
+            navigator: Navigator::new(entry_list.len() as i32, grid_size as i32),
             start_index: None,
             star3_index: None,
-            cells_per_row: grid_size,
-            max_cells: grid_size * grid_size,
             real_size: false,
             register: None,
             order: Some(Order::Random),
@@ -106,18 +99,7 @@ impl Entries {
     }
 
     pub fn at(&self, col: i32, row: i32) -> Option<&Entry> {
-        if col < 0 || col as usize >= self.cells_per_row || row < 0 || row as usize >= self.cells_per_row {
-            println!("error col {} and row {} out of grid", col, row);
-            None
-        } else {
-            let offset = (row as usize) * self.cells_per_row + (col as usize);
-            if self.current + offset > self.maximum {
-                println!("error col {} and row {} out beyond number of entries {}/{}", col, row, self.current + offset, self.maximum);
-                None
-            } else {
-                Some(&self.entry_list[self.current + offset])
-            }
-        }
+        self.navigator.index_from_position((col,row)).and_then(|index| Some(&self.entry_list[index]))
     }
 
     pub fn sort_by(&mut self, order: Order) {
@@ -147,28 +129,26 @@ impl Entries {
     }
 
     pub fn reorder(&mut self, order: Order) {
-        let name = self.entry_list[self.current + self.offset].original_file_path();
+        let name = self.entry_list[self.navigator.index()].original_file_path();
         self.sort_by(order);
         self.jump_to_name(&name);
     }
-    
+
     pub fn slice(&mut self, from: Option<usize>, to: Option<usize>) {
         let start_index = match from {
-            Some(n) => min(n, self.maximum),
+            Some(n) => min(n, self.navigator.capacity()-1),
             None => 0,
         };
         let end_index = match to {
-            Some(n) => min(n, self.maximum) + 1,
-            None => self.maximum + 1,
+            Some(n) => min(n, self.navigator.capacity()-1) + 1,
+            None => self.navigator.capacity(),
         };
         self.entry_list = self.entry_list[start_index..end_index].to_vec();
-        self.maximum = self.entry_list.len() - 1;
-        self.current = 0;
-        self.start_index = None;
+        self.navigator = Navigator::new(self.entry_list.len() as i32, self.navigator.cells_per_row())
     }
 
     pub fn len(&self) -> usize {
-        self.maximum + 1
+        self.navigator.capacity()
     }
 
     pub fn from_directory(dir_path: &str,
@@ -315,88 +295,27 @@ impl Entries {
 
     pub fn next(&mut self) {
         self.register = None;
-        self.offset = 0;
-        let new_position = self.current + self.max_cells;
-        self.current = if new_position <= self.maximum {
-            new_position
-        } else {
-            0
-        }
-    }
-
-    pub fn next_image(&mut self) {
-        if self.current + self.offset + 1 <= self.maximum {
-            self.offset += 1
-        }
+        self.navigator.move_next_page()
     }
 
     pub fn offset_coords(&self) -> (i32,i32) {
-        let cells_per_row = self.cells_per_row as i32;
-        let offset = self.offset as i32;
-        let col = offset % cells_per_row;
-        let row = offset / cells_per_row;
-        assert!(col >= 0);
-        assert!(col < cells_per_row);
-        assert!(row >= 0);
-        assert!(row < cells_per_row);
-        (col,row)
-    }
-
-    pub fn move_offset(&self, col_move: i32, row_move: i32) -> Option<usize> {
-        let cells_per_row = self.cells_per_row as i32;
-        let offset = self.offset as i32;
-        let (col,row) = self.offset_coords();
-        let new_col = col + col_move;
-        let new_row = row + row_move;
-        println!("move_offset: col_move:{} row_move:{} col:{} row:{} new_col:{} new_row:{} cells_per_row:{}", col_move, row_move, col, row, new_col, new_row, cells_per_row);
-        if new_col >= cells_per_row || new_col < 0 || new_row >= cells_per_row || new_row < 0 {
-            println!("move_offset refused");
-            None
-        } else {
-            let new_offset = (offset + new_row * cells_per_row + new_col) as usize;
-            println!("new_offset: {} + {} * {} + {} = {}", offset, new_row, cells_per_row, new_col, new_offset);
-            if self.current + new_offset as usize > self.maximum {
-                println!("move_offset refused {}", new_offset);
-                None
-            } else {
-                println!("move_offset accepted:{}", new_offset);
-                Some(new_offset)
-            }
-        }
+        self.navigator.position()
     }
 
     pub fn prev(&mut self) {
-        self.register = None;
-        self.offset = 0;
-        let new_position:i32 = self.current as i32 - self.max_cells as i32;
-        self.current = if new_position >= 0 {
-            new_position as usize
-        } else {
-            self.maximum - (self.maximum % self.max_cells)
-        }
-    }
-
-    pub fn random(&mut self) {
-        self.register = None;
-        let position = thread_rng().gen_range(0..self.maximum + 1);
-        self.offset = position % self.max_cells;
-        self.current = position - self.offset
+        self.register =None;
+        self.navigator.move_prev_page()
     }
 
     pub fn jump(&mut self, position: usize) {
-        if position <= self.maximum {
-            self.register = None;
-            self.offset = position % self.max_cells;
-            self.current = position - self.offset
-        } else {
-            println!("index too large: {}", position);
-        }
+        self.register = None;
+        self.navigator.move_to_index(position)
     }
 
     pub fn add_digit_to_register(&mut self, digit: usize) {
         self.register = if let Some(r) = self.register {
             let new = r * 10 + digit;
-            if new <= self.maximum {
+            if new < self.navigator.capacity() {
                 Some(new)
             } else {
                 Some(r)
@@ -427,137 +346,131 @@ impl Entries {
     }
 
     pub fn status(&self) -> String {
-        let position = self.current + self.offset;
-        if position <= self.maximum {
-            let entry_status = <Entry as Clone>::clone(&self.entry_list[position]).show_status();
-            format!("{} ordered by {} {}/{}  {} {} {}",
-                if self.star_select.is_none() { "…" } else { "" },
-                if let Some(o) = self.order {
-                    o.to_string()
-                } else {
-                    "??".to_string()
-                },
-                position,
-                self.maximum,
-                entry_status,
-                if self.register.is_none() { String::from("") } else { format!("{}", self.register.unwrap()) },
-                if self.real_size { "*" } else { "" })
-        } else {
-            println!("unexpected: position + offset = {} > maximum {}", position, self.maximum);
-            "".to_string()
-        }
+        let entry_status = <Entry as Clone>::clone(&self.entry_list[self.navigator.index()]).show_status();
+        format!("{} ordered by {} {}/{}  {} {} {}",
+            if self.star_select.is_none() { "…" } else { "" },
+            if let Some(o) = self.order {
+                o.to_string()
+            } else {
+                "??".to_string()
+            },
+            self.navigator.index(),
+            self.navigator.capacity()-1,
+            entry_status,
+            if self.register.is_none() { String::from("") } else { format!("{}", self.register.unwrap()) },
+            if self.real_size { "*" } else { "" })
     }
 
     pub fn toggle_select_area(&mut self) {
-        let position = self.current + self.offset;
-        if position <= self.maximum {
-            if self.entry_list[position].to_select {
-                return
+        let position = self.navigator.index();
+        if self.entry_list[position].to_select {
+            return
+        } else {
+            if self.start_index.is_none() {
+                self.start_index = Some(position)
             } else {
-                if self.start_index.is_none() {
-                    self.start_index = Some(position)
-                } else {
-                    let mut start = self.start_index.unwrap();
-                    let mut end = position;
-                    if start > end {
-                        let x = start;
-                        start = end;
-                        end = x;
-                    };
-                    for i in start..end+1 {
-                        self.entry_list[i].to_select = true
-                    };
-                    self.start_index = None
-                }
+                let mut start = self.start_index.unwrap();
+                let mut end = position;
+                if start > end {
+                    let x = start;
+                    start = end;
+                    end = x;
+                };
+                for i in start..end+1 {
+                    self.entry_list[i].to_select = true
+                };
+                self.start_index = None
             }
         }
     }
+
     pub fn toggle_rank_area(&mut self, rank: Rank) {
-        let position = self.current + self.offset;
-        if position <= self.maximum {
-            if self.entry_list[position].rank == rank {
-                return
+        let position = self.navigator.index();
+        if self.entry_list[position].rank == rank {
+            return
+        } else {
+            if self.star3_index.is_none() {
+                self.star3_index = Some(position)
             } else {
-                if self.star3_index.is_none() {
-                    self.star3_index = Some(position)
-                } else {
-                    let mut start = self.star3_index.unwrap();
-                    let mut end = position;
-                    if start > end {
-                        let x = start;
-                        start = end;
-                        end = x;
-                    };
-                    for i in start..end+1 {
-                        self.entry_list[i].rank = rank
-                    };
-                    self.star3_index = None
-                }
+                let mut start = self.star3_index.unwrap();
+                let mut end = position;
+                if start > end {
+                    let x = start;
+                    start = end;
+                    end = x;
+                };
+                for i in start..end+1 {
+                    self.entry_list[i].rank = rank
+                };
+                self.star3_index = None
             }
         }
     }
 
     pub fn entry(&self) -> Entry {
-        let position = self.current + self.offset;
-        if position <= self.maximum {
-            self.entry_list[position].clone()
-        } else {
-            self.entry_list[self.current].clone()
-        }
+        let position = self.navigator.index();
+        self.entry_list[position].clone()
+    }
+
+    pub fn jump_random(&mut self) {
+        self.register = None;
+        let index = thread_rng().gen_range(0..self.navigator.capacity());
+        self.navigator.move_to_index(index);
     }
 
     pub fn set_grid_select(&mut self) {
-        for i in 0..self.max_cells {
-            let position = self.current + i;
-            if position <= self.maximum {
-                self.entry_list[position].to_select = true;
+        let len = self.navigator.cells_per_row();
+        for col in 0..len {
+            for row in 0..len {
+                if let Some(index) = self.navigator.index_from_position((col,row)) {
+                    self.entry_list[index].to_select = true
+                }
+            }
+        }
+    }
+
+    pub fn reset_grid_select(&mut self) {
+        let len = self.navigator.cells_per_row();
+        for col in 0..len {
+            for row in 0..len {
+                if let Some(index) = self.navigator.index_from_position((col,row)) {
+                    self.entry_list[index].to_select = false
+                }
             }
         }
     }
 
     pub fn unset_grid_ranks(&mut self) {
-        for i in 0..self.max_cells {
-            let position = self.current + i;
-            if position <= self.maximum {
-                self.entry_list[position].rank = Rank::NoStar;
+        let len = self.navigator.cells_per_row();
+        for col in 0..len {
+            for row in 0..len {
+                if let Some(index) = self.navigator.index_from_position((col,row)) {
+                    self.entry_list[index].rank = Rank::NoStar
+                }
             }
         }
     }
-
     pub fn reset_all_select(&mut self) {
-        for i in 0..self.maximum+1 {
-            self.entry_list[i].to_select = false;
-        };
-        self.start_index = None;
+        for index in 0..self.navigator.capacity() {
+            self.entry_list[index].to_select = false;
+        }
     }
 
-    pub fn reset_grid_select(&mut self) {
-        for i in 0..MAX_THUMBNAILS {
-            let position = self.current + i;
-            if position <= self.maximum {
-                self.entry_list[position].to_select = false;
-            }
-        };
-        self.start_index = None;
-    }
 
     pub fn toggle_real_size(&mut self) {
         self.real_size = !self.real_size;
     }
 
     pub fn toggle_select(&mut self) {
-        let position = self.current + self.offset;
-        if position <= self.maximum {
+        let position = self.navigator.index();
         self.entry_list[position].to_select = ! self.entry_list[position].to_select
-        }
     }
 
     pub fn set_rank(&mut self, rank: Rank) {
-        let position = self.current + self.offset;
-        if position <= self.maximum {
-            self.entry_list[position].rank = rank;
-        }
+        let position = self.navigator.index();
+        self.entry_list[position].rank = rank;
     }
+
     pub fn save_marked_file_list(&self, selection: &Vec<&Entry>, dest_file_path: &str, thumbnails: bool) {
         let result = OpenOptions::new()
             .write(true)
@@ -568,7 +481,7 @@ impl Entries {
             for e in selection.iter() {
                 let entry = *e;
                 let file_path = if thumbnails {
-                     entry.original_file_path()
+                    entry.original_file_path()
                 } else { entry.file_path.to_string() };
                 println!("saving {} for reference", file_path);
                 let _ = file.write(format!("{}\n", file_path).as_bytes());
@@ -633,6 +546,8 @@ impl Entries {
         self.star_select = Some(Rank::NoStar)
     }
 
+
+
     pub fn copy_file_to_target_directory(file_path: &Path, target_directory: &Path) -> Result<u64,Error> {
         let file_name = file_path.file_name().unwrap();
         let target_file_path = target_directory.join(file_name);
@@ -671,7 +586,6 @@ impl Entries {
     }
 
 }
-
 
 pub fn create_thumbnail(source: String, target: String, number: usize, total: usize) -> ThumbResult<()> {
     println!("creating thumbnails {:6}/{:6} {}", number, total, &target);

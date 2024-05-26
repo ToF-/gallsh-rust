@@ -1,8 +1,8 @@
 
 type Coords = (i32, i32);
 
-#[derive(Debug)]
-struct Navigator {
+#[derive(Clone,Debug)]
+pub struct Navigator {
     capacity: i32,
     cells_per_row: i32,
     max_cells: i32,
@@ -19,6 +19,18 @@ impl Navigator {
             start_cell_index: 0,
             position: (0,0),
         }
+    }
+
+    pub fn capacity(&self) -> usize {
+        self.capacity as usize
+    }
+
+    pub fn cells_per_row(&self) -> i32 {
+        self.cells_per_row
+    }
+
+    pub fn position(&self) -> Coords {
+        self.position
     }
 
     pub fn index_from_position(&self, position: Coords) -> Option<usize> {
@@ -40,7 +52,7 @@ impl Navigator {
             && position.0 < self.cells_per_row
             && position.1 >= 0
             && position.1 < self.cells_per_row
-            && !self.index_from_position(position).is_none()
+            && self.index_from_position(position).is_some()
 
     }
 
@@ -48,16 +60,33 @@ impl Navigator {
         if self.can_move_rel(coords) {
             self.position = (self.position.0 + coords.0, self.position.1 + coords.1)
         } else {
-            panic!("Navigator {:?} can't move to this relative position: {:?}", self, coords);
+            panic!("Navigator {:?} can't move to this relative position: {:?}", self, coords)
         }
     }
 
-    pub fn can_move_abs(&self, index: usize) -> bool {
+    pub fn can_move_abs(&self, position: Coords) -> bool {
+        position.0 >= 0
+            && position.0 < self.cells_per_row
+            && position.1 >= 0
+            && position.1 < self.cells_per_row
+            && self.index_from_position(position).is_some()
+
+    }
+
+    pub fn move_abs(&mut self, position: Coords) {
+        if self.can_move_abs(position) {
+            self.position = (self.position.0, self.position.1)
+        } else {
+            panic!("Navigator {:?} can't move to this position: {:?}", self, position)
+        }
+    }
+
+    pub fn can_move_to_index(&self, index: usize) -> bool {
         index < self.capacity as usize
     }
 
-    pub fn move_abs(&mut self, n: usize) {
-        if self.can_move_abs(n) {
+    pub fn move_to_index(&mut self, n: usize) {
+        if self.can_move_to_index(n) {
             let index = n as i32;
             let rel_index = index % self.max_cells;
             self.start_cell_index = index - rel_index;
@@ -164,15 +193,15 @@ mod tests {
     }
 
     #[test]
-    fn absolute_move_can_be_checked() {
+    fn move_to_index_can_be_checked() {
         let navigator = Navigator::new(10, 2);
-        assert_eq!(true, navigator.can_move_abs(3));
+        assert_eq!(true, navigator.can_move_to_index(3));
     }
 
     #[test]
-    fn after_absolute_move_page_can_be_changed() {
+    fn after_move_to_index_page_can_be_changed() {
         let mut navigator = Navigator::new(10,2);
-        navigator.move_abs(7);
+        navigator.move_to_index(7);
         assert_eq!(4, navigator.start_cell_index);
         assert_eq!((1,1), navigator.position);
         assert_eq!(7, navigator.index());
@@ -180,9 +209,9 @@ mod tests {
 
     #[test]
     #[should_panic]
-    fn navigator_should_panic_if_move_abs_where_not_allowed() {
+    fn navigator_should_panic_if_move_to_index_where_not_allowed() {
         let mut navigator = Navigator::new(10, 2);
-        navigator.move_abs(4807);
+        navigator.move_to_index(4807);
     }
     #[test]
     #[should_panic]

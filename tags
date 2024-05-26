@@ -1445,7 +1445,7 @@ NativeDialogImplExt	/Users/christophethibaut/.cargo/registry/src/index.crates.io
 NativeExt	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/native.rs	/^pub trait NativeExt: 'static {$/;"	t
 NativeImpl	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/native.rs	/^pub trait NativeImpl: WidgetImpl {}$/;"	t
 NaturalWrapMode	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/enums.rs	/^pub enum NaturalWrapMode {$/;"	g
-Navigator	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^struct Navigator {$/;"	s
+Navigator	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^pub struct Navigator {$/;"	s
 NeverDeserializer	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.202/src/de/value.rs	/^pub struct NeverDeserializer<E> {$/;"	s
 NeverTrigger	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/never_trigger.rs	/^    pub struct NeverTrigger(Object<ffi::GtkNeverTrigger, ffi::GtkNeverTriggerClass>) @extends ShortcutTrigger;$/;"	s
 NoExpand	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/regex-1.10.4/src/regex/bytes.rs	/^pub struct NoExpand<'s>(pub &'s [u8]);$/;"	s
@@ -2546,7 +2546,6 @@ __serialize_unimplemented_helper	/Users/christophethibaut/.cargo/registry/src/in
 __serialize_unimplemented_method	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.202/src/private/doc.rs	/^macro_rules! __serialize_unimplemented_method {$/;"	d
 a	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/codecs/hdr/encoder.rs	/^    fn a<T>(mut v: Vec<T>, mut other: Vec<T>) -> Vec<T> {$/;"	f
 abs_diff_nom	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/animation.rs	/^        fn abs_diff_nom((an, ad): (u64, u64), (bn, bd): (u64, u64)) -> u64 {$/;"	f
-absolute_move_can_be_checked	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn absolute_move_can_be_checked() {$/;"	f
 accel_key	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_renderer_accel.rs	/^    pub fn accel_key(&self) -> u32 {$/;"	f
 accel_key	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_renderer_accel.rs	/^    pub fn accel_key(self, accel_key: u32) -> Self {$/;"	f
 accel_mode	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_renderer_accel.rs	/^    pub fn accel_mode(&self) -> CellRendererAccelMode {$/;"	f
@@ -2918,7 +2917,7 @@ adjustment	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22b
 adjustment	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/spin_button.rs	/^    pub fn adjustment(self, adjustment: &impl IsA<Adjustment>) -> Self {$/;"	f
 adjustment	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/volume_button.rs	/^    pub fn adjustment(self, adjustment: &impl IsA<Adjustment>) -> Self {$/;"	f
 after_a_move_index_has_changed	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn after_a_move_index_has_changed() {$/;"	f
-after_absolute_move_page_can_be_changed	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn after_absolute_move_page_can_be_changed() {$/;"	f
+after_move_to_index_page_can_be_changed	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn after_move_to_index_page_can_be_changed() {$/;"	f
 after_next_page_on_last_page_index_is_start_of_first_page	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn after_next_page_on_last_page_index_is_start_of_first_page() {$/;"	f
 after_next_page_or_prev_page_index_is_changed_and_aligned_to_a_page	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn after_next_page_or_prev_page_index_is_changed_and_aligned_to_a_page() {$/;"	f
 after_prev_page_on_first_page_index_is_start_of_last_page	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn after_prev_page_on_first_page_index_is_start_of_last_page() {$/;"	f
@@ -3889,8 +3888,9 @@ can_focus	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bb
 can_focus	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/window_controls.rs	/^    pub fn can_focus(self, can_focus: bool) -> Self {$/;"	f
 can_focus	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/window_handle.rs	/^    pub fn can_focus(self, can_focus: bool) -> Self {$/;"	f
 can_insert	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_iter.rs	/^    pub fn can_insert(&self, default_editability: bool) -> bool {$/;"	f
-can_move_abs	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn can_move_abs(&self, index: usize) -> bool {$/;"	f
+can_move_abs	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn can_move_abs(&self, position: Coords) -> bool {$/;"	f
 can_move_rel	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn can_move_rel(&self, coords: Coords) -> bool {$/;"	f
+can_move_to_index	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn can_move_to_index(&self, index: usize) -> bool {$/;"	f
 can_read	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/image.rs	/^    pub fn can_read(&self) -> bool {$/;"	f
 can_redo	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_buffer.rs	/^    fn can_redo(&self) -> bool {$/;"	f
 can_redo	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_buffer.rs	/^    fn can_redo(&self) -> bool;$/;"	f
@@ -4007,6 +4007,7 @@ cancel_button	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d
 cancel_label	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/file_chooser_native.rs	/^    pub fn cancel_label(&self) -> Option<glib::GString> {$/;"	f
 cancel_label	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/file_chooser_native.rs	/^    pub fn cancel_label(self, cancel_label: impl Into<glib::GString>) -> Self {$/;"	f
 capabilities	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/printer.rs	/^    pub fn capabilities(&self) -> PrintCapabilities {$/;"	f
+capacity	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn capacity(&self) -> usize {$/;"	f
 capture_locations	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/regex-1.10.4/src/regex/bytes.rs	/^    pub fn capture_locations(&self) -> CaptureLocations {$/;"	f
 capture_locations	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/regex-1.10.4/src/regex/string.rs	/^    pub fn capture_locations(&self) -> CaptureLocations {$/;"	f
 capture_names	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/regex-1.10.4/src/regex/bytes.rs	/^    pub fn capture_names(&self) -> CaptureNames<'_> {$/;"	f
@@ -4087,6 +4088,7 @@ cell_set_cell_data	/Users/christophethibaut/.cargo/registry/src/index.crates.io-
 cells	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_layout.rs	/^    fn cells(&self) -> Vec<CellRenderer> {$/;"	f
 cells	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_layout.rs	/^    fn cells(&self) -> Vec<CellRenderer>;$/;"	f
 cells	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/cell_layout.rs	/^    fn cells(&self) -> Vec<CellRenderer> {$/;"	f
+cells_per_row	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn cells_per_row(&self) -> i32 {$/;"	f
 center_widget	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/action_bar.rs	/^    pub fn center_widget(&self) -> Option<Widget> {$/;"	f
 center_widget	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/center_box.rs	/^    pub fn center_widget(&self) -> Option<Widget> {$/;"	f
 center_widget	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/center_box.rs	/^    pub fn center_widget(self, center_widget: &impl IsA<Widget>) -> Self {$/;"	f
@@ -11841,6 +11843,7 @@ json_internal	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d
 json_internal_vec	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_json-1.0.117/src/macros.rs	/^macro_rules! json_internal_vec {$/;"	d
 json_unexpected	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_json-1.0.117/src/macros.rs	/^macro_rules! json_unexpected {$/;"	d
 jump	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn jump(&mut self, position: usize) {$/;"	f
+jump_random	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn jump_random(&mut self) {$/;"	f
 jump_to_name	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn jump_to_name(&mut self, original_name: &str)  {$/;"	f
 justification	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_tag.rs	/^    fn justification(&self) -> Justification {$/;"	f
 justification	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_tag.rs	/^    fn justification(&self) -> Justification;$/;"	f
@@ -12929,7 +12932,7 @@ month	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba150
 month	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/calendar.rs	/^    pub fn month(self, month: i32) -> Self {$/;"	f
 move_	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/fixed.rs	/^    fn move_(&self, widget: &impl IsA<Widget>, x: f64, y: f64) {$/;"	f
 move_	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/fixed.rs	/^    fn move_(&self, widget: &impl IsA<Widget>, x: f64, y: f64);$/;"	f
-move_abs	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn move_abs(&mut self, n: usize) {$/;"	f
+move_abs	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn move_abs(&mut self, position: Coords) {$/;"	f
 move_after	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/list_store.rs	/^    pub fn move_after(&self, iter: &TreeIter, position: Option<&TreeIter>) {$/;"	f
 move_after	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/tree_store.rs	/^    pub fn move_after(&self, iter: &TreeIter, position: Option<&TreeIter>) {$/;"	f
 move_before	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/list_store.rs	/^    pub fn move_before(&self, iter: &TreeIter, position: Option<&TreeIter>) {$/;"	f
@@ -12949,12 +12952,13 @@ move_mark_by_name	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6
 move_mark_onscreen	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_view.rs	/^    fn move_mark_onscreen(&self, mark: &impl IsA<TextMark>) -> bool {$/;"	f
 move_mark_onscreen	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_view.rs	/^    fn move_mark_onscreen(&self, mark: &impl IsA<TextMark>) -> bool;$/;"	f
 move_next_page	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn move_next_page(&mut self) {$/;"	f
-move_offset	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn move_offset(&self, col_move: i32, row_move: i32) -> Option<usize> {$/;"	f
 move_overlay	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_view.rs	/^    fn move_overlay(&self, child: &impl IsA<Widget>, xpos: i32, ypos: i32) {$/;"	f
 move_overlay	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_view.rs	/^    fn move_overlay(&self, child: &impl IsA<Widget>, xpos: i32, ypos: i32);$/;"	f
 move_prev_page	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn move_prev_page(&mut self) {$/;"	f
 move_rel	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn move_rel(&mut self, coords: Coords) {$/;"	f
 move_slider	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/range.rs	/^    fn move_slider(&self, scroll_type: ScrollType) {$/;"	f
+move_to_index	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn move_to_index(&mut self, n: usize) {$/;"	f
+move_to_index_can_be_checked	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn move_to_index_can_be_checked() {$/;"	f
 move_visually	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_view.rs	/^    fn move_visually(&self, iter: &mut TextIter, count: i32) -> bool {$/;"	f
 move_visually	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_view.rs	/^    fn move_visually(&self, iter: &mut TextIter, count: i32) -> bool;$/;"	f
 mul	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_json-1.0.117/src/lexical/math.rs	/^    pub fn mul(x: &[Limb], y: Limb) -> Vec<Limb> {$/;"	f
@@ -13160,8 +13164,8 @@ natural_width	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d
 natural_wrap_mode	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/label.rs	/^    pub fn natural_wrap_mode(&self) -> NaturalWrapMode {$/;"	f
 natural_wrap_mode	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/label.rs	/^    pub fn natural_wrap_mode(self, natural_wrap_mode: NaturalWrapMode) -> Self {$/;"	f
 navigate	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn navigate(entries: &mut Entries, grid: &gtk::Grid, window: &gtk::ApplicationWindow, col_move: i32, row_move: i32) {$/;"	f
-navigator_should_panic_if_move_abs_where_not_allowed	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn navigator_should_panic_if_move_abs_where_not_allowed() {$/;"	f
 navigator_should_panic_if_move_rel_where_not_allowed	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn navigator_should_panic_if_move_rel_where_not_allowed() {$/;"	f
+navigator_should_panic_if_move_to_index_where_not_allowed	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn navigator_should_panic_if_move_to_index_where_not_allowed() {$/;"	f
 ne	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/predicates-3.1.0/src/ord.rs	/^pub fn ne<T>(constant: T) -> EqPredicate<T>$/;"	f
 nearest_error_is_accurate	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_json-1.0.117/src/lexical/errors.rs	/^fn nearest_error_is_accurate(errors: u64, fp: &ExtendedFloat, extrabits: u64) -> bool {$/;"	f
 needs_attention	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/stack_page.rs	/^    pub fn needs_attention(&self) -> bool {$/;"	f
@@ -13774,7 +13778,6 @@ next_element_seed	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6
 next_entry	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.202/src/de/mod.rs	/^    fn next_entry<K, V>(&mut self) -> Result<Option<(K, V)>, Self::Error>$/;"	f
 next_entry_seed	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.202/src/de/mod.rs	/^    fn next_entry_seed<K, V>($/;"	f
 next_entry_seed	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.202/src/de/value.rs	/^    fn next_entry_seed<TK, TV>($/;"	f
-next_image	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn next_image(&mut self) {$/;"	f
 next_key	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.202/src/de/mod.rs	/^    fn next_key<K>(&mut self) -> Result<Option<K>, Self::Error>$/;"	f
 next_key_seed	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.202/src/de/mod.rs	/^    fn next_key_seed<K>(&mut self, seed: K) -> Result<Option<K::Value>, Self::Error>$/;"	f
 next_key_seed	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.202/src/de/value.rs	/^    fn next_key_seed<T>(&mut self, seed: T) -> Result<Option<T::Value>, Self::Error>$/;"	f
@@ -14991,6 +14994,7 @@ position	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba
 position	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/tree_list_row.rs	/^    pub fn position(&self) -> u32 {$/;"	f
 position	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_json-1.0.117/src/read.rs	/^    fn position(&self) -> Position {$/;"	f
 position	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_json-1.0.117/src/read.rs	/^    fn position(&self) -> Position;$/;"	f
+position	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn position(&self) -> Coords {$/;"	f
 position_of_index	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_json-1.0.117/src/read.rs	/^    fn position_of_index(&self, i: usize) -> Position {$/;"	f
 position_set	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/paned.rs	/^    pub fn position_set(self, position_set: bool) -> Self {$/;"	f
 pow10	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_json-1.0.117/src/lexical/num.rs	/^    fn pow10(self, n: i32) -> Self;$/;"	f
@@ -15239,7 +15243,6 @@ queue_resize	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d2
 queue_resize	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/widget.rs	/^    fn queue_resize(&self);$/;"	f
 radio	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_renderer_toggle.rs	/^    pub fn radio(self, radio: bool) -> Self {$/;"	f
 random	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/lib.rs	/^pub fn random<T>() -> T$/;"	f
-random	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn random(&mut self) {$/;"	f
 range	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/spin_button.rs	/^    pub fn range(&self) -> (f64, f64) {$/;"	f
 range	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/distributions/uniform.rs	/^        fn range<T: SampleUniform>(low: T, high: T) {$/;"	f
 range	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/regex-1.10.4/src/regex/bytes.rs	/^    pub fn range(&self) -> core::ops::Range<usize> {$/;"	f

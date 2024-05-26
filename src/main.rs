@@ -388,9 +388,10 @@ fn main() {
                     select_gesture.set_button(1);
                     select_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_,_, _, _| {
                         let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-                        let offset = row * grid_size as i32 + col;
-                        entries.offset = offset as usize;
-                        entries.toggle_select_area();
+                        if entries.navigator.can_move_rel((col,row)) {
+                            entries.navigator.move_rel((col,row));
+                            entries.toggle_select_area();
+                        }
                         show_grid(&grid, &entries, &window);
                     }));
                     image.add_controller(select_gesture);
@@ -400,24 +401,28 @@ fn main() {
 
                     view_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong image, @strong view, @strong stack, @strong view_scrolled_window, @strong grid_scrolled_window, @strong window => move |_, _, _, _| {
                         let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-                        if entries.max_cells == 1 { return };
-                        let offset = row * grid_size as i32 + col;
-                        entries.offset = offset as usize;
-                        stack.set_visible_child(&view_scrolled_window);
-                        show_view(&view, &entries, &window);
+                        if entries.navigator.cells_per_row() == 1 { return };
+                        if entries.navigator.can_move_rel((col,row)) {
+                            entries.navigator.move_rel((col,row));
+                            entries.toggle_select_area();
+                            stack.set_visible_child(&view_scrolled_window);
+                            show_view(&view, &entries, &window);
+                        }
                     }));
                     image.add_controller(view_gesture);
 
                     let motion_controller = EventControllerMotion::new();
                     motion_controller.connect_enter(clone!(@strong entries_rc, @strong grid, @strong label, @strong window => move |_,_,_| {
                         if let Ok(mut entries) = entries_rc.try_borrow_mut() {
-                            if let Some(entry) = &entries.at(col, row) {
+                            if entries.navigator.can_move_rel((col,row)) {
+                                entries.navigator.move_rel((col,row));
+                                let entry = entries.entry();
                                 label.set_text(&entry.label(true));
+                                window.set_title(Some(&(entries.status())));
                             }
-                            entries.offset = (row * grid_size as i32 + col) as usize;
-                            window.set_title(Some(&(entries.status())));
                         }
                     }));
+
                     motion_controller.connect_leave(clone!(@strong entries_rc, @strong grid, @strong label, @strong window => move |_| {
                         if let Ok(entries) = entries_rc.try_borrow_mut() {
                             if let Some(entry) = &entries.at(col, row) {
@@ -449,7 +454,7 @@ fn main() {
                             "g" => if ! entries.register.is_none() { entries.go_to_register() },
                             "j" => for _ in 0..10 { entries.next() },
                             "l" => for _ in 0..10 { entries.prev() },
-                            "f" => if (entries.max_cells) == 1 { entries.toggle_real_size() },
+                            "f" => if entries.navigator.cells_per_row() == 1 { entries.toggle_real_size() },
                             "z" => entries.jump(0),
                             "e" => entries.next(),
                             "n" => {
@@ -546,7 +551,7 @@ fn main() {
                                     entries.reorder(Order::Random);
                                     show_grid(&grid, &entries, &window)
                                 } else {
-                                    entries.random()
+                                    entries.jump_random()
                                 }
                             },
                             "a" => entries.set_grid_select(),
@@ -587,7 +592,7 @@ fn main() {
                                         .expect("Failed to get hadjustment");
                                     h_adj.set_value(h_adj.value() + step as f64)
                                 } else {
-                                    if entries.max_cells == 1 {
+                                    if entries.navigator.cells_per_row() == 1 {
                                         entries.next();
                                         show = true;
                                     } else {
@@ -606,7 +611,7 @@ fn main() {
                                         .expect("Failed to get hadjustment");
                                     h_adj.set_value(h_adj.value() - step as f64)
                                 } else {
-                                    if entries.max_cells == 1 {
+                                    if entries.navigator.cells_per_row() == 1 {
                                         entries.prev();
                                         show = true;
                                     } else {
@@ -625,7 +630,7 @@ fn main() {
                                         .expect("Failed to get vadjustment");
                                     v_adj.set_value(v_adj.value() + step as f64)
                                 } else {
-                                    if entries.max_cells == 1 {
+                                    if entries.navigator.cells_per_row() == 1 {
                                         entries.next()
                                     } else {
                                         navigate(&mut entries, &grid, &window, 0, 1);
@@ -643,24 +648,10 @@ fn main() {
                                         .expect("Failed to get vadjustment");
                                     v_adj.set_value(v_adj.value() - step as f64)
                                 } else {
-                                    if entries.max_cells == 1 {
+                                    if entries.navigator.cells_per_row() == 1 {
                                         entries.prev()
                                     } else {
-                                        let side = entries.cells_per_row;
-                                        let col = entries.offset % side;
-                                        let row = entries.offset / side;
-                                        if row > 0 {
-                                            if let Some(entry) = &entries.at(col as i32,row as i32) {
-                                                let label = label_at(&grid, col as i32, row as i32);
-                                                label.set_text(&entry.label(false));
-                                                entries.offset -= side;
-                                                if let Some(entry) = &entries.at(col as i32,(row-1) as i32) {
-                                                    let label = label_at(&grid, col as i32, (row-1) as i32);
-                                                label.set_text(&entry.label(true));
-                                                }
-                                            }
-                                        };
-                                        window.set_title(Some(&entries.status()));
+                                        navigate(&mut entries, &grid, &window, 0, 1);
                                     }
                                 }
                             },
@@ -702,36 +693,31 @@ fn main() {
 }
 
 fn show_grid(grid: &Grid, entries: &Entries, window: &gtk::ApplicationWindow) {
-    let max_cells = entries.max_cells;
-    let cells_per_row = entries.cells_per_row;
-    let current = entries.current;
-    let maximum = entries.maximum;
-    for cell_index in 0 .. max_cells {
-        let row = (cell_index / cells_per_row) as i32;
-        let col = (cell_index % cells_per_row) as i32;
-        let vbox = grid.child_at(col,row).unwrap().downcast::<gtk::Box>().unwrap();
-        let picture = vbox.first_child().unwrap().downcast::<gtk::Picture>().unwrap();
-        let label = vbox.last_child().unwrap().downcast::<gtk::Label>().unwrap();
-        label.set_text("");
-        let offset = row as usize * cells_per_row + col as usize;
-        let position = current + offset;
-        if position <= maximum {
-            let entry = &entries.entry_list[position];
-            let status = format!("{} {} {}",
-                    if offset == entries.offset && entries.max_cells > 1 { "█" } else { "" },
+    let cells_per_row = entries.navigator.cells_per_row();
+    for col in 0..cells_per_row {
+        for row in 0..cells_per_row {
+            let vbox = grid.child_at(col,row).unwrap().downcast::<gtk::Box>().unwrap();
+            let picture = vbox.first_child().unwrap().downcast::<gtk::Picture>().unwrap();
+            let label = vbox.last_child().unwrap().downcast::<gtk::Label>().unwrap();
+            if let Some(index) = entries.navigator.index_from_position((col,row)) {
+                let entry = &entries.entry_list[index];
+                let status = format!("{} {} {}",
+                    if index == entries.navigator.index() && cells_per_row > 1 { "▄" } else { "" },
                     entry.rank.show(),
                     if entry.to_select { "△" } else { "" });
-            label.set_text(&status);
-            let opacity = if entry.to_select { 0.50 } else { 1.0 };
-            picture.set_opacity(opacity);
-            let filename = &entry.file_path;
-            picture.set_can_shrink(!entries.real_size);
-            picture.set_filename(Some(filename.to_string()));
-            picture.set_visible(true)
-        } else {
-            picture.set_visible(false)
+                label.set_text(&status);
+                let opacity = if entry.to_select { 0.50 } else { 1.0 };
+                picture.set_opacity(opacity);
+                let filename = &entry.file_path;
+                picture.set_can_shrink(!entries.real_size);
+                picture.set_filename(Some(filename.to_string()));
+                picture.set_visible(true)
+            } else {
+                picture.set_visible(false);
+                label.set_text("");
+            }
         }
-    };
+    }
     window.set_title(Some(&entries.status()));
 }
 
@@ -744,7 +730,6 @@ fn show_view(grid: &Grid, entries: &Entries, window: &gtk::ApplicationWindow) {
 }
 
 fn label_at(grid: &gtk::Grid, col: i32, row: i32) -> gtk::Label {
-    println!("*************************************** {} {}", col, row);
     grid.child_at(col as i32, row as i32).unwrap()
         .downcast::<gtk::Box>().unwrap()
         .last_child().unwrap()
@@ -752,23 +737,16 @@ fn label_at(grid: &gtk::Grid, col: i32, row: i32) -> gtk::Label {
 }
 
 fn navigate(entries: &mut Entries, grid: &gtk::Grid, window: &gtk::ApplicationWindow, col_move: i32, row_move: i32) {
-    if let Some(new_offset) = entries.move_offset(col_move, row_move) {
-        println!("current: {} offset: {} new_offset: {}", entries.current, entries.offset, new_offset);
-        let (col,row) = entries.offset_coords();
-        let label = label_at(&grid, col, row);
-        let current_text = label.text();
-        if let Some(entry) = &entries.at(col,row) {
-            label.set_text(&entry.label(false));
-            entries.offset = new_offset;
-            println!("changed: current: {} offset: {}", entries.current, entries.offset);
-            let (new_col, new_row) = entries.offset_coords();
-            let next_label = label_at(&grid, new_col, new_row);
-            if let Some(entry) = &entries.at(new_col, new_row) {
-                next_label.set_text(&entry.label(true))
-            } else {
-                label.set_text(&current_text)
-            };
-            window.set_title(Some(&entries.status()));
-        }
+    if entries.navigator.can_move_rel((col_move, row_move)) {
+        let old_coords = entries.navigator.position();
+        let old_label = label_at(&grid, old_coords.0, old_coords.1);
+        let old_index = entries.navigator.index();
+        old_label.set_text(&entries.entry_list[old_index].label(false));
+        entries.navigator.move_rel((col_move, row_move));
+        let new_coords = entries.navigator.position();
+        let new_label = label_at(&grid, new_coords.0, new_coords.1);
+        let new_index = entries.navigator.index();
+        new_label.set_text(&entries.entry_list[new_index].label(true));
+        window.set_title(Some(&entries.status()));
     }
 }
