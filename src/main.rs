@@ -743,6 +743,7 @@ fn show_view(grid: &Grid, entries: &Entries, window: &gtk::ApplicationWindow) {
 }
 
 fn label_at(grid: &gtk::Grid, col: i32, row: i32) -> gtk::Label {
+    println!("*************************************** {} {}", col, row);
     grid.child_at(col as i32, row as i32).unwrap()
         .downcast::<gtk::Box>().unwrap()
         .last_child().unwrap()
@@ -750,28 +751,23 @@ fn label_at(grid: &gtk::Grid, col: i32, row: i32) -> gtk::Label {
 }
 
 fn navigate(entries: &mut Entries, grid: &gtk::Grid, window: &gtk::ApplicationWindow, col_move: i32, row_move: i32) {
-    let side = entries.cells_per_row;
-    let col = entries.offset % side;
-    let row = entries.offset / side;
-    let c = col as i32;
-    let r = row as i32;
-    let s = side as i32;
-    if c + col_move < side as i32 && c + col_move >= 0 && r + row_move < s && r + row_move >= 0 {
-        if let Some(entry) = &entries.at(c, r) {
-            let label = label_at(&grid, c, r);
-            let current_text = label.text();
+    if let Some(new_offset) = entries.move_offset(col_move, row_move) {
+        println!("current: {} offset: {} new_offset: {}", entries.current, entries.offset, new_offset);
+        let (col,row) = entries.offset_coords();
+        let label = label_at(&grid, col, row);
+        let current_text = label.text();
+        if let Some(entry) = &entries.at(col,row) {
             label.set_text(&entry.label(false));
-            let new_offset = (entries.offset as i32 + col_move + (row_move * s)) as usize;
-            if entries.current + new_offset <= entries.maximum {
-                entries.offset = new_offset;
-                if let Some(next_entry) = &entries.at(c + col_move, r) {
-                    let next_label = label_at(&grid, c + col_move, r);
-                    next_label.set_text(&next_entry.label(true))
-                } else {
-                    label.set_text(&current_text);
-                }
-            }
+            entries.offset = new_offset;
+            println!("changed: current: {} offset: {}", entries.current, entries.offset);
+            let (new_col, new_row) = entries.offset_coords();
+            let next_label = label_at(&grid, new_col, new_row);
+            if let Some(entry) = &entries.at(new_col, new_row) {
+                next_label.set_text(&entry.label(true))
+            } else {
+                label.set_text(&current_text)
+            };
+            window.set_title(Some(&entries.status()));
         }
-    };
-    window.set_title(Some(&entries.status()));
+    }
 }

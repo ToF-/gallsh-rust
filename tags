@@ -12933,6 +12933,7 @@ move_mark_by_name	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6
 move_mark_by_name	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_buffer.rs	/^    fn move_mark_by_name(&self, name: &str, where_: &TextIter);$/;"	f
 move_mark_onscreen	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_view.rs	/^    fn move_mark_onscreen(&self, mark: &impl IsA<TextMark>) -> bool {$/;"	f
 move_mark_onscreen	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_view.rs	/^    fn move_mark_onscreen(&self, mark: &impl IsA<TextMark>) -> bool;$/;"	f
+move_offset	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn move_offset(&self, col_move: i32, row_move: i32) -> Option<usize> {$/;"	f
 move_overlay	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_view.rs	/^    fn move_overlay(&self, child: &impl IsA<Widget>, xpos: i32, ypos: i32) {$/;"	f
 move_overlay	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_view.rs	/^    fn move_overlay(&self, child: &impl IsA<Widget>, xpos: i32, ypos: i32);$/;"	f
 move_slider	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/range.rs	/^    fn move_slider(&self, scroll_type: ScrollType) {$/;"	f
@@ -13852,6 +13853,7 @@ offset	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15
 offset	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/slice_list_model.rs	/^    pub fn offset(&self) -> u32 {$/;"	f
 offset	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/slice_list_model.rs	/^    pub fn offset(self, offset: u32) -> Self {$/;"	f
 offset	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_iter.rs	/^    pub fn offset(&self) -> i32 {$/;"	f
+offset_coords	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn offset_coords(&self) -> (i32,i32) {$/;"	f
 offset_value	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/level_bar.rs	/^    pub fn offset_value(&self, name: Option<&str>) -> Option<f64> {$/;"	f
 offsets	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/image.rs	/^    pub fn offsets(&self) -> (u32, u32) {$/;"	f
 one	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/seq/index.rs	/^    fn one() -> Self {$/;"	f

@@ -330,6 +330,41 @@ impl Entries {
         }
     }
 
+    pub fn offset_coords(&self) -> (i32,i32) {
+        let cells_per_row = self.cells_per_row as i32;
+        let offset = self.offset as i32;
+        let col = offset % cells_per_row;
+        let row = offset / cells_per_row;
+        assert!(col >= 0);
+        assert!(col < cells_per_row);
+        assert!(row >= 0);
+        assert!(row < cells_per_row);
+        (col,row)
+    }
+
+    pub fn move_offset(&self, col_move: i32, row_move: i32) -> Option<usize> {
+        let cells_per_row = self.cells_per_row as i32;
+        let offset = self.offset as i32;
+        let (col,row) = self.offset_coords();
+        let new_col = col + col_move;
+        let new_row = row + row_move;
+        println!("move_offset: col_move:{} row_move:{} col:{} row:{} new_col:{} new_row:{} cells_per_row:{}", col_move, row_move, col, row, new_col, new_row, cells_per_row);
+        if new_col >= cells_per_row || new_col < 0 || new_row >= cells_per_row || new_row < 0 {
+            println!("move_offset refused");
+            None
+        } else {
+            let new_offset = (offset + new_row * cells_per_row + new_col) as usize;
+            println!("new_offset: {} + {} * {} + {} = {}", offset, new_row, cells_per_row, new_col, new_offset);
+            if self.current + new_offset as usize > self.maximum {
+                println!("move_offset refused {}", new_offset);
+                None
+            } else {
+                println!("move_offset accepted:{}", new_offset);
+                Some(new_offset)
+            }
+        }
+    }
+
     pub fn prev(&mut self) {
         self.register = None;
         self.offset = 0;
