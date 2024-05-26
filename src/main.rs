@@ -20,6 +20,7 @@ const DEFAULT_HEIGHT: i32 = 1000;
 
 
 
+mod navigator;
 mod entry;
 mod order;
 mod entries;
