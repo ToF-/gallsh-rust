@@ -1799,6 +1799,7 @@ Replacer	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba
 Replacer	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/regex-1.10.4/src/regex/string.rs	/^pub trait Replacer {$/;"	t
 ReplacerRef	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/regex-1.10.4/src/regex/bytes.rs	/^pub struct ReplacerRef<'a, R: ?Sized>(&'a mut R);$/;"	s
 ReplacerRef	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/regex-1.10.4/src/regex/string.rs	/^pub struct ReplacerRef<'a, R: ?Sized>(&'a mut R);$/;"	s
+Repository	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^pub struct Repository {$/;"	s
 Representation	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/codecs/pnm/decoder.rs	/^    type Representation = u16;$/;"	T
 Representation	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/codecs/pnm/decoder.rs	/^    type Representation = u8;$/;"	T
 Representation	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/codecs/pnm/decoder.rs	/^    type Representation;$/;"	T
@@ -2916,7 +2917,8 @@ adjustment	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22b
 adjustment	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/spin_button.rs	/^    pub fn adjustment(&self) -> Adjustment {$/;"	f
 adjustment	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/spin_button.rs	/^    pub fn adjustment(self, adjustment: &impl IsA<Adjustment>) -> Self {$/;"	f
 adjustment	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/volume_button.rs	/^    pub fn adjustment(self, adjustment: &impl IsA<Adjustment>) -> Self {$/;"	f
-after_a_move_index_has_changed	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn after_a_move_index_has_changed() {$/;"	f
+after_a_move_abs_index_has_changed	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn after_a_move_abs_index_has_changed() {$/;"	f
+after_a_move_rel_index_has_changed	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn after_a_move_rel_index_has_changed() {$/;"	f
 after_move_to_index_page_can_be_changed	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn after_move_to_index_page_can_be_changed() {$/;"	f
 after_next_page_on_last_page_index_is_start_of_first_page	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn after_next_page_on_last_page_index_is_start_of_first_page() {$/;"	f
 after_next_page_or_prev_page_index_is_changed_and_aligned_to_a_page	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn after_next_page_or_prev_page_index_is_changed_and_aligned_to_a_page() {$/;"	f
@@ -6596,6 +6598,7 @@ create_thumbnails	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6
 create_widget_for_value	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/drag_icon.rs	/^    pub fn create_widget_for_value(value: &glib::Value) -> Option<Widget> {$/;"	f
 creates_folders	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/file_chooser.rs	/^    fn creates_folders(&self) -> bool {$/;"	f
 creates_folders	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/file_chooser.rs	/^    fn creates_folders(&self) -> bool;$/;"	f
+creating_a_repository_from_a_list_of_entries	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    fn creating_a_repository_from_a_list_of_entries() {$/;"	f
 creation	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/buffer_par.rs	/^    fn creation(b: &mut test::Bencher) {$/;"	f
 creation_par	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/buffer_par.rs	/^    fn creation_par(b: &mut test::Bencher) {$/;"	f
 crlf	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/regex-1.10.4/src/builders.rs	/^        pub fn crlf(&mut self, yes: bool) -> &mut RegexBuilder {$/;"	f
@@ -9433,6 +9436,7 @@ from_decoder	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d2
 from_decoding	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/codecs/gif.rs	/^    fn from_decoding(err: gif::DecodingError) -> ImageError {$/;"	f
 from_directory	/Users/christophethibaut/Coding/gallsh-rust/src/entries.rs	/^    pub fn from_directory(dir_path: &str,$/;"	f
 from_encoding	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/codecs/gif.rs	/^    fn from_encoding(err: gif::EncodingError) -> ImageError {$/;"	f
+from_entries	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn from_entries(entries: EntryList, cells_per_row: usize) -> Self {$/;"	f
 from_escape_table	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_json-1.0.117/src/ser.rs	/^    fn from_escape_table(escape: u8, byte: u8) -> CharEscape {$/;"	f
 from_extension	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/image.rs	/^    pub fn from_extension<S>(ext: S) -> Option<Self>$/;"	f
 from_f64	/Users/christophethibaut/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_json-1.0.117/src/number.rs	/^    pub fn from_f64(f: f64) -> Option<Number> {$/;"	f

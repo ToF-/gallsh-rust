@@ -21,6 +21,7 @@ const DEFAULT_HEIGHT: i32 = 1000;
 
 
 mod navigator;
+mod repository;
 mod entry;
 mod order;
 mod entries;
@@ -281,6 +282,8 @@ fn main() {
 
         if let Some(index_number) = args.index {
             entries.jump(index_number);
+        } else {
+            entries.navigator.move_to_index(0);
         }
         let entries_rc = Rc::new(RefCell::new(entries));
 
@@ -303,8 +306,8 @@ fn main() {
             .name("view")
             .build();
 
-        let css_provider = CssProvider::new();
-        css_provider.load_from_data(
+        let buttons_css_provider = CssProvider::new();
+        buttons_css_provider.load_from_data(
             "
             label {
                 color: gray;
@@ -313,379 +316,381 @@ fn main() {
             text-button {
                 background-color: black;
             }
-            ");
-            let view = Grid::new();
-            view.set_row_homogeneous(true);
-            view.set_column_homogeneous(true);
-            view.set_hexpand(true);
-            view.set_vexpand(true);
-            let stack = gtk::Stack::new();
-            let image_view = Picture::new();
-            let view_gesture = gtk::GestureClick::new();
-            view_gesture.set_button(0);
-            view_gesture.connect_pressed(clone!(@strong entries_rc, @strong stack, @strong grid_scrolled_window, @strong window => move |_,_, _, _| {
-                stack.set_visible_child(&grid_scrolled_window);
-            }));
-            image_view.add_controller(view_gesture);
-            view.attach(&image_view, 0, 0, 1, 1);
-            view_scrolled_window.set_child(Some(&view));
-
-            let panel = Grid::new();
-            panel.set_hexpand(true);
-            panel.set_vexpand(true);
-            panel.set_row_homogeneous(true);
-            panel.set_column_homogeneous(false);
-            let left_button = Label::new(Some("←"));
-            let right_button = Label::new(Some("→"));
-            left_button.set_width_chars(10);
-            right_button.set_width_chars(10);
-            left_button.style_context().add_provider(&css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
-            right_button.style_context().add_provider(&css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
-            let left_gesture = gtk::GestureClick::new();
-
-            let grid = Grid::new();
-            let _ = stack.add_child(&grid_scrolled_window);
-            let _ = stack.add_child(&view_scrolled_window);
-            window.set_child(Some(&stack));
-            stack.set_visible_child(&view_scrolled_window);
+        ");
+        let view = Grid::new();
+        view.set_row_homogeneous(true);
+        view.set_column_homogeneous(true);
+        view.set_hexpand(true);
+        view.set_vexpand(true);
+        let stack = gtk::Stack::new();
+        let image_view = Picture::new();
+        let view_gesture = gtk::GestureClick::new();
+        view_gesture.set_button(0);
+        view_gesture.connect_pressed(clone!(@strong entries_rc, @strong stack, @strong grid_scrolled_window, @strong window => move |_,_, _, _| {
             stack.set_visible_child(&grid_scrolled_window);
-            grid.set_row_homogeneous(true);
-            grid.set_column_homogeneous(true);
-            grid.set_hexpand(true);
-            grid.set_vexpand(true);
-            panel.attach(&left_button, 0, 0, 1, 1);
-            panel.attach(&grid, 1, 0, 1, 1);
-            panel.attach(&right_button, 2, 0, 1, 1);
-            left_gesture.set_button(1);
-            left_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_,_,_,_| {
-                let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-                entries.prev();
-                show_grid(&grid, &entries, &window);
-            }));
-            left_button.add_controller(left_gesture);
-            let right_gesture = gtk::GestureClick::new();
-            right_gesture.set_button(1);
-            right_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_,_,_,_| {
+        }));
+        image_view.add_controller(view_gesture);
+        view.attach(&image_view, 0, 0, 1, 1);
+        view_scrolled_window.set_child(Some(&view));
+
+        let panel = Grid::new();
+        panel.set_hexpand(true);
+        panel.set_vexpand(true);
+        panel.set_row_homogeneous(true);
+        panel.set_column_homogeneous(false);
+        let left_button = Label::new(Some("←"));
+        let right_button = Label::new(Some("→"));
+        left_button.set_width_chars(10);
+        right_button.set_width_chars(10);
+        left_button.style_context().add_provider(&buttons_css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
+        right_button.style_context().add_provider(&buttons_css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
+        let left_gesture = gtk::GestureClick::new();
+
+        let grid = Grid::new();
+        let _ = stack.add_child(&grid_scrolled_window);
+        let _ = stack.add_child(&view_scrolled_window);
+        window.set_child(Some(&stack));
+        stack.set_visible_child(&view_scrolled_window);
+        stack.set_visible_child(&grid_scrolled_window);
+        grid.set_row_homogeneous(true);
+        grid.set_column_homogeneous(true);
+        grid.set_hexpand(true);
+        grid.set_vexpand(true);
+        panel.attach(&left_button, 0, 0, 1, 1);
+        panel.attach(&grid, 1, 0, 1, 1);
+        panel.attach(&right_button, 2, 0, 1, 1);
+        left_gesture.set_button(1);
+        left_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_,_,_,_| {
+            let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
+            entries.prev();
+            show_grid(&grid, &entries, &window);
+        }));
+        left_button.add_controller(left_gesture);
+        let right_gesture = gtk::GestureClick::new();
+        right_gesture.set_button(1);
+        right_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_,_,_,_| {
+            let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
+            entries.next();
+            show_grid(&grid, &entries, &window);
+        }));
+        right_button.add_controller(right_gesture);
+        for col in 0 .. grid_size as i32 {
+            for row in 0 .. grid_size as i32 {
+                let vbox = gtk::Box::new(Orientation::Vertical, 0);
+                let image = Picture::new();
+                let label = Label::new(None);
+                let style_context = label.style_context();
+                style_context.add_provider(&buttons_css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
+                vbox.set_valign(Align::Center);
+                vbox.set_halign(Align::Center);
+                vbox.append(&image);
+                vbox.append(&label);
+                grid.attach(&vbox, col as i32, row as i32, 1, 1);
+
+                let select_gesture = gtk::GestureClick::new();
+                select_gesture.set_button(1);
+                select_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_,_, _, _| {
+                    let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
+                    if entries.navigator.can_move_rel((col,row)) {
+                        entries.navigator.move_rel((col,row));
+                        entries.toggle_select_area();
+                    }
+                    show_grid(&grid, &entries, &window);
+                }));
+                image.add_controller(select_gesture);
+
+                let view_gesture = gtk::GestureClick::new();
+                view_gesture.set_button(3);
+
+                view_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong image, @strong view, @strong stack, @strong view_scrolled_window, @strong grid_scrolled_window, @strong window => move |_, _, _, _| {
+                    let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
+                    if entries.navigator.cells_per_row() == 1 { return };
+                    if entries.navigator.can_move_rel((col,row)) {
+                        entries.navigator.move_rel((col,row));
+                        entries.toggle_select_area();
+                        stack.set_visible_child(&view_scrolled_window);
+                        show_view(&view, &entries, &window);
+                    }
+                }));
+                image.add_controller(view_gesture);
+
+                let motion_controller = EventControllerMotion::new();
+                motion_controller.connect_enter(clone!(@strong entries_rc, @strong grid, @strong label, @strong window => move |_,_,_| {
+                    if let Ok(mut entries) = entries_rc.try_borrow_mut() {
+                        if entries.navigator.can_move_abs((col,row)) {
+                            entries.navigator.move_abs((col,row));
+                            let entry = entries.entry();
+                            label.set_text(&entry.label(true));
+                            window.set_title(Some(&(entries.status())));
+                        } else {
+                            println!("{:?} refused {:?}", (col,row), entries.navigator)
+                        }
+                    }
+                }));
+
+                motion_controller.connect_leave(clone!(@strong entries_rc, @strong grid, @strong label, @strong window => move |_| {
+                    if let Ok(entries) = entries_rc.try_borrow_mut() {
+                        if let Some(entry) = &entries.at(col, row) {
+                            label.set_text(&entry.label(false));
+                        }
+                    };
+                }));
+                image.add_controller(motion_controller)
+            }
+        }
+        grid_scrolled_window.set_child(Some(&panel));
+
+        let evk = gtk::EventControllerKey::new();
+        evk.connect_key_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_, key, _, _| {
+            let step = 100;
+            if let Ok(mut entries) = entries_rc.try_borrow_mut() {
+                if let Some(s) = key.name() {
+                    if stack.visible_child().unwrap() == view_scrolled_window {
+                        stack.set_visible_child(&grid_scrolled_window);
+                        return gtk::Inhibit(false)
+                    };
+                    let mut show = true;
+                    match s.as_str() {
+                        "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" => {
+                            let digit:usize = s.parse().unwrap();
+                            entries.add_digit_to_register(digit);
+                        },
+                        "BackSpace" => entries.remove_digit_to_register(),
+                        "g" => if ! entries.register.is_none() { entries.go_to_register() },
+                        "j" => for _ in 0..10 { entries.next() },
+                        "l" => for _ in 0..10 { entries.prev() },
+                        "f" => if entries.navigator.cells_per_row() == 1 { entries.toggle_real_size() },
+                        "z" => entries.jump(0),
+                        "e" => entries.next(),
+                        "n" => {
+                            if entries.order.is_none() {
+                                entries.reorder(Order::Name);
+                                show_grid(&grid, &entries, &window)
+                            } else {
+                                entries.next()
+                            }
+                        },
+                        "p"|"i" => entries.prev(),
+                        "q"|"Escape" => {
+                            entries.save_marked_file_lists(args.thumbnails);
+                            entries.save_updated_ranks();
+                            window.close();
+                        },
+                        "Q" => {
+                            if let Some(target_path) = &copy_selection_target {
+                                entries.copy_selection(&target_path);
+                                entries.save_marked_file_lists(args.thumbnails);
+                                entries.save_updated_ranks();
+                                window.close()
+                            }
+                        },
+                        "B" => {
+                            if entries.star_select.is_none() {
+                                entries.select_with_rank(Rank::NoStar)
+                            } else {
+                                entries.toggle_rank_area(Rank::NoStar)
+                            }
+                        },
+                        "M"|"Eacute"=> {
+                            if entries.star_select.is_none() {
+                                entries.select_with_rank(Rank::OneStar)
+                            } else {
+                                entries.toggle_rank_area(Rank::OneStar)
+                            }
+                        },
+                        "N"|"P" => {
+                            if entries.star_select.is_none() {
+                                entries.select_with_rank(Rank::TwoStars)
+                            } else {
+                                entries.toggle_rank_area(Rank::TwoStars)
+                            }
+                        },
+                        "O" => {
+                            if entries.star_select.is_none() {
+                                entries.select_with_rank(Rank::ThreeStars)
+                            } else {
+                                entries.toggle_rank_area(Rank::ThreeStars)
+                            }
+                        },
+                        "comma" => entries.toggle_select(),
+                        "Return" => entries.toggle_select_area(),
+                        "asterisk"|"A" => {
+                            if entries.star_select.is_none() {
+                                entries.select_with_rank(Rank::ThreeStars)
+                            } else {
+                                entries.set_rank(Rank::ThreeStars)
+                            }
+                        }
+                        "slash" => {
+                            if entries.star_select.is_none() {
+                                entries.select_with_rank(Rank::TwoStars)
+                            } else {
+                                entries.set_rank(Rank::TwoStars)
+                            }
+                        },
+                        "minus"|"C" => {
+                            if entries.star_select.is_none() {
+                                entries.select_with_rank(Rank::OneStar)
+                            } else {
+                                entries.set_rank(Rank::OneStar)
+                            }
+                        }
+                        "c" => if entries.order.is_none() {
+                            entries.reorder(Order::Colors);
+                            show_grid(&grid, &entries, &window)
+                        },
+                        "plus"|"D" => {
+                            if entries.star_select.is_none() {
+                                entries.select_with_rank(Rank::NoStar)
+                            } else {
+                                entries.set_rank(Rank::NoStar)
+                            }
+                        }
+                        "d" => if entries.order.is_none() {
+                            entries.reorder(Order::Date);
+                            show_grid(&grid, &entries, &window)
+                        },
+                        "R" => entries.unset_grid_ranks(),
+                        "r" => {
+                            if entries.order.is_none() {
+                                entries.reorder(Order::Random);
+                                show_grid(&grid, &entries, &window)
+                            } else {
+                                entries.jump_random()
+                            }
+                        },
+                        "a" => entries.set_grid_select(),
+                        "u" => entries.reset_grid_select(),
+                        "U" => entries.reset_all_select(),
+                        "s" => { 
+                            if entries.order.is_none() {
+                                entries.reorder(Order::Size);
+                                show_grid(&grid, &entries, &window)
+                            } else {
+                                entries.star_select = None
+                            }
+                        },
+                        "o" => entries.order = None,
+                        "v" => if entries.order.is_none() {
+                            entries.reorder(Order::Value);
+                            show_grid(&grid, &entries, &window)
+                        },
+                        "period"|"k" => {
+                            if stack.visible_child().unwrap() == grid_scrolled_window {
+                                show_grid(&grid, &entries, &window);
+                                stack.set_visible_child(&view_scrolled_window);
+                                show_view(&view, &entries, &window);
+                                show = false
+                            } else {
+                                stack.set_visible_child(&grid_scrolled_window)
+                            }
+                        },
+                        "space" => entries.next(),
+                        "Right" => {
+                            show = false;
+                            if entries.real_size {
+                                let h_adj = window
+                                    .child()
+                                    .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
+                                    .and_then(|child| child.downcast::<ScrolledWindow>().ok())
+                                    .and_then(|sw| Some(sw.hadjustment()))
+                                    .expect("Failed to get hadjustment");
+                                h_adj.set_value(h_adj.value() + step as f64)
+                            } else {
+                                if entries.navigator.cells_per_row() == 1 {
+                                    entries.next();
+                                    show = true;
+                                } else {
+                                    navigate(&mut entries, &grid, &window, 1, 0);
+                                }
+                            }
+                        },
+                        "Left" => {
+                            show = false;
+                            if entries.real_size {
+                                let h_adj = window
+                                    .child()
+                                    .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
+                                    .and_then(|child| child.downcast::<ScrolledWindow>().ok())
+                                    .and_then(|sw| Some(sw.hadjustment()))
+                                    .expect("Failed to get hadjustment");
+                                h_adj.set_value(h_adj.value() - step as f64)
+                            } else {
+                                if entries.navigator.cells_per_row() == 1 {
+                                    entries.prev();
+                                    show = true;
+                                } else {
+                                    navigate(&mut entries, &grid, &window, -1, 0);
+                                }
+                            }
+                        },
+                        "Down" => {
+                            show = false;
+                            if entries.real_size {
+                                let v_adj = window
+                                    .child()
+                                    .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
+                                    .and_then(|child| child.downcast::<ScrolledWindow>().ok())
+                                    .and_then(|sw| Some(sw.vadjustment()))
+                                    .expect("Failed to get vadjustment");
+                                v_adj.set_value(v_adj.value() + step as f64)
+                            } else {
+                                if entries.navigator.cells_per_row() == 1 {
+                                    entries.next()
+                                } else {
+                                    navigate(&mut entries, &grid, &window, 0, 1);
+                                }
+                            }
+                        },
+                        "Up" => {
+                            show = false;
+                            if entries.real_size {
+                                let v_adj = window
+                                    .child()
+                                    .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
+                                    .and_then(|child| child.downcast::<ScrolledWindow>().ok())
+                                    .and_then(|sw| Some(sw.vadjustment()))
+                                    .expect("Failed to get vadjustment");
+                                v_adj.set_value(v_adj.value() - step as f64)
+                            } else {
+                                if entries.navigator.cells_per_row() == 1 {
+                                    entries.prev()
+                                } else {
+                                    navigate(&mut entries, &grid, &window, 0, -1);
+                                }
+                            }
+                        },
+                        s => { println!("{} ?", s) },
+                    };
+                    if show {
+                        show_grid(&grid, &entries, &window);
+                    }
+                    gtk::Inhibit(false)
+                }
+                else {
+                    gtk::Inhibit(false)
+                }
+            } else {
+                gtk::Inhibit(false)
+            }
+        }));
+
+        window.add_controller(evk);
+        // show the first file
+        let entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
+        show_grid(&grid, &entries, &window);
+        if args.maximized { window.fullscreen() };
+        // if a timer has been passed, set a timeout routine
+        if let Some(t) = args.timer {
+            timeout_add_local(Duration::new(t,0), clone!(@strong entries_rc, @strong grid, @strong window => move | | {
                 let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
                 entries.next();
                 show_grid(&grid, &entries, &window);
+                window.set_title(Some(&entries.status()));
+                Continue(true)
             }));
-            right_button.add_controller(right_gesture);
-            for col in 0 .. grid_size as i32 {
-                for row in 0 .. grid_size as i32 {
-                    let vbox = gtk::Box::new(Orientation::Vertical, 0);
-                    let image = Picture::new();
-                    let label = Label::new(None);
-                    let style_context = label.style_context();
-                    style_context.add_provider(&css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
-                    vbox.set_valign(Align::Center);
-                    vbox.set_halign(Align::Center);
-                    vbox.append(&image);
-                    vbox.append(&label);
-                    grid.attach(&vbox, col as i32, row as i32, 1, 1);
-
-                    let select_gesture = gtk::GestureClick::new();
-                    select_gesture.set_button(1);
-                    select_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_,_, _, _| {
-                        let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-                        if entries.navigator.can_move_rel((col,row)) {
-                            entries.navigator.move_rel((col,row));
-                            entries.toggle_select_area();
-                        }
-                        show_grid(&grid, &entries, &window);
-                    }));
-                    image.add_controller(select_gesture);
-
-                    let view_gesture = gtk::GestureClick::new();
-                    view_gesture.set_button(3);
-
-                    view_gesture.connect_pressed(clone!(@strong entries_rc, @strong grid, @strong image, @strong view, @strong stack, @strong view_scrolled_window, @strong grid_scrolled_window, @strong window => move |_, _, _, _| {
-                        let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-                        if entries.navigator.cells_per_row() == 1 { return };
-                        if entries.navigator.can_move_rel((col,row)) {
-                            entries.navigator.move_rel((col,row));
-                            entries.toggle_select_area();
-                            stack.set_visible_child(&view_scrolled_window);
-                            show_view(&view, &entries, &window);
-                        }
-                    }));
-                    image.add_controller(view_gesture);
-
-                    let motion_controller = EventControllerMotion::new();
-                    motion_controller.connect_enter(clone!(@strong entries_rc, @strong grid, @strong label, @strong window => move |_,_,_| {
-                        if let Ok(mut entries) = entries_rc.try_borrow_mut() {
-                            if entries.navigator.can_move_rel((col,row)) {
-                                entries.navigator.move_rel((col,row));
-                                let entry = entries.entry();
-                                label.set_text(&entry.label(true));
-                                window.set_title(Some(&(entries.status())));
-                            }
-                        }
-                    }));
-
-                    motion_controller.connect_leave(clone!(@strong entries_rc, @strong grid, @strong label, @strong window => move |_| {
-                        if let Ok(entries) = entries_rc.try_borrow_mut() {
-                            if let Some(entry) = &entries.at(col, row) {
-                                label.set_text(&entry.label(false));
-                            }
-                        };
-                    }));
-                    image.add_controller(motion_controller)
-                }
-            }
-            grid_scrolled_window.set_child(Some(&panel));
-
-            let evk = gtk::EventControllerKey::new();
-            evk.connect_key_pressed(clone!(@strong entries_rc, @strong grid, @strong window => move |_, key, _, _| {
-                let step = 100;
-                if let Ok(mut entries) = entries_rc.try_borrow_mut() {
-                    if let Some(s) = key.name() {
-                        if stack.visible_child().unwrap() == view_scrolled_window {
-                            stack.set_visible_child(&grid_scrolled_window);
-                            return gtk::Inhibit(false)
-                        };
-                        let mut show = true;
-                        match s.as_str() {
-                            "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" => {
-                                let digit:usize = s.parse().unwrap();
-                                entries.add_digit_to_register(digit);
-                            },
-                            "BackSpace" => entries.remove_digit_to_register(),
-                            "g" => if ! entries.register.is_none() { entries.go_to_register() },
-                            "j" => for _ in 0..10 { entries.next() },
-                            "l" => for _ in 0..10 { entries.prev() },
-                            "f" => if entries.navigator.cells_per_row() == 1 { entries.toggle_real_size() },
-                            "z" => entries.jump(0),
-                            "e" => entries.next(),
-                            "n" => {
-                                if entries.order.is_none() {
-                                    entries.reorder(Order::Name);
-                                    show_grid(&grid, &entries, &window)
-                                } else {
-                                    entries.next()
-                                }
-                            },
-                            "p"|"i" => entries.prev(),
-                            "q"|"Escape" => {
-                                entries.save_marked_file_lists(args.thumbnails);
-                                entries.save_updated_ranks();
-                                window.close();
-                            },
-                            "Q" => {
-                                if let Some(target_path) = &copy_selection_target {
-                                    entries.copy_selection(&target_path);
-                                    entries.save_marked_file_lists(args.thumbnails);
-                                    entries.save_updated_ranks();
-                                    window.close()
-                                }
-                            },
-                            "B" => {
-                                if entries.star_select.is_none() {
-                                    entries.select_with_rank(Rank::NoStar)
-                                } else {
-                                    entries.toggle_rank_area(Rank::NoStar)
-                                }
-                            },
-                            "M"|"Eacute"=> {
-                                if entries.star_select.is_none() {
-                                    entries.select_with_rank(Rank::OneStar)
-                                } else {
-                                    entries.toggle_rank_area(Rank::OneStar)
-                                }
-                            },
-                            "N"|"P" => {
-                                if entries.star_select.is_none() {
-                                    entries.select_with_rank(Rank::TwoStars)
-                                } else {
-                                    entries.toggle_rank_area(Rank::TwoStars)
-                                }
-                            },
-                            "O" => {
-                                if entries.star_select.is_none() {
-                                    entries.select_with_rank(Rank::ThreeStars)
-                                } else {
-                                    entries.toggle_rank_area(Rank::ThreeStars)
-                                }
-                            },
-                            "comma" => entries.toggle_select(),
-                            "Return" => entries.toggle_select_area(),
-                            "asterisk"|"A" => {
-                                if entries.star_select.is_none() {
-                                    entries.select_with_rank(Rank::ThreeStars)
-                                } else {
-                                    entries.set_rank(Rank::ThreeStars)
-                                }
-                            }
-                            "slash" => {
-                                if entries.star_select.is_none() {
-                                    entries.select_with_rank(Rank::TwoStars)
-                                } else {
-                                    entries.set_rank(Rank::TwoStars)
-                                }
-                            },
-                            "minus"|"C" => {
-                                if entries.star_select.is_none() {
-                                    entries.select_with_rank(Rank::OneStar)
-                                } else {
-                                    entries.set_rank(Rank::OneStar)
-                                }
-                            }
-                            "c" => if entries.order.is_none() {
-                                entries.reorder(Order::Colors);
-                                show_grid(&grid, &entries, &window)
-                            },
-                            "plus"|"D" => {
-                                if entries.star_select.is_none() {
-                                    entries.select_with_rank(Rank::NoStar)
-                                } else {
-                                    entries.set_rank(Rank::NoStar)
-                                }
-                            }
-                            "d" => if entries.order.is_none() {
-                                entries.reorder(Order::Date);
-                                show_grid(&grid, &entries, &window)
-                            },
-                            "R" => entries.unset_grid_ranks(),
-                            "r" => {
-                                if entries.order.is_none() {
-                                    entries.reorder(Order::Random);
-                                    show_grid(&grid, &entries, &window)
-                                } else {
-                                    entries.jump_random()
-                                }
-                            },
-                            "a" => entries.set_grid_select(),
-                            "u" => entries.reset_grid_select(),
-                            "U" => entries.reset_all_select(),
-                            "s" => { 
-                                if entries.order.is_none() {
-                                    entries.reorder(Order::Size);
-                                    show_grid(&grid, &entries, &window)
-                                } else {
-                                    entries.star_select = None
-                                }
-                            },
-                            "o" => entries.order = None,
-                            "v" => if entries.order.is_none() {
-                                entries.reorder(Order::Value);
-                                show_grid(&grid, &entries, &window)
-                            },
-                            "period"|"k" => {
-                                if stack.visible_child().unwrap() == grid_scrolled_window {
-                                    show_grid(&grid, &entries, &window);
-                                    stack.set_visible_child(&view_scrolled_window);
-                                    show_view(&view, &entries, &window);
-                                    show = false
-                                } else {
-                                    stack.set_visible_child(&grid_scrolled_window)
-                                }
-                            },
-                            "space" => entries.next(),
-                            "Right" => {
-                                show = false;
-                                if entries.real_size {
-                                    let h_adj = window
-                                        .child()
-                                        .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
-                                        .and_then(|child| child.downcast::<ScrolledWindow>().ok())
-                                        .and_then(|sw| Some(sw.hadjustment()))
-                                        .expect("Failed to get hadjustment");
-                                    h_adj.set_value(h_adj.value() + step as f64)
-                                } else {
-                                    if entries.navigator.cells_per_row() == 1 {
-                                        entries.next();
-                                        show = true;
-                                    } else {
-                                        navigate(&mut entries, &grid, &window, 1, 0);
-                                    }
-                                }
-                            },
-                            "Left" => {
-                                show = false;
-                                if entries.real_size {
-                                    let h_adj = window
-                                        .child()
-                                        .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
-                                        .and_then(|child| child.downcast::<ScrolledWindow>().ok())
-                                        .and_then(|sw| Some(sw.hadjustment()))
-                                        .expect("Failed to get hadjustment");
-                                    h_adj.set_value(h_adj.value() - step as f64)
-                                } else {
-                                    if entries.navigator.cells_per_row() == 1 {
-                                        entries.prev();
-                                        show = true;
-                                    } else {
-                                        navigate(&mut entries, &grid, &window, -1, 0);
-                                    }
-                                }
-                            },
-                            "Down" => {
-                                show = false;
-                                if entries.real_size {
-                                    let v_adj = window
-                                        .child()
-                                        .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
-                                        .and_then(|child| child.downcast::<ScrolledWindow>().ok())
-                                        .and_then(|sw| Some(sw.vadjustment()))
-                                        .expect("Failed to get vadjustment");
-                                    v_adj.set_value(v_adj.value() + step as f64)
-                                } else {
-                                    if entries.navigator.cells_per_row() == 1 {
-                                        entries.next()
-                                    } else {
-                                        navigate(&mut entries, &grid, &window, 0, 1);
-                                    }
-                                }
-                            },
-                            "Up" => {
-                                show = false;
-                                if entries.real_size {
-                                    let v_adj = window
-                                        .child()
-                                        .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
-                                        .and_then(|child| child.downcast::<ScrolledWindow>().ok())
-                                        .and_then(|sw| Some(sw.vadjustment()))
-                                        .expect("Failed to get vadjustment");
-                                    v_adj.set_value(v_adj.value() - step as f64)
-                                } else {
-                                    if entries.navigator.cells_per_row() == 1 {
-                                        entries.prev()
-                                    } else {
-                                        navigate(&mut entries, &grid, &window, 0, 1);
-                                    }
-                                }
-                            },
-                            s => { println!("{} ?", s) },
-                        };
-                        if show {
-                            show_grid(&grid, &entries, &window);
-                        }
-                        gtk::Inhibit(false)
-                    }
-                    else {
-                        gtk::Inhibit(false)
-                    }
-                } else {
-                    gtk::Inhibit(false)
-                }
-            }));
-
-            window.add_controller(evk);
-            // show the first file
-            let entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-            show_grid(&grid, &entries, &window);
-            if args.maximized { window.fullscreen() };
-            // if a timer has been passed, set a timeout routine
-            if let Some(t) = args.timer {
-                timeout_add_local(Duration::new(t,0), clone!(@strong entries_rc, @strong grid, @strong window => move | | {
-                    let mut entries: RefMut<'_,Entries> = entries_rc.borrow_mut();
-                    entries.next();
-                    show_grid(&grid, &entries, &window);
-                    window.set_title(Some(&entries.status()));
-                    Continue(true)
-                }));
-            };
-            window.present();
+        };
+        window.present();
     }));
     application.set_accels_for_action("win.save", &["s"]);
     let empty: Vec<String> = vec![];

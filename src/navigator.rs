@@ -75,7 +75,7 @@ impl Navigator {
 
     pub fn move_abs(&mut self, position: Coords) {
         if self.can_move_abs(position) {
-            self.position = (self.position.0, self.position.1)
+            self.position = position
         } else {
             panic!("Navigator {:?} can't move to this position: {:?}", self, position)
         }
@@ -125,7 +125,7 @@ mod tests {
     }
 
     #[test]
-    fn after_a_move_index_has_changed() {
+    fn after_a_move_rel_index_has_changed() {
         let mut navigator = Navigator::new(10, 4);
         navigator.move_rel((1, 0));
         assert_eq!(1, navigator.index());
@@ -135,6 +135,14 @@ mod tests {
         assert_eq!(4, navigator.index());
         navigator.move_rel((0,-1));
         assert_eq!(0, navigator.index());
+    }
+    #[test]
+    fn after_a_move_abs_index_has_changed() {
+        let mut navigator = Navigator::new(100, 4);
+        navigator.move_abs((3, 2));
+        assert_eq!(11, navigator.index()); 
+        navigator.move_abs((2,3));
+        assert_eq!(14, navigator.index());
     }
 
     #[test]
