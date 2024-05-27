@@ -32,7 +32,7 @@ pub fn make_entry(file_path:String, file_size:u64, colors:usize, modified_time:S
 
 
 impl Entry {
-    pub fn show_status(self) -> String {
+    pub fn title_display(self) -> String {
         format!("{} {} [{} {} {}]",
             self.original_file_name(),
             if self.to_select { "△" } else { "" },
@@ -40,7 +40,7 @@ impl Entry {
             self.colors,
             self.rank.show())
     }
-    pub fn label(&self, has_focus: bool) -> String {
+    pub fn label_display(&self, has_focus: bool) -> String {
         format!("{}{}{}",
             if has_focus { "▄" } else { "" },
             self.rank.show(),
@@ -74,25 +74,22 @@ mod tests {
     }
 
     #[test]
-    fn original_file_path_is_rid_of_any_thumb_suffix() {
-        let entry = make_entry(String::from("photos/fooTHUMB.jpeg"), 100, 5, a_day(), Rank::NoStar);
-        assert_eq!(String::from("photos/foo.jpeg"), entry.original_file_path());
+    fn title_show_the_entry_information() {
+        let mut entry = make_entry(String::from("photos/foo.jpeg"), 65636, 256, a_day(), Rank::ThreeStars);
+        entry.to_select = true;
+        assert_eq!("foo.jpeg △ [65636 256 ☆☆☆]", entry.title_display());
     }
 
     #[test]
-    fn original_file_name_is_rid_of_any_thumb_suffixi_and_path() {
-        let entry = make_entry(String::from("photos/fooTHUMB.jpeg"), 100, 5, a_day(), Rank::NoStar);
-        assert_eq!(String::from("foo.jpeg"), entry.original_file_name());
+    fn label_show_basic_entry_information() {
+        let mut entry = make_entry(String::from("photos/foo.jpeg"), 65636, 256, a_day(), Rank::ThreeStars);
+        let without_focus = false;
+        let with_focus = true;
+        assert_eq!("☆☆☆", entry.label_display(without_focus));
+        assert_eq!("▄☆☆☆", entry.label_display(with_focus));
+        entry.to_select = true;
+        assert_eq!("☆☆☆△", entry.label_display(without_focus));
+        assert_eq!("▄☆☆☆△", entry.label_display(with_focus));
     }
 
-    #[test]
-    fn thumbnail_file_path_is_added_the_thumb_suffix() {
-        let entry = make_entry(String::from("photos/foo.jpeg"), 100, 5, a_day(), Rank::NoStar);
-        assert_eq!(String::from("photos/fooTHUMB.jpeg"), entry.thumbnail_file_path());
-    }
-    #[test]
-    fn image_data_file_path_is_added_the_image_data_suffix_and_json_extension() {
-        let entry = make_entry(String::from("photos/foo.jpeg"), 100, 5, a_day(), Rank::NoStar);
-        assert_eq!(String::from("photos/fooIMAGE_DATA.json"), entry.image_data_file_path());
-    }
 }

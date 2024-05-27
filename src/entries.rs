@@ -341,7 +341,7 @@ impl Entries {
     }
 
     pub fn status(&self) -> String {
-        let entry_status = <Entry as Clone>::clone(&self.entry_list[self.navigator.index()]).show_status();
+        let entry_status = <Entry as Clone>::clone(&self.entry_list[self.navigator.index()]).title_display();
         format!("{} ordered by {} {}/{}  {} {} {}",
             if self.star_select.is_none() { "…" } else { "" },
             if let Some(o) = self.order {

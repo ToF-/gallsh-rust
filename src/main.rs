@@ -422,7 +422,7 @@ fn main() {
                         if entries.navigator.can_move_abs((col,row)) {
                             entries.navigator.move_abs((col,row));
                             let entry = entries.entry();
-                            label.set_text(&entry.label(true));
+                            label.set_text(&entry.label_display(true));
                             window.set_title(Some(&(entries.status())));
                         } else {
                             println!("{:?} refused {:?}", (col,row), entries.navigator)
@@ -433,7 +433,7 @@ fn main() {
                 motion_controller.connect_leave(clone!(@strong entries_rc, @strong grid, @strong label, @strong window => move |_| {
                     if let Ok(entries) = entries_rc.try_borrow_mut() {
                         if let Some(entry) = &entries.at(col, row) {
-                            label.set_text(&entry.label(false));
+                            label.set_text(&entry.label_display(false));
                         }
                     };
                 }));
@@ -748,12 +748,12 @@ fn navigate(entries: &mut Entries, grid: &gtk::Grid, window: &gtk::ApplicationWi
         let old_coords = entries.navigator.position();
         let old_label = label_at(&grid, old_coords.0, old_coords.1);
         let old_index = entries.navigator.index();
-        old_label.set_text(&entries.entry_list[old_index].label(false));
+        old_label.set_text(&entries.entry_list[old_index].label_display(false));
         entries.navigator.move_rel((col_move, row_move));
         let new_coords = entries.navigator.position();
         let new_label = label_at(&grid, new_coords.0, new_coords.1);
         let new_index = entries.navigator.index();
-        new_label.set_text(&entries.entry_list[new_index].label(true));
+        new_label.set_text(&entries.entry_list[new_index].label_display(true));
         window.set_title(Some(&entries.status()));
     }
 }

@@ -51,3 +51,28 @@ pub fn original_file_name(file_path: &str) -> String  {
     let path = PathBuf::from(original);
     path.file_name().unwrap().to_str().unwrap().to_string()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn thumbnail_file_path_is_file_path_with_an_add_thumb_suffix() {
+        assert_eq!("photos/fooTHUMB.jpeg", thumbnail_file_path("photos/foo.jpeg"));
+    }
+    #[test]
+    fn original_file_name_is_rid_of_any_thumb_suffix_and_path() {
+        assert_eq!("foo.jpeg", original_file_name("photos/fooTHUMB.jpeg"));
+    }
+
+    #[test]
+    fn thumbnail_file_path_is_added_the_thumb_suffix() {
+        assert_eq!("photos/fooTHUMB.jpeg", thumbnail_file_path("photos/foo.jpeg"));
+    }
+
+    #[test]
+    fn image_data_file_path_is_added_the_image_data_suffix_and_json_extension() {
+        assert_eq!("photos/fooIMAGE_DATA.json", image_data_file_path("photos/foo.jpeg"));
+    }
+
+}
