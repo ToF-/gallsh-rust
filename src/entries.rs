@@ -1,10 +1,10 @@
 use core::cmp::Ordering::Equal;
 use crate::image::get_image_color;
-use crate::entry::{original_file_path};
+use crate::paths::original_file_path;
 use crate::navigator::*;
 use core::cmp::{min};
 use crate::{THUMB_SUFFIX, Entry, EntryList, make_entry, Order};
-use crate::entry::{image_data_file_path, thumbnail_file_path};
+use crate::paths::{image_data_file_path, thumbnail_file_path};
 use crate::rank::{Rank};
 use rand::seq::SliceRandom;
 use rand::{thread_rng,Rng}; 

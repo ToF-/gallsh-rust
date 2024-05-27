@@ -1,7 +1,8 @@
 use clap::Parser;
 use clap_num::number_range;
 use entries::{Entries, update_thumbnails};
-use entry::{Entry, EntryList, THUMB_SUFFIX, make_entry};
+use entry::{Entry, EntryList, make_entry};
+use paths::THUMB_SUFFIX; 
 use glib::clone;
 use glib::prelude::*;
 use glib::timeout_add_local;
@@ -20,13 +21,14 @@ const DEFAULT_HEIGHT: i32 = 1000;
 
 
 
-mod navigator;
-mod repository;
-mod entry;
-mod order;
 mod entries;
+mod entry;
 mod image;
+mod navigator;
+mod order;
+mod paths;
 mod rank;
+mod repository;
 
 
 fn less_than_11(s: &str) -> Result<usize, String> {
