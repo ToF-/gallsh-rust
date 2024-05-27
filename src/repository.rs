@@ -57,3 +57,7 @@ mod tests {
         assert_eq!(files.clone()[1], *entry);
     }
 }
+
+// at the root of the path, store a json of a hashmap file_path -> entry
+// if a file_path is not in the hashmap, a) create the thumb file, count the colors, set rank to
+// nostar b) insert the entry in the hashmap  c) before quitting, save the hashmap
