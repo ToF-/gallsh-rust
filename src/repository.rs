@@ -9,6 +9,7 @@ use crate::Entry;
 pub struct Repository {
     pub entry_list: EntryList,
     pub navigator: Navigator,
+    select_start: Option<usize>,
 }
 
 impl Repository {
@@ -16,6 +17,7 @@ impl Repository {
         Repository{
             entry_list: entries.clone(),
             navigator: Navigator::new(entries.len() as i32, cells_per_row as i32),
+            select_start: None,
         }
     }
 
@@ -28,11 +30,31 @@ impl Repository {
         let index = self.navigator.index();
         self.entry_list[index].to_select = !self.entry_list[index].to_select
     }
+
+    pub fn select_point(&mut self) {
+        let index = self.navigator.index();
+        if self.entry_list[index].to_select {
+            return
+        } else {
+            match self.select_start {
+                None => self.select_start = Some(index),
+                Some(mut other) => {
+                    let (start,end) = if other <= index { (other,index) } else { (index,other) };
+                    for i in start..end+1 {
+                        self.entry_list[i].to_select = true
+                    }
+                    self.select_start = None
+                }
+            }
+        }
+    }
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use std::rc::Rc;
+    use std::cell::Ref;
     use std::cell::RefCell;
     use std::cell::RefMut;
 
@@ -83,6 +105,21 @@ mod tests {
         repository.toggle_select();
         let entry: &Entry = repository.current_entry().unwrap();
         assert_eq!(false, entry.to_select);
+    }
+
+    #[test]
+    fn after_two_select_points_a_group_of_entries_is_selected() {
+        let files = example_entry_list();
+        let repository_rc = Rc::new(RefCell::new(Repository::from_entries(files.clone(), 2)));
+        { repository_rc.borrow_mut().navigator.move_rel((0,1)) }; // now current entry is #2 
+        { repository_rc.borrow_mut().select_point() };
+        { repository_rc.borrow_mut().navigator.move_rel((0,-1)) }; // now current entry is #0
+        { repository_rc.borrow_mut().select_point() }; // only entries 0,1,2 are selected
+        let repository: Ref<'_, Repository> = repository_rc.borrow();
+        for entry in &repository.entry_list[0..3] {
+            assert_eq!(true, entry.to_select)
+        };
+        assert_eq!(false, repository.entry_list[3].to_select)
     }
 }
 
