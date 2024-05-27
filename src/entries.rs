@@ -24,7 +24,6 @@ use walkdir::WalkDir;
 
 
 const VALID_EXTENSIONS: [&'static str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];
-const MAX_THUMBNAILS: usize = 100;
 const SELECTION_FILE_NAME: &str = "selections";
 
 // a struct to keep track of navigating in a list of image files
@@ -296,10 +295,6 @@ impl Entries {
     pub fn next(&mut self) {
         self.register = None;
         self.navigator.move_next_page()
-    }
-
-    pub fn offset_coords(&self) -> (i32,i32) {
-        self.navigator.position()
     }
 
     pub fn prev(&mut self) {
