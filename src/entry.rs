@@ -1,7 +1,7 @@
 use std::rc::Rc;
 use std::time::SystemTime;
 use crate::rank::Rank;
-use crate::paths::{thumbnail_file_path, image_data_file_path, original_file_name,original_file_path};
+use crate::paths::{thumbnail_file_path, original_file_name,original_file_path};
 
 pub type EntryList = Vec<Entry>;
 
