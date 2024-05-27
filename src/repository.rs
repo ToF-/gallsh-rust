@@ -19,13 +19,22 @@ impl Repository {
         }
     }
 
-    pub fn entry(&self) -> Option<&Entry> {
+    pub fn current_entry(&self) -> Option<&Entry> {
         Some(&self.entry_list[self.navigator.index()])
+    }
+
+    pub fn toggle_select(&mut self) {
+        assert!(self.entry_list.len() > 0);
+        let index = self.navigator.index();
+        self.entry_list[index].to_select = !self.entry_list[index].to_select
     }
 }
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::rc::Rc;
+    use std::cell::RefCell;
+    use std::cell::RefMut;
 
     fn example_entry_list() -> EntryList {
         let day_a: SystemTime = DateTime::parse_from_rfc2822("Sun, 1 Jan 2023 10:52:37 GMT").unwrap().into();
@@ -39,22 +48,41 @@ mod tests {
     }
 
     #[test]
-    fn after_creating_a_repository_from_a_list_of_entries_entry_is_ref_to_first_entry() {
+    fn after_creation_the_current_entry_is_the_first_entry() {
         let files = example_entry_list();
         let repository = Repository::from_entries(files.clone(), 2);
         assert_eq!(4, repository.navigator.capacity());
         assert_eq!(2, repository.navigator.cells_per_row());
-        let entry: &Entry = repository.entry().unwrap();
+        let entry: &Entry = repository.current_entry().unwrap();
         assert_eq!(files.clone()[0], *entry);
     }
 
     #[test]
-    fn after_moving_one_col_entry_is_ref_to_second_entry() {
+    fn after_moving_one_col_current_entry_is_the_second_entry() {
         let files = example_entry_list();
         let mut repository = Repository::from_entries(files.clone(), 2);
         repository.navigator.move_rel((1,0));
-        let entry: &Entry = repository.entry().unwrap();
+        let entry: &Entry = repository.current_entry().unwrap();
         assert_eq!(files.clone()[1], *entry);
+    }
+
+    #[test]
+    fn after_toggle_select_current_entry_is_selected_or_unselected() {
+        let files = example_entry_list();
+        // to share a mutable reference on repository
+        let repository_rc = Rc::new(RefCell::new(Repository::from_entries(files.clone(), 2)));
+        {
+            // first mutation occurs in this scope
+            let mut repository: RefMut<'_, Repository> = repository_rc.borrow_mut();
+            repository.toggle_select();
+            let entry: &Entry = repository.current_entry().unwrap();
+            assert_eq!(true, entry.to_select);
+        } // reference is released here
+        // second mutation occurs in that scope
+        let mut repository: RefMut<'_, Repository> = repository_rc.borrow_mut();
+        repository.toggle_select();
+        let entry: &Entry = repository.current_entry().unwrap();
+        assert_eq!(false, entry.to_select);
     }
 }
 

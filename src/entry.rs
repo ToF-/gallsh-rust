@@ -1,6 +1,5 @@
 use std::rc::Rc;
 use std::time::SystemTime;
-use std::path::{PathBuf};
 use crate::rank::Rank;
 use crate::paths::{thumbnail_file_path, image_data_file_path, original_file_name,original_file_path};
 
@@ -57,10 +56,6 @@ impl Entry {
 
     pub fn original_file_name(&self) -> String {
         original_file_name(&self.file_path)
-    }
-
-    pub fn image_data_file_path(&self) -> String {
-        image_data_file_path(&self.file_path)
     }
 }
 
