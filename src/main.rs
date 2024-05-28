@@ -16,11 +16,14 @@ use std::cell::{RefCell, RefMut};
 use std::env;
 use std::rc::Rc;
 use std::time::{Duration};
+use gtk::gio::File;
+use std::path::Path;
+
 const DEFAULT_WIDTH: i32 = 1000;
 const DEFAULT_HEIGHT: i32 = 1000;
 
 
-
+mod picture_io;
 mod entries;
 mod entry;
 mod image;
@@ -717,8 +720,11 @@ fn show_grid(grid: &Grid, entries: &Entries, window: &gtk::ApplicationWindow) {
                 picture.set_opacity(opacity);
                 let filename = &entry.file_path;
                 picture.set_can_shrink(!entries.real_size);
-                picture.set_filename(Some(filename.to_string()));
-                picture.set_visible(true)
+                let path = Path::new(filename.as_str());
+                let file = File::for_path(path);
+                picture.set_file(Some(&file));
+                // picture.set_filename(Some(filename.to_string()));
+                picture.set_visible(true) 
             } else {
                 picture.set_visible(false);
                 label.set_text("");

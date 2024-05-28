@@ -9,10 +9,6 @@ use rand::thread_rng;
 use std::cmp::Ordering::Equal;
 use rand::prelude::SliceRandom;
 
-
-
-
-#[derive(Debug, Clone)]
 pub struct Repository {
     pub entry_list: EntryList,
     pub navigator: Navigator,
