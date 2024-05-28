@@ -4,12 +4,20 @@ use crate::rank::Rank;
 use std::time::SystemTime;
 use chrono::DateTime;
 use crate::Entry;
+use crate::Order;
+use rand::thread_rng;
+use std::cmp::Ordering::Equal;
+use rand::prelude::SliceRandom;
+
+
+
 
 #[derive(Debug, Clone)]
 pub struct Repository {
     pub entry_list: EntryList,
     pub navigator: Navigator,
     select_start: Option<usize>,
+    order: Option<Order>,
 }
 
 impl Repository {
@@ -18,7 +26,34 @@ impl Repository {
             entry_list: entries.clone(),
             navigator: Navigator::new(entries.len() as i32, cells_per_row as i32),
             select_start: None,
+            order: Some(Order::Random),
         }
+    }
+
+    pub fn sort_by(&mut self, order: Order) {
+        match order {
+            Order::Colors => self.entry_list.sort_by(|a, b| { 
+                let cmp = (a.colors).cmp(&b.colors);
+                if cmp == Equal {
+                    a.file_path.cmp(&b.file_path)
+                } else {
+                    cmp
+                }
+            }),
+            Order::Date => self.entry_list.sort_by(|a, b| { a.modified_time.cmp(&b.modified_time) }),
+            Order::Name => self.entry_list.sort_by(|a, b| { a.file_path.cmp(&b.file_path) }),
+            Order::Size => self.entry_list.sort_by(|a, b| { a.file_size.cmp(&b.file_size) }),
+            Order::Value => self.entry_list.sort_by(|a,b| {
+                let cmp = (a.rank as usize).cmp(&(b.rank as usize));
+                if cmp == Equal {
+                    a.file_path.cmp(&b.file_path)
+                } else {
+                    cmp
+                }
+            }),
+            Order::Random => self.entry_list.shuffle(&mut thread_rng()),
+        };
+        self.order = Some(order)
     }
 
     pub fn current_entry(&self) -> Option<&Entry> {
@@ -78,7 +113,6 @@ impl Repository {
 mod tests {
     use super::*;
     use std::rc::Rc;
-    use std::cell::Ref;
     use std::cell::RefCell;
     use std::cell::RefMut;
 
@@ -86,8 +120,9 @@ mod tests {
         let day_a: SystemTime = DateTime::parse_from_rfc2822("Sun, 1 Jan 2023 10:52:37 GMT").unwrap().into();
         let day_b: SystemTime = DateTime::parse_from_rfc2822("Sat, 1 Jul 2023 10:52:37 GMT").unwrap().into();
         let day_c: SystemTime = DateTime::parse_from_rfc2822("Mon, 1 Jan 2024 10:52:37 GMT").unwrap().into();
+        let day_d: SystemTime = DateTime::parse_from_rfc2822("Mon, 1 Jan 2024 11:52:37 GMT").unwrap().into();
         vec!(
-            make_entry(String::from("photos/foo.jpeg"), 100, 5, day_a, Rank::NoStar),
+            make_entry(String::from("photos/foo.jpeg"), 100, 5, day_d, Rank::NoStar),
             make_entry(String::from("photos/bar.jpeg"), 1000, 15, day_b, Rank::ThreeStars),
             make_entry(String::from("photos/qux.jpeg"), 10, 25, day_c, Rank::TwoStars),
             make_entry(String::from("photos/bub.jpeg"), 100, 25, day_a, Rank::OneStar))
@@ -162,6 +197,56 @@ mod tests {
             assert_eq!(Rank::TwoStars, entry.rank)
         };
         assert_eq!(Rank::OneStar, repository.entry_list[3].rank)
+    }
+
+    #[test]
+    fn sorting_entries_by_date() {
+        let repository_rc = Rc::new(RefCell::new(Repository::from_entries(example().clone(), 2)));
+        { repository_rc.borrow_mut().sort_by(Order::Date) };
+        { assert_eq!(String::from("bub.jpeg"), repository_rc.borrow().current_entry().unwrap().original_file_name()) };
+        { repository_rc.borrow_mut().navigator.move_to_index(1) };
+        { assert_eq!(String::from("bar.jpeg"), repository_rc.borrow().current_entry().unwrap().original_file_name()) };
+        { repository_rc.borrow_mut().navigator.move_to_index(2) };
+        { assert_eq!(String::from("qux.jpeg"), repository_rc.borrow().current_entry().unwrap().original_file_name()) };
+        { repository_rc.borrow_mut().navigator.move_to_index(3) };
+        { assert_eq!(String::from("foo.jpeg"), repository_rc.borrow().current_entry().unwrap().original_file_name()) };
+    }
+
+    #[test]
+    fn sorting_entries_by_name() {
+        let repository_rc = Rc::new(RefCell::new(Repository::from_entries(example().clone(), 2)));
+        { repository_rc.borrow_mut().sort_by(Order::Name) };
+        { assert_eq!(String::from("bar.jpeg"), repository_rc.borrow().current_entry().unwrap().original_file_name()) };
+        { repository_rc.borrow_mut().navigator.move_to_index(1) };
+        { assert_eq!(String::from("bub.jpeg"), repository_rc.borrow().current_entry().unwrap().original_file_name()) };
+        { repository_rc.borrow_mut().navigator.move_to_index(2) };
+        { assert_eq!(String::from("foo.jpeg"), repository_rc.borrow().current_entry().unwrap().original_file_name()) };
+        { repository_rc.borrow_mut().navigator.move_to_index(3) };
+        { assert_eq!(String::from("qux.jpeg"), repository_rc.borrow().current_entry().unwrap().original_file_name()) };
+    }
+    #[test]
+    fn sorting_entries_by_colors_then_name() {
+        let repository_rc = Rc::new(RefCell::new(Repository::from_entries(example().clone(), 2)));
+        { repository_rc.borrow_mut().sort_by(Order::Colors) };
+        { assert_eq!(String::from("foo.jpeg"), repository_rc.borrow().current_entry().unwrap().original_file_name()) };
+        { repository_rc.borrow_mut().navigator.move_to_index(1) };
+        { assert_eq!(String::from("bar.jpeg"), repository_rc.borrow().current_entry().unwrap().original_file_name()) };
+        { repository_rc.borrow_mut().navigator.move_to_index(2) };
+        { assert_eq!(String::from("bub.jpeg"), repository_rc.borrow().current_entry().unwrap().original_file_name()) };
+        { repository_rc.borrow_mut().navigator.move_to_index(3) };
+        { assert_eq!(String::from("qux.jpeg"), repository_rc.borrow().current_entry().unwrap().original_file_name()) };
+    }
+    #[test]
+    fn sorting_entries_by_value_then_name() {
+        let repository_rc = Rc::new(RefCell::new(Repository::from_entries(example().clone(), 2)));
+        { repository_rc.borrow_mut().sort_by(Order::Value) };
+        { assert_eq!(String::from("bar.jpeg"), repository_rc.borrow().current_entry().unwrap().original_file_name()) };
+        { repository_rc.borrow_mut().navigator.move_to_index(1) };
+        { assert_eq!(String::from("qux.jpeg"), repository_rc.borrow().current_entry().unwrap().original_file_name()) };
+        { repository_rc.borrow_mut().navigator.move_to_index(2) };
+        { assert_eq!(String::from("bub.jpeg"), repository_rc.borrow().current_entry().unwrap().original_file_name()) };
+        { repository_rc.borrow_mut().navigator.move_to_index(3) };
+        { assert_eq!(String::from("foo.jpeg"), repository_rc.borrow().current_entry().unwrap().original_file_name()) };
     }
 }
 
