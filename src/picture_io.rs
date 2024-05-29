@@ -1,3 +1,6 @@
+use crate::Rank;
+use crate::image::get_image_color;
+use std::fs::read_to_string;
 use crate::Entry;
 use std::path::Path;
 use std::fs::File;
@@ -21,6 +24,7 @@ pub fn thumbnail_file(file_path: &str) -> Result<File> {
 pub fn original_file(file_path: &str) -> Result<File> {
     Err(Error::new(ErrorKind::Other, "foo"))
 }
+
 
 pub fn set_original_picture_file(picture: &gtk::Picture, entry: &Entry) -> Result<()> {
     let original = entry.original_file_path();
@@ -100,6 +104,40 @@ pub fn set_thumbnail_picture_file(picture: &gtk::Picture, entry: &Entry) -> Resu
                 Ok(())
             },
             err => err,
+        }
+    }
+}
+
+pub fn set_image_data(mut entry: &mut Entry) -> Result<()> {
+    let image_data = entry.image_data_file_path();
+    let path = Path::new(&image_data);
+    if path.exists() {
+        match read_to_string(path.clone()) {
+            Ok(content) => match serde_json::from_str(&content) {
+                Ok((colors, rank)) => {
+                    entry.colors = colors;
+                    entry.rank = rank;
+                    Ok(())
+                },
+                Err(err) => Err(err.into()),
+            },
+            Err(err) => Err(err),
+        }
+    } else {
+        match get_image_color(&entry.original_file_path()) {
+            Ok(colors) => {
+                match File::create(path.clone()) {
+                    Ok(file) => {
+                        let data = (colors, Rank::NoStar);
+                        match serde_json::to_writer(file, &data) {
+                            Ok(_) => Ok(()),
+                            Err(err) => Err(err.into()),
+                        }
+                    },
+                    Err(err) => Err(err),
+                }
+            },
+            Err(err) => Err(Error::new(ErrorKind::Other,err)),
         }
     }
 }
