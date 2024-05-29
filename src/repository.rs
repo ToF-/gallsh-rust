@@ -52,6 +52,20 @@ impl Repository {
         self.order = Some(order)
     }
 
+    pub fn slice(&mut self, low_index: Option<usize>, high_index: Option<usize>) {
+        let start = match low_index {
+            None => 0,
+            Some(index) => index,
+        };
+        let end = match high_index {
+            None => self.entry_list.len(),
+            Some(index) => index + 1,
+        };
+        self.entry_list = self.entry_list.clone()[start..end].to_vec();
+        self.navigator = Navigator::new(self.entry_list.len() as i32, self.navigator.cells_per_row());
+        self.select_start = None
+    }
+
     pub fn current_entry(&self) -> Option<&Entry> {
         Some(&self.entry_list[self.navigator.index()])
     }
@@ -243,6 +257,26 @@ mod tests {
         { assert_eq!(String::from("bub.jpeg"), repository_rc.borrow().current_entry().unwrap().original_file_name()) };
         { repository_rc.borrow_mut().navigator.move_to_index(3) };
         { assert_eq!(String::from("foo.jpeg"), repository_rc.borrow().current_entry().unwrap().original_file_name()) };
+    }
+
+    #[test]
+    fn slicing_entries_without_limits_yields_the_whole_set() {
+        let repository_rc = Rc::new(RefCell::new(Repository::from_entries(example().clone(), 2)));
+        { repository_rc.borrow_mut().slice(None, None) };
+        assert_eq!(4, repository_rc.borrow().entry_list.len());
+    }
+    #[test]
+    fn slicing_entries_with_low_limit_yields_a_portion_of_the_set() {
+        let repository_rc = Rc::new(RefCell::new(Repository::from_entries(example().clone(), 2)));
+        { repository_rc.borrow_mut().slice(Some(2), None) };
+        assert_eq!(2, repository_rc.borrow().entry_list.len());
+        assert_eq!(String::from("qux.jpeg"), repository_rc.borrow().current_entry().unwrap().original_file_name());
+    }
+    #[test]
+    fn slicing_entries_with_high_limit_yields_a_portion_of_the_set() {
+        let repository_rc = Rc::new(RefCell::new(Repository::from_entries(example().clone(), 2)));
+        { repository_rc.borrow_mut().slice(None, Some(2)) };
+        assert_eq!(3, repository_rc.borrow().entry_list.len());
     }
 }
 
