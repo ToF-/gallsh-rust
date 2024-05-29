@@ -1,3 +1,5 @@
+use crate::picture_io::set_original_picture_file;
+
 use clap::Parser;
 use clap_num::number_range;
 use entries::{Entries, update_thumbnails};
@@ -738,8 +740,10 @@ fn show_view(grid: &Grid, entries: &Entries, window: &gtk::ApplicationWindow) {
     let entry = entries.entry();
     let file_path = entry.original_file_path();
     let picture = grid.first_child().unwrap().downcast::<gtk::Picture>().unwrap();
-    picture.set_filename(Some(file_path));
-    window.set_title(Some(&entries.status()));
+    match set_original_picture_file(&picture, &entry) {
+        Ok(_) => window.set_title(Some(&entries.status())),
+        Err(err) => println!("{:?}",err),
+    }
 }
 
 fn label_at(grid: &gtk::Grid, col: i32, row: i32) -> gtk::Label {
