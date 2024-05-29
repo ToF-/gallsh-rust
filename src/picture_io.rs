@@ -29,7 +29,7 @@ pub fn set_original_picture_file(picture: &gtk::Picture, entry: &Entry) -> Resul
         picture.set_filename(Some(original));
         Ok(())
     } else {
-        Err(Error::new(ErrorKind::Other, format!("can't open {}", original)))
+        Err(Error::new(ErrorKind::Other, format!("file {} doesn't exist", original)))
     }
 }
 
@@ -60,6 +60,33 @@ fn write_thumbnail<R: std::io::Seek + std::io::Read>(reader: BufReader<R>, exten
         ok => ok,
     }
 }
+
+fn create_thumbnail(entry: &Entry) -> Result<()> {
+    let original = entry.original_file_path();
+    let thumbnail = entry.thumbnail_file_path();
+    println!("creating thumbnail {}", thumbnail);
+    match File::open(original.clone()) {
+        Err(err) => Err(err),
+        Ok(input_file) => {
+            let source_path = Path::new(&original);
+            let extension = match source_path.extension()
+                .and_then(OsStr::to_str) { 
+                    None => return Err(Error::new(ErrorKind::Other, format!("source file has no extension"))),
+                    Some(ext) => ext,
+                };
+            let reader = BufReader::new(input_file);
+            let output_file = match File::create(thumbnail) {
+                Err(err) => return Err(err),
+                Ok(file) => file,
+            };
+            match write_thumbnail(reader, extension, output_file) {
+                Err(err) => Err(Error::new(ErrorKind::Other, err)),
+                Ok(_) => Ok (()),
+            }
+        },
+    }
+}
+
 pub fn set_thumbnail_picture_file(picture: &gtk::Picture, entry: &Entry) -> Result<()> {
     let thumbnail = entry.thumbnail_file_path();
     let path = Path::new(&thumbnail);
@@ -67,27 +94,12 @@ pub fn set_thumbnail_picture_file(picture: &gtk::Picture, entry: &Entry) -> Resu
         picture.set_filename(Some(thumbnail));
         Ok(())
     } else {
-        let original = entry.original_file_path();
-        match File::open(original.clone()) {
-            Err(err) => Err(err),
-            Ok(input_file) => {
-                let source_path = Path::new(&original);
-                let extension = match source_path.extension()
-                    .and_then(OsStr::to_str) { 
-                        None => return Err(Error::new(ErrorKind::Other, format!("source file has no extension"))),
-                        Some(ext) => ext,
-                    };
-                let reader = BufReader::new(input_file);
-                let output_file = match File::create(thumbnail) {
-                    Err(err) => return Err(err),
-                    Ok(file) => file,
-                };
-                match write_thumbnail(reader, extension, output_file) {
-                    Err(err) => Err(Error::new(ErrorKind::Other, err)),
-                    Ok(_) => Ok (()),
-                }
+        match create_thumbnail(entry) {
+            Ok(()) => {
+                picture.set_filename(Some(thumbnail));
+                Ok(())
             },
+            err => err,
         }
     }
 }
-

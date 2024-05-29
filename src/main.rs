@@ -1,4 +1,4 @@
-use crate::picture_io::set_original_picture_file;
+use crate::picture_io::{set_original_picture_file, set_thumbnail_picture_file};
 
 use clap::Parser;
 use clap_num::number_range;
@@ -722,11 +722,27 @@ fn show_grid(grid: &Grid, entries: &Entries, window: &gtk::ApplicationWindow) {
                 picture.set_opacity(opacity);
                 let filename = &entry.file_path;
                 picture.set_can_shrink(!entries.real_size);
-                let path = Path::new(filename.as_str());
-                let file = File::for_path(path);
-                picture.set_file(Some(&file));
-                // picture.set_filename(Some(filename.to_string()));
-                picture.set_visible(true) 
+                if entries.navigator.cells_per_row() < 10 {
+                    match set_original_picture_file(&picture, &entry) {
+                        Ok(_) => {
+                            picture.set_visible(true)
+                        },
+                        Err(err) => {
+                            picture.set_visible(false);
+                            println!("{}",err.to_string())
+                        },
+                    }
+                } else {
+                    match set_thumbnail_picture_file(&picture, &entry) {
+                        Ok(_) => {
+                            picture.set_visible(true)
+                        },
+                        Err(err) => {
+                            picture.set_visible(false);
+                            println!("{}",err.to_string())
+                        },
+                    }
+                };
             } else {
                 picture.set_visible(false);
                 label.set_text("");
@@ -741,8 +757,14 @@ fn show_view(grid: &Grid, entries: &Entries, window: &gtk::ApplicationWindow) {
     let file_path = entry.original_file_path();
     let picture = grid.first_child().unwrap().downcast::<gtk::Picture>().unwrap();
     match set_original_picture_file(&picture, &entry) {
-        Ok(_) => window.set_title(Some(&entries.status())),
-        Err(err) => println!("{:?}",err),
+        Ok(_) => {
+            picture.set_visible(true);
+            window.set_title(Some(&entries.status()))
+        },
+        Err(err) => {
+            picture.set_visible(false);
+            println!("{}",err.to_string())
+        },
     }
 }
 

@@ -185,8 +185,8 @@ impl Entries {
                 None => true,
             };
             let check_thumbnails = match path.to_str().map(|filename| filename.contains(THUMB_SUFFIX)) {
-                Some(result) => result == thumbnails,
-                None => false,
+                Some(false) => true,
+                _ => false,
             };
             let high_size_limit = match opt_high_size {
                 Some(high) => high,
