@@ -11,10 +11,6 @@ use thumbnailer::ThumbnailSize;
 use std::ffi::OsStr;
 
 
-
-
-
-
 use std::io::{Result,Error, ErrorKind};
 
 pub fn thumbnail_file(file_path: &str) -> Result<File> {
