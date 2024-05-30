@@ -1,3 +1,9 @@
+use crate::THUMB_SUFFIX;
+use crate::make_entry;
+use std::fs;
+use regex::Regex;
+use walkdir::WalkDir;
+use crate::EntryList;
 use crate::Rank;
 use crate::image::get_image_color;
 use std::fs::read_to_string;
@@ -10,6 +16,7 @@ use thumbnailer::create_thumbnails;
 use thumbnailer::ThumbnailSize;
 use std::ffi::OsStr;
 
+const VALID_EXTENSIONS: [&'static str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];
 
 use std::io::{Result,Error, ErrorKind};
 
@@ -137,3 +144,65 @@ pub fn set_image_data(mut entry: &mut Entry) -> Result<()> {
         }
     }
 }
+
+pub fn entries_from_directory(dir: &str, pattern_opt: &Option<String>) -> Result<EntryList> {
+    let mut entry_list: EntryList = Vec::new();
+    for dir_entry in WalkDir::new(dir).into_iter().filter_map(|e| e.ok()) {
+        let path = dir_entry.into_path();
+        let valid_extension = match path.extension() {
+            Some(extension) => VALID_EXTENSIONS.contains(&extension.to_str().unwrap()),
+            None => false,
+        };
+        let matches_pattern = path.is_file() && match pattern_opt {
+            None => true,
+            Some(pattern) => {
+                match Regex::new(pattern) {
+                    Ok(reg_exp) => match reg_exp.captures(path.to_str().unwrap()) {
+                        Some(_) => true,
+                        None => false,
+                    },
+                    Err(err) => {
+                        println!("can't parse regular expression {}: {}", pattern, err);
+                        false
+                    },
+                }
+            },
+        };
+        let not_a_thumbnail = match path.to_str().map(|filename| filename.contains(THUMB_SUFFIX)) {
+            Some(false) => true,
+            _ => false,
+        };
+        if valid_extension && not_a_thumbnail && matches_pattern {
+            if let Ok(metadata) = fs::metadata(&path) {
+                let file_size = metadata.len();
+                if file_size == 0 {
+                    println!("file {} has a size of 0", path.display())
+                };
+                let modified_time = metadata.modified().unwrap();
+                let name = path.to_str().unwrap().to_string().to_owned();
+                let mut entry = make_entry(name, file_size, 0, modified_time, Rank::NoStar);
+                set_image_data(&mut entry).expect(&format!("can't find or create image data for file {}", path.display()));
+                entry_list.push(entry);
+            } else {
+                println!("can't open: {}", path.display());
+            }
+        }
+    };
+    Ok(entry_list.clone())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    
+    #[test]
+    fn can_read_entries_from_a_directory_without_reading_the_thumbnails() {
+        let entries = entries_from_directory("./testdata", &None).unwrap();
+        assert_eq!(7, entries.len());
+        assert_eq!(String::from("UN_Fight_for_Freedom_Leslie_Ragan_1943_poster_-_restoration1.jpeg"), entries[0].original_file_name());
+        assert_eq!(56984, entries[0].colors);
+        assert_eq!(67293, entries[0].file_size);
+    }
+
+}
+

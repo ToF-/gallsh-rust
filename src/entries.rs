@@ -633,7 +633,7 @@ pub fn write_thumbnail<R: std::io::Seek + std::io::Read>(reader: BufReader<R>, e
     };
     match write_result {
         Err(err) => {
-            println!("error while writing ihunbnail:{}", err);
+            println!("error while writing thunbnail:{}", err);
             Err(err)
         },
         ok => ok,
