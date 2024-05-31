@@ -18,8 +18,6 @@ use std::cell::{RefCell, RefMut};
 use std::env;
 use std::rc::Rc;
 use std::time::{Duration};
-use gtk::gio::File;
-use std::path::Path;
 
 const DEFAULT_WIDTH: i32 = 1000;
 const DEFAULT_HEIGHT: i32 = 1000;
@@ -274,7 +272,7 @@ fn main() {
                 _ => std::process::exit(1),
             }
         } else {
-            let mut entries = match Entries::from_directory(&path, args.thumbnails, &args.pattern, args.low, args.high, args.from, args.to, order, grid_size) {
+            let mut entries = match Entries::from_directory(&path, &args.pattern, args.low, args.high, args.from, args.to, order, grid_size) {
                 Ok(result) => result,
                 _ => std::process::exit(1),
             };
@@ -720,7 +718,6 @@ fn show_grid(grid: &Grid, entries: &Entries, window: &gtk::ApplicationWindow) {
                 label.set_text(&status);
                 let opacity = if entry.to_select { 0.50 } else { 1.0 };
                 picture.set_opacity(opacity);
-                let filename = &entry.file_path;
                 picture.set_can_shrink(!entries.real_size);
                 if entries.navigator.cells_per_row() < 10 {
                     match set_original_picture_file(&picture, &entry) {
@@ -754,7 +751,6 @@ fn show_grid(grid: &Grid, entries: &Entries, window: &gtk::ApplicationWindow) {
 
 fn show_view(grid: &Grid, entries: &Entries, window: &gtk::ApplicationWindow) {
     let entry = entries.entry();
-    let file_path = entry.original_file_path();
     let picture = grid.first_child().unwrap().downcast::<gtk::Picture>().unwrap();
     match set_original_picture_file(&picture, &entry) {
         Ok(_) => {

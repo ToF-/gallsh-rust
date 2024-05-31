@@ -20,15 +20,6 @@ const VALID_EXTENSIONS: [&'static str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG"
 
 use std::io::{Result,Error, ErrorKind};
 
-pub fn thumbnail_file(file_path: &str) -> Result<File> {
-    Err(Error::new(ErrorKind::Other, "foo"))
-}
-
-pub fn original_file(file_path: &str) -> Result<File> {
-    Err(Error::new(ErrorKind::Other, "foo"))
-}
-
-
 pub fn set_original_picture_file(picture: &gtk::Picture, entry: &Entry) -> Result<()> {
     let original = entry.original_file_path();
     let path = Path::new(&original);
@@ -111,11 +102,11 @@ pub fn set_thumbnail_picture_file(picture: &gtk::Picture, entry: &Entry) -> Resu
     }
 }
 
-pub fn set_image_data(mut entry: &mut Entry) -> Result<()> {
+pub fn set_image_data(entry: &mut Entry) -> Result<()> {
     let image_data = entry.image_data_file_path();
     let path = Path::new(&image_data);
     if path.exists() {
-        match read_to_string(path.clone()) {
+        match read_to_string(path) {
             Ok(content) => match serde_json::from_str(&content) {
                 Ok((colors, rank)) => {
                     entry.colors = colors;
@@ -129,7 +120,7 @@ pub fn set_image_data(mut entry: &mut Entry) -> Result<()> {
     } else {
         match get_image_color(&entry.original_file_path()) {
             Ok(colors) => {
-                match File::create(path.clone()) {
+                match File::create(path) {
                     Ok(file) => {
                         let data = (colors, Rank::NoStar);
                         match serde_json::to_writer(file, &data) {
@@ -199,10 +190,15 @@ mod tests {
     fn can_read_entries_from_a_directory_without_reading_the_thumbnails() {
         let entries = entries_from_directory("./testdata", &None).unwrap();
         assert_eq!(7, entries.len());
-        assert_eq!(String::from("UN_Fight_for_Freedom_Leslie_Ragan_1943_poster_-_restoration1.jpeg"), entries[0].original_file_name());
-        assert_eq!(56984, entries[0].colors);
-        assert_eq!(67293, entries[0].file_size);
+        let index = entries.iter().position(|e| e.original_file_name() == "UN_Fight_for_Freedom_Leslie_Ragan_1943_poster_-_restoration1.jpeg").unwrap();
+        assert_eq!(56984, entries[index].colors);
+        assert_eq!(67293, entries[index].file_size);
     }
 
+    #[test]
+    fn can_read_entries_from_a_directory_with_pattern() {
+        let entries = entries_from_directory("./testdata", &Some(String::from("1.*4"))).unwrap();
+        assert_eq!(3, entries.len());
+    }
 }
 

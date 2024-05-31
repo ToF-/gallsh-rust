@@ -151,7 +151,6 @@ impl Entries {
     }
 
     pub fn from_directory(dir_path: &str,
-        thumbnails: bool,
         opt_pattern: &Option<String>,
         opt_low_size: Option<u64>,
         opt_high_size: Option<u64>,
@@ -641,11 +640,11 @@ pub fn write_thumbnail<R: std::io::Seek + std::io::Read>(reader: BufReader<R>, e
 }
 
 pub fn update_thumbnails(dir_path: &str) -> ThumbResult<(usize,usize)> {
-    let mut image_entry_list = match Entries::from_directory(dir_path, false, &None, None, None, None, None, Order::Name, 1) {
+    let mut image_entry_list = match Entries::from_directory(dir_path, &None, None, None, None, None, Order::Name, 1) {
         Ok(image_entries) => image_entries.entry_list.clone(),
         Err(err) => return Err(ThumbError::IO(err)),
     };
-    let mut thumbnail_entry_list = match  Entries::from_directory(dir_path, true, &None, None, None, None, None, Order::Name, 1) {
+    let mut thumbnail_entry_list = match  Entries::from_directory(dir_path, &None, None, None, None, None, Order::Name, 1) {
         Ok(thumbnail_entries) => thumbnail_entries.entry_list.clone(),
         Err(err) => return Err(ThumbError::IO(err)),
     };
