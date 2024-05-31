@@ -466,7 +466,7 @@ fn main() {
                         "e" => repository.navigator.move_next_page(),
                         "n" => {
                             if repository.order.is_none() {
-                                repository.reorder(Order::Name);
+                                repository.sort_by(Order::Name);
                                 show_grid(&grid, &repository, &window)
                             } else {
                                 repository.navigator.move_next_page()
@@ -486,90 +486,39 @@ fn main() {
                                 window.close()
                             }
                         },
-                        "B" => {
-                            if repository.star_select.is_none() {
-                                repository.select_with_rank(Rank::NoStar)
-                            } else {
-                                repository.toggle_rank_area(Rank::NoStar)
-                            }
-                        },
-                        "M"|"Eacute"=> {
-                            if repository.star_select.is_none() {
-                                repository.select_with_rank(Rank::OneStar)
-                            } else {
-                                repository.toggle_rank_area(Rank::OneStar)
-                            }
-                        },
-                        "N"|"P" => {
-                            if repository.star_select.is_none() {
-                                repository.select_with_rank(Rank::TwoStars)
-                            } else {
-                                repository.toggle_rank_area(Rank::TwoStars)
-                            }
-                        },
-                        "O" => {
-                            if repository.star_select.is_none() {
-                                repository.select_with_rank(Rank::ThreeStars)
-                            } else {
-                                repository.toggle_rank_area(Rank::ThreeStars)
-                            }
-                        },
+                        "B"|"plus"|"D" => repository.rank_point(Rank::NoStar),
+                        "M"|"Eacute"|"minus"|"C" => repository.rank_point(Rank::OneStar),
+                        "N"|"P"|"slash" => repository.rank_point(Rank::TwoStars),
+                        "asterisk"|"A"|"O" => repository.rank_point(Rank::ThreeStars),
+
                         "comma" => repository.toggle_select(),
-                        "Return" => repository.toggle_select_area(),
-                        "asterisk"|"A" => {
-                            if repository.star_select.is_none() {
-                                repository.select_with_rank(Rank::ThreeStars)
-                            } else {
-                                repository.set_rank(Rank::ThreeStars)
-                            }
-                        }
-                        "slash" => {
-                            if repository.star_select.is_none() {
-                                repository.select_with_rank(Rank::TwoStars)
-                            } else {
-                                repository.set_rank(Rank::TwoStars)
-                            }
-                        },
-                        "minus"|"C" => {
-                            if repository.star_select.is_none() {
-                                repository.select_with_rank(Rank::OneStar)
-                            } else {
-                                repository.set_rank(Rank::OneStar)
-                            }
-                        }
+                        "Return" => repository.select_point(),
                         "c" => if repository.order.is_none() {
-                            repository.reorder(Order::Colors);
+                            repository.sort_by(Order::Colors);
                             show_grid(&grid, &repository, &window)
                         },
-                        "plus"|"D" => {
-                            if repository.star_select.is_none() {
-                                repository.select_with_rank(Rank::NoStar)
-                            } else {
-                                repository.set_rank(Rank::NoStar)
-                            }
-                        }
                         "d" => if repository.order.is_none() {
-                            repository.reorder(Order::Date);
+                            repository.sort_by(Order::Date);
                             show_grid(&grid, &repository, &window)
                         },
-                        "R" => repository.unset_grid_ranks(),
+                        "R" => repository.set_rank(Rank::NoStar),
                         "r" => {
                             if repository.order.is_none() {
-                                repository.reorder(Order::Random);
+                                repository.sort_by(Order::Random);
                                 show_grid(&grid, &repository, &window)
                             } else {
-                                repository.jump_random()
+                                repository.navigator.move_to_random_index()
                             }
                         },
-                        "a" => repository.set_grid_select(),
-                        "u" => repository.reset_grid_select(),
-                        "U" => repository.reset_all_select(),
+                        "a" => repository.select_page(true),
+                        "u" => repository.select_page(false),
+                        "U" => repository.select_all(false),
                         "s" => { 
                             if repository.order.is_none() {
-                                repository.reorder(Order::Size);
+                                repository.sort_by(Order::Size);
                                 show_grid(&grid, &repository, &window)
                             } else {
-                                repository.star_select = None
+                                repository.select_start = None
                             }
                         },
                         "o" => repository.order = None,

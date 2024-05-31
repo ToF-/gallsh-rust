@@ -10,7 +10,7 @@ use rand::prelude::SliceRandom;
 pub struct Repository {
     pub entry_list: EntryList,
     pub navigator: Navigator,
-    select_start: Option<usize>,
+    pub select_start: Option<usize>,
     pub order: Option<Order>,
     register: Option<usize>,
     real_size: bool,
@@ -113,6 +113,22 @@ impl Repository {
         self.entry_list[index].rank = rank
     }
 
+    pub fn select_page(&mut self, value: bool) {
+        let start = self.navigator.index();
+        let end = min(start + self.navigator.max_cells(), self.navigator.capacity);
+        for i in start..end {
+            self.entry_list[i].to_select = value
+        }
+    }
+
+    pub fn select_all(&mut self, value: bool) {
+        let start = 0;
+        let end = self.navigator.capacity;
+        for i in start..end {
+            self.entry_list[i].to_select = value
+        }
+    }
+    
     pub fn select_point(&mut self) {
         let index = self.navigator.index();
         if self.entry_list[index].to_select {
@@ -147,6 +163,21 @@ impl Repository {
                 }
             }
         }
+    }
+
+    pub fn save_updated_ranks(&self) {
+        for entry in self.entry_list.iter().filter(|e| e.rank != e.initial_rank).collect() {
+            picture_io::save_image_data(&entry)
+        }
+    }
+
+    pub fn save_select_entries(&self) {
+        let list: Vec<String> = Vec::new();
+        for entry in self.entry_list.iter().filter(|e| e.to_select).collect() {
+            list.push(entry.original_file_path());
+            list.push(entry.thumbnail_file_path())
+        };
+        picture_io::save_image_list(&list);
     }
 }
 

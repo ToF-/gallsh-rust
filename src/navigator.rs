@@ -96,6 +96,12 @@ impl Navigator {
         }
     }
 
+    pub fn move_to_random_index(&mut self) {
+        self.register = None;
+        let index = thread_rng().gen_range(0..self.navigator.capacity());
+        self.navigator.move_to_index(index);
+    }
+
     pub fn move_next_page(&mut self) {
         self.position = (0,0);
         if self.start_cell_index + self.max_cells < self.capacity {

@@ -471,7 +471,7 @@ impl Entries {
         }
     }
 
-    pub fn save_marked_file_lists(&self, thumbnails: bool) {
+ ê   pub fn save_marked_file_lists(&self, thumbnails: bool) {
         self.save_marked_file_list(&self.entry_list.iter().filter(|e| e.to_select).collect(), SELECTION_FILE_NAME, thumbnails)
     }
 

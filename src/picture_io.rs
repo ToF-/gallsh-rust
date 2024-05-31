@@ -122,22 +122,41 @@ pub fn set_image_data(entry: &mut Entry) -> Result<()> {
     } else {
         match get_image_color(&entry.original_file_path()) {
             Ok(colors) => {
-                match File::create(path) {
-                    Ok(file) => {
-                        let data = (colors, Rank::NoStar);
-                        match serde_json::to_writer(file, &data) {
-                            Ok(_) => Ok(()),
-                            Err(err) => Err(err.into()),
-                        }
-                    },
-                    Err(err) => Err(err),
-                }
+                entry.colors = colors;
+                entry.rank = Rank::NoStar;
+                save_image_data(&entry);
             },
             Err(err) => Err(Error::new(ErrorKind::Other,err)),
         }
     }
 }
 
+pub fn save_image_data(&entry) -> Result<()> {
+    let image_data = entry.image_data_file_path();
+    let data = (entry.colors, entry.rank);
+    let path = Path::new(&image_data);
+    match File::create(path) {
+        Ok(file) => {
+            match serde_json::to_write(file, &data) {
+                Ok(_) => Ok(()),
+                Err(err) => Err(err.into()),
+            }
+        },
+        Err(err) => Err(err),
+    }
+}
+
+pub fn save_image_list(list: Vec<String>) {
+    if let Ok(mut file) = OpenOptions::new()
+        .write(true)
+        .create(true)
+        .truncate(true)
+        .open(SELECTION_FILE_NAME) {
+        for line in list {
+            writeln!(file, line)
+        }
+    }
+}
 fn push_entry_from_path(path: &Path, pattern_opt: Option<String>, entry_list: &mut EntryList) -> Result<()> {
     let valid_extension = match path.extension() {
         Some(extension) => VALID_EXTENSIONS.contains(&extension.to_str().unwrap()),
