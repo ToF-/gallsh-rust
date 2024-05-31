@@ -518,7 +518,7 @@ fn main() {
                                 repository.sort_by(Order::Size);
                                 show_grid(&grid, &repository, &window)
                             } else {
-                                repository.select_start = None
+                                repository.select_point()
                             }
                         },
                         "o" => repository.order = None,
