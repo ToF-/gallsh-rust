@@ -11,7 +11,9 @@ pub struct Repository {
     pub entry_list: EntryList,
     pub navigator: Navigator,
     select_start: Option<usize>,
-    order: Option<Order>,
+    pub order: Option<Order>,
+    register: Option<usize>,
+    real_size: bool,
 }
 
 impl Repository {
@@ -21,10 +23,40 @@ impl Repository {
             navigator: Navigator::new(entries.len() as i32, cells_per_row as i32),
             select_start: None,
             order: Some(Order::Random),
+            register: None,
+            real_size: false,
+        }
+    }
+
+    pub fn title_display(&self) -> String {
+        let entry_title_display = self.entry().title_display();
+        format!("{} ordered by {} {}/{}  {} {} {}",
+            if self.select_start.is_some() { "…" } else { "" },
+            if let Some(o) = self.order {
+                o.to_string()
+            } else {
+                "??".to_string()
+            },
+            self.navigator.index(),
+            self.navigator.capacity()-1,
+            entry_title_display,
+            if self.register.is_none() { String::from("") } else { format!("{}", self.register.unwrap()) },
+            if self.real_size { "*" } else { "" })
+    }
+
+    pub fn real_size(&self) -> bool {
+        self.real_size
+    }
+
+    fn jump_to_name(&mut self, name: &String) {
+        match self.entry_list.iter().position(|e| &e.original_file_path() == name) {
+            Some(index) => self.navigator.move_to_index(index),
+            None => {},
         }
     }
 
     pub fn sort_by(&mut self, order: Order) {
+        let name = self.navigator.current_entry().original_file_path();
         match order {
             Order::Colors => self.entry_list.sort_by(|a, b| { 
                 let cmp = (a.colors).cmp(&b.colors);
@@ -47,7 +79,8 @@ impl Repository {
             }),
             Order::Random => self.entry_list.shuffle(&mut thread_rng()),
         };
-        self.order = Some(order)
+        self.order = Some(order);
+        self.jump_to_name(name)
     }
 
     pub fn slice(&mut self, low_index: Option<usize>, high_index: Option<usize>) {
