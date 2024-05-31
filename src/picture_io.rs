@@ -187,6 +187,13 @@ pub fn entries_from_directory(dir: &str, pattern_opt: &Option<String>) -> Result
     Ok(entry_list.clone())
 }
 
+pub fn entries_from_file(file: &str) -> Result<EntryList> {
+    let mut entry_list: EntryList = Vec::new();
+    let path = PathBuf::from(file);
+    push_entry_from_path(&path, &None, &mut entry_list).unwrap();
+    Ok(entry_list.clone())
+}
+
 pub fn entries_from_reading_list(reading_list: &str, pattern_opt: &Option<String>) -> Result<EntryList> {
     match read_to_string(reading_list) {
         Err(err) => {
@@ -230,6 +237,13 @@ mod tests {
         assert_eq!("Continental_I-1430_NASM.jpg", entries[1].original_file_name());
         assert_eq!("DAN-13-Danzig-100_Mark_(1922).jpg", entries[2].original_file_name());
         assert_eq!("Johannes_Vermeer_-_Lady_at_the_Virginal_with_a_Gentleman,_'The_Music_Lesson'_-_Google_Art_Project.jpg", entries[3].original_file_name());
+    }
+
+    #[test]
+    fn can_read_entry_for_a_file() {
+        let entries = entries_from_file("./testdata/020_African_blue_flycatcher_at_Kibale_forest_National_Park_Photo_by_Giles_Laurent.jpeg").unwrap();
+        assert_eq!(1, entries.len());
+        assert_eq!("020_African_blue_flycatcher_at_Kibale_forest_National_Park_Photo_by_Giles_Laurent.jpeg", entries[0].original_file_name());
     }
 }
 
