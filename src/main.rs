@@ -487,28 +487,28 @@ fn main() {
                             }
                         },
                         "B" => {
-                            if repository.star_select.is_none() {
+                            if repository.select_start.is_none() {
                                 repository.select_with_rank(Rank::NoStar)
                             } else {
                                 repository.toggle_rank_area(Rank::NoStar)
                             }
                         },
                         "M"|"Eacute"=> {
-                            if repository.star_select.is_none() {
+                            if repository.select_start.is_none() {
                                 repository.select_with_rank(Rank::OneStar)
                             } else {
                                 repository.toggle_rank_area(Rank::OneStar)
                             }
                         },
                         "N"|"P" => {
-                            if repository.star_select.is_none() {
+                            if repository.select_start.is_none() {
                                 repository.select_with_rank(Rank::TwoStars)
                             } else {
                                 repository.toggle_rank_area(Rank::TwoStars)
                             }
                         },
                         "O" => {
-                            if repository.star_select.is_none() {
+                            if repository.select_start.is_none() {
                                 repository.select_with_rank(Rank::ThreeStars)
                             } else {
                                 repository.toggle_rank_area(Rank::ThreeStars)
@@ -517,21 +517,21 @@ fn main() {
                         "comma" => repository.toggle_select(),
                         "Return" => repository.toggle_select_area(),
                         "asterisk"|"A" => {
-                            if repository.star_select.is_none() {
+                            if repository.select_start.is_none() {
                                 repository.select_with_rank(Rank::ThreeStars)
                             } else {
                                 repository.set_rank(Rank::ThreeStars)
                             }
                         }
                         "slash" => {
-                            if repository.star_select.is_none() {
+                            if repository.select_start.is_none() {
                                 repository.select_with_rank(Rank::TwoStars)
                             } else {
                                 repository.set_rank(Rank::TwoStars)
                             }
                         },
                         "minus"|"C" => {
-                            if repository.star_select.is_none() {
+                            if repository.select_start.is_none() {
                                 repository.select_with_rank(Rank::OneStar)
                             } else {
                                 repository.set_rank(Rank::OneStar)
@@ -542,7 +542,7 @@ fn main() {
                             show_grid(&grid, &repository, &window)
                         },
                         "plus"|"D" => {
-                            if repository.star_select.is_none() {
+                            if repository.select_start.is_none() {
                                 repository.select_with_rank(Rank::NoStar)
                             } else {
                                 repository.set_rank(Rank::NoStar)
@@ -566,10 +566,10 @@ fn main() {
                         "U" => repository.reset_all_select(),
                         "s" => { 
                             if repository.order.is_none() {
-                                repository.reorder(Order::Size);
+                                repository.sort_by(Order::Size);
                                 show_grid(&grid, &repository, &window)
                             } else {
-                                repository.star_select = None
+                                repository.select_point()
                             }
                         },
                         "o" => repository.order = None,
