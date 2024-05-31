@@ -138,7 +138,7 @@ pub fn set_image_data(entry: &mut Entry) -> Result<()> {
     }
 }
 
-fn push_entry_from_path(path: &Path, pattern_opt: &Option<String>, entry_list: &mut EntryList) -> Result<()> {
+fn push_entry_from_path(path: &Path, pattern_opt: Option<String>, entry_list: &mut EntryList) -> Result<()> {
     let valid_extension = match path.extension() {
         Some(extension) => VALID_EXTENSIONS.contains(&extension.to_str().unwrap()),
         None => false,
@@ -146,7 +146,7 @@ fn push_entry_from_path(path: &Path, pattern_opt: &Option<String>, entry_list: &
     let matches_pattern = path.is_file() && match pattern_opt {
         None => true,
         Some(pattern) => {
-            match Regex::new(pattern) {
+            match Regex::new(&pattern) {
                 Ok(reg_exp) => match reg_exp.captures(path.to_str().unwrap()) {
                     Some(_) => true,
                     None => false,
@@ -179,10 +179,10 @@ fn push_entry_from_path(path: &Path, pattern_opt: &Option<String>, entry_list: &
     };
     Ok(())
 }
-pub fn entries_from_directory(dir: &str, pattern_opt: &Option<String>) -> Result<EntryList> {
+pub fn entries_from_directory(dir: &str, pattern_opt: Option<String>) -> Result<EntryList> {
     let mut entry_list: EntryList = Vec::new();
     for path in WalkDir::new(dir).into_iter().filter_map(|e| e.ok()).map(|e| e.into_path()) {
-        push_entry_from_path(&path, pattern_opt, &mut entry_list).unwrap();
+        push_entry_from_path(&path, pattern_opt.clone(), &mut entry_list).unwrap();
     };
     Ok(entry_list.clone())
 }
@@ -190,11 +190,11 @@ pub fn entries_from_directory(dir: &str, pattern_opt: &Option<String>) -> Result
 pub fn entries_from_file(file: &str) -> Result<EntryList> {
     let mut entry_list: EntryList = Vec::new();
     let path = PathBuf::from(file);
-    push_entry_from_path(&path, &None, &mut entry_list).unwrap();
+    push_entry_from_path(&path, None, &mut entry_list).unwrap();
     Ok(entry_list.clone())
 }
 
-pub fn entries_from_reading_list(reading_list: &str, pattern_opt: &Option<String>) -> Result<EntryList> {
+pub fn entries_from_reading_list(reading_list: &str, pattern_opt: Option<String>) -> Result<EntryList> {
     match read_to_string(reading_list) {
         Err(err) => {
             Err(err)
@@ -203,7 +203,13 @@ pub fn entries_from_reading_list(reading_list: &str, pattern_opt: &Option<String
             let mut entry_list: EntryList = Vec::new();
             let mut file_paths_set: HashSet<String> = HashSet::new();
             for path in content.lines().map(String::from).collect::<Vec<_>>().into_iter().map(|line| PathBuf::from(line)) {
-                push_entry_from_path(&path, pattern_opt, &mut entry_list).unwrap();
+                let file_path = path.to_str().unwrap().to_string();
+                if ! file_paths_set.contains(&file_path) {
+                    file_paths_set.insert(file_path);
+                    push_entry_from_path(&path, pattern_opt.clone(), &mut entry_list).unwrap()
+                } else {
+                    println!("{} already in reading list", path.display());
+                }
             };
             Ok(entry_list.clone())
         },
@@ -216,7 +222,7 @@ mod tests {
     
     #[test]
     fn can_read_entries_from_a_directory_without_reading_the_thumbnails() {
-        let entries = entries_from_directory("./testdata", &None).unwrap();
+        let entries = entries_from_directory("./testdata", None).unwrap();
         assert_eq!(7, entries.len());
         let index = entries.iter().position(|e| e.original_file_name() == "UN_Fight_for_Freedom_Leslie_Ragan_1943_poster_-_restoration1.jpeg").unwrap();
         assert_eq!(56984, entries[index].colors);
@@ -225,13 +231,13 @@ mod tests {
 
     #[test]
     fn can_read_entries_from_a_directory_with_pattern() {
-        let entries = entries_from_directory("./testdata", &Some(String::from("1.*4"))).unwrap();
+        let entries = entries_from_directory("./testdata", Some(String::from("1.*4"))).unwrap();
         assert_eq!(3, entries.len());
     }
 
     #[test]
     fn can_read_entries_from_reading_list() {
-        let entries = entries_from_reading_list("./testdata/reading_list", &None).unwrap();
+        let entries = entries_from_reading_list("./testdata/reading_list", None).unwrap();
         assert_eq!(4, entries.len());
         assert_eq!("020_African_blue_flycatcher_at_Kibale_forest_National_Park_Photo_by_Giles_Laurent.jpeg", entries[0].original_file_name());
         assert_eq!("Continental_I-1430_NASM.jpg", entries[1].original_file_name());
