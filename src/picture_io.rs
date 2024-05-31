@@ -138,47 +138,51 @@ pub fn set_image_data(entry: &mut Entry) -> Result<()> {
     }
 }
 
+fn push_entry_from_path(path: &Path, pattern_opt: &Option<String>, entry_list: &mut EntryList) -> Result<()> {
+    let valid_extension = match path.extension() {
+        Some(extension) => VALID_EXTENSIONS.contains(&extension.to_str().unwrap()),
+        None => false,
+    };
+    let matches_pattern = path.is_file() && match pattern_opt {
+        None => true,
+        Some(pattern) => {
+            match Regex::new(pattern) {
+                Ok(reg_exp) => match reg_exp.captures(path.to_str().unwrap()) {
+                    Some(_) => true,
+                    None => false,
+                },
+                Err(err) => {
+                    println!("can't parse regular expression {}: {}", pattern, err);
+                    false
+                },
+            }
+        },
+    };
+    let not_a_thumbnail = match path.to_str().map(|filename| filename.contains(THUMB_SUFFIX)) {
+        Some(false) => true,
+        _ => false,
+    };
+    if valid_extension && not_a_thumbnail && matches_pattern {
+        if let Ok(metadata) = fs::metadata(&path) {
+            let file_size = metadata.len();
+            if file_size == 0 {
+                println!("file {} has a size of 0", path.display())
+            };
+            let modified_time = metadata.modified().unwrap();
+            let name = path.to_str().unwrap().to_string().to_owned();
+            let mut entry = make_entry(name, file_size, 0, modified_time, Rank::NoStar);
+            set_image_data(&mut entry).expect(&format!("can't find or create image data for file {}", path.display()));
+            entry_list.push(entry);
+        } else {
+            println!("can't open: {}", path.display());
+        }
+    };
+    Ok(())
+}
 pub fn entries_from_directory(dir: &str, pattern_opt: &Option<String>) -> Result<EntryList> {
     let mut entry_list: EntryList = Vec::new();
     for path in WalkDir::new(dir).into_iter().filter_map(|e| e.ok()).map(|e| e.into_path()) {
-        let valid_extension = match path.extension() {
-            Some(extension) => VALID_EXTENSIONS.contains(&extension.to_str().unwrap()),
-            None => false,
-        };
-        let matches_pattern = path.is_file() && match pattern_opt {
-            None => true,
-            Some(pattern) => {
-                match Regex::new(pattern) {
-                    Ok(reg_exp) => match reg_exp.captures(path.to_str().unwrap()) {
-                        Some(_) => true,
-                        None => false,
-                    },
-                    Err(err) => {
-                        println!("can't parse regular expression {}: {}", pattern, err);
-                        false
-                    },
-                }
-            },
-        };
-        let not_a_thumbnail = match path.to_str().map(|filename| filename.contains(THUMB_SUFFIX)) {
-            Some(false) => true,
-            _ => false,
-        };
-        if valid_extension && not_a_thumbnail && matches_pattern {
-            if let Ok(metadata) = fs::metadata(&path) {
-                let file_size = metadata.len();
-                if file_size == 0 {
-                    println!("file {} has a size of 0", path.display())
-                };
-                let modified_time = metadata.modified().unwrap();
-                let name = path.to_str().unwrap().to_string().to_owned();
-                let mut entry = make_entry(name, file_size, 0, modified_time, Rank::NoStar);
-                set_image_data(&mut entry).expect(&format!("can't find or create image data for file {}", path.display()));
-                entry_list.push(entry);
-            } else {
-                println!("can't open: {}", path.display());
-            }
-        }
+        push_entry_from_path(&path, pattern_opt, &mut entry_list).unwrap();
     };
     Ok(entry_list.clone())
 }
@@ -192,44 +196,7 @@ pub fn entries_from_reading_list(reading_list: &str, pattern_opt: &Option<String
             let mut entry_list: EntryList = Vec::new();
             let mut file_paths_set: HashSet<String> = HashSet::new();
             for path in content.lines().map(String::from).collect::<Vec<_>>().into_iter().map(|line| PathBuf::from(line)) {
-                let valid_extension = match path.extension() {
-                    Some(extension) => VALID_EXTENSIONS.contains(&extension.to_str().unwrap()),
-                    None => false,
-                };
-                let matches_pattern = path.is_file() && match pattern_opt {
-                    None => true,
-                    Some(pattern) => {
-                        match Regex::new(pattern) {
-                            Ok(reg_exp) => match reg_exp.captures(path.to_str().unwrap()) {
-                                Some(_) => true,
-                                None => false,
-                            },
-                            Err(err) => {
-                                println!("can't parse regular expression {}: {}", pattern, err);
-                                false
-                            },
-                        }
-                    },
-                };
-                let not_a_thumbnail = match path.to_str().map(|filename| filename.contains(THUMB_SUFFIX)) {
-                    Some(false) => true,
-                    _ => false,
-                };
-                if valid_extension && not_a_thumbnail && matches_pattern {
-                    if let Ok(metadata) = fs::metadata(&path) {
-                        let file_size = metadata.len();
-                        if file_size == 0 {
-                            println!("file {} has a size of 0", path.display())
-                        };
-                        let modified_time = metadata.modified().unwrap();
-                        let name = path.to_str().unwrap().to_string().to_owned();
-                        let mut entry = make_entry(name, file_size, 0, modified_time, Rank::NoStar);
-                        set_image_data(&mut entry).expect(&format!("can't find or create image data for file {}", path.display()));
-                        entry_list.push(entry);
-                    } else {
-                        println!("can't open: {}", path.display());
-                    }
-                }
+                push_entry_from_path(&path, pattern_opt, &mut entry_list).unwrap();
             };
             Ok(entry_list.clone())
         },
