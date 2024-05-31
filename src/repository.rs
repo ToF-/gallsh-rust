@@ -1,8 +1,6 @@
 use crate::navigator::Navigator;
-use crate::entry::{EntryList, make_entry};
+use crate::entry::{EntryList};
 use crate::rank::Rank;
-use std::time::SystemTime;
-use chrono::DateTime;
 use crate::Entry;
 use crate::Order;
 use rand::thread_rng;
@@ -125,6 +123,9 @@ mod tests {
     use std::rc::Rc;
     use std::cell::RefCell;
     use std::cell::RefMut;
+    use crate::make_entry;
+    use std::time::SystemTime;
+    use chrono::DateTime;
 
     fn example() -> EntryList {
         let day_a: SystemTime = DateTime::parse_from_rfc2822("Sun, 1 Jan 2023 10:52:37 GMT").unwrap().into();

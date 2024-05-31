@@ -152,8 +152,6 @@ impl Entries {
 
     pub fn from_directory(dir_path: &str,
         opt_pattern: &Option<String>,
-        opt_low_size: Option<u64>,
-        opt_high_size: Option<u64>,
         from_index: Option<usize>,
         to_index: Option<usize>,
         order: Order,
@@ -187,14 +185,6 @@ impl Entries {
                 Some(false) => true,
                 _ => false,
             };
-            let high_size_limit = match opt_high_size {
-                Some(high) => high,
-                None => std::u64::MAX,
-            };
-            let low_size_limit = match opt_low_size {
-                Some(low) => low,
-                None => 0,
-            };
             if check_extension && check_pattern && check_thumbnails {
                 if let Ok(metadata) = fs::metadata(&path) {
                     let file_size = metadata.len();
@@ -209,11 +199,9 @@ impl Entries {
                         },
                     };
                     let modified_time = metadata.modified().unwrap();
-                    if low_size_limit <= file_size && file_size <= high_size_limit {
-                        if let Some(full_name) = path.to_str() {
-                            let entry_name = full_name.to_string().to_owned();
-                            entry_list.push(make_entry(entry_name, file_size, colors, modified_time, rank));
-                        }
+                    if let Some(full_name) = path.to_str() {
+                        let entry_name = full_name.to_string().to_owned();
+                        entry_list.push(make_entry(entry_name, file_size, colors, modified_time, rank));
                     }
                 } else {
                     println!("can't open: {}", path.display());
@@ -640,11 +628,11 @@ pub fn write_thumbnail<R: std::io::Seek + std::io::Read>(reader: BufReader<R>, e
 }
 
 pub fn update_thumbnails(dir_path: &str) -> ThumbResult<(usize,usize)> {
-    let mut image_entry_list = match Entries::from_directory(dir_path, &None, None, None, None, None, Order::Name, 1) {
+    let mut image_entry_list = match Entries::from_directory(dir_path, &None, None, None, Order::Name, 1) {
         Ok(image_entries) => image_entries.entry_list.clone(),
         Err(err) => return Err(ThumbError::IO(err)),
     };
-    let mut thumbnail_entry_list = match  Entries::from_directory(dir_path, &None, None, None, None, None, Order::Name, 1) {
+    let mut thumbnail_entry_list = match  Entries::from_directory(dir_path, &None, None, None, Order::Name, 1) {
         Ok(thumbnail_entries) => thumbnail_entries.entry_list.clone(),
         Err(err) => return Err(ThumbError::IO(err)),
     };

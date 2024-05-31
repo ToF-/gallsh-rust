@@ -96,14 +96,6 @@ struct Args {
     #[arg(short, long, value_parser=less_than_11)]
     grid: Option<usize>,
 
-    /// Low Limit on file size
-    #[arg(long)]
-    low: Option<u64>,
-
-    /// High Limit on file size
-    #[arg(long)]
-    high: Option<u64>,
-
     /// From index number
     #[arg(long)]
     from: Option<usize>,
@@ -272,7 +264,7 @@ fn main() {
                 _ => std::process::exit(1),
             }
         } else {
-            let mut entries = match Entries::from_directory(&path, &args.pattern, args.low, args.high, args.from, args.to, order, grid_size) {
+            let mut entries = match Entries::from_directory(&path, &args.pattern, args.from, args.to, order, grid_size) {
                 Ok(result) => result,
                 _ => std::process::exit(1),
             };

@@ -1,3 +1,4 @@
+use std::path::PathBuf;
 use crate::THUMB_SUFFIX;
 use crate::make_entry;
 use std::fs;
@@ -15,6 +16,7 @@ use thumbnailer::error::ThumbResult;
 use thumbnailer::create_thumbnails;
 use thumbnailer::ThumbnailSize;
 use std::ffi::OsStr;
+use std::collections::HashSet;
 
 const VALID_EXTENSIONS: [&'static str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];
 
@@ -138,8 +140,7 @@ pub fn set_image_data(entry: &mut Entry) -> Result<()> {
 
 pub fn entries_from_directory(dir: &str, pattern_opt: &Option<String>) -> Result<EntryList> {
     let mut entry_list: EntryList = Vec::new();
-    for dir_entry in WalkDir::new(dir).into_iter().filter_map(|e| e.ok()) {
-        let path = dir_entry.into_path();
+    for path in WalkDir::new(dir).into_iter().filter_map(|e| e.ok()).map(|e| e.into_path()) {
         let valid_extension = match path.extension() {
             Some(extension) => VALID_EXTENSIONS.contains(&extension.to_str().unwrap()),
             None => false,
@@ -182,6 +183,59 @@ pub fn entries_from_directory(dir: &str, pattern_opt: &Option<String>) -> Result
     Ok(entry_list.clone())
 }
 
+pub fn entries_from_reading_list(reading_list: &str, pattern_opt: &Option<String>) -> Result<EntryList> {
+    match read_to_string(reading_list) {
+        Err(err) => {
+            Err(err)
+        },
+        Ok(content) => {
+            let mut entry_list: EntryList = Vec::new();
+            let mut file_paths_set: HashSet<String> = HashSet::new();
+            for path in content.lines().map(String::from).collect::<Vec<_>>().into_iter().map(|line| PathBuf::from(line)) {
+                let valid_extension = match path.extension() {
+                    Some(extension) => VALID_EXTENSIONS.contains(&extension.to_str().unwrap()),
+                    None => false,
+                };
+                let matches_pattern = path.is_file() && match pattern_opt {
+                    None => true,
+                    Some(pattern) => {
+                        match Regex::new(pattern) {
+                            Ok(reg_exp) => match reg_exp.captures(path.to_str().unwrap()) {
+                                Some(_) => true,
+                                None => false,
+                            },
+                            Err(err) => {
+                                println!("can't parse regular expression {}: {}", pattern, err);
+                                false
+                            },
+                        }
+                    },
+                };
+                let not_a_thumbnail = match path.to_str().map(|filename| filename.contains(THUMB_SUFFIX)) {
+                    Some(false) => true,
+                    _ => false,
+                };
+                if valid_extension && not_a_thumbnail && matches_pattern {
+                    if let Ok(metadata) = fs::metadata(&path) {
+                        let file_size = metadata.len();
+                        if file_size == 0 {
+                            println!("file {} has a size of 0", path.display())
+                        };
+                        let modified_time = metadata.modified().unwrap();
+                        let name = path.to_str().unwrap().to_string().to_owned();
+                        let mut entry = make_entry(name, file_size, 0, modified_time, Rank::NoStar);
+                        set_image_data(&mut entry).expect(&format!("can't find or create image data for file {}", path.display()));
+                        entry_list.push(entry);
+                    } else {
+                        println!("can't open: {}", path.display());
+                    }
+                }
+            };
+            Ok(entry_list.clone())
+        },
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -199,6 +253,16 @@ mod tests {
     fn can_read_entries_from_a_directory_with_pattern() {
         let entries = entries_from_directory("./testdata", &Some(String::from("1.*4"))).unwrap();
         assert_eq!(3, entries.len());
+    }
+
+    #[test]
+    fn can_read_entries_from_reading_list() {
+        let entries = entries_from_reading_list("./testdata/reading_list", &None).unwrap();
+        assert_eq!(4, entries.len());
+        assert_eq!("020_African_blue_flycatcher_at_Kibale_forest_National_Park_Photo_by_Giles_Laurent.jpeg", entries[0].original_file_name());
+        assert_eq!("Continental_I-1430_NASM.jpg", entries[1].original_file_name());
+        assert_eq!("DAN-13-Danzig-100_Mark_(1922).jpg", entries[2].original_file_name());
+        assert_eq!("Johannes_Vermeer_-_Lady_at_the_Virginal_with_a_Gentleman,_'The_Music_Lesson'_-_Google_Art_Project.jpg", entries[3].original_file_name());
     }
 }
 
