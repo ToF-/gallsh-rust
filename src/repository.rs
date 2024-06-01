@@ -19,7 +19,7 @@ pub struct Repository {
     pub navigator: Navigator,
     pub select_start: Option<usize>,
     pub order: Option<Order>,
-    register: Option<usize>,
+    pub register: Option<usize>,
     real_size: bool,
 }
 
@@ -75,7 +75,10 @@ impl Repository {
 
     pub fn add_register_digit(&mut self, digit: usize ) {
         self.register = match self.register {
-            Some(acc) => Some(acc * 10 + digit),
+            Some(acc) => {
+                let new_acc = acc * 10 + digit;
+                if new_acc < self.navigator.capacity() { Some(new_acc) } else { Some(acc) }
+            },
             None => Some(digit),
              }
     }
@@ -212,7 +215,8 @@ impl Repository {
         let selection: Vec<&Entry> = self.entry_list.iter().filter(|e| e.to_select).collect();
         for entry in selection.iter() {
             list.push(entry.original_file_path());
-            list.push(entry.thumbnail_file_path())
+            list.push(entry.thumbnail_file_path());
+            list.push(entry.image_data_file_path())
         };
         save_image_list(list);
     }

@@ -457,34 +457,67 @@ fn main() {
                         "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" => {
                             let digit:usize = s.parse().unwrap();
                             repository.add_register_digit(digit);
+                            println!("register index: {}", repository.register.unwrap())
                         },
-                        "BackSpace" => repository.delete_register_digit(),
-                        "g" => repository.move_to_register(),
-                        "j" => for _ in 0..10 { repository.navigator.move_next_page() },
-                        "l" => for _ in 0..10 { repository.navigator.move_prev_page() },
-                        "f" => if repository.navigator.cells_per_row() == 1 { repository.toggle_real_size() },
-                        "z" => repository.navigator.move_to_index(0),
-                        "e" => repository.navigator.move_next_page(),
+                        "BackSpace" => {
+                            repository.delete_register_digit();
+                            println!("register index: {}", repository.register.unwrap())
+                        },
+                        "g" => {
+                            match repository.register {
+                                Some(index) => println!("go to register index: {}", index),
+                                None => println!("no register index"),
+                            };
+                            repository.move_to_register()
+                        },
+                        "j" => {
+                            for _ in 0..10 { repository.navigator.move_next_page() };
+                            println!("move forward ten pages")
+                        },
+                        "l" => {
+                            for _ in 0..10 { repository.navigator.move_prev_page() };
+                            println!("move backward ten pages")
+                        },
+                        "f" => if repository.navigator.cells_per_row() == 1 { 
+                            repository.toggle_real_size();
+                            println!("toggle real size")
+                        },
+                        "z" => {
+                            repository.navigator.move_to_index(0);
+                            println!("move to index 0")
+                        },
+                        "e" => {
+                            repository.navigator.move_next_page();
+                            println!("move to next page")
+                        },
                         "n" => {
                             if repository.order.is_none() {
                                 repository.sort_by(Order::Name);
+                                println!("sort pictures by name");
                                 show_grid(&grid, &repository, &window)
                             } else {
-                                repository.navigator.move_next_page()
+                                repository.navigator.move_next_page();
+                                println!("move to next page")
                             }
                         },
-                        "p"|"i" => repository.navigator.move_prev_page(),
+                        "p"|"i" => {
+                            repository.navigator.move_prev_page();
+                            println!("move to prev page")
+                        },
                         "q"|"Escape" => {
-                            repository.save_select_entries();
                             repository.save_updated_ranks();
+                            repository.save_select_entries();
+                            println!("quit gallery show");
                             window.close();
                         },
                         "Q" => {
-                            repository.save_select_entries();
                             repository.save_updated_ranks();
+                            repository.save_select_entries();
                             if let Some(target_path) = &copy_selection_target {
+                                println!("copy selection to target path");
                                 repository.copy_select_entries(&target_path)
                             };
+                            println!("quit gallery show");
                             window.close()
                         },
                         "B"|"plus"|"D" => repository.rank_point(Rank::NoStar),
@@ -612,7 +645,7 @@ fn main() {
                                 }
                             }
                         },
-                        s => { println!("{} ?", s) },
+                        _ => {},
                     };
                     if show {
                         show_grid(&grid, &repository, &window);

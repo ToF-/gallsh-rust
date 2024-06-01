@@ -130,7 +130,7 @@ impl Navigator {
         if self.start_cell_index > 0 {
             self.start_cell_index -= self.max_cells
         } else {
-            self.start_cell_index = self.capacity - self.max_cells
+            self.start_cell_index = ((self.capacity-1) / self.max_cells) * self.max_cells
         };
     }
 }
