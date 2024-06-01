@@ -461,8 +461,15 @@ fn main() {
                         },
                         "BackSpace" => {
                             repository.delete_register_digit();
-                            println!("register index: {}", repository.register.unwrap())
+                            match repository.register {
+                                Some(index) => println!("register index: {}", index),
+                                None => {},
+                            }
                         },
+                        "Return" => repository.select_point(),
+                        "comma" => repository.point_select(),
+                        "Escape" => repository.cancel_point(),
+
                         "g" => {
                             match repository.register {
                                 Some(index) => println!("go to register index: {}", index),
@@ -504,7 +511,7 @@ fn main() {
                             repository.navigator.move_prev_page();
                             println!("move to prev page")
                         },
-                        "q"|"Escape" => {
+                        "q" => {
                             repository.save_updated_ranks();
                             repository.save_select_entries();
                             println!("quit gallery show");
@@ -520,13 +527,10 @@ fn main() {
                             println!("quit gallery show");
                             window.close()
                         },
-                        "B"|"plus"|"D" => repository.rank_point(Rank::NoStar),
-                        "M"|"Eacute"|"minus"|"C" => repository.rank_point(Rank::OneStar),
-                        "N"|"P"|"slash" => repository.rank_point(Rank::TwoStars),
-                        "asterisk"|"A"|"O" => repository.rank_point(Rank::ThreeStars),
-
-                        "comma" => repository.toggle_select(),
-                        "Return" => repository.select_point(),
+                        "B"|"plus"|"D" => repository.point_rank(Rank::NoStar),
+                        "M"|"Eacute"|"minus"|"C" => repository.point_rank(Rank::OneStar),
+                        "N"|"P"|"slash" => repository.point_rank(Rank::TwoStars),
+                        "asterisk"|"A"|"O" => repository.point_rank(Rank::ThreeStars),
                         "c" => if repository.order.is_none() {
                             repository.sort_by(Order::Colors);
                             show_grid(&grid, &repository, &window)

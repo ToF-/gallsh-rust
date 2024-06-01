@@ -169,36 +169,47 @@ impl Repository {
     
     pub fn select_point(&mut self) {
         let index = self.navigator.index();
-        if self.entry_list[index].to_select {
-            return
-        } else {
-            match self.select_start {
-                None => self.select_start = Some(index),
-                Some(other) => {
-                    let (start,end) = if other <= index { (other,index) } else { (index,other) };
-                    for i in start..end+1 {
-                        self.entry_list[i].to_select = true
-                    }
-                    self.select_start = None
+        println!("select: {}…", index);
+        self.select_start = Some(index)
+    }
+
+    pub fn point_select(&mut self) {
+        let index = self.navigator.index();
+        match self.select_start {
+            None => {
+                self.toggle_select();
+                println!("picture #{} {}", index, if self.entry_list[index].to_select { "selected" } else { "unselected" })
+            },
+            Some(other) => {
+                let (start,end) = if other <= index { (other,index) } else { (index,other) };
+                println!("select: {}…{}", start, end);
+                for i in start..end+1 {
+                    self.entry_list[i].to_select = true
                 }
-            }
+                self.select_start = None
+            },
         }
     }
 
-    pub fn rank_point(&mut self, rank: Rank) {
+    pub fn cancel_point(&mut self) {
+        println!("point cancelled");
+        self.select_start = None
+    }
+
+    pub fn point_rank(&mut self, rank: Rank) {
         let index = self.navigator.index();
-        if self.entry_list[index].rank == rank {
-            return
-        } else {
-            match self.select_start {
-                None => self.select_start = Some(index),
-                Some(other) => {
-                    let (start,end) = if other <= index { (other,index) } else { (index,other) };
-                    for i in start..end+1 {
-                        self.entry_list[i].rank = rank
-                    }
-                    self.select_start = None
+        match self.select_start {
+            None => {
+                self.set_rank(rank);
+                println!("picture #{} rank {}", index, rank)
+            },
+            Some(other) => {
+                let (start,end) = if other <= index { (other,index) } else { (index,other) };
+                println!("rank {}: {}…{}", rank, start, end);
+                for i in start..end+1 {
+                    self.entry_list[i].rank = rank
                 }
+                self.select_start = None
             }
         }
     }
