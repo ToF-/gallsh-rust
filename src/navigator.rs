@@ -1,3 +1,5 @@
+use rand::Rng;
+use rand::thread_rng;
 
 type Coords = (i32, i32);
 
@@ -29,6 +31,10 @@ impl Navigator {
         self.cells_per_row
     }
 
+    pub fn max_cells(&self) -> i32 {
+        self.max_cells
+    }
+
     pub fn position(&self) -> Coords {
         self.position
     }
@@ -43,7 +49,13 @@ impl Navigator {
     }
 
     pub fn index(&self) -> usize {
-        self.index_from_position(self.position).unwrap() as usize
+        match self.index_from_position(self.position) {
+            Some(n) => n,
+            None => {
+                println!("unexpected position: {:?}", self.position);
+                0
+            },
+        }
     }
 
     pub fn can_move_rel(&self, coords: Coords) -> bool {
@@ -97,9 +109,8 @@ impl Navigator {
     }
 
     pub fn move_to_random_index(&mut self) {
-        self.register = None;
-        let index = thread_rng().gen_range(0..self.navigator.capacity());
-        self.navigator.move_to_index(index);
+        let index = thread_rng().gen_range(0..self.capacity());
+        self.move_to_index(index);
     }
 
     pub fn move_next_page(&mut self) {
@@ -116,8 +127,8 @@ impl Navigator {
         if self.start_cell_index > 0 {
             self.start_cell_index -= self.max_cells
         } else {
-            self.start_cell_index = self.capacity - self.capacity % self.max_cells
-        }
+            self.start_cell_index = self.capacity - self.max_cells
+        };
     }
 }
 #[cfg(test)]

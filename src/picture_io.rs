@@ -1,3 +1,5 @@
+use std::io::Write;
+use std::fs::OpenOptions;
 use std::path::PathBuf;
 use crate::THUMB_SUFFIX;
 use crate::make_entry;
@@ -19,6 +21,7 @@ use std::ffi::OsStr;
 use std::collections::HashSet;
 
 const VALID_EXTENSIONS: [&'static str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];
+const SELECTION_FILE_NAME: &str = "selections";
 
 use std::io::{Result,Error, ErrorKind};
 
@@ -125,19 +128,20 @@ pub fn set_image_data(entry: &mut Entry) -> Result<()> {
                 entry.colors = colors;
                 entry.rank = Rank::NoStar;
                 save_image_data(&entry);
+                Ok(())
             },
             Err(err) => Err(Error::new(ErrorKind::Other,err)),
         }
     }
 }
 
-pub fn save_image_data(&entry) -> Result<()> {
+pub fn save_image_data(entry: &Entry) -> Result<()> {
     let image_data = entry.image_data_file_path();
     let data = (entry.colors, entry.rank);
     let path = Path::new(&image_data);
     match File::create(path) {
         Ok(file) => {
-            match serde_json::to_write(file, &data) {
+            match serde_json::to_writer(file, &data) {
                 Ok(_) => Ok(()),
                 Err(err) => Err(err.into()),
             }
@@ -153,7 +157,7 @@ pub fn save_image_list(list: Vec<String>) {
         .truncate(true)
         .open(SELECTION_FILE_NAME) {
         for line in list {
-            writeln!(file, line)
+            writeln!(file, "{}", line).expect("can't write")
         }
     }
 }
@@ -233,6 +237,28 @@ pub fn entries_from_reading_list(reading_list: &str, pattern_opt: Option<String>
             Ok(entry_list.clone())
         },
     }
+}
+
+fn copy_file_to_target_directory(file_path: &Path, target_directory: &Path) -> Result<u64> {
+    let file_name = file_path.file_name().unwrap();
+    let target_file_path = target_directory.join(file_name);
+    println!("copy {} to {}", file_path.display(), target_file_path.display());
+    std::fs::copy(file_path, target_file_path)
+}
+
+pub fn copy_entry(entry: &Entry, target_path: &Path) {
+    let file_name = entry.original_file_path();
+    let thumbnail_name = entry.thumbnail_file_path();
+    let image_data_name = entry.image_data_file_path();
+    let file_path = Path::new(&file_name);
+    let thumbnail_path = Path::new(&thumbnail_name);
+    let image_data_path = Path::new(&image_data_name);
+    match copy_file_to_target_directory(file_path, target_path)
+        .and_then(|_| copy_file_to_target_directory(thumbnail_path, target_path))
+        .and_then(|_| copy_file_to_target_directory(image_data_path, target_path)) {
+            Ok(_) => {},
+            Err(err) => println!("error: {}", err),
+        }
 }
 
 #[cfg(test)]

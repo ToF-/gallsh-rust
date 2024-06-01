@@ -1,3 +1,8 @@
+use std::cmp::min;
+use crate::picture_io;
+use crate::picture_io::save_image_list;
+use std::path::Path;
+use crate::picture_io::copy_entry;
 use crate::navigator::Navigator;
 use crate::entry::{EntryList};
 use crate::rank::Rank;
@@ -29,7 +34,10 @@ impl Repository {
     }
 
     pub fn title_display(&self) -> String {
-        let entry_title_display = self.entry().title_display();
+        if self.navigator.capacity() == 0 {
+            return "".to_string()
+        };
+        let entry_title_display = &<Entry as Clone>::clone(&self.current_entry().unwrap()).title_display();
         format!("{} ordered by {} {}/{}  {} {} {}",
             if self.select_start.is_some() { "…" } else { "" },
             if let Some(o) = self.order {
@@ -55,8 +63,30 @@ impl Repository {
         }
     }
 
+    pub fn move_to_register(&mut self) {
+        match self.register {
+            Some(index) => self.navigator.move_to_index(index),
+            None => {},
+        };
+        self.register = None
+    }
+
+    pub fn add_register_digit(&mut self, digit: usize ) {
+        self.register = match self.register {
+            Some(acc) => Some(acc * 10 + digit),
+            None => Some(digit),
+             }
+    }
+
+    pub fn delete_register_digit(&mut self) {
+        self.register = self.register.map(|n| n / 10)
+    }
+
     pub fn sort_by(&mut self, order: Order) {
-        let name = self.navigator.current_entry().original_file_path();
+        if self.navigator.capacity() == 0 {
+            return
+        };
+        let name = self.current_entry().unwrap().original_file_path();
         match order {
             Order::Colors => self.entry_list.sort_by(|a, b| { 
                 let cmp = (a.colors).cmp(&b.colors);
@@ -80,7 +110,7 @@ impl Repository {
             Order::Random => self.entry_list.shuffle(&mut thread_rng()),
         };
         self.order = Some(order);
-        self.jump_to_name(name)
+        self.jump_to_name(&name)
     }
 
     pub fn slice(&mut self, low_index: Option<usize>, high_index: Option<usize>) {
@@ -101,6 +131,9 @@ impl Repository {
         Some(&self.entry_list[self.navigator.index()])
     }
 
+    pub fn toggle_real_size(&mut self) {
+        self.real_size = !self.real_size
+    }
     pub fn toggle_select(&mut self) {
         assert!(self.entry_list.len() > 0);
         let index = self.navigator.index();
@@ -115,7 +148,7 @@ impl Repository {
 
     pub fn select_page(&mut self, value: bool) {
         let start = self.navigator.index();
-        let end = min(start + self.navigator.max_cells(), self.navigator.capacity);
+        let end = min(start + self.navigator.max_cells() as usize, self.navigator.capacity());
         for i in start..end {
             self.entry_list[i].to_select = value
         }
@@ -123,7 +156,7 @@ impl Repository {
 
     pub fn select_all(&mut self, value: bool) {
         let start = 0;
-        let end = self.navigator.capacity;
+        let end = self.navigator.capacity();
         for i in start..end {
             self.entry_list[i].to_select = value
         }
@@ -166,18 +199,32 @@ impl Repository {
     }
 
     pub fn save_updated_ranks(&self) {
-        for entry in self.entry_list.iter().filter(|e| e.rank != e.initial_rank).collect() {
-            picture_io::save_image_data(&entry)
+        let updated: Vec<&Entry> = self.entry_list.iter().filter(|e| e.rank != e.initial_rank).collect();
+        for entry in updated.iter() {
+            picture_io::save_image_data(&entry).expect("can't save image data")
         }
     }
 
     pub fn save_select_entries(&self) {
-        let list: Vec<String> = Vec::new();
-        for entry in self.entry_list.iter().filter(|e| e.to_select).collect() {
+        let mut list: Vec<String> = Vec::new();
+        let selection: Vec<&Entry> = self.entry_list.iter().filter(|e| e.to_select).collect();
+        for entry in selection.iter() {
             list.push(entry.original_file_path());
             list.push(entry.thumbnail_file_path())
         };
-        picture_io::save_image_list(&list);
+        save_image_list(list);
+    }
+
+    pub fn copy_select_entries(&self, target: &str) {
+        let target_path = Path::new(target);
+        if !target_path.exists() {
+            println!("directory doesn't exist: {}", target);
+            return
+        };
+        let selection: Vec<&Entry> = self.entry_list.iter().filter(|e| e.to_select).collect();
+        for entry in selection.iter() {
+            copy_entry(entry, target_path)
+        }
     }
 }
 
@@ -278,6 +325,7 @@ mod tests {
     fn sorting_entries_by_date() {
         let repository_rc = Rc::new(RefCell::new(Repository::from_entries(example().clone(), 2)));
         { repository_rc.borrow_mut().sort_by(Order::Date) };
+        { repository_rc.borrow_mut().navigator.move_to_index(0) };
         { assert_eq!(String::from("bub.jpeg"), repository_rc.borrow().current_entry().unwrap().original_file_name()) };
         { repository_rc.borrow_mut().navigator.move_to_index(1) };
         { assert_eq!(String::from("bar.jpeg"), repository_rc.borrow().current_entry().unwrap().original_file_name()) };
@@ -291,6 +339,7 @@ mod tests {
     fn sorting_entries_by_name() {
         let repository_rc = Rc::new(RefCell::new(Repository::from_entries(example().clone(), 2)));
         { repository_rc.borrow_mut().sort_by(Order::Name) };
+        { repository_rc.borrow_mut().navigator.move_to_index(0) };
         { assert_eq!(String::from("bar.jpeg"), repository_rc.borrow().current_entry().unwrap().original_file_name()) };
         { repository_rc.borrow_mut().navigator.move_to_index(1) };
         { assert_eq!(String::from("bub.jpeg"), repository_rc.borrow().current_entry().unwrap().original_file_name()) };
@@ -315,6 +364,7 @@ mod tests {
     fn sorting_entries_by_value_then_name() {
         let repository_rc = Rc::new(RefCell::new(Repository::from_entries(example().clone(), 2)));
         { repository_rc.borrow_mut().sort_by(Order::Value) };
+        { repository_rc.borrow_mut().navigator.move_to_index(0) };
         { assert_eq!(String::from("bar.jpeg"), repository_rc.borrow().current_entry().unwrap().original_file_name()) };
         { repository_rc.borrow_mut().navigator.move_to_index(1) };
         { assert_eq!(String::from("qux.jpeg"), repository_rc.borrow().current_entry().unwrap().original_file_name()) };

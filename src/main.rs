@@ -2,7 +2,6 @@ use crate::repository::Repository;
 use crate::picture_io::{entries_from_reading_list, entries_from_directory, entries_from_file, set_original_picture_file, set_thumbnail_picture_file};
 use clap::Parser;
 use clap_num::number_range;
-use entries::{Entries, update_thumbnails};
 use entry::{Entry, EntryList, make_entry};
 use paths::THUMB_SUFFIX; 
 use glib::clone;
@@ -24,7 +23,6 @@ const DEFAULT_HEIGHT: i32 = 1000;
 
 
 mod picture_io;
-mod entries;
 mod entry;
 mod image;
 mod navigator;
@@ -364,7 +362,7 @@ fn main() {
         left_gesture.set_button(1);
         left_gesture.connect_pressed(clone!(@strong repository_rc, @strong grid, @strong window => move |_,_,_,_| {
             let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
-            repository.move_prev_page();
+            repository.navigator.move_prev_page();
             show_grid(&grid, &repository, &window);
         }));
         left_button.add_controller(left_gesture);
@@ -395,7 +393,7 @@ fn main() {
                     let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
                     if repository.navigator.can_move_abs((col,row)) {
                         repository.navigator.move_abs((col,row));
-                        repository.toggle_select_area();
+                        repository.select_point();
                     }
                     show_grid(&grid, &repository, &window);
                 }));
@@ -409,7 +407,7 @@ fn main() {
                     if repository.navigator.cells_per_row() == 1 { return };
                     if repository.navigator.can_move_abs((col,row)) {
                         repository.navigator.move_abs((col,row));
-                        repository.toggle_select_area();
+                        repository.select_point();
                         stack.set_visible_child(&view_scrolled_window);
                         show_view(&view, &repository, &window);
                     }
@@ -421,8 +419,9 @@ fn main() {
                     if let Ok(mut repository) = repository_rc.try_borrow_mut() {
                         if repository.navigator.can_move_abs((col,row)) {
                             repository.navigator.move_abs((col,row));
-                            let entry = repository.entry();
-                            label.set_text(&entry.label_display(true));
+                            if let Some(entry) = repository.current_entry() {
+                                label.set_text(&entry.label_display(true))
+                            };
                             window.set_title(Some(&(repository.title_display())));
                         } else {
                             println!("{:?} refused {:?}", (col,row), repository.navigator)
@@ -432,7 +431,8 @@ fn main() {
 
                 motion_controller.connect_leave(clone!(@strong repository_rc, @strong grid, @strong label, @strong window => move |_| {
                     if let Ok(repository) = repository_rc.try_borrow_mut() {
-                        if let Some(entry) = &repository.at(col, row) {
+                        if let Some(index) = repository.navigator.index_from_position((col, row)) {
+                            let entry: &Entry = &repository.entry_list[index];
                             label.set_text(&entry.label_display(false));
                         }
                     };
@@ -455,14 +455,14 @@ fn main() {
                     match s.as_str() {
                         "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" => {
                             let digit:usize = s.parse().unwrap();
-                            repository.add_digit_to_register(digit);
+                            repository.add_register_digit(digit);
                         },
-                        "BackSpace" => repository.remove_digit_to_register(),
-                        "g" => if ! repository.register.is_none() { repository.go_to_register() },
+                        "BackSpace" => repository.delete_register_digit(),
+                        "g" => repository.move_to_register(),
                         "j" => for _ in 0..10 { repository.navigator.move_next_page() },
                         "l" => for _ in 0..10 { repository.navigator.move_prev_page() },
                         "f" => if repository.navigator.cells_per_row() == 1 { repository.toggle_real_size() },
-                        "z" => repository.jump(0),
+                        "z" => repository.navigator.move_to_index(0),
                         "e" => repository.navigator.move_next_page(),
                         "n" => {
                             if repository.order.is_none() {
@@ -474,17 +474,17 @@ fn main() {
                         },
                         "p"|"i" => repository.navigator.move_prev_page(),
                         "q"|"Escape" => {
-                            repository.save_marked_file_lists(args.thumbnails);
+                            repository.save_select_entries();
                             repository.save_updated_ranks();
                             window.close();
                         },
                         "Q" => {
+                            repository.save_select_entries();
+                            repository.save_updated_ranks();
                             if let Some(target_path) = &copy_selection_target {
-                                repository.copy_selection(&target_path);
-                                repository.save_marked_file_lists(args.thumbnails);
-                                repository.save_updated_ranks();
-                                window.close()
-                            }
+                                repository.copy_select_entries(&target_path)
+                            };
+                            window.close()
                         },
                         "B"|"plus"|"D" => repository.rank_point(Rank::NoStar),
                         "M"|"Eacute"|"minus"|"C" => repository.rank_point(Rank::OneStar),
@@ -605,7 +605,7 @@ fn main() {
                                 v_adj.set_value(v_adj.value() - step as f64)
                             } else {
                                 if repository.navigator.cells_per_row() == 1 {
-                                    navigator.move_next_page();
+                                    repository.navigator.move_next_page();
                                 } else {
                                     navigate(&mut repository, &grid, &window, 0, -1);
                                 }
