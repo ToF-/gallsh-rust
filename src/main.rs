@@ -273,6 +273,7 @@ fn main() {
         let mut repository = Repository::from_entries(entry_list, grid_size);
         repository.sort_by(order);
         repository.slice(args.from, args.to);
+        repository.read_select_entries();
 
         println!("{} entries", repository.navigator.capacity());
         if repository.navigator.capacity() == 0 {

@@ -1,3 +1,4 @@
+use crate::paths::is_thumbnail;
 use std::io::Write;
 use std::fs::OpenOptions;
 use std::path::PathBuf;
@@ -127,7 +128,7 @@ pub fn set_image_data(entry: &mut Entry) -> Result<()> {
             Ok(colors) => {
                 entry.colors = colors;
                 entry.rank = Rank::NoStar;
-                save_image_data(&entry);
+                let _ = save_image_data(&entry);
                 Ok(())
             },
             Err(err) => Err(Error::new(ErrorKind::Other,err)),
@@ -225,7 +226,7 @@ pub fn entries_from_reading_list(reading_list: &str, pattern_opt: Option<String>
         Ok(content) => {
             let mut entry_list: EntryList = Vec::new();
             let mut file_paths_set: HashSet<String> = HashSet::new();
-            for path in content.lines().map(String::from).collect::<Vec<_>>().into_iter().map(|line| PathBuf::from(line)) {
+            for path in content.lines().map(String::from).filter(|p| !is_thumbnail(p)).collect::<Vec<_>>().into_iter().map(|line| PathBuf::from(line)) {
                 let file_path = path.to_str().unwrap().to_string();
                 if ! file_paths_set.contains(&file_path) {
                     file_paths_set.insert(file_path);

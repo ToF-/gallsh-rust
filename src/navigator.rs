@@ -23,6 +23,9 @@ impl Navigator {
         }
     }
 
+    pub fn start_cell_index(&self) -> usize {
+        self.start_cell_index as usize
+    }
     pub fn capacity(&self) -> usize {
         self.capacity as usize
     }

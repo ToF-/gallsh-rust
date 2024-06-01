@@ -1,3 +1,5 @@
+use crate::paths::SELECTION_FILE_NAME;
+use crate::entries_from_reading_list;
 use std::cmp::min;
 use crate::picture_io;
 use crate::picture_io::save_image_list;
@@ -147,7 +149,7 @@ impl Repository {
     }
 
     pub fn select_page(&mut self, value: bool) {
-        let start = self.navigator.index();
+        let start = self.navigator.start_cell_index();
         let end = min(start + self.navigator.max_cells() as usize, self.navigator.capacity());
         for i in start..end {
             self.entry_list[i].to_select = value
@@ -215,6 +217,16 @@ impl Repository {
         save_image_list(list);
     }
 
+    pub fn read_select_entries(&mut self) {
+        if let Ok(entry_list) = entries_from_reading_list(SELECTION_FILE_NAME, None) {
+            for entry in entry_list.iter() {
+                let name = &entry.original_file_path();
+                if let Some(index) = self.entry_list.iter().position(|e| &e.original_file_path() == name) {
+                    self.entry_list[index].to_select = true
+                }
+            }
+        }
+    }
     pub fn copy_select_entries(&self, target: &str) {
         let target_path = Path::new(target);
         if !target_path.exists() {

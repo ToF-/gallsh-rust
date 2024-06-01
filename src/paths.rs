@@ -2,6 +2,7 @@ use std::path::PathBuf;
 
 pub const THUMB_SUFFIX: &str = "THUMB";
 pub const IMAGE_DATA: &str = "IMAGE_DATA";
+pub const SELECTION_FILE_NAME: &str = "selections";
 
 
 pub fn thumbnail_file_path(file_path: &str) -> String {
@@ -29,7 +30,7 @@ pub fn image_data_file_path(file_path: &str) -> String {
 }
 
 pub fn original_file_path(file_path: &str) -> String {
-    if !file_path.contains(&THUMB_SUFFIX) {
+    if !is_thumbnail(file_path) {
         file_path.to_string()
     } else {
         let path = PathBuf::from(file_path);
@@ -50,6 +51,10 @@ pub fn original_file_name(file_path: &str) -> String  {
     let original = original_file_path(file_path);
     let path = PathBuf::from(original);
     path.file_name().unwrap().to_str().unwrap().to_string()
+}
+
+pub fn is_thumbnail(file_path: &str) -> bool {
+    file_path.contains(&THUMB_SUFFIX)
 }
 
 #[cfg(test)]
