@@ -65,12 +65,28 @@ impl Repository {
         }
     }
 
-    pub fn move_to_register(&mut self) {
-        match self.register {
-            Some(index) => self.navigator.move_to_index(index),
-            None => {},
+    pub fn move_forward_ten_pages(&mut self) {
+        for _ in 0..10 {
+            self.navigator.move_next_page()
         };
-        self.register = None
+        println!("move forward ten pages")
+    }
+
+    pub fn move_backward_ten_pages(&mut self) {
+        for _ in 0..10 { 
+            self.navigator.move_prev_page()
+        };
+        println!("move backward ten pages")
+    }
+
+    pub fn move_to_register(&mut self) {
+        if let Some(index) = self.register {
+            self.navigator.move_to_index(index);
+            self.register = None;
+            println!("go to register index: {}", index)
+        } else {
+            println!("no register index")
+        }
     }
 
     pub fn add_register_digit(&mut self, digit: usize ) {
@@ -80,14 +96,19 @@ impl Repository {
                 if new_acc < self.navigator.capacity() { Some(new_acc) } else { Some(acc) }
             },
             None => Some(digit),
-             }
+        };
+        println!("register index: {}", self.register.unwrap())
     }
 
     pub fn delete_register_digit(&mut self) {
-        self.register = self.register.map(|n| n / 10)
+        self.register = self.register.map(|n| n / 10);
+        if let Some(index) = self.register {
+            println!("register index: {}", index)
+        }
     }
 
     pub fn sort_by(&mut self, order: Order) {
+        println!("sort pictures by {}", order);
         if self.navigator.capacity() == 0 {
             return
         };
@@ -137,8 +158,76 @@ impl Repository {
     }
 
     pub fn toggle_real_size(&mut self) {
-        self.real_size = !self.real_size
+        if self.navigator.cells_per_row() == 1 {
+            self.real_size = !self.real_size;
+            println!("toggle real size")
+        } else {
+            println!("can't toggle real size in grid mode")
+        }
     }
+
+    pub fn move_to_index(&mut self, index: usize) {
+        if self.navigator.can_move_to_index(index) {
+            self.navigator.move_to_index(index);
+            println!("move to picture #{}", index)
+        } else {
+            println!("can't move to picture #{}", index)
+        }
+    }
+
+    pub fn move_to_random_index(&mut self) {
+        self.navigator.move_to_random_index();
+        println!("move to picture #{}", self.navigator.index())
+    }
+
+    pub fn move_next_page(&mut self) {
+        self.navigator.move_next_page();
+        println!("move to next page")
+    }
+
+    pub fn move_prev_page(&mut self) {
+        self.navigator.move_prev_page();
+        println!("move to prev page")
+    }
+
+    pub fn set_order_choice_on(&mut self) {
+        self.order = None;
+        println!("order choice on…");
+    }
+
+    pub fn quit(&self) {
+        self.save_updated_ranks();
+        self.save_select_entries();
+        println!("quit gallery show")
+    }
+
+    pub fn help(&self) {
+        let content = "commands:\n\n\
+        n: move next page\n\
+        p: move prev page\n\
+        j: move 10 pages forward\n\
+        b: move 10 pages backward\n\
+        z: move to first picture\n\
+        r: move to a random picture\n\
+        =: change order (followed by c,d,n,r,v for colors, date, name, random, value)\n\
+        .: view picture (when in grid mode)\n\
+        f: view real size (when not in grid mode)\n\
+        ,: toggle selection\n\
+        ";
+        println!("{}", &content)
+    }
+    pub fn copy_and_quit(&self, copy_selection_target: &Option<String>) {
+        if let Some(target_path) = copy_selection_target {
+            println!("copy selection to target path");
+            self.copy_select_entries(&target_path)
+        };
+        self.quit()
+    }
+
+    pub fn order_choice_on(&self) -> bool {
+        self.order.is_none()
+    }
+
     pub fn toggle_select(&mut self) {
         assert!(self.entry_list.len() > 0);
         let index = self.navigator.index();
@@ -340,7 +429,7 @@ mod tests {
         { repository_rc.borrow_mut().navigator.move_rel((0,1)) }; // now current entry is #2 
         { repository_rc.borrow_mut().select_point() };
         { repository_rc.borrow_mut().navigator.move_rel((0,-1)) }; // now current entry is #0
-        { repository_rc.borrow_mut().rank_point(Rank::TwoStars) }; // only entries 0,1,2 are ranked
+        { repository_rc.borrow_mut().point_rank(Rank::TwoStars) }; // only entries 0,1,2 are ranked
         let repository = repository_rc.borrow();
         for entry in &repository.entry_list[0..3] {
             assert_eq!(Rank::TwoStars, entry.rank)

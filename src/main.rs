@@ -456,114 +456,67 @@ fn main() {
                     match s.as_str() {
                         "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" => {
                             let digit:usize = s.parse().unwrap();
-                            repository.add_register_digit(digit);
-                            println!("register index: {}", repository.register.unwrap())
+                            repository.add_register_digit(digit)
                         },
-                        "BackSpace" => {
-                            repository.delete_register_digit();
-                            match repository.register {
-                                Some(index) => println!("register index: {}", index),
-                                None => {},
-                            }
-                        },
+                        "BackSpace" => repository.delete_register_digit(),
                         "Return" => repository.select_point(),
                         "comma" => repository.point_select(),
                         "Escape" => repository.cancel_point(),
-
-                        "g" => {
-                            match repository.register {
-                                Some(index) => println!("go to register index: {}", index),
-                                None => println!("no register index"),
-                            };
-                            repository.move_to_register()
+                        "g" => repository.move_to_register(),
+                        "j" => repository.move_forward_ten_pages(),
+                        "l" => repository.move_backward_ten_pages(),
+                        "f" => repository.toggle_real_size(),
+                        "z" => repository.move_to_index(0),
+                        "e" => repository.move_next_page(),
+                        "n" => if repository.order_choice_on() {
+                            repository.sort_by(Order::Name);
+                            show_grid(&grid, &repository, &window)
+                        } else {
+                            repository.move_next_page()
                         },
-                        "j" => {
-                            for _ in 0..10 { repository.navigator.move_next_page() };
-                            println!("move forward ten pages")
-                        },
-                        "l" => {
-                            for _ in 0..10 { repository.navigator.move_prev_page() };
-                            println!("move backward ten pages")
-                        },
-                        "f" => if repository.navigator.cells_per_row() == 1 { 
-                            repository.toggle_real_size();
-                            println!("toggle real size")
-                        },
-                        "z" => {
-                            repository.navigator.move_to_index(0);
-                            println!("move to index 0")
-                        },
-                        "e" => {
-                            repository.navigator.move_next_page();
-                            println!("move to next page")
-                        },
-                        "n" => {
-                            if repository.order.is_none() {
-                                repository.sort_by(Order::Name);
-                                println!("sort pictures by name");
-                                show_grid(&grid, &repository, &window)
-                            } else {
-                                repository.navigator.move_next_page();
-                                println!("move to next page")
-                            }
-                        },
-                        "p"|"i" => {
-                            repository.navigator.move_prev_page();
-                            println!("move to prev page")
-                        },
+                        "p"|"i" => repository.move_prev_page(),
                         "q" => {
-                            repository.save_updated_ranks();
-                            repository.save_select_entries();
-                            println!("quit gallery show");
-                            window.close();
+                            repository.quit();
+                            window.close()
                         },
                         "Q" => {
-                            repository.save_updated_ranks();
-                            repository.save_select_entries();
-                            if let Some(target_path) = &copy_selection_target {
-                                println!("copy selection to target path");
-                                repository.copy_select_entries(&target_path)
-                            };
-                            println!("quit gallery show");
+                            repository.copy_and_quit(&copy_selection_target);
                             window.close()
                         },
                         "B"|"plus"|"D" => repository.point_rank(Rank::NoStar),
                         "M"|"Eacute"|"minus"|"C" => repository.point_rank(Rank::OneStar),
                         "N"|"P"|"slash" => repository.point_rank(Rank::TwoStars),
                         "asterisk"|"A"|"O" => repository.point_rank(Rank::ThreeStars),
-                        "c" => if repository.order.is_none() {
+                        "c" => if repository.order_choice_on() {
                             repository.sort_by(Order::Colors);
                             show_grid(&grid, &repository, &window)
                         },
-                        "d" => if repository.order.is_none() {
+                        "d" => if repository.order_choice_on() {
                             repository.sort_by(Order::Date);
                             show_grid(&grid, &repository, &window)
                         },
                         "R" => repository.set_rank(Rank::NoStar),
-                        "r" => {
-                            if repository.order.is_none() {
-                                repository.sort_by(Order::Random);
-                                show_grid(&grid, &repository, &window)
-                            } else {
-                                repository.navigator.move_to_random_index()
-                            }
+                        "r" => if repository.order_choice_on() {
+                            repository.sort_by(Order::Random);
+                            show_grid(&grid, &repository, &window)
+                        } else {
+                            repository.move_to_random_index()
                         },
                         "a" => repository.select_page(true),
                         "u" => repository.select_page(false),
                         "U" => repository.select_all(false),
-                        "s" => { 
-                            if repository.order.is_none() {
-                                repository.sort_by(Order::Size);
-                                show_grid(&grid, &repository, &window)
-                            } else {
-                                repository.select_point()
-                            }
+                        "s" => if repository.order_choice_on() {
+                            repository.sort_by(Order::Size);
+                            show_grid(&grid, &repository, &window)
+                        } else {
+                            repository.select_point()
                         },
-                        "o" => repository.order = None,
-                        "v" => if repository.order.is_none() {
+                        "equal" => repository.set_order_choice_on(),
+                        "v" => if repository.order_choice_on() {
                             repository.sort_by(Order::Value);
                             show_grid(&grid, &repository, &window)
                         },
+                        "h" => repository.help(),
                         "period"|"k" => {
                             if stack.visible_child().unwrap() == grid_scrolled_window {
                                 show_grid(&grid, &repository, &window);
@@ -649,7 +602,7 @@ fn main() {
                                 }
                             }
                         },
-                        _ => {},
+                        other => println!("{}", other), 
                     };
                     if show {
                         show_grid(&grid, &repository, &window);
