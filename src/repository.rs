@@ -407,7 +407,7 @@ mod tests {
         { repository_rc.borrow_mut().navigator.move_rel((0,1)) }; // now current entry is #2 
         { repository_rc.borrow_mut().select_point() };
         { repository_rc.borrow_mut().navigator.move_rel((0,-1)) }; // now current entry is #0
-        { repository_rc.borrow_mut().select_point() }; // only entries 0,1,2 are selected
+        { repository_rc.borrow_mut().point_select() }; // only entries 0,1,2 are selected
         let repository = repository_rc.borrow();
         for entry in &repository.entry_list[0..3] {
             assert_eq!(true, entry.to_select)
@@ -424,7 +424,7 @@ mod tests {
     }
 
     #[test]
-    fn after_two_rank_points_a_group_on_entries_has_rank_chaned() {
+    fn after_two_rank_points_a_group_on_entries_has_rank_changed() {
         let repository_rc = Rc::new(RefCell::new(Repository::from_entries(example().clone(), 2)));
         { repository_rc.borrow_mut().navigator.move_rel((0,1)) }; // now current entry is #2 
         { repository_rc.borrow_mut().select_point() };
