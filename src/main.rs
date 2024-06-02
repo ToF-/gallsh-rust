@@ -275,16 +275,14 @@ fn main() {
         repository.slice(args.from, args.to);
         repository.read_select_entries();
 
-        println!("{} entries", repository.navigator.capacity());
-        if repository.navigator.capacity() == 0 {
+        println!("{} entries", repository.capacity());
+        if repository.capacity() == 0 {
             application.quit();
             return
         };
 
         if let Some(index) = args.index {
-            if repository.navigator.can_move_to_index(index) {
-                repository.navigator.move_to_index(index)
-            }
+            repository.move_to_index(index)
         };
         let repository_rc = Rc::new(RefCell::new(repository));
 
@@ -363,7 +361,7 @@ fn main() {
         left_gesture.set_button(1);
         left_gesture.connect_pressed(clone!(@strong repository_rc, @strong grid, @strong window => move |_,_,_,_| {
             let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
-            repository.navigator.move_prev_page();
+            repository.move_prev_page();
             show_grid(&grid, &repository, &window);
         }));
         left_button.add_controller(left_gesture);
@@ -371,7 +369,7 @@ fn main() {
         right_gesture.set_button(1);
         right_gesture.connect_pressed(clone!(@strong repository_rc, @strong grid, @strong window => move |_,_,_,_| {
             let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
-            repository.navigator.move_next_page();
+            repository.move_next_page();
             show_grid(&grid, &repository, &window);
         }));
         right_button.add_controller(right_gesture);
@@ -392,8 +390,8 @@ fn main() {
                 select_gesture.set_button(1);
                 select_gesture.connect_pressed(clone!(@strong repository_rc, @strong grid, @strong window => move |_,_, _, _| {
                     let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
-                    if repository.navigator.can_move_abs((col,row)) {
-                        repository.navigator.move_abs((col,row));
+                    if repository.can_move_abs((col,row)) {
+                        repository.move_abs((col,row));
                         repository.select_point();
                     }
                     show_grid(&grid, &repository, &window);
@@ -405,9 +403,9 @@ fn main() {
 
                 view_gesture.connect_pressed(clone!(@strong repository_rc, @strong grid, @strong image, @strong view, @strong stack, @strong view_scrolled_window, @strong grid_scrolled_window, @strong window => move |_, _, _, _| {
                     let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
-                    if repository.navigator.cells_per_row() == 1 { return };
-                    if repository.navigator.can_move_abs((col,row)) {
-                        repository.navigator.move_abs((col,row));
+                    if repository.cells_per_row() == 1 { return };
+                    if repository.can_move_abs((col,row)) {
+                        repository.move_abs((col,row));
                         repository.select_point();
                         stack.set_visible_child(&view_scrolled_window);
                         show_view(&view, &repository, &window);
@@ -418,23 +416,24 @@ fn main() {
                 let motion_controller = EventControllerMotion::new();
                 motion_controller.connect_enter(clone!(@strong repository_rc, @strong grid, @strong label, @strong window => move |_,_,_| {
                     if let Ok(mut repository) = repository_rc.try_borrow_mut() {
-                        if repository.navigator.can_move_abs((col,row)) {
-                            repository.navigator.move_abs((col,row));
+                        if repository.can_move_abs((col,row)) {
+                            repository.move_abs((col,row));
                             if let Some(entry) = repository.current_entry() {
                                 label.set_text(&entry.label_display(true))
                             };
                             window.set_title(Some(&(repository.title_display())));
                         } else {
-                            println!("{:?} refused {:?}", (col,row), repository.navigator)
+                            println!("{:?} refused", (col,row))
                         }
                     }
                 }));
 
                 motion_controller.connect_leave(clone!(@strong repository_rc, @strong grid, @strong label, @strong window => move |_| {
                     if let Ok(repository) = repository_rc.try_borrow_mut() {
-                        if let Some(index) = repository.navigator.index_from_position((col, row)) {
-                            let entry: &Entry = &repository.entry_list[index];
-                            label.set_text(&entry.label_display(false));
+                        if let Some(index) = repository.index_from_position((col, row)) {
+                            if let Some(entry) = repository.entry_at_index(index) {
+                                label.set_text(&entry.label_display(false));
+                            }
                         }
                     };
                 }));
@@ -527,7 +526,7 @@ fn main() {
                                 stack.set_visible_child(&grid_scrolled_window)
                             }
                         },
-                        "space" => repository.navigator.move_next_page(),
+                        "space" => repository.move_next_page(),
                         "Right" => {
                             show = false;
                             if repository.real_size() {
@@ -539,8 +538,8 @@ fn main() {
                                     .expect("Failed to get hadjustment");
                                 h_adj.set_value(h_adj.value() + step as f64)
                             } else {
-                                if repository.navigator.cells_per_row() == 1 {
-                                    repository.navigator.move_next_page();
+                                if repository.cells_per_row() == 1 {
+                                    repository.move_next_page();
                                     show = true;
                                 } else {
                                     navigate(&mut repository, &grid, &window, 1, 0);
@@ -558,8 +557,8 @@ fn main() {
                                     .expect("Failed to get hadjustment");
                                 h_adj.set_value(h_adj.value() - step as f64)
                             } else {
-                                if repository.navigator.cells_per_row() == 1 {
-                                    repository.navigator.move_prev_page();
+                                if repository.cells_per_row() == 1 {
+                                    repository.move_prev_page();
                                     show = true;
                                 } else {
                                     navigate(&mut repository, &grid, &window, -1, 0);
@@ -577,8 +576,8 @@ fn main() {
                                     .expect("Failed to get vadjustment");
                                 v_adj.set_value(v_adj.value() + step as f64)
                             } else {
-                                if repository.navigator.cells_per_row() == 1 {
-                                    repository.navigator.move_next_page()
+                                if repository.cells_per_row() == 1 {
+                                    repository.move_next_page()
                                 } else {
                                     navigate(&mut repository, &grid, &window, 0, 1);
                                 }
@@ -595,8 +594,8 @@ fn main() {
                                     .expect("Failed to get vadjustment");
                                 v_adj.set_value(v_adj.value() - step as f64)
                             } else {
-                                if repository.navigator.cells_per_row() == 1 {
-                                    repository.navigator.move_next_page();
+                                if repository.cells_per_row() == 1 {
+                                    repository.move_next_page();
                                 } else {
                                     navigate(&mut repository, &grid, &window, 0, -1);
                                 }
@@ -626,7 +625,7 @@ fn main() {
         if let Some(t) = args.timer {
             timeout_add_local(Duration::new(t,0), clone!(@strong repository_rc, @strong grid, @strong window => move | | {
                 let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
-                repository.navigator.move_next_page();
+                repository.move_next_page();
                 show_grid(&grid, &repository, &window);
                 window.set_title(Some(&repository.title_display()));
                 Continue(true)
@@ -640,43 +639,44 @@ fn main() {
 }
 
 fn show_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWindow) {
-    let cells_per_row = repository.navigator.cells_per_row();
+    let cells_per_row = repository.cells_per_row();
     for col in 0..cells_per_row {
         for row in 0..cells_per_row {
             let vbox = grid.child_at(col,row).unwrap().downcast::<gtk::Box>().unwrap();
             let picture = vbox.first_child().unwrap().downcast::<gtk::Picture>().unwrap();
             let label = vbox.last_child().unwrap().downcast::<gtk::Label>().unwrap();
-            if let Some(index) = repository.navigator.index_from_position((col,row)) {
-                let entry = &repository.entry_list[index];
-                let status = format!("{} {} {}",
-                    if index == repository.navigator.index() && cells_per_row > 1 { "▄" } else { "" },
-                    entry.rank.show(),
-                    if entry.to_select { "△" } else { "" });
-                label.set_text(&status);
-                let opacity = if entry.to_select { 0.50 } else { 1.0 };
-                picture.set_opacity(opacity);
-                picture.set_can_shrink(!repository.real_size());
-                if repository.navigator.cells_per_row() < 10 {
-                    match set_original_picture_file(&picture, &entry) {
-                        Ok(_) => {
-                            picture.set_visible(true)
-                        },
-                        Err(err) => {
-                            picture.set_visible(false);
-                            println!("{}",err.to_string())
-                        },
+            if let Some(index) = repository.index_from_position((col,row)) {
+                if let Some(entry) = repository.entry_at_index(index) {
+                    let status = format!("{} {} {}",
+                        if index == repository.index() && cells_per_row > 1 { "▄" } else { "" },
+                        entry.rank.show(),
+                        if entry.to_select { "△" } else { "" });
+                    label.set_text(&status);
+                    let opacity = if entry.to_select { 0.50 } else { 1.0 };
+                    picture.set_opacity(opacity);
+                    picture.set_can_shrink(!repository.real_size());
+                    if repository.cells_per_row() < 10 {
+                        match set_original_picture_file(&picture, &entry) {
+                            Ok(_) => {
+                                picture.set_visible(true)
+                            },
+                            Err(err) => {
+                                picture.set_visible(false);
+                                println!("{}",err.to_string())
+                            },
+                        }
+                    } else {
+                        match set_thumbnail_picture_file(&picture, &entry) {
+                            Ok(_) => {
+                                picture.set_visible(true)
+                            },
+                            Err(err) => {
+                                picture.set_visible(false);
+                                println!("{}",err.to_string())
+                            },
+                        }
                     }
-                } else {
-                    match set_thumbnail_picture_file(&picture, &entry) {
-                        Ok(_) => {
-                            picture.set_visible(true)
-                        },
-                        Err(err) => {
-                            picture.set_visible(false);
-                            println!("{}",err.to_string())
-                        },
-                    }
-                };
+                }
             } else {
                 picture.set_visible(false);
                 label.set_text("");
@@ -709,16 +709,22 @@ fn label_at(grid: &gtk::Grid, col: i32, row: i32) -> gtk::Label {
 }
 
 fn navigate(repository: &mut Repository, grid: &gtk::Grid, window: &gtk::ApplicationWindow, col_move: i32, row_move: i32) {
-    if repository.navigator.can_move_rel((col_move, row_move)) {
-        let old_coords = repository.navigator.position();
+    if repository.can_move_rel((col_move, row_move)) {
+        let old_coords = repository.position();
         let old_label = label_at(&grid, old_coords.0, old_coords.1);
-        let old_index = repository.navigator.index();
-        old_label.set_text(&repository.entry_list[old_index].label_display(false));
-        repository.navigator.move_rel((col_move, row_move));
-        let new_coords = repository.navigator.position();
+        let old_display = match repository.current_entry() {
+            Some(entry) => entry.label_display(false),
+            None => String::new(),
+        };
+        old_label.set_text(&old_display);
+        repository.move_rel((col_move, row_move));
+        let new_coords = repository.position();
         let new_label = label_at(&grid, new_coords.0, new_coords.1);
-        let new_index = repository.navigator.index();
-        new_label.set_text(&repository.entry_list[new_index].label_display(true));
+        let new_display = match repository.current_entry() {
+            Some(entry) => entry.label_display(true),
+            None => String::new(),
+        };
+        new_label.set_text(&new_display);
         window.set_title(Some(&repository.title_display()));
     }
 }

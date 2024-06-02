@@ -6,6 +6,7 @@ use crate::picture_io::save_image_list;
 use std::path::Path;
 use crate::picture_io::copy_entry;
 use crate::navigator::Navigator;
+use crate::navigator::Coords;
 use crate::entry::{EntryList};
 use crate::rank::Rank;
 use crate::Entry;
@@ -15,11 +16,11 @@ use std::cmp::Ordering::Equal;
 use rand::prelude::SliceRandom;
 
 pub struct Repository {
-    pub entry_list: EntryList,
-    pub navigator: Navigator,
-    pub select_start: Option<usize>,
-    pub order: Option<Order>,
-    pub register: Option<usize>,
+    entry_list: EntryList,
+    navigator: Navigator,
+    select_start: Option<usize>,
+    order: Option<Order>,
+    register: Option<usize>,
     real_size: bool,
 }
 
@@ -35,6 +36,31 @@ impl Repository {
         }
     }
 
+    pub fn capacity(&self) -> usize {
+        self.navigator.capacity()
+    }
+
+    pub fn position(&self) -> Coords {
+        self.navigator.position()
+    }
+    pub fn cells_per_row(&self) -> i32 {
+        self.navigator.cells_per_row()
+    }
+
+    pub fn index(&self) -> usize {
+        self.navigator.index()
+    }
+
+    pub fn index_from_position(&self, coords: Coords) -> Option<usize> {
+        self.navigator.index_from_position(coords)
+    }
+    pub fn entry_at_index(&self, index: usize) -> Option<&Entry> {
+        if index < self.navigator.capacity() {
+            Some(&self.entry_list[index])
+        } else {
+            None
+        }
+    }
     pub fn title_display(&self) -> String {
         if self.navigator.capacity() == 0 {
             return "".to_string()
@@ -63,6 +89,22 @@ impl Repository {
             Some(index) => self.navigator.move_to_index(index),
             None => {},
         }
+    }
+
+    pub fn can_move_abs(&self, coords: Coords) -> bool {
+        self.navigator.can_move_abs(coords)
+    }
+
+    pub fn move_abs(&mut self, coords: Coords) {
+        self.navigator.move_abs(coords)
+    }
+
+    pub fn can_move_rel(&self, coords: Coords) -> bool {
+        self.navigator.can_move_rel(coords)
+    }
+
+    pub fn move_rel(&mut self, coords: Coords) {
+        self.navigator.move_rel(coords)
     }
 
     pub fn move_forward_ten_pages(&mut self) {

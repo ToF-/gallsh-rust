@@ -1,7 +1,7 @@
 use rand::Rng;
 use rand::thread_rng;
 
-type Coords = (i32, i32);
+pub type Coords = (i32, i32);
 
 #[derive(Clone,Debug)]
 pub struct Navigator {
