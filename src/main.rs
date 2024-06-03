@@ -367,9 +367,13 @@ fn main() {
         grid.set_column_homogeneous(true);
         grid.set_hexpand(true);
         grid.set_vexpand(true);
-        panel.attach(&left_button, 0, 0, 1, 1);
+        if grid_size > 1 {
+            panel.attach(&left_button, 0, 0, 1, 1);
+        }
         panel.attach(&grid, 1, 0, 1, 1);
-        panel.attach(&right_button, 2, 0, 1, 1);
+        if grid_size > 1 {
+            panel.attach(&right_button, 2, 0, 1, 1);
+        }
         left_gesture.set_button(1);
         left_gesture.connect_pressed(clone!(@strong repository_rc, @strong grid, @strong window => move |_,_,_,_| {
             let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
