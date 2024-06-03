@@ -1,3 +1,5 @@
+use crate::navigator::Coords;
+use crate::direction::Direction;
 use crate::repository::Repository;
 use crate::picture_io::{entries_from_reading_list, entries_from_directory, entries_from_file, set_original_picture_file, set_thumbnail_picture_file};
 use clap::Parser;
@@ -22,6 +24,7 @@ const DEFAULT_WIDTH: i32 = 1000;
 const DEFAULT_HEIGHT: i32 = 1000;
 
 
+mod direction;
 mod picture_io;
 mod entry;
 mod image;
@@ -375,6 +378,7 @@ fn main() {
         right_button.add_controller(right_gesture);
         for col in 0 .. grid_size as i32 {
             for row in 0 .. grid_size as i32 {
+                let coords: Coords = (col,row);
                 let vbox = gtk::Box::new(Orientation::Vertical, 0);
                 let image = Picture::new();
                 let label = Label::new(None);
@@ -390,8 +394,8 @@ fn main() {
                 select_gesture.set_button(1);
                 select_gesture.connect_pressed(clone!(@strong repository_rc, @strong grid, @strong window => move |_,_, _, _| {
                     let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
-                    if repository.can_move_abs((col,row)) {
-                        repository.move_abs((col,row));
+                    if repository.can_move_abs(coords) {
+                        repository.move_abs(coords);
                         repository.select_point();
                     }
                     show_grid(&grid, &repository, &window);
@@ -404,8 +408,8 @@ fn main() {
                 view_gesture.connect_pressed(clone!(@strong repository_rc, @strong grid, @strong image, @strong view, @strong stack, @strong view_scrolled_window, @strong grid_scrolled_window, @strong window => move |_, _, _, _| {
                     let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
                     if repository.cells_per_row() == 1 { return };
-                    if repository.can_move_abs((col,row)) {
-                        repository.move_abs((col,row));
+                    if repository.can_move_abs(coords) {
+                        repository.move_abs(coords);
                         repository.select_point();
                         stack.set_visible_child(&view_scrolled_window);
                         show_view(&view, &repository, &window);
@@ -416,21 +420,21 @@ fn main() {
                 let motion_controller = EventControllerMotion::new();
                 motion_controller.connect_enter(clone!(@strong repository_rc, @strong grid, @strong label, @strong window => move |_,_,_| {
                     if let Ok(mut repository) = repository_rc.try_borrow_mut() {
-                        if repository.can_move_abs((col,row)) {
-                            repository.move_abs((col,row));
+                        if repository.can_move_abs(coords) {
+                            repository.move_abs(coords);
                             if let Some(entry) = repository.current_entry() {
                                 label.set_text(&entry.label_display(true))
                             };
                             window.set_title(Some(&(repository.title_display())));
                         } else {
-                            println!("{:?} refused", (col,row))
+                            println!("{:?} refused", coords)
                         }
                     }
                 }));
 
                 motion_controller.connect_leave(clone!(@strong repository_rc, @strong grid, @strong label, @strong window => move |_| {
                     if let Ok(repository) = repository_rc.try_borrow_mut() {
-                        if let Some(index) = repository.index_from_position((col, row)) {
+                        if let Some(index) = repository.index_from_position(coords) {
                             if let Some(entry) = repository.entry_at_index(index) {
                                 label.set_text(&entry.label_display(false));
                             }
@@ -542,7 +546,7 @@ fn main() {
                                     repository.move_next_page();
                                     show = true;
                                 } else {
-                                    navigate(&mut repository, &grid, &window, 1, 0);
+                                    navigate(&mut repository, &grid, &window, Direction::Right);
                                 }
                             }
                         },
@@ -561,7 +565,7 @@ fn main() {
                                     repository.move_prev_page();
                                     show = true;
                                 } else {
-                                    navigate(&mut repository, &grid, &window, -1, 0);
+                                    navigate(&mut repository, &grid, &window, Direction::Left);
                                 }
                             }
                         },
@@ -579,7 +583,7 @@ fn main() {
                                 if repository.cells_per_row() == 1 {
                                     repository.move_next_page()
                                 } else {
-                                    navigate(&mut repository, &grid, &window, 0, 1);
+                                    navigate(&mut repository, &grid, &window, Direction::Down);
                                 }
                             }
                         },
@@ -597,7 +601,7 @@ fn main() {
                                 if repository.cells_per_row() == 1 {
                                     repository.move_next_page();
                                 } else {
-                                    navigate(&mut repository, &grid, &window, 0, -1);
+                                    navigate(&mut repository, &grid, &window, Direction::Up);
                                 }
                             }
                         },
@@ -708,7 +712,8 @@ fn label_at(grid: &gtk::Grid, col: i32, row: i32) -> gtk::Label {
         .downcast::<gtk::Label>().unwrap()
 }
 
-fn navigate(repository: &mut Repository, grid: &gtk::Grid, window: &gtk::ApplicationWindow, col_move: i32, row_move: i32) {
+fn navigate(repository: &mut Repository, grid: &gtk::Grid, window: &gtk::ApplicationWindow, direction: Direction) {
+    let (col_move, row_move) = direction.into_coords();
     if repository.can_move_rel((col_move, row_move)) {
         let old_coords = repository.position();
         let old_label = label_at(&grid, old_coords.0, old_coords.1);
