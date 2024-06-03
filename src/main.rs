@@ -394,6 +394,8 @@ fn main() {
                 let coords: Coords = (col,row);
                 let vbox = gtk::Box::new(Orientation::Vertical, 0);
                 let image = Picture::new();
+                image.set_hexpand(true);
+                image.set_vexpand(true);
                 let label = Label::new(None);
                 let style_context = label.style_context();
                 style_context.add_provider(&buttons_css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
