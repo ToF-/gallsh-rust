@@ -1,3 +1,4 @@
+use crate::Direction;
 use rand::Rng;
 use rand::thread_rng;
 
@@ -61,7 +62,8 @@ impl Navigator {
         }
     }
 
-    pub fn can_move_rel(&self, coords: Coords) -> bool {
+    pub fn can_move_rel(&self, direction: Direction) -> bool {
+        let coords = direction.into_coords();
         let position = (self.position.0 + coords.0, self.position.1 + coords.1);
         position.0 >= 0
             && position.0 < self.cells_per_row
@@ -71,11 +73,10 @@ impl Navigator {
 
     }
 
-    pub fn move_rel(&mut self, coords: Coords) {
-        if self.can_move_rel(coords) {
+    pub fn move_rel(&mut self, direction: Direction) {
+        if self.can_move_rel(direction.clone()) {
+            let coords = direction.into_coords();
             self.position = (self.position.0 + coords.0, self.position.1 + coords.1)
-        } else {
-            panic!("Navigator {:?} can't move to this relative position: {:?}", self, coords)
         }
     }
 

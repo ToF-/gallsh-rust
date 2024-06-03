@@ -1,3 +1,4 @@
+use crate::Direction;
 use crate::paths::SELECTION_FILE_NAME;
 use crate::entries_from_reading_list;
 use std::cmp::min;
@@ -99,12 +100,12 @@ impl Repository {
         self.navigator.move_abs(coords)
     }
 
-    pub fn can_move_rel(&self, coords: Coords) -> bool {
-        self.navigator.can_move_rel(coords)
+    pub fn can_move_rel(&self, direction: Direction) -> bool {
+        self.navigator.can_move_rel(direction)
     }
 
-    pub fn move_rel(&mut self, coords: Coords) {
-        self.navigator.move_rel(coords)
+    pub fn move_rel(&mut self, direction: Direction) {
+        self.navigator.move_rel(direction)
     }
 
     pub fn move_forward_ten_pages(&mut self) {

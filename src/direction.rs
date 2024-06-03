@@ -1,5 +1,6 @@
 use crate::navigator::Coords;
 
+#[derive(Clone)]
 pub enum Direction {
     Left, Down, Right, Up,
 }

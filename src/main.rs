@@ -705,7 +705,8 @@ fn show_view(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
     }
 }
 
-fn label_at(grid: &gtk::Grid, col: i32, row: i32) -> gtk::Label {
+fn label_at(grid: &gtk::Grid, coords: Coords) -> gtk::Label {
+    let (col,row) = coords;
     grid.child_at(col as i32, row as i32).unwrap()
         .downcast::<gtk::Box>().unwrap()
         .last_child().unwrap()
@@ -713,18 +714,17 @@ fn label_at(grid: &gtk::Grid, col: i32, row: i32) -> gtk::Label {
 }
 
 fn navigate(repository: &mut Repository, grid: &gtk::Grid, window: &gtk::ApplicationWindow, direction: Direction) {
-    let (col_move, row_move) = direction.into_coords();
-    if repository.can_move_rel((col_move, row_move)) {
+    if repository.can_move_rel(direction.clone()) {
         let old_coords = repository.position();
-        let old_label = label_at(&grid, old_coords.0, old_coords.1);
+        let old_label = label_at(&grid, old_coords);
         let old_display = match repository.current_entry() {
             Some(entry) => entry.label_display(false),
             None => String::new(),
         };
         old_label.set_text(&old_display);
-        repository.move_rel((col_move, row_move));
+        repository.move_rel(direction);
         let new_coords = repository.position();
-        let new_label = label_at(&grid, new_coords.0, new_coords.1);
+        let new_label = label_at(&grid, new_coords);
         let new_display = match repository.current_entry() {
             Some(entry) => entry.label_display(true),
             None => String::new(),
