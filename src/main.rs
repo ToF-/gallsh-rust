@@ -117,9 +117,13 @@ struct Args {
     #[arg(short,long)]
     update_thumbnails: bool,
 
-    /// Move selection to a target folder
+    /// Copy selection to a target folder
     #[arg(long)]
     copy_selection: Option<String>,
+
+    /// Move selection to a target folder
+    #[arg(long)]
+    move_selection: Option<String>,
 
     /// Window width (default is set with GALLSHWIDTH)
     #[arg(short, long)]
@@ -210,6 +214,11 @@ fn main() {
         };
         let reading_list = &args.reading;
         let copy_selection_target: Option<String> = match &args.copy_selection {
+            Some(target) => Some(target.to_string()),
+            None => None,
+        };
+
+        let move_selection_target: Option<String> = match &args.move_selection {
             Some(target) => Some(target.to_string()),
             None => None,
         };
@@ -480,10 +489,12 @@ fn main() {
                         "p"|"i" => repository.move_prev_page(),
                         "q" => {
                             repository.quit();
+                            show = false;
                             window.close()
                         },
                         "Q" => {
-                            repository.copy_and_quit(&copy_selection_target);
+                            repository.copy_move_and_quit(&copy_selection_target, &move_selection_target);
+                            show = false;
                             window.close()
                         },
                         "B"|"plus"|"D" => repository.point_rank(Rank::NoStar),

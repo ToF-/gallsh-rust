@@ -1,3 +1,5 @@
+use crate::picture_io::delete_selection_file;
+use crate::picture_io::delete_entry;
 use crate::Direction;
 use crate::paths::SELECTION_FILE_NAME;
 use crate::entries_from_reading_list;
@@ -259,12 +261,20 @@ impl Repository {
         ";
         println!("{}", &content)
     }
-    pub fn copy_and_quit(&self, copy_selection_target: &Option<String>) {
+    pub fn copy_move_and_quit(&self, copy_selection_target: &Option<String>, move_selection_target: &Option<String>) {
+        self.save_updated_ranks();
+        self.save_select_entries();
         if let Some(target_path) = copy_selection_target {
             println!("copy selection to target path");
             self.copy_select_entries(&target_path)
         };
-        self.quit()
+        if let Some(target_path) = move_selection_target {
+            println!("move selection to target path");
+            self.copy_select_entries(&target_path);
+            self.delete_select_entries();
+            delete_selection_file()
+        }
+        println!("quit gallery show")
     }
 
     pub fn order_choice_on(&self) -> bool {
@@ -381,9 +391,17 @@ impl Repository {
             return
         };
         let selection: Vec<&Entry> = self.entry_list.iter().filter(|e| e.to_select).collect();
-        for entry in selection.iter() {
+        for entry in selection {
             copy_entry(entry, target_path)
         }
+    }
+
+    pub fn delete_select_entries(&self) {
+        let selection: Vec<&Entry> = self.entry_list.iter().filter(|e| e.to_select).collect();
+        for entry in selection {
+            delete_entry(entry)
+        };
+        delete_selection_file()
     }
 }
 

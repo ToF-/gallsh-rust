@@ -1,3 +1,4 @@
+use std::fs::remove_file;
 use crate::paths::is_thumbnail;
 use std::io::Write;
 use std::fs::OpenOptions;
@@ -162,6 +163,14 @@ pub fn save_image_list(list: Vec<String>) {
         }
     }
 }
+
+pub fn delete_selection_file() {
+    let path = Path::new(SELECTION_FILE_NAME);
+    if path.exists() {
+        let _ = remove_file(path);
+    }
+}
+
 fn push_entry_from_path(path: &Path, pattern_opt: Option<String>, entry_list: &mut EntryList) -> Result<()> {
     let valid_extension = match path.extension() {
         Some(extension) => VALID_EXTENSIONS.contains(&extension.to_str().unwrap()),
@@ -260,6 +269,24 @@ pub fn copy_entry(entry: &Entry, target_path: &Path) {
             Ok(_) => {},
             Err(err) => println!("error: {}", err),
         }
+}
+
+pub fn delete_entry(entry: &Entry) {
+    let file_name = entry.original_file_path();
+    let thumbnail_name = entry.thumbnail_file_path();
+    let image_data_name = entry.image_data_file_path();
+    let file_path = Path::new(&file_name);
+    let thumbnail_path = Path::new(&thumbnail_name);
+    let image_data_path = Path::new(&image_data_name);
+    if file_path.exists() {
+        let _ = remove_file(file_path);
+    };
+    if thumbnail_path.exists() {
+        let _ = remove_file(thumbnail_path);
+    };
+    if image_data_path.exists() {
+        let _ = remove_file(image_data_path);
+    }
 }
 
 #[cfg(test)]
