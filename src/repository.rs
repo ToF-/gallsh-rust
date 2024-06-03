@@ -241,7 +241,6 @@ impl Repository {
     }
 
     pub fn quit(&self) {
-        self.save_updated_ranks();
         self.save_select_entries();
         println!("quit gallery show")
     }
@@ -262,7 +261,6 @@ impl Repository {
         println!("{}", &content)
     }
     pub fn copy_move_and_quit(&self, copy_selection_target: &Option<String>, move_selection_target: &Option<String>) {
-        self.save_updated_ranks();
         self.save_select_entries();
         if let Some(target_path) = copy_selection_target {
             println!("copy selection to target path");
@@ -290,7 +288,9 @@ impl Repository {
     pub fn set_rank(&mut self, rank: Rank) {
         assert!(self.entry_list.len() > 0);
         let index = self.navigator.index();
-        self.entry_list[index].rank = rank
+        let entry = &mut self.entry_list[index];
+        entry.rank = rank;
+        picture_io::save_image_data(&entry).expect("can't save image data")
     }
 
     pub fn select_page(&mut self, value: bool) {
@@ -353,13 +353,6 @@ impl Repository {
                 }
                 self.select_start = None
             }
-        }
-    }
-
-    pub fn save_updated_ranks(&self) {
-        let updated: Vec<&Entry> = self.entry_list.iter().filter(|e| e.rank != e.initial_rank).collect();
-        for entry in updated.iter() {
-            picture_io::save_image_data(&entry).expect("can't save image data")
         }
     }
 

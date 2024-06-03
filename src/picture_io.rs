@@ -148,7 +148,10 @@ pub fn save_image_data(entry: &Entry) -> Result<()> {
                 Err(err) => Err(err.into()),
             }
         },
-        Err(err) => Err(err),
+        Err(err) => {
+            println!("error saving image data {} : {}", path.display(), err);
+            Err(err)
+        },
     }
 }
 
