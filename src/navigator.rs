@@ -74,10 +74,9 @@ impl Navigator {
     }
 
     pub fn move_rel(&mut self, direction: Direction) {
-        if self.can_move_rel(direction.clone()) {
-            let coords = direction.into_coords();
-            self.position = (self.position.0 + coords.0, self.position.1 + coords.1)
-        }
+        let coords = direction.into_coords();
+        self.position = (self.position.0 + coords.0, self.position.1 + coords.1);
+        assert!(self.position.0 >= 0 && self.position.0 < self.cells_per_row && self.position.1 >= 0 && self.position.1 < self.cells_per_row)
     }
 
     pub fn can_move_abs(&self, position: Coords) -> bool {
@@ -148,13 +147,13 @@ mod tests {
     #[test]
     fn after_a_move_rel_index_has_changed() {
         let mut navigator = Navigator::new(10, 4);
-        navigator.move_rel((1, 0));
+        navigator.move_rel(Direction::Right);
         assert_eq!(1, navigator.index());
-        navigator.move_rel((0,1));
+        navigator.move_rel(Direction::Down);
         assert_eq!(5, navigator.index());
-        navigator.move_rel((-1,0));
+        navigator.move_rel(Direction::Left);
         assert_eq!(4, navigator.index());
-        navigator.move_rel((0,-1));
+        navigator.move_rel(Direction::Up);
         assert_eq!(0, navigator.index());
     }
     #[test]
@@ -170,12 +169,12 @@ mod tests {
     fn after_next_page_or_prev_page_index_is_changed_and_aligned_to_a_page() {
         let mut navigator = Navigator::new(100, 4);
         assert_eq!(0, navigator.index());
-        navigator.move_rel((0,1));
-        navigator.move_rel((0,1));
+        navigator.move_rel(Direction::Right);
+        navigator.move_rel(Direction::Right);
         navigator.move_next_page();
         assert_eq!(16, navigator.index());
-        navigator.move_rel((0,1));
-        navigator.move_rel((0,1));
+        navigator.move_rel(Direction::Down);
+        navigator.move_rel(Direction::Down);
         assert_eq!(16+4+4, navigator.index());
         navigator.move_prev_page();
         assert_eq!(0, navigator.index());
@@ -203,22 +202,20 @@ mod tests {
     #[test]
     fn relative_move_can_be_checked() {
         let mut navigator = Navigator::new(10, 2);
-        assert_eq!(true, navigator.can_move_rel((1,0)));
-        assert_eq!(false, navigator.can_move_rel((-1,0)));
-        assert_eq!(false, navigator.can_move_rel((2,0)));
-        assert_eq!(false, navigator.can_move_rel((0,-1)));
-        assert_eq!(false, navigator.can_move_rel((0,2)));
-        navigator.move_rel((1,0));
-        assert_eq!(true, navigator.can_move_rel((-1,0)));
+        assert_eq!(true, navigator.can_move_rel(Direction::Right));
+        assert_eq!(false, navigator.can_move_rel(Direction::Left));
+        assert_eq!(false, navigator.can_move_rel(Direction::Up));
+        navigator.move_rel(Direction::Right);
+        assert_eq!(true, navigator.can_move_rel(Direction::Left));
     }
 
     #[test]
     fn on_last_page_move_is_checked_against_capacity() {
         let mut navigator = Navigator::new(10, 2);
         navigator.move_next_page();
-        assert_eq!(true, navigator.can_move_rel((0,1)));
+        assert_eq!(true, navigator.can_move_rel(Direction::Right));
         navigator.move_next_page();
-        assert_eq!(false, navigator.can_move_rel((0,1))); // because that would move to index 10
+        assert_eq!(false, navigator.can_move_rel(Direction::Down)); // because that would move to index 10
     }
 
     #[test]
@@ -246,7 +243,7 @@ mod tests {
     #[should_panic]
     fn navigator_should_panic_if_move_rel_where_not_allowed() {
         let mut navigator = Navigator::new(10, 2);
-        navigator.move_rel((-1,0));
+        navigator.move_rel(Direction::Left);
     }
 
     #[test]

@@ -290,7 +290,9 @@ impl Repository {
         let index = self.navigator.index();
         let entry = &mut self.entry_list[index];
         entry.rank = rank;
-        picture_io::save_image_data(&entry).expect("can't save image data")
+        if picture_io::save_image_data(&entry).is_err() {
+            println!("can't save image data {}", &entry.image_data_file_path())
+        }
     }
 
     pub fn select_page(&mut self, value: bool) {
@@ -432,7 +434,7 @@ mod tests {
     #[test]
     fn after_moving_one_col_current_entry_is_the_second_entry() {
         let mut repository = Repository::from_entries(example().clone(), 2);
-        repository.navigator.move_rel((1,0));
+        repository.navigator.move_rel(Direction::Right);
         let entry: &Entry = repository.current_entry().unwrap();
         assert_eq!(example().clone()[1], *entry);
     }
@@ -458,9 +460,9 @@ mod tests {
     #[test]
     fn after_two_select_points_a_group_of_entries_is_selected() {
         let repository_rc = Rc::new(RefCell::new(Repository::from_entries(example().clone(), 2)));
-        { repository_rc.borrow_mut().navigator.move_rel((0,1)) }; // now current entry is #2 
+        { repository_rc.borrow_mut().navigator.move_rel(Direction::Down) }; // now current entry is #2 
         { repository_rc.borrow_mut().select_point() };
-        { repository_rc.borrow_mut().navigator.move_rel((0,-1)) }; // now current entry is #0
+        { repository_rc.borrow_mut().navigator.move_rel(Direction::Up) }; // now current entry is #0
         { repository_rc.borrow_mut().point_select() }; // only entries 0,1,2 are selected
         let repository = repository_rc.borrow();
         for entry in &repository.entry_list[0..3] {
@@ -480,9 +482,9 @@ mod tests {
     #[test]
     fn after_two_rank_points_a_group_on_entries_has_rank_changed() {
         let repository_rc = Rc::new(RefCell::new(Repository::from_entries(example().clone(), 2)));
-        { repository_rc.borrow_mut().navigator.move_rel((0,1)) }; // now current entry is #2 
+        { repository_rc.borrow_mut().navigator.move_rel(Direction::Down) }; // now current entry is #2 
         { repository_rc.borrow_mut().select_point() };
-        { repository_rc.borrow_mut().navigator.move_rel((0,-1)) }; // now current entry is #0
+        { repository_rc.borrow_mut().navigator.move_rel(Direction::Up) }; // now current entry is #0
         { repository_rc.borrow_mut().point_rank(Rank::TwoStars) }; // only entries 0,1,2 are ranked
         let repository = repository_rc.borrow();
         for entry in &repository.entry_list[0..3] {
