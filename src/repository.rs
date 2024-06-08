@@ -160,7 +160,7 @@ impl Repository {
         let name = self.current_entry().unwrap().original_file_path();
         match order {
             Order::Colors => self.entry_list.sort_by(|a, b| { 
-                let cmp = (a.colors).cmp(&b.colors);
+                let cmp = (a.image_data.colors).cmp(&b.image_data.colors);
                 if cmp == Equal {
                     a.file_path.cmp(&b.file_path)
                 } else {
@@ -171,7 +171,7 @@ impl Repository {
             Order::Name => self.entry_list.sort_by(|a, b| { a.file_path.cmp(&b.file_path) }),
             Order::Size => self.entry_list.sort_by(|a, b| { a.file_size.cmp(&b.file_size) }),
             Order::Value => self.entry_list.sort_by(|a,b| {
-                let cmp = (a.rank as usize).cmp(&(b.rank as usize));
+                let cmp = (a.image_data.rank as usize).cmp(&(b.image_data.rank as usize));
                 if cmp == Equal {
                     a.file_path.cmp(&b.file_path)
                 } else {
@@ -282,14 +282,17 @@ impl Repository {
     pub fn toggle_select(&mut self) {
         assert!(self.entry_list.len() > 0);
         let index = self.navigator.index();
-        self.entry_list[index].to_select = !self.entry_list[index].to_select
+        self.entry_list[index].image_data.selected = !self.entry_list[index].image_data.selected;
+        if picture_io::save_image_data(&self.entry_list[index]).is_err() {
+            println!("can't save image data {}", &self.entry_list[index].image_data_file_path())
+        }
     }
 
     pub fn set_rank(&mut self, rank: Rank) {
         assert!(self.entry_list.len() > 0);
         let index = self.navigator.index();
         let entry = &mut self.entry_list[index];
-        entry.rank = rank;
+        entry.image_data.rank = rank;
         if picture_io::save_image_data(&entry).is_err() {
             println!("can't save image data {}", &entry.image_data_file_path())
         }
@@ -299,7 +302,10 @@ impl Repository {
         let start = self.navigator.start_cell_index();
         let end = min(start + self.navigator.max_cells() as usize, self.navigator.capacity());
         for i in start..end {
-            self.entry_list[i].to_select = value
+            self.entry_list[i].image_data.selected = value;
+            if picture_io::save_image_data(&self.entry_list[i]).is_err() {
+                println!("can't save image data {}", &self.entry_list[i].image_data_file_path())
+            }
         }
     }
 
@@ -307,7 +313,10 @@ impl Repository {
         let start = 0;
         let end = self.navigator.capacity();
         for i in start..end {
-            self.entry_list[i].to_select = value
+            self.entry_list[i].image_data.selected = value;
+            if picture_io::save_image_data(&self.entry_list[i]).is_err() {
+                println!("can't save image data {}", &self.entry_list[i].image_data_file_path())
+            }
         }
     }
     
@@ -322,13 +331,13 @@ impl Repository {
         match self.select_start {
             None => {
                 self.toggle_select();
-                println!("picture #{} {}", index, if self.entry_list[index].to_select { "selected" } else { "unselected" })
+                println!("picture #{} {}", index, if self.entry_list[index].image_data.selected { "selected" } else { "unselected" })
             },
             Some(other) => {
                 let (start,end) = if other <= index { (other,index) } else { (index,other) };
                 println!("select: {}…{}", start, end);
                 for i in start..end+1 {
-                    self.entry_list[i].to_select = true
+                    self.entry_list[i].image_data.selected = true;
                 }
                 self.select_start = None
             },
@@ -351,7 +360,7 @@ impl Repository {
                 let (start,end) = if other <= index { (other,index) } else { (index,other) };
                 println!("rank {}: {}…{}", rank, start, end);
                 for i in start..end+1 {
-                    self.entry_list[i].rank = rank
+                    self.entry_list[i].image_data.rank = rank
                 }
                 self.select_start = None
             }
@@ -360,11 +369,11 @@ impl Repository {
 
     pub fn save_select_entries(&self) {
         let mut list: Vec<String> = Vec::new();
-        let selection: Vec<&Entry> = self.entry_list.iter().filter(|e| e.to_select).collect();
+        let selection: Vec<&Entry> = self.entry_list.iter().filter(|e| e.image_data.selected).collect();
         for entry in selection.iter() {
             list.push(entry.original_file_path());
             list.push(entry.thumbnail_file_path());
-            list.push(entry.image_data_file_path())
+            list.push(entry.image_data_file_path());
         };
         save_image_list(list);
     }
@@ -374,7 +383,7 @@ impl Repository {
             for entry in entry_list.iter() {
                 let name = &entry.original_file_path();
                 if let Some(index) = self.entry_list.iter().position(|e| &e.original_file_path() == name) {
-                    self.entry_list[index].to_select = true
+                    self.entry_list[index].image_data.selected = true
                 }
             }
         }
@@ -385,14 +394,14 @@ impl Repository {
             println!("directory doesn't exist: {}", target);
             return
         };
-        let selection: Vec<&Entry> = self.entry_list.iter().filter(|e| e.to_select).collect();
+        let selection: Vec<&Entry> = self.entry_list.iter().filter(|e| e.image_data.selected).collect();
         for entry in selection {
             copy_entry(entry, target_path)
         }
     }
 
     pub fn delete_select_entries(&self) {
-        let selection: Vec<&Entry> = self.entry_list.iter().filter(|e| e.to_select).collect();
+        let selection: Vec<&Entry> = self.entry_list.iter().filter(|e| e.image_data.selected).collect();
         for entry in selection {
             delete_entry(entry)
         };

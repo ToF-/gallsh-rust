@@ -1,3 +1,4 @@
+use crate::image_data::ImageData;
 use std::fs::remove_file;
 use crate::paths::is_thumbnail;
 use std::io::Write;
@@ -115,9 +116,8 @@ pub fn set_image_data(entry: &mut Entry) -> Result<()> {
     if path.exists() {
         match read_to_string(path) {
             Ok(content) => match serde_json::from_str(&content) {
-                Ok((colors, rank)) => {
-                    entry.colors = colors;
-                    entry.rank = rank;
+                Ok(image_data) => {
+                    entry.image_data = image_data;
                     Ok(())
                 },
                 Err(err) => Err(err.into()),
@@ -127,8 +127,11 @@ pub fn set_image_data(entry: &mut Entry) -> Result<()> {
     } else {
         match get_image_color(&entry.original_file_path()) {
             Ok(colors) => {
-                entry.colors = colors;
-                entry.rank = Rank::NoStar;
+                entry.image_data = ImageData {
+                    colors: colors,
+                    rank: Rank::NoStar,
+                    selected: false,
+                };
                 let _ = save_image_data(&entry);
                 Ok(())
             },
@@ -138,12 +141,11 @@ pub fn set_image_data(entry: &mut Entry) -> Result<()> {
 }
 
 pub fn save_image_data(entry: &Entry) -> Result<()> {
-    let image_data = entry.image_data_file_path();
-    let data = (entry.colors, entry.rank);
-    let path = Path::new(&image_data);
+    let image_data_file_path = entry.image_data_file_path();
+    let path = Path::new(&image_data_file_path);
     match File::create(path) {
         Ok(file) => {
-            match serde_json::to_writer(file, &data) {
+            match serde_json::to_writer(file, &entry.image_data) {
                 Ok(_) => Ok(()),
                 Err(err) => Err(err.into()),
             }

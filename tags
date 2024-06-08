@@ -1103,6 +1103,7 @@ IgnoredAny	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-
 Image	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/image.rs	/^    pub struct Image(Object<ffi::GtkImage>) @extends Widget, @implements Accessible, Buildable, ConstraintTarget;$/;"	s
 ImageBuffer	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/buffer.rs	/^pub struct ImageBuffer<P: Pixel, Container> {$/;"	s
 ImageBuilder	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/image.rs	/^pub struct ImageBuilder {$/;"	s
+ImageData	/home/tof/Coding/gallsh-rust/src/image_data.rs	/^pub struct ImageData {$/;"	s
 ImageDecoder	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/image.rs	/^pub trait ImageDecoder {$/;"	t
 ImageDecoderRect	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/image.rs	/^pub trait ImageDecoderRect: ImageDecoder {$/;"	t
 ImageEncoder	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/image.rs	/^pub trait ImageEncoder {$/;"	t
@@ -10100,6 +10101,7 @@ from	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_json-1
 from	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/thumbnailer-0.5.1/src/error.rs	/^    fn from(e: ImageError) -> Self {$/;"	f
 from	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/thumbnailer-0.5.1/src/error.rs	/^    fn from(e: io::Error) -> Self {$/;"	f
 from	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/walkdir-2.4.0/src/error.rs	/^    fn from(walk_err: Error) -> io::Error {$/;"	f
+from	/home/tof/Coding/gallsh-rust/src/direction.rs	/^    fn from(coords: (i32, i32)) -> Self {$/;"	f
 from_ascii	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/codecs/pnm/decoder.rs	/^    fn from_ascii(_reader: &mut dyn Read, _output_buf: &mut [u8]) -> ImageResult<()> {$/;"	f
 from_ascii	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/codecs/pnm/decoder.rs	/^    fn from_ascii(reader: &mut dyn Read, output_buf: &mut [u8]) -> ImageResult<()> {$/;"	f
 from_ascii	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/codecs/pnm/decoder.rs	/^    fn from_ascii(reader: &mut dyn Read, output_buf: &mut [u8]) -> ImageResult<()>;$/;"	f
@@ -11705,11 +11707,11 @@ interpolate_nearest	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba1500
 interpolate_size	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/stack.rs	/^    pub fn interpolate_size(self, interpolate_size: bool) -> Self {$/;"	f
 interpolates_size	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/stack.rs	/^    pub fn interpolates_size(&self) -> bool {$/;"	f
 intersect	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/bitset.rs	/^    pub fn intersect(&self, other: &Bitset) {$/;"	f
+into	/home/tof/Coding/gallsh-rust/src/direction.rs	/^    fn into(self) -> (i32,i32) {$/;"	f
 into_buffer	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/animation.rs	/^    pub fn into_buffer(self) -> RgbaImage {$/;"	f
 into_bytes	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/dynimage.rs	/^    pub fn into_bytes(self) -> Vec<u8> {$/;"	f
 into_color	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/color.rs	/^    fn into_color(&self) -> O {$/;"	f
 into_color	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/color.rs	/^    fn into_color(&self) -> Other;$/;"	f
-into_coords	/home/tof/Coding/gallsh-rust/src/direction.rs	/^    pub fn into_coords(&self) -> Coords {$/;"	f
 into_decoder	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/io/reader.rs	/^    pub fn into_decoder(mut self) -> ImageResult<impl ImageDecoder + 'a> {$/;"	f
 into_deserializer	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.202/src/de/mod.rs	/^    fn into_deserializer(self) -> Self::Deserializer;$/;"	f
 into_deserializer	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.202/src/de/value.rs	/^            fn into_deserializer(self) -> $name<E> {$/;"	f

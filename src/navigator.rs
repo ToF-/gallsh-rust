@@ -63,7 +63,7 @@ impl Navigator {
     }
 
     pub fn can_move_rel(&self, direction: Direction) -> bool {
-        let coords = direction.into_coords();
+        let coords: Coords = direction.into();
         let position = (self.position.0 + coords.0, self.position.1 + coords.1);
         position.0 >= 0
             && position.0 < self.cells_per_row
@@ -74,8 +74,8 @@ impl Navigator {
     }
 
     pub fn move_rel(&mut self, direction: Direction) {
-        let coords = direction.into_coords();
-        self.position = (self.position.0 + coords.0, self.position.1 + coords.1);
+        let (col, row) = direction.into();
+        self.position = (self.position.0 + col, self.position.1 + row);
         assert!(self.position.0 >= 0 && self.position.0 < self.cells_per_row && self.position.1 >= 0 && self.position.1 < self.cells_per_row)
     }
 

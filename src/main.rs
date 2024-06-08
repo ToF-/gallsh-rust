@@ -28,6 +28,7 @@ mod direction;
 mod picture_io;
 mod entry;
 mod image;
+mod image_data;
 mod navigator;
 mod order;
 mod paths;
@@ -670,10 +671,10 @@ fn show_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
                 if let Some(entry) = repository.entry_at_index(index) {
                     let status = format!("{} {} {}",
                         if index == repository.index() && cells_per_row > 1 { "▄" } else { "" },
-                        entry.rank.show(),
-                        if entry.to_select { "△" } else { "" });
+                        entry.image_data.rank.show(),
+                        if entry.image_data.selected { "△" } else { "" });
                     label.set_text(&status);
-                    let opacity = if entry.to_select { 0.50 } else { 1.0 };
+                    let opacity = if entry.image_data.selected { 0.50 } else { 1.0 };
                     picture.set_opacity(opacity);
                     picture.set_can_shrink(!repository.real_size());
                     if repository.cells_per_row() < 10 {
