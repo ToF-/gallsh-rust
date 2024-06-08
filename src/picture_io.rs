@@ -209,8 +209,14 @@ fn push_entry_from_path(path: &Path, pattern_opt: Option<String>, entry_list: &m
             let modified_time = metadata.modified().unwrap();
             let name = path.to_str().unwrap().to_string().to_owned();
             let mut entry = make_entry(name, file_size, 0, modified_time, Rank::NoStar);
-            set_image_data(&mut entry).expect(&format!("can't find or create image data for file {}", path.display()));
-            entry_list.push(entry);
+            match set_image_data(&mut entry) {
+                Ok(_) => {
+                    entry_list.push(entry);
+                },
+                Err(_) => {
+                    println!("can't find or create image data for file {}", path.display())
+                },
+            }
         } else {
             println!("can't open: {}", path.display());
         }
