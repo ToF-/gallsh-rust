@@ -1,8 +1,6 @@
 use crate::picture_io::delete_selection_file;
 use crate::picture_io::delete_entry;
 use crate::Direction;
-use crate::paths::SELECTION_FILE_NAME;
-use crate::entries_from_reading_list;
 use std::cmp::min;
 use crate::picture_io;
 use crate::picture_io::save_image_list;
@@ -257,6 +255,8 @@ impl Repository {
         .: view picture (when in grid mode)\n\
         f: view real size (when not in grid mode)\n\
         ,: toggle selection\n\
+        RET: start a selection/rank group\n\
+        s: save selected entries\n\
         ";
         println!("{}", &content)
     }
@@ -338,6 +338,9 @@ impl Repository {
                 println!("select: {}…{}", start, end);
                 for i in start..end+1 {
                     self.entry_list[i].image_data.selected = true;
+                    if picture_io::save_image_data(&self.entry_list[i]).is_err() {
+                        println!("can't save image data {}", &self.entry_list[i].image_data_file_path())
+            }
                 }
                 self.select_start = None
             },
@@ -378,16 +381,6 @@ impl Repository {
         save_image_list(list);
     }
 
-    pub fn read_select_entries(&mut self) {
-        if let Ok(entry_list) = entries_from_reading_list(SELECTION_FILE_NAME, None) {
-            for entry in entry_list.iter() {
-                let name = &entry.original_file_path();
-                if let Some(index) = self.entry_list.iter().position(|e| &e.original_file_path() == name) {
-                    self.entry_list[index].image_data.selected = true
-                }
-            }
-        }
-    }
     pub fn copy_select_entries(&self, target: &str) {
         let target_path = Path::new(target);
         if !target_path.exists() {
@@ -457,13 +450,13 @@ mod tests {
             let mut repository: RefMut<'_, Repository> = repository_rc.borrow_mut();
             repository.toggle_select();
             let entry: &Entry = repository.current_entry().unwrap();
-            assert_eq!(true, entry.to_select);
+            assert_eq!(true, entry.image_data.selected);
         } // reference is released here
         // second mutation occurs in that scope
         let mut repository: RefMut<'_, Repository> = repository_rc.borrow_mut();
         repository.toggle_select();
         let entry: &Entry = repository.current_entry().unwrap();
-        assert_eq!(false, entry.to_select);
+        assert_eq!(false, entry.image_data.selected);
     }
 
     #[test]
@@ -475,9 +468,9 @@ mod tests {
         { repository_rc.borrow_mut().point_select() }; // only entries 0,1,2 are selected
         let repository = repository_rc.borrow();
         for entry in &repository.entry_list[0..3] {
-            assert_eq!(true, entry.to_select)
+            assert_eq!(true, entry.image_data.selected)
         };
-        assert_eq!(false, repository.entry_list[3].to_select)
+        assert_eq!(false, repository.entry_list[3].image_data.selected)
     }
 
     #[test]
@@ -485,7 +478,7 @@ mod tests {
         let repository_rc = Rc::new(RefCell::new(Repository::from_entries(example().clone(), 2)));
         { repository_rc.borrow_mut().set_rank(Rank::ThreeStars) };
         let repository = repository_rc.borrow();
-        assert_eq!(Rank::ThreeStars, repository.current_entry().unwrap().rank);
+        assert_eq!(Rank::ThreeStars, repository.current_entry().unwrap().image_data.rank);
     }
 
     #[test]
@@ -497,9 +490,9 @@ mod tests {
         { repository_rc.borrow_mut().point_rank(Rank::TwoStars) }; // only entries 0,1,2 are ranked
         let repository = repository_rc.borrow();
         for entry in &repository.entry_list[0..3] {
-            assert_eq!(Rank::TwoStars, entry.rank)
+            assert_eq!(Rank::TwoStars, entry.image_data.rank)
         };
-        assert_eq!(Rank::OneStar, repository.entry_list[3].rank)
+        assert_eq!(Rank::OneStar, repository.entry_list[3].image_data.rank)
     }
 
     #[test]

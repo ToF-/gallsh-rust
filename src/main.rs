@@ -286,7 +286,6 @@ fn main() {
         let mut repository = Repository::from_entries(entry_list, grid_size);
         repository.sort_by(order);
         repository.slice(args.from, args.to);
-        repository.read_select_entries();
 
         println!("{} entries", repository.capacity());
         if repository.capacity() == 0 {
@@ -530,7 +529,7 @@ fn main() {
                             repository.sort_by(Order::Size);
                             show_grid(&grid, &repository, &window)
                         } else {
-                            repository.select_point()
+                            repository.save_select_entries()
                         },
                         "equal" => repository.set_order_choice_on(),
                         "v" => if repository.order_choice_on() {

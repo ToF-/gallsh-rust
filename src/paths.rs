@@ -2,8 +2,6 @@ use std::path::PathBuf;
 
 pub const THUMB_SUFFIX: &str = "THUMB";
 pub const IMAGE_DATA: &str = "IMAGE_DATA";
-pub const SELECTION_FILE_NAME: &str = "selections";
-
 
 pub fn thumbnail_file_path(file_path: &str) -> String {
     if file_path.contains(&THUMB_SUFFIX) {

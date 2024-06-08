@@ -74,7 +74,7 @@ mod tests {
     #[test]
     fn title_show_the_entry_information() {
         let mut entry = make_entry(String::from("photos/foo.jpeg"), 65636, 256, a_day(), Rank::ThreeStars);
-        entry.to_select = true;
+        entry.image_data.selected = true;
         assert_eq!("foo.jpeg △ [65636 256 ☆☆☆]", entry.title_display());
     }
 
@@ -85,7 +85,7 @@ mod tests {
         let with_focus = true;
         assert_eq!("☆☆☆", entry.label_display(without_focus));
         assert_eq!("▄☆☆☆", entry.label_display(with_focus));
-        entry.to_select = true;
+        entry.image_data.selected = true;
         assert_eq!("☆☆☆△", entry.label_display(without_focus));
         assert_eq!("▄☆☆☆△", entry.label_display(with_focus));
     }

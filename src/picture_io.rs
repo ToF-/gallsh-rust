@@ -303,7 +303,7 @@ mod tests {
         let entries = entries_from_directory("./testdata", None).unwrap();
         assert_eq!(7, entries.len());
         let index = entries.iter().position(|e| e.original_file_name() == "UN_Fight_for_Freedom_Leslie_Ragan_1943_poster_-_restoration1.jpeg").unwrap();
-        assert_eq!(56984, entries[index].colors);
+        assert_eq!(56984, entries[index].image_data.colors);
         assert_eq!(67293, entries[index].file_size);
     }
 
