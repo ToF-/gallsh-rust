@@ -337,10 +337,9 @@ impl Repository {
                 let (start,end) = if other <= index { (other,index) } else { (index,other) };
                 println!("select: {}…{}", start, end);
                 for i in start..end+1 {
-                    self.entry_list[i].image_data.selected = true;
-                    if picture_io::save_image_data(&self.entry_list[i]).is_err() {
-                        println!("can't save image data {}", &self.entry_list[i].image_data_file_path())
-            }
+                    let entry = &mut self.entry_list[i];
+                    entry.image_data.selected = true;
+                    let _=  picture_io::save_image_data(entry);
                 }
                 self.select_start = None
             },

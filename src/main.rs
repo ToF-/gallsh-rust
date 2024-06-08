@@ -114,9 +114,9 @@ struct Args {
     #[arg(short,long)]
     thumbnails: bool,
 
-    /// Update thumbnails and then quit
+  /// Update image data and then quit
     #[arg(short,long)]
-    update_thumbnails: bool,
+    update_image_data: bool,
 
     /// Copy selection to a target folder
     #[arg(long)]
@@ -281,6 +281,9 @@ fn main() {
                     return
                 },
             }
+        };
+        if args.update_image_data {
+            application.quit()
         };
 
         let mut repository = Repository::from_entries(entry_list, grid_size);
