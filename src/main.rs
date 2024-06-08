@@ -1,3 +1,4 @@
+use crate::picture_io::ensure_thumbnail;
 use crate::navigator::Coords;
 use crate::direction::Direction;
 use crate::repository::Repository;
@@ -283,6 +284,9 @@ fn main() {
             }
         };
         if args.update_image_data {
+            for entry in &entry_list {
+                let _ = ensure_thumbnail(&entry);
+            };
             application.quit()
         };
 

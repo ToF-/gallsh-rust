@@ -93,6 +93,15 @@ fn create_thumbnail(entry: &Entry) -> Result<()> {
     }
 }
 
+pub fn ensure_thumbnail(entry: &Entry) -> Result<()> {
+    let thumbnail_path = PathBuf::from(entry.thumbnail_file_path());
+    if thumbnail_path.exists() {
+        return Ok(())
+    } else {
+        create_thumbnail(entry)
+    }
+}
+
 pub fn set_thumbnail_picture_file(picture: &gtk::Picture, entry: &Entry) -> Result<()> {
     let thumbnail = entry.thumbnail_file_path();
     let path = Path::new(&thumbnail);
