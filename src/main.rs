@@ -1,29 +1,32 @@
-use crate::picture_io::ensure_thumbnail;
-use crate::navigator::Coords;
-use crate::direction::Direction;
-use crate::repository::Repository;
-use crate::picture_io::{read_entries, set_original_picture_file, set_thumbnail_picture_file};
 use clap::Parser;
-use clap_num::number_range;
+use crate::args::Args;
+use crate::direction::Direction;
+use crate::navigator::Coords;
+use crate::paths::determine_path;
+use crate::picture_io::ensure_thumbnail;
+use crate::picture_io::{read_entries, set_original_picture_file, set_thumbnail_picture_file};
+use crate::repository::Repository;
 use entry::{Entry, EntryList, make_entry};
-use paths::THUMB_SUFFIX; 
 use glib::clone;
 use glib::prelude::*;
 use glib::timeout_add_local;
 use gtk::EventControllerMotion;
 use gtk::prelude::*;
 use gtk::traits::WidgetExt;
+use gtk::ContentFit;
 use gtk::{self, Align, Application, CssProvider, Orientation, Label, ScrolledWindow, gdk, glib, Grid, Picture};
 use order::{Order};
+use paths::THUMB_SUFFIX; 
 use rank::{Rank};
 use std::cell::{RefCell, RefMut};
 use std::env;
 use std::rc::Rc;
 use std::time::{Duration};
 
-const DEFAULT_WIDTH: i32 = 1000;
-const DEFAULT_HEIGHT: i32 = 1000;
-
+const DEFAULT_WIDTH: i32   = 1000;
+const DEFAULT_HEIGHT: i32  = 1000;
+const WIDTH_ENV_VAR :&str  = "GALLSHWIDTH";
+const HEIGHT_ENV_VAR :&str = "GALLSHHEIGHT";
 
 mod direction;
 mod picture_io;
@@ -35,118 +38,13 @@ mod order;
 mod paths;
 mod rank;
 mod repository;
+mod args;
 
 
-fn less_than_11(s: &str) -> Result<usize, String> {
-    number_range(s,1,10)
-}
-
-// declarative setting of arguments
-/// Gallery Show
-#[derive(Parser, Clone, Debug)]
-#[command(infer_subcommands = true, infer_long_args = true, author, version, about, long_about = None)]
-/// Pattern that displayed files must have
-struct Args {
-
-    /// Directory to search (default is set with variable GALLSHDIR)
-    directory: Option<String>,
-
-    /// Pattern (only files with names matching the regular expression will be displayed)
-    #[arg(short, long)]
-    pattern: Option<String>,
-
-    /// Maximized window
-    #[arg(short, long, default_value_t = false, help("show the images in full screen"))]
-    maximized: bool,
-
-    /// Ordered display (or random)
-    #[arg(short, long,value_name("order"), ignore_case(true), default_value_t = Order::Random)]
-    order: Order,
-
-    /// Date ordered display
-    #[arg(short, long, default_value_t = false)]
-    date: bool,
-
-    /// Name ordered display
-    #[arg(short, long, default_value_t = false)]
-    name: bool,
-
-    /// Rank value ordered display
-    #[arg(short, long, default_value_t = false)]
-    value:bool,
-
-    /// Size ordered display
-    #[arg(short, long, default_value_t = false)]
-    size: bool,
-
-    /// Colors size ordered display
-    #[arg(short, long, default_value_t = false)]
-    colors: bool,
-
-    /// Timer delay for next picture
-    #[arg(long)]
-    timer: Option<u64>,
-
-    /// Reading List (only files in the list are displayed)
-    #[arg(short, long)]
-    reading: Option<String>,
-
-    /// Index of first image to read
-    #[arg(short, long)]
-    index: Option<usize>,
-
-    /// Grid Size
-    #[arg(short, long, value_parser=less_than_11)]
-    grid: Option<usize>,
-
-    /// From index number
-    #[arg(long)]
-    from: Option<usize>,
-
-    /// To index number
-    #[arg(long)]
-    to: Option<usize>,
-
-    /// File to view
-    #[arg(short, long)]
-    file: Option<String>,
-
-    /// Thumbnails only
-    #[arg(short,long)]
-    thumbnails: bool,
-
-  /// Update image data and then quit
-    #[arg(short,long)]
-    update_image_data: bool,
-
-    /// Copy selection to a target folder
-    #[arg(long)]
-    copy_selection: Option<String>,
-
-    /// Move selection to a target folder
-    #[arg(long)]
-    move_selection: Option<String>,
-
-    /// Window width (default is set with GALLSHWIDTH)
-    #[arg(short, long)]
-    width: Option<i32>,
-    ///
-    /// Window width (default is set with GALLSHHEIGHT)
-    #[arg(short, long)]
-    height: Option<i32>,
-}
-
-const DEFAULT_DIR :&str  = "images/";
-const DIR_ENV_VAR :&str = "GALLSHDIR";
-const WIDTH_ENV_VAR :&str = "GALLSHWIDTH";
-const HEIGHT_ENV_VAR :&str = "GALLSHHEIGHT";
 
 fn main() {
-
     let args = Args::parse();
-    let gallshdir = env::var(DIR_ENV_VAR);
 
-    // build an application with some css characteristics
     let application = Application::builder()
         .application_id("org.example.gallsh")
         .build();
@@ -229,14 +127,7 @@ fn main() {
         };
 
         let order = Order::from_options(args.name, args.date, args.size, args.colors, args.value);
-        let path = if let Some(directory_arg) = &args.directory {
-            String::from(directory_arg)
-        } else if let Ok(standard_dir) = &gallshdir {
-            String::from(standard_dir)
-        } else {
-            println!("GALLSHDIR variable not set. Using {} as default.", DEFAULT_DIR);
-            String::from(DEFAULT_DIR)
-        };
+        let path = determine_path(args.directory.clone());
         let entry_list = match read_entries(args.reading.clone(), args.file.clone(), path, args.pattern.clone()) {
             Ok(list) => list,
             Err(err) => {
@@ -303,6 +194,8 @@ fn main() {
         view.set_hexpand(true);
         view.set_vexpand(true);
         let stack = gtk::Stack::new();
+        stack.set_hexpand(true);
+        stack.set_vexpand(true);
         let image_view = Picture::new();
         let view_gesture = gtk::GestureClick::new();
         view_gesture.set_button(0);
@@ -338,10 +231,10 @@ fn main() {
         grid.set_vexpand(true);
         if grid_size > 1 {
             panel.attach(&left_button, 0, 0, 1, 1);
-        }
-        panel.attach(&grid, 1, 0, 1, 1);
-        if grid_size > 1 {
+            panel.attach(&grid, 1, 0, 1, 1);
             panel.attach(&right_button, 2, 0, 1, 1);
+        } else {
+            panel.attach(&grid, 0, 0, 1, 1);
         }
         left_gesture.set_button(1);
         left_gesture.connect_pressed(clone!(@strong repository_rc, @strong grid, @strong window => move |_,_,_,_| {
@@ -370,6 +263,8 @@ fn main() {
                 style_context.add_provider(&buttons_css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
                 vbox.set_valign(Align::Center);
                 vbox.set_halign(Align::Center);
+                vbox.set_hexpand(true);
+                vbox.set_vexpand(true);
                 vbox.append(&image);
                 vbox.append(&label);
                 grid.attach(&vbox, col as i32, row as i32, 1, 1);
@@ -511,6 +406,7 @@ fn main() {
                                 show_grid(&grid, &repository, &window);
                                 stack.set_visible_child(&view_scrolled_window);
                                 show_view(&view, &repository, &window);
+                                println!("view {}", repository.current_entry().expect("can't access to current entry").original_file_name());
                                 show = false
                             } else {
                                 stack.set_visible_child(&grid_scrolled_window)
@@ -633,6 +529,7 @@ fn show_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
     for col in 0..cells_per_row {
         for row in 0..cells_per_row {
             let vbox = grid.child_at(col,row).unwrap().downcast::<gtk::Box>().unwrap();
+            vbox.set_hexpand(true);
             let picture = vbox.first_child().unwrap().downcast::<gtk::Picture>().unwrap();
             let label = vbox.last_child().unwrap().downcast::<gtk::Label>().unwrap();
             if let Some(index) = repository.index_from_position((col,row)) {
@@ -645,6 +542,9 @@ fn show_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
                     let opacity = if entry.image_data.selected { 0.50 } else { 1.0 };
                     picture.set_opacity(opacity);
                     picture.set_can_shrink(!repository.real_size());
+                    println!("picture width and height: {} {}", picture.width(), picture.height());
+                    println!("vbox width and height: {} {}", vbox.width(), vbox.height());
+                    println!("grid width and height: {} {}", grid.width(), grid.height());
                     if repository.cells_per_row() < 10 {
                         match set_original_picture_file(&picture, &entry) {
                             Ok(_) => {
@@ -681,7 +581,8 @@ fn show_view(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
     let picture = grid.first_child().unwrap().downcast::<gtk::Picture>().unwrap();
     match set_original_picture_file(&picture, &entry) {
         Ok(_) => {
-            picture.set_visible(true);
+            println!("picture width and height: {} {}", picture.width(), picture.height());
+            println!("grid width and height: {} {}", grid.width(), grid.height());
             window.set_title(Some(&repository.title_display()))
         },
         Err(err) => {

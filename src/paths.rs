@@ -1,8 +1,23 @@
 use std::path::PathBuf;
+use std::env;
 
 pub const THUMB_SUFFIX: &str = "THUMB";
 pub const IMAGE_DATA: &str = "IMAGE_DATA";
 
+const DEFAULT_DIR :&str    = "images/";
+const DIR_ENV_VAR :&str    = "GALLSHDIR";
+
+pub fn determine_path(directory: Option<String>) -> String {
+    let gallshdir = env::var(DIR_ENV_VAR);
+    if let Some(directory_arg) = directory {
+        String::from(directory_arg)
+    } else if let Ok(standard_dir) = &gallshdir {
+        String::from(standard_dir)
+    } else {
+        println!("GALLSHDIR variable not set. Using {} as default.", DEFAULT_DIR);
+        String::from(DEFAULT_DIR)
+    }
+}
 pub fn thumbnail_file_path(file_path: &str) -> String {
     if file_path.contains(&THUMB_SUFFIX) {
         file_path.to_string()
