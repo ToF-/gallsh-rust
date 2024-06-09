@@ -13,7 +13,6 @@ use glib::timeout_add_local;
 use gtk::EventControllerMotion;
 use gtk::prelude::*;
 use gtk::traits::WidgetExt;
-use gtk::ContentFit;
 use gtk::{self, Align, Application, CssProvider, Orientation, Label, ScrolledWindow, gdk, glib, Grid, Picture};
 use order::{Order};
 use paths::THUMB_SUFFIX; 
