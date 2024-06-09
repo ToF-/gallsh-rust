@@ -158,6 +158,26 @@ fn main() {
         let repository_rc = Rc::new(RefCell::new(repository));
 
         // build the main window
+        // here's the deal:
+        //
+        //  window: ApplicationWindow
+        //      stack: Stack
+        //          grid_scrolled_window: ScrolledWindow
+        //              panel: Grid
+        //                  left_button: Label
+        //                  grid: Grid
+        //                      { cells_per_row x cells_per_row }
+        //                      …
+        //                      vbox: Box
+        //                          image: Picture
+        //                          label: Label
+        //                      …
+        //                  right_button: Label
+        //          view_scrolled_window: ScrolledWindow
+        //              view: Grid
+        //                  image_view: Picture
+        //
+
         let window = gtk::ApplicationWindow::builder()
             .application(application)
             .default_width(width)
@@ -187,23 +207,35 @@ fn main() {
                 background-color: black;
             }
         ");
+
         let view = Grid::new();
         view.set_row_homogeneous(true);
         view.set_column_homogeneous(true);
         view.set_hexpand(true);
         view.set_vexpand(true);
+        view_scrolled_window.set_child(Some(&view));
+
         let stack = gtk::Stack::new();
         stack.set_hexpand(true);
         stack.set_vexpand(true);
+        let _ = stack.add_child(&grid_scrolled_window);
+        let _ = stack.add_child(&view_scrolled_window);
+        stack.set_visible_child(&view_scrolled_window);
+        stack.set_visible_child(&grid_scrolled_window);
+
+        window.set_child(Some(&stack));
+
         let image_view = Picture::new();
         let view_gesture = gtk::GestureClick::new();
         view_gesture.set_button(0);
         view_gesture.connect_pressed(clone!(@strong repository_rc, @strong stack, @strong grid_scrolled_window, @strong window => move |_,_, _, _| {
             stack.set_visible_child(&grid_scrolled_window);
         }));
+
         image_view.add_controller(view_gesture);
+
         view.attach(&image_view, 0, 0, 1, 1);
-        view_scrolled_window.set_child(Some(&view));
+
 
         let panel = Grid::new();
         panel.set_hexpand(true);
@@ -219,11 +251,6 @@ fn main() {
         let left_gesture = gtk::GestureClick::new();
 
         let grid = Grid::new();
-        let _ = stack.add_child(&grid_scrolled_window);
-        let _ = stack.add_child(&view_scrolled_window);
-        window.set_child(Some(&stack));
-        stack.set_visible_child(&view_scrolled_window);
-        stack.set_visible_child(&grid_scrolled_window);
         grid.set_row_homogeneous(true);
         grid.set_column_homogeneous(true);
         grid.set_hexpand(true);
@@ -321,8 +348,10 @@ fn main() {
                 }));
                 image.add_controller(motion_controller)
             }
+
         }
         grid_scrolled_window.set_child(Some(&panel));
+
 
         let evk = gtk::EventControllerKey::new();
         evk.connect_key_pressed(clone!(@strong repository_rc, @strong grid, @strong window => move |_, key, _, _| {
