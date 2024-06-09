@@ -22,11 +22,11 @@ use thumbnailer::create_thumbnails;
 use thumbnailer::ThumbnailSize;
 use std::ffi::OsStr;
 use std::collections::HashSet;
+use std::io::{Result,Error, ErrorKind};
 
 const VALID_EXTENSIONS: [&'static str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];
 const SELECTION_FILE_NAME: &str = "selections";
 
-use std::io::{Result,Error, ErrorKind};
 
 pub fn set_original_picture_file(picture: &gtk::Picture, entry: &Entry) -> Result<()> {
     let original = entry.original_file_path();
@@ -266,6 +266,16 @@ pub fn entries_from_reading_list(reading_list: &str, pattern_opt: Option<String>
             };
             Ok(entry_list.clone())
         },
+    }
+}
+
+pub fn read_entries(reading_list_opt: Option<String>, file_name_opt: Option<String>, path: String, pattern_opt: Option<String>) -> Result<EntryList> {  
+    if let Some(list_file_name) = reading_list_opt {
+        entries_from_reading_list(&list_file_name, pattern_opt.clone())
+    } else if let Some(file_name) = file_name_opt {
+        entries_from_file(&file_name)
+    } else {
+        entries_from_directory(&path, pattern_opt.clone())
     }
 }
 

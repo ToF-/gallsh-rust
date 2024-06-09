@@ -2,7 +2,7 @@ use crate::picture_io::ensure_thumbnail;
 use crate::navigator::Coords;
 use crate::direction::Direction;
 use crate::repository::Repository;
-use crate::picture_io::{entries_from_reading_list, entries_from_directory, entries_from_file, set_original_picture_file, set_thumbnail_picture_file};
+use crate::picture_io::{read_entries, set_original_picture_file, set_thumbnail_picture_file};
 use clap::Parser;
 use clap_num::number_range;
 use entry::{Entry, EntryList, make_entry};
@@ -164,14 +164,6 @@ fn main() {
     // clone! passes a strong reference to a variable in the closure that activates the application
     // move converts any variables captured by reference or mutable reference to variables captured by value.
     application.connect_activate(clone!(@strong args => move |application: &gtk::Application| {
-        let path = if let Some(directory_arg) = &args.directory {
-            String::from(directory_arg)
-        } else if let Ok(standard_dir) = &gallshdir {
-            String::from(standard_dir)
-        } else {
-            println!("GALLSHDIR variable not set. Using {} as default.", DEFAULT_DIR);
-            String::from(DEFAULT_DIR)
-        };
         let candidate_width = match args.width {
             Some(n) => n,
             None => match env::var(WIDTH_ENV_VAR) {
@@ -214,7 +206,6 @@ fn main() {
             println!("illegal height value, setting to default");
             DEFAULT_HEIGHT
         };
-        let reading_list = &args.reading;
         let copy_selection_target: Option<String> = match &args.copy_selection {
             Some(target) => Some(target.to_string()),
             None => None,
@@ -237,13 +228,6 @@ fn main() {
             } else { 1 }
         };
 
-        if let Some(reading_list_file) = reading_list {
-            println!("searching images from the {} reading list", reading_list_file)
-        } else {
-            println!("searching images in {}", path)
-        };
-
-
         let order = if args.name {
             Order::Name
         } else if args.date {
@@ -258,29 +242,20 @@ fn main() {
             args.order
         };
 
-        let entry_list = if let Some(list_file_name) = reading_list {
-            match entries_from_reading_list(list_file_name, args.pattern.clone()) {
-                Ok(list) => list,
-                _ => {
-                    application.quit();
-                    return
-                },
-            }
-        } else if let Some(file_name) = &args.file {
-            match entries_from_file(file_name) {
-                Ok(list) => list,
-                _ => {
-                    application.quit();
-                    return
-                },
-            }
+        let path = if let Some(directory_arg) = &args.directory {
+            String::from(directory_arg)
+        } else if let Ok(standard_dir) = &gallshdir {
+            String::from(standard_dir)
         } else {
-            match entries_from_directory(&path, args.pattern.clone()) {
-                Ok(list) => list,
-                _ => {
-                    application.quit();
-                    return
-                },
+            println!("GALLSHDIR variable not set. Using {} as default.", DEFAULT_DIR);
+            String::from(DEFAULT_DIR)
+        };
+        let entry_list = match read_entries(args.reading.clone(), args.file.clone(), path, args.pattern.clone()) {
+            Ok(list) => list,
+            Err(err) => {
+                println!("{}", err);
+                application.quit();
+                return
             }
         };
         if args.update_image_data {
