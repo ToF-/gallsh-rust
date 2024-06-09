@@ -87,7 +87,10 @@ impl Repository {
 
     fn jump_to_name(&mut self, name: &String) {
         match self.entry_list.iter().position(|e| &e.original_file_path() == name) {
-            Some(index) => self.navigator.move_to_index(index),
+            Some(index) => { 
+                self.navigator.move_to_index(index);
+                self.real_size = false
+            },
             None => {},
         }
     }
@@ -126,6 +129,7 @@ impl Repository {
         if let Some(index) = self.register {
             self.navigator.move_to_index(index);
             self.register = None;
+            self.real_size = false;
             println!("go to register index: {}", index)
         } else {
             println!("no register index")
@@ -212,6 +216,7 @@ impl Repository {
     pub fn move_to_index(&mut self, index: usize) {
         if self.navigator.can_move_to_index(index) {
             self.navigator.move_to_index(index);
+            self.real_size = false;
             println!("move to picture #{}", index)
         } else {
             println!("can't move to picture #{}", index)
@@ -220,16 +225,19 @@ impl Repository {
 
     pub fn move_to_random_index(&mut self) {
         self.navigator.move_to_random_index();
+        self.real_size = false;
         println!("move to picture #{}", self.navigator.index())
     }
 
     pub fn move_next_page(&mut self) {
         self.navigator.move_next_page();
+        self.real_size = false;
         println!("move to next page")
     }
 
     pub fn move_prev_page(&mut self) {
         self.navigator.move_prev_page();
+        self.real_size = false;
         println!("move to prev page")
     }
 

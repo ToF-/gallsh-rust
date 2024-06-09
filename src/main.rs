@@ -228,20 +228,7 @@ fn main() {
             } else { 1 }
         };
 
-        let order = if args.name {
-            Order::Name
-        } else if args.date {
-            Order::Date
-        } else if args.size {
-            Order::Size
-        } else if args.colors {
-            Order::Colors
-        } else if args.value {
-            Order::Value
-        } else {
-            args.order
-        };
-
+        let order = Order::from_options(args.name, args.date, args.size, args.colors, args.value);
         let path = if let Some(directory_arg) = &args.directory {
             String::from(directory_arg)
         } else if let Ok(standard_dir) = &gallshdir {

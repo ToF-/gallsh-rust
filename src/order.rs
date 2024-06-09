@@ -6,6 +6,24 @@ pub enum Order {
     Colors, Date, Name, Random, Size, Value,
 }
 
+impl Order {
+    pub fn from_options(name: bool, date: bool, size: bool, colors: bool, value: bool) -> Self {
+        if name {
+            Self::Name
+        } else if date {
+            Self::Date
+        } else if size {
+            Self::Size
+        } else if colors {
+            Self::Colors
+        } else if value {
+            Self::Value
+        } else {
+            Self::Random
+        }
+    }
+}
+
 impl clap::ValueEnum for Order {
     fn value_variants<'a>() -> &'a [Self] {
         &[Order::Colors, Order::Date, Order::Name, Order::Random, Order::Size, Order::Value]
