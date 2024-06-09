@@ -333,7 +333,7 @@ fn main() {
                         stack.set_visible_child(&grid_scrolled_window);
                         return gtk::Inhibit(false)
                     };
-                    let mut show = true;
+                    let mut show_is_on = true;
                     match s.as_str() {
                         "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" => {
                             let digit:usize = s.parse().unwrap();
@@ -349,116 +349,65 @@ fn main() {
                         "f" => repository.toggle_real_size(),
                         "z" => repository.move_to_index(0),
                         "e" => repository.move_next_page(),
-                        "n" => if repository.order_choice_on() {
-                            repository.sort_by(Order::Name);
-                            show_grid(&grid, &repository, &window)
-                        } else {
-                            repository.move_next_page()
-                        },
+                        "n" => if repository.order_choice_on() { repository.sort_by(Order::Name); } else { repository.move_next_page() },
                         "p"|"i" => repository.move_prev_page(),
-                        "q" => {
-                            repository.quit();
-                            show = false;
-                            window.close()
-                        },
-                        "Q" => {
-                            repository.copy_move_and_quit(&copy_selection_target, &move_selection_target);
-                            show = false;
-                            window.close()
-                        },
+                        "q" => { repository.quit(); show_is_on = false; window.close() },
+                        "Q" => { repository.copy_move_and_quit(&copy_selection_target, &move_selection_target); show_is_on = false; window.close() },
                         "B"|"plus"|"D" => repository.point_rank(Rank::NoStar),
                         "M"|"Eacute"|"minus"|"C" => repository.point_rank(Rank::OneStar),
                         "N"|"P"|"slash" => repository.point_rank(Rank::TwoStars),
                         "asterisk"|"A"|"O" => repository.point_rank(Rank::ThreeStars),
-                        "c" => if repository.order_choice_on() {
-                            repository.sort_by(Order::Colors);
-                            show_grid(&grid, &repository, &window)
-                        },
-                        "d" => if repository.order_choice_on() {
-                            repository.sort_by(Order::Date);
-                            show_grid(&grid, &repository, &window)
-                        },
+                        "c" => if repository.order_choice_on() { repository.sort_by(Order::Colors); },
+                        "d" => if repository.order_choice_on() { repository.sort_by(Order::Date); },
                         "R" => repository.set_rank(Rank::NoStar),
-                        "r" => if repository.order_choice_on() {
-                            repository.sort_by(Order::Random);
-                            show_grid(&grid, &repository, &window)
-                        } else {
-                            repository.move_to_random_index()
-                        },
+                        "r" => if repository.order_choice_on() { repository.sort_by(Order::Random); } else { repository.move_to_random_index() },
                         "a" => repository.select_page(true),
                         "u" => repository.select_page(false),
                         "U" => repository.select_all(false),
-                        "s" => if repository.order_choice_on() {
-                            repository.sort_by(Order::Size);
-                            show_grid(&grid, &repository, &window)
-                        } else {
-                            repository.save_select_entries()
-                        },
+                        "s" => if repository.order_choice_on() { repository.sort_by(Order::Size); } else { repository.save_select_entries() },
                         "equal" => repository.set_order_choice_on(),
-                        "v" => if repository.order_choice_on() {
-                            repository.sort_by(Order::Value);
-                            show_grid(&grid, &repository, &window)
-                        },
+                        "v" => if repository.order_choice_on() { repository.sort_by(Order::Value); },
                         "h" => repository.help(),
                         "period"|"k" => {
                             if stack.visible_child().unwrap() == grid_scrolled_window {
-                                show_grid(&grid, &repository, &window);
                                 stack.set_visible_child(&view_scrolled_window);
                                 show_view(&view, &repository, &window);
-                                println!("view {}", repository.current_entry().expect("can't access to current entry").original_file_name());
-                                show = false
+                                show_is_on = false
                             } else {
                                 stack.set_visible_child(&grid_scrolled_window)
                             }
                         },
                         "space" => repository.move_next_page(),
                         "Right" => {
-                            show = false;
+                            show_is_on = repository.cells_per_row() == 1 && !repository.real_size();
                             if repository.real_size() {
-                                let h_adj = window
-                                    .child()
-                                    .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
-                                    .and_then(|child| child.downcast::<ScrolledWindow>().ok())
-                                    .and_then(|sw| Some(sw.hadjustment()))
-                                    .expect("Failed to get hadjustment");
+                                let h_adj = picture_hadjustment(&window);
                                 h_adj.set_value(h_adj.value() + step as f64)
                             } else {
                                 if repository.cells_per_row() == 1 {
                                     repository.move_next_page();
-                                    show = true;
                                 } else {
                                     navigate(&mut repository, &grid, &window, Direction::Right);
                                 }
                             }
                         },
                         "Left" => {
-                            show = false;
+                            show_is_on = repository.cells_per_row() == 1 && !repository.real_size();
                             if repository.real_size() {
-                                let h_adj = window
-                                    .child()
-                                    .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
-                                    .and_then(|child| child.downcast::<ScrolledWindow>().ok())
-                                    .and_then(|sw| Some(sw.hadjustment()))
-                                    .expect("Failed to get hadjustment");
+                                let h_adj = picture_hadjustment(&window);
                                 h_adj.set_value(h_adj.value() - step as f64)
                             } else {
                                 if repository.cells_per_row() == 1 {
                                     repository.move_prev_page();
-                                    show = true;
                                 } else {
                                     navigate(&mut repository, &grid, &window, Direction::Left);
                                 }
                             }
                         },
                         "Down" => {
-                            show = false;
+                            show_is_on = repository.cells_per_row() == 1 && !repository.real_size();
                             if repository.real_size() {
-                                let v_adj = window
-                                    .child()
-                                    .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
-                                    .and_then(|child| child.downcast::<ScrolledWindow>().ok())
-                                    .and_then(|sw| Some(sw.vadjustment()))
-                                    .expect("Failed to get vadjustment");
+                                let v_adj = picture_vadjustment(&window);
                                 v_adj.set_value(v_adj.value() + step as f64)
                             } else {
                                 if repository.cells_per_row() == 1 {
@@ -469,14 +418,9 @@ fn main() {
                             }
                         },
                         "Up" => {
-                            show = false;
+                            show_is_on = repository.cells_per_row() == 1 && !repository.real_size();
                             if repository.real_size() {
-                                let v_adj = window
-                                    .child()
-                                    .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
-                                    .and_then(|child| child.downcast::<ScrolledWindow>().ok())
-                                    .and_then(|sw| Some(sw.vadjustment()))
-                                    .expect("Failed to get vadjustment");
+                                let v_adj = picture_vadjustment(&window);
                                 v_adj.set_value(v_adj.value() - step as f64)
                             } else {
                                 if repository.cells_per_row() == 1 {
@@ -488,7 +432,7 @@ fn main() {
                         },
                         other => println!("{}", other), 
                     };
-                    if show {
+                    if show_is_on {
                         show_grid(&grid, &repository, &window);
                     }
                     gtk::Inhibit(false)
@@ -570,6 +514,23 @@ fn show_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
         }
     }
     window.set_title(Some(&repository.title_display()));
+}
+
+fn picture_hadjustment(window: &gtk::ApplicationWindow) -> gtk::Adjustment {
+    window
+        .child()
+        .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
+        .and_then(|child| child.downcast::<ScrolledWindow>().ok())
+        .and_then(|sw| Some(sw.hadjustment()))
+        .expect("Failed to get hadjustment").clone()
+}
+fn picture_vadjustment(window: &gtk::ApplicationWindow) -> gtk::Adjustment {
+    window
+        .child()
+        .and_then(|child| child.downcast::<gtk::Stack>().unwrap().visible_child())
+        .and_then(|child| child.downcast::<ScrolledWindow>().ok())
+        .and_then(|sw| Some(sw.vadjustment()))
+        .expect("Failed to get vadjustment").clone()
 }
 
 fn show_view(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWindow) {
