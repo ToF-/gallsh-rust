@@ -13,7 +13,6 @@ use glib::timeout_add_local;
 use gtk::EventControllerMotion;
 use gtk::prelude::*;
 use gtk::traits::WidgetExt;
-use gtk::ContentFit;
 use gtk::{self, Align, Application, CssProvider, Orientation, Label, ScrolledWindow, gdk, glib, Grid, Picture};
 use order::{Order};
 use paths::THUMB_SUFFIX; 
@@ -542,9 +541,6 @@ fn show_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
                     let opacity = if entry.image_data.selected { 0.50 } else { 1.0 };
                     picture.set_opacity(opacity);
                     picture.set_can_shrink(!repository.real_size());
-                    println!("picture width and height: {} {}", picture.width(), picture.height());
-                    println!("vbox width and height: {} {}", vbox.width(), vbox.height());
-                    println!("grid width and height: {} {}", grid.width(), grid.height());
                     if repository.cells_per_row() < 10 {
                         match set_original_picture_file(&picture, &entry) {
                             Ok(_) => {
@@ -581,8 +577,6 @@ fn show_view(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
     let picture = grid.first_child().unwrap().downcast::<gtk::Picture>().unwrap();
     match set_original_picture_file(&picture, &entry) {
         Ok(_) => {
-            println!("picture width and height: {} {}", picture.width(), picture.height());
-            println!("grid width and height: {} {}", grid.width(), grid.height());
             window.set_title(Some(&repository.title_display()))
         },
         Err(err) => {
