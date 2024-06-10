@@ -406,6 +406,10 @@ fn main() {
                                 stack.set_visible_child(&grid_scrolled_window)
                             }
                         },
+                        "colon" => {
+                            println!("{}", repository.title_display());
+                            println!("{}", repository.current_entry().expect("can't access current entry").original_file_path())
+                        },
                         "space" => repository.move_next_page(),
                         "Right" => {
                             show_is_on = repository.cells_per_row() == 1 && !repository.real_size();
