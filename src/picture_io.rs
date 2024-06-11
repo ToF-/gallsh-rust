@@ -286,19 +286,17 @@ fn copy_file_to_target_directory(file_path: &Path, target_directory: &Path) -> R
     std::fs::copy(file_path, target_file_path)
 }
 
-pub fn copy_entry(entry: &Entry, target_path: &Path) {
+pub fn copy_entry(entry: &Entry, target_path: &Path) -> Result<()> {
     let file_name = entry.original_file_path();
     let thumbnail_name = entry.thumbnail_file_path();
     let image_data_name = entry.image_data_file_path();
     let file_path = Path::new(&file_name);
     let thumbnail_path = Path::new(&thumbnail_name);
     let image_data_path = Path::new(&image_data_name);
-    match copy_file_to_target_directory(file_path, target_path)
-        .and_then(|_| copy_file_to_target_directory(thumbnail_path, target_path))
-        .and_then(|_| copy_file_to_target_directory(image_data_path, target_path)) {
-            Ok(_) => {},
-            Err(err) => println!("error: {}", err),
-        }
+    copy_file_to_target_directory(file_path, target_path)?;
+    copy_file_to_target_directory(thumbnail_path, target_path)?;
+    copy_file_to_target_directory(image_data_path, target_path)?;
+    Ok(())
 }
 
 pub fn delete_entry(entry: &Entry) {
