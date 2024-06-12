@@ -395,10 +395,9 @@ impl Repository {
             return
         };
         let selection: Vec<&Entry> = self.entry_list.iter().filter(|e| e.image_data.selected).collect();
-        let mut total_copied: u64 = 0;
         for entry in selection {
             match copy_entry(entry, target_path) {
-                Ok(n) => {},
+                Ok(_) => {},
                 Err(e) => eprintln!("err copying entry {} to {}: {}", entry.original_file_path(), target_path.display(), e),
             }
         }
