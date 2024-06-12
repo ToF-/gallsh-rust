@@ -358,10 +358,10 @@ fn main() {
             let step = 100;
             if let Ok(mut repository) = repository_rc.try_borrow_mut() {
                 if let Some(s) = key.name() {
-                    if stack.visible_child().unwrap() == view_scrolled_window {
-                        stack.set_visible_child(&grid_scrolled_window);
-                        return gtk::Inhibit(false)
-                    };
+                    //if stack.visible_child().unwrap() == view_scrolled_window {
+                    //    stack.set_visible_child(&grid_scrolled_window);
+                    //    return gtk::Inhibit(false)
+                    //};
                     let mut show_is_on = true;
                     match s.as_str() {
                         "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" => {
@@ -401,7 +401,6 @@ fn main() {
                             if stack.visible_child().unwrap() == grid_scrolled_window {
                                 stack.set_visible_child(&view_scrolled_window);
                                 show_view(&view, &repository, &window);
-                                show_is_on = false
                             } else {
                                 stack.set_visible_child(&grid_scrolled_window)
                             }
@@ -466,7 +465,11 @@ fn main() {
                         other => println!("{}", other), 
                     };
                     if show_is_on {
-                        show_grid(&grid, &repository, &window);
+                        if stack.visible_child().unwrap() == grid_scrolled_window {
+                            show_grid(&grid, &repository, &window)
+                        } else {
+                            show_view(&view, &repository, &window)
+                        }
                     }
                     gtk::Inhibit(false)
                 }
