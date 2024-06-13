@@ -420,6 +420,9 @@ fn main() {
                                     repository.move_next_page();
                                 } else {
                                     navigate(&mut repository, &grid, &window, Direction::Right);
+                                    if stack.visible_child().unwrap() == view_scrolled_window {
+                                        show_view(&view, &repository, &window)
+                                    }
                                 }
                             }
                         },
@@ -433,6 +436,9 @@ fn main() {
                                     repository.move_prev_page();
                                 } else {
                                     navigate(&mut repository, &grid, &window, Direction::Left);
+                                    if stack.visible_child().unwrap() == view_scrolled_window {
+                                        show_view(&view, &repository, &window)
+                                    }
                                 }
                             }
                         },
@@ -446,6 +452,9 @@ fn main() {
                                     repository.move_next_page()
                                 } else {
                                     navigate(&mut repository, &grid, &window, Direction::Down);
+                                    if stack.visible_child().unwrap() == view_scrolled_window {
+                                        show_view(&view, &repository, &window)
+                                    }
                                 }
                             }
                         },
@@ -459,6 +468,9 @@ fn main() {
                                     repository.move_next_page();
                                 } else {
                                     navigate(&mut repository, &grid, &window, Direction::Up);
+                                    if stack.visible_child().unwrap() == view_scrolled_window {
+                                        show_view(&view, &repository, &window)
+                                    }
                                 }
                             }
                         },
