@@ -23,6 +23,7 @@ pub struct Repository {
     order: Option<Order>,
     register: Option<usize>,
     real_size: bool,
+    max_selected: usize,
 }
 
 impl Repository {
@@ -34,6 +35,7 @@ impl Repository {
             order: Some(Order::Random),
             register: None,
             real_size: false,
+            max_selected: entries.clone().iter().filter(|e| e.image_data.selected).count(),
         }
     }
 
@@ -67,7 +69,8 @@ impl Repository {
             return "".to_string()
         };
         let entry_title_display = &<Entry as Clone>::clone(&self.current_entry().unwrap()).title_display();
-        format!("{} ordered by {} {}/{}  {} {} {}",
+        format!("S:[{}] {} ordered by {} {}/{}  {} {} {}",
+            self.max_selected,
             if self.select_start.is_some() { "…" } else { "" },
             if let Some(o) = self.order {
                 o.to_string()
@@ -291,6 +294,11 @@ impl Repository {
         assert!(self.entry_list.len() > 0);
         let index = self.navigator.index();
         self.entry_list[index].image_data.selected = !self.entry_list[index].image_data.selected;
+        if self.entry_list[index].image_data.selected {
+            self.max_selected += 1
+        } else { 
+           self.max_selected -= 1
+        }; 
         if picture_io::save_image_data(&self.entry_list[index]).is_err() {
             println!("can't save image data {}", &self.entry_list[index].image_data_file_path())
         }
@@ -313,7 +321,8 @@ impl Repository {
             self.entry_list[i].image_data.selected = value;
             if picture_io::save_image_data(&self.entry_list[i]).is_err() {
                 println!("can't save image data {}", &self.entry_list[i].image_data_file_path())
-            }
+            };
+            self.update_max_selected()
         }
     }
 
@@ -324,10 +333,14 @@ impl Repository {
             self.entry_list[i].image_data.selected = value;
             if picture_io::save_image_data(&self.entry_list[i]).is_err() {
                 println!("can't save image data {}", &self.entry_list[i].image_data_file_path())
-            }
+            };
+            self.update_max_selected()
         }
     }
     
+    fn update_max_selected(&mut self) {
+        self.max_selected = self.entry_list.iter().filter(|e| e.image_data.selected).count()
+    }
     pub fn select_point(&mut self) {
         let index = self.navigator.index();
         println!("select: {}…", index);
@@ -351,7 +364,8 @@ impl Repository {
                 }
                 self.select_start = None
             },
-        }
+        };
+        self.update_max_selected()
     }
 
     pub fn cancel_point(&mut self) {
