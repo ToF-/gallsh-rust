@@ -23,6 +23,7 @@ pub fn make_entry(file_path:String, file_size:u64, colors:usize, modified_time:S
             colors: colors,
             rank: initial_rank,
             selected: false,
+            palette: [0;10],
         },
         modified_time: modified_time,
     }

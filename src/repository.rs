@@ -172,6 +172,7 @@ impl Repository {
                     cmp
                 }
             }),
+            Order::Palette => self.entry_list.sort_by(|a, b| { a.image_data.palette.cmp(&b.image_data.palette) }),
             Order::Date => self.entry_list.sort_by(|a, b| { a.modified_time.cmp(&b.modified_time) }),
             Order::Name => self.entry_list.sort_by(|a, b| { a.file_path.cmp(&b.file_path) }),
             Order::Size => self.entry_list.sort_by(|a, b| { a.file_size.cmp(&b.file_size) }),

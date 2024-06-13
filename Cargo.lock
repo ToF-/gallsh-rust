@@ -774,6 +774,7 @@ dependencies = [
  "gtk4",
  "image 0.25.1",
  "mime",
+ "palette_extract",
  "predicates",
  "rand",
  "regex",
@@ -1204,6 +1205,12 @@ name = "once_cell"
 version = "1.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3fdb12b2476b595f9358c5161aa467c2438859caa136dec86c26fdd2efe17b92"
+
+[[package]]
+name = "palette_extract"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "37152de66c36e76d4637af2a51310ede2c0e42b80357fa517bf1b595b56489a4"
 
 [[package]]
 name = "pango"

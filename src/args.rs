@@ -16,7 +16,7 @@ pub struct Args {
     pub directory: Option<String>,
 
     /// Pattern (only files with names matching the regular expression will be displayed)
-    #[arg(short, long)]
+    #[arg(long)]
     pub pattern: Option<String>,
 
     /// Maximized window
@@ -38,6 +38,10 @@ pub struct Args {
     /// Rank value ordered display
     #[arg(short, long, default_value_t = false)]
     pub value:bool,
+
+    /// Palette value ordered display
+    #[arg(short, long, default_value_t = false)]
+    pub palette:bool,
 
     /// Size ordered display
     #[arg(short, long, default_value_t = false)]

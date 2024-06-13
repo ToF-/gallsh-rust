@@ -125,7 +125,7 @@ fn main() {
             } else { 1 }
         };
 
-        let order = Order::from_options(args.name, args.date, args.size, args.colors, args.value);
+        let order = Order::from_options(args.name, args.date, args.size, args.colors, args.value, args.palette);
         let path = determine_path(args.directory.clone());
         let entry_list = match read_entries(args.reading.clone(), args.file.clone(), path, args.pattern.clone()) {
             Ok(list) => list,
@@ -379,7 +379,8 @@ fn main() {
                         "z" => repository.move_to_index(0),
                         "e" => repository.move_next_page(),
                         "n" => if repository.order_choice_on() { repository.sort_by(Order::Name); } else { repository.move_next_page() },
-                        "p"|"i" => repository.move_prev_page(),
+                        "i" => repository.move_prev_page(),
+                        "p" => if repository.order_choice_on() { repository.sort_by(Order::Palette); } else { repository.move_prev_page() },
                         "q" => { repository.quit(); show_is_on = false; window.close() },
                         "Q" => { repository.copy_move_and_quit(&copy_selection_target, &move_selection_target); show_is_on = false; window.close() },
                         "B"|"plus"|"D" => repository.point_rank(Rank::NoStar),

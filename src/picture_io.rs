@@ -1,28 +1,30 @@
-use crate::image_data::ImageData;
-use std::fs::remove_file;
-use crate::paths::is_thumbnail;
-use std::io::Write;
-use std::fs::OpenOptions;
-use std::path::PathBuf;
-use crate::THUMB_SUFFIX;
-use crate::make_entry;
-use std::fs;
-use regex::Regex;
-use walkdir::WalkDir;
+use crate::Entry;
 use crate::EntryList;
 use crate::Rank;
+use crate::THUMB_SUFFIX;
 use crate::image::get_image_color;
-use std::fs::read_to_string;
-use crate::Entry;
-use std::path::Path;
-use std::fs::File;
-use std::io::BufReader;
-use thumbnailer::error::ThumbResult;
-use thumbnailer::create_thumbnails;
-use thumbnailer::ThumbnailSize;
-use std::ffi::OsStr;
+use crate::image_data::ImageData;
+use crate::make_entry;
+use crate::paths::is_thumbnail;
+use image::open;
+use palette_extract::{get_palette_rgb, Color};
+use regex::Regex;
 use std::collections::HashSet;
+use std::ffi::OsStr;
+use std::fs::File;
+use std::fs::OpenOptions;
+use std::fs::read_to_string;
+use std::fs::remove_file;
+use std::fs;
+use std::io::BufReader;
+use std::io::Write;
 use std::io::{Result,Error, ErrorKind};
+use std::path::Path;
+use std::path::PathBuf;
+use thumbnailer::ThumbnailSize;
+use thumbnailer::create_thumbnails;
+use thumbnailer::error::ThumbResult;
+use walkdir::WalkDir;
 
 const VALID_EXTENSIONS: [&'static str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];
 const SELECTION_FILE_NAME: &str = "selections";
@@ -119,6 +121,15 @@ pub fn set_thumbnail_picture_file(picture: &gtk::Picture, entry: &Entry) -> Resu
     }
 }
 
+fn set_palette(entry: &mut Entry) {
+    let image = image::open(entry.original_file_path()).expect("can't open image file for palette extraction");
+    let pixels = image.as_bytes();
+    let palette = get_palette_rgb(&pixels);
+    palette.iter().enumerate().for_each(|(i,c)| {
+        entry.image_data.palette[i] = (c.r as u32) << 16 | (c.g as u32) << 8 | c.b as u32;
+    });
+    entry.image_data.palette.sort();
+}
 pub fn set_image_data(entry: &mut Entry) -> Result<()> {
     let image_data = entry.image_data_file_path();
     let path = Path::new(&image_data);
@@ -140,7 +151,9 @@ pub fn set_image_data(entry: &mut Entry) -> Result<()> {
                     colors: colors,
                     rank: Rank::NoStar,
                     selected: false,
+                    palette: [0;10],
                 };
+                set_palette(entry);
                 let _ = save_image_data(&entry);
                 Ok(())
             },

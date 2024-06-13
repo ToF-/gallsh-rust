@@ -6,4 +6,5 @@ pub struct ImageData {
     pub colors: usize,
     pub rank: Rank,
     pub selected: bool,
+    pub palette: [u32;10],
 }
