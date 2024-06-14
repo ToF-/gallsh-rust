@@ -163,20 +163,22 @@ pub fn set_image_data(entry: &mut Entry) -> Result<()> {
 }
 
 pub fn draw_palette(ctx: &Context, width: i32, height: i32, colors: &[u32;10]) {
-    let square_size: i32 = width / 10;
+    println!("drawing palette now for colors: {:?} width: {}, height: {}", colors, width, height);
+    let square_size: f64 = 8.0;
     let surface = ImageSurface::create(Format::ARgb32, width, height).expect("can't create surface");
     let context = Context::new(&surface).expect("can't create context");
     for (i,w) in colors.iter().enumerate() {
         let r = ((w >> 16) & 255) as u8;
         let g = ((w >> 8) & 255) as u8;
         let b = (w & 255) as u8;
-        // context.set_source_rgb(r.into(), g.into(), b.into());
-        context.set_source_rgb(i as f64 * 25.0, i as f64 * 25.0, i as f64 * 25.0);
-        let x = i as i32 * square_size + 10;
-        println!("{} {} {} {} ({},{},{})", x, 0.0, square_size, square_size,i as f64 * 25.0, i as f64 * 25.0, i as f64 * 25.0);
-        context.rectangle(x.into(), 0.0, square_size.into(), square_size.into());
-        context.fill().expect("can't fill rectange")
+        context.set_source_rgb(r as f64 / 255.0, g as f64 / 255.0, b as f64 / 255.0);
+        let offset: f64 = (width as f64 - (10.0 * square_size)) / 2.0;
+        let x = i as f64 * square_size;
+        context.rectangle(offset + x, 0.0, square_size, square_size);
+        context.fill().expect("can't fill rectangle");
+            
     };
+    println!("{:?}, {:?} {:?}", surface, context, ctx);
     ctx.set_source_surface(&surface, 0.0, 0.0).expect("can't set source surface");
     ctx.paint().expect("can't paint surface")
 }

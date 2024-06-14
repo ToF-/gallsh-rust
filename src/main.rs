@@ -556,7 +556,18 @@ fn show_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
                                 picture.set_visible(false);
                                 println!("{}",err.to_string())
                             },
-                        }
+                        };
+                        if let Some(drawing_area) = palette {
+                            let colors = entry.image_data.palette;
+                            let allocation = vbox.allocation();
+                            let width = picture.width();
+                            let height = allocation.height()/10;
+                            drawing_area.set_content_width(width);
+                            drawing_area.set_content_height(height);
+                            drawing_area.set_draw_func(move |_,ctx,_,_| {
+                                draw_palette(ctx, width, height, &colors)
+                            });
+                        };
                     } else {
                         match set_thumbnail_picture_file(&picture, &entry) {
                             Ok(_) => {
@@ -567,17 +578,6 @@ fn show_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
                                 println!("{}",err.to_string())
                             },
                         }
-                    };
-                    if let Some(drawing_area) = palette {
-                        let colors = entry.image_data.palette;
-                        let allocation = vbox.allocation();
-                        let width = allocation.width()/2;
-                        let height = allocation.height()/10;
-                        drawing_area.set_content_width(width);
-                        drawing_area.set_content_height(height);
-                        drawing_area.set_draw_func(move |_,ctx,_,_| {
-                            draw_palette(ctx, width, height, &colors)
-                        });
                     };
                 }
             } else {
