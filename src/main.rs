@@ -1,4 +1,6 @@
+use crate::picture_io::draw_palette;
 use clap::Parser;
+use gtk::DrawingArea;
 use crate::args::Args;
 use crate::direction::Direction;
 use crate::navigator::Coords;
@@ -285,6 +287,7 @@ fn main() {
                 image.set_hexpand(true);
                 image.set_vexpand(true);
                 let label = Label::new(None);
+                let drawing_area = DrawingArea::new();
                 let style_context = label.style_context();
                 style_context.add_provider(&buttons_css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
                 vbox.set_valign(Align::Center);
@@ -293,6 +296,7 @@ fn main() {
                 vbox.set_vexpand(true);
                 vbox.append(&image);
                 vbox.append(&label);
+                vbox.append(&drawing_area);
                 grid.attach(&vbox, col as i32, row as i32, 1, 1);
 
                 let select_gesture = gtk::GestureClick::new();
@@ -378,6 +382,7 @@ fn main() {
                         "f" => repository.toggle_real_size(),
                         "z" => repository.move_to_index(0),
                         "e" => repository.move_next_page(),
+                        "x" => repository.toggle_palette_extract(),
                         "n" => if repository.order_choice_on() { repository.sort_by(Order::Name); } else { repository.move_next_page() },
                         "i" => repository.move_prev_page(),
                         "p" => if repository.order_choice_on() { repository.sort_by(Order::Palette); } else { repository.move_prev_page() },
@@ -523,7 +528,11 @@ fn show_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
             let vbox = grid.child_at(col,row).unwrap().downcast::<gtk::Box>().unwrap();
             vbox.set_hexpand(true);
             let picture = vbox.first_child().unwrap().downcast::<gtk::Picture>().unwrap();
-            let label = vbox.last_child().unwrap().downcast::<gtk::Label>().unwrap();
+            let label = picture.next_sibling().unwrap().downcast::<gtk::Label>().unwrap();
+            let palette = match repository.palette_extract() {
+                true => Some(label.next_sibling().unwrap().downcast::<gtk::DrawingArea>().unwrap()),
+                false => None,
+            };
             if let Some(index) = repository.index_from_position((col,row)) {
                 if let Some(entry) = repository.entry_at_index(index) {
                     let status = format!("{} {} {}",
@@ -554,7 +563,16 @@ fn show_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
                                 println!("{}",err.to_string())
                             },
                         }
-                    }
+                    };
+                    if let Some(drawing_area) = palette {
+                        let colors = entry.image_data.palette;
+                        let allocation = vbox.allocation();
+                        drawing_area.set_content_width(allocation.width()/2);
+                        drawing_area.set_content_height(allocation.height()/20);
+                        drawing_area.set_draw_func(move |_,ctx,_,_| {
+                            draw_palette(ctx, &colors)
+                        });
+                    };
                 }
             } else {
                 picture.set_visible(false);
@@ -600,8 +618,8 @@ fn label_at(grid: &gtk::Grid, coords: Coords) -> gtk::Label {
     let (col,row) = coords;
     grid.child_at(col as i32, row as i32).unwrap()
         .downcast::<gtk::Box>().unwrap()
-        .last_child().unwrap()
-        .downcast::<gtk::Label>().unwrap()
+        .first_child().unwrap().downcast::<gtk::Picture>().unwrap()
+        .next_sibling().unwrap().downcast::<gtk::Label>().unwrap()
 }
 
 fn navigate(repository: &mut Repository, grid: &gtk::Grid, window: &gtk::ApplicationWindow, direction: Direction) {

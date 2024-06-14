@@ -102,5 +102,9 @@ pub struct Args {
     /// Window width (default is set with GALLSHHEIGHT)
     #[arg(short, long)]
     pub height: Option<i32>,
+
+    /// Show palette extraction
+    #[arg(short, long)]
+    pub extraction: bool,
 }
 

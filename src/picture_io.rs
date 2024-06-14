@@ -1,3 +1,4 @@
+use gtk::cairo::{Context, Format, ImageSurface};
 use crate::Entry;
 use crate::EntryList;
 use crate::Rank;
@@ -159,6 +160,23 @@ pub fn set_image_data(entry: &mut Entry) -> Result<()> {
             Err(err) => Err(Error::new(ErrorKind::Other,err)),
         }
     }
+}
+
+pub fn draw_palette(ctx: &Context, width: i32, height: i32, colors: &[u32;10]) {
+    let square_size: i32 = width / 10;
+    let surface = ImageSurface::create(Format::ARgb32, width, height).expect("can't create surface");
+    let context = Context::new(&surface).expect("can't create context");
+    for (i,w) in colors.iter().enumerate() {
+        let r = ((w >> 16) & 255) as u8;
+        let g = ((w >> 8) & 255) as u8;
+        let b = (w & 255) as u8;
+        context.set_source_rgb(r.into(), g.into(), b.into());
+        let x = i as i32 * square_size;
+        context.rectangle(x, 0.0, square_size, square_size);
+        context.fill().expect("can't fill rectange")
+    };
+    ctx.set_source_surface(&surface, 0.0, 0.0).expect("can't set source surface");
+    ctx.paint().expect("can't paint surface")
 }
 
 pub fn save_image_data(entry: &Entry) -> Result<()> {

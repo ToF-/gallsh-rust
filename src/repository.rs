@@ -23,6 +23,7 @@ pub struct Repository {
     order: Option<Order>,
     register: Option<usize>,
     real_size: bool,
+    palette_extract: bool,
     max_selected: usize,
 }
 
@@ -35,8 +36,13 @@ impl Repository {
             order: Some(Order::Random),
             register: None,
             real_size: false,
+            palette_extract: false,
             max_selected: entries.clone().iter().filter(|e| e.image_data.selected).count(),
         }
+    }
+
+    pub fn palette_extract(&self) -> bool {
+        self.palette_extract
     }
 
     pub fn capacity(&self) -> usize {
@@ -424,6 +430,10 @@ impl Repository {
             delete_entry(entry)
         };
         delete_selection_file()
+    }
+
+    pub fn toggle_palette_extract(&mut self) {
+        self.palette_extract = ! self.palette_extract
     }
 }
 
