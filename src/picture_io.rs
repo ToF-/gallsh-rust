@@ -170,9 +170,11 @@ pub fn draw_palette(ctx: &Context, width: i32, height: i32, colors: &[u32;10]) {
         let r = ((w >> 16) & 255) as u8;
         let g = ((w >> 8) & 255) as u8;
         let b = (w & 255) as u8;
-        context.set_source_rgb(r.into(), g.into(), b.into());
-        let x = i as i32 * square_size;
-        context.rectangle(x, 0.0, square_size, square_size);
+        // context.set_source_rgb(r.into(), g.into(), b.into());
+        context.set_source_rgb(i as f64 * 25.0, i as f64 * 25.0, i as f64 * 25.0);
+        let x = i as i32 * square_size + 10;
+        println!("{} {} {} {} ({},{},{})", x, 0.0, square_size, square_size,i as f64 * 25.0, i as f64 * 25.0, i as f64 * 25.0);
+        context.rectangle(x.into(), 0.0, square_size.into(), square_size.into());
         context.fill().expect("can't fill rectange")
     };
     ctx.set_source_surface(&surface, 0.0, 0.0).expect("can't set source surface");

@@ -157,6 +157,10 @@ fn main() {
         if let Some(index) = args.index {
             repository.move_to_index(index)
         };
+
+        if args.extraction {
+            repository.toggle_palette_extract();
+        }
         let repository_rc = Rc::new(RefCell::new(repository));
 
         // build the main window
@@ -567,10 +571,12 @@ fn show_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
                     if let Some(drawing_area) = palette {
                         let colors = entry.image_data.palette;
                         let allocation = vbox.allocation();
-                        drawing_area.set_content_width(allocation.width()/2);
-                        drawing_area.set_content_height(allocation.height()/20);
+                        let width = allocation.width()/2;
+                        let height = allocation.height()/10;
+                        drawing_area.set_content_width(width);
+                        drawing_area.set_content_height(height);
                         drawing_area.set_draw_func(move |_,ctx,_,_| {
-                            draw_palette(ctx, &colors)
+                            draw_palette(ctx, width, height, &colors)
                         });
                     };
                 }
