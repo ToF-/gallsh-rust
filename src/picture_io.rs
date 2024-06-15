@@ -151,7 +151,7 @@ pub fn set_image_data(entry: &mut Entry) -> Result<()> {
                     colors: colors,
                     rank: Rank::NoStar,
                     selected: false,
-                    palette: [0;10],
+                    palette: [0;9],
                 };
                 set_palette(entry);
                 let _ = save_image_data(&entry);
@@ -162,7 +162,7 @@ pub fn set_image_data(entry: &mut Entry) -> Result<()> {
     }
 }
 
-pub fn draw_palette(ctx: &Context, width: i32, height: i32, colors: &[u32;10]) {
+pub fn draw_palette(ctx: &Context, width: i32, height: i32, colors: &[u32;9]) {
     println!("drawing palette now for colors: {:?} width: {}, height: {}", colors, width, height);
     let square_size: f64 = 8.0;
     let surface = ImageSurface::create(Format::ARgb32, width, height).expect("can't create surface");
