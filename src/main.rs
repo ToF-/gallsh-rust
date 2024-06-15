@@ -532,9 +532,16 @@ fn show_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
             vbox.set_hexpand(true);
             let picture = vbox.first_child().unwrap().downcast::<gtk::Picture>().unwrap();
             let label = picture.next_sibling().unwrap().downcast::<gtk::Label>().unwrap();
+            let drawing_area = label.next_sibling().unwrap().downcast::<gtk::DrawingArea>().unwrap();
             let palette = match repository.palette_extract() {
-                true => Some(label.next_sibling().unwrap().downcast::<gtk::DrawingArea>().unwrap()),
-                false => None,
+                true => {
+                    drawing_area.set_visible(true);
+                    Some(drawing_area)
+                },
+                false => {
+                    drawing_area.set_visible(false);
+                    None
+                },
             };
             if let Some(index) = repository.index_from_position((col,row)) {
                 if let Some(entry) = repository.entry_at_index(index) {
