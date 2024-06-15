@@ -506,7 +506,6 @@ fn main() {
         window.add_controller(evk);
         // show the first file
         let repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
-        show_grid(&grid, &repository, &window);
         if args.maximized { window.fullscreen() };
         // if a timer has been passed, set a timeout routine
         if let Some(t) = args.timer {
@@ -518,9 +517,9 @@ fn main() {
                 Continue(true)
             }));
         };
+        show_grid(&grid, &repository, &window);
         window.present();
     }));
-    application.set_accels_for_action("win.save", &["s"]);
     let empty: Vec<String> = vec![];
     application.run_with_args(&empty);
 }

@@ -163,8 +163,7 @@ pub fn set_image_data(entry: &mut Entry) -> Result<()> {
 }
 
 pub fn draw_palette(ctx: &Context, width: i32, height: i32, colors: &[u32;9]) {
-    println!("drawing palette now for colors: {:?} width: {}, height: {}", colors, width, height);
-    let square_size: f64 = 8.0;
+    let square_size: f64 = 16.0;
     let surface = ImageSurface::create(Format::ARgb32, width, height).expect("can't create surface");
     let context = Context::new(&surface).expect("can't create context");
     for (i,w) in colors.iter().enumerate() {
@@ -176,9 +175,7 @@ pub fn draw_palette(ctx: &Context, width: i32, height: i32, colors: &[u32;9]) {
         let x = i as f64 * square_size;
         context.rectangle(offset + x, 0.0, square_size, square_size);
         context.fill().expect("can't fill rectangle");
-            
     };
-    println!("{:?}, {:?} {:?}", surface, context, ctx);
     ctx.set_source_surface(&surface, 0.0, 0.0).expect("can't set source surface");
     ctx.paint().expect("can't paint surface")
 }
