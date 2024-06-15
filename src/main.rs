@@ -1,3 +1,4 @@
+use crate::picture_io::is_valid_path;
 use crate::picture_io::draw_palette;
 use clap::Parser;
 use gtk::DrawingArea;
@@ -106,12 +107,28 @@ fn main() {
             DEFAULT_HEIGHT
         };
         let copy_selection_target: Option<String> = match &args.copy_selection {
-            Some(target) => Some(target.to_string()),
+            Some(target) => {
+                if is_valid_path(target) {
+                    Some(target.to_string())
+                } else {
+                    eprintln!("path {} doesn't exist", target);
+                    application.quit();
+                    None
+                }
+            },
             None => None,
         };
 
         let move_selection_target: Option<String> = match &args.move_selection {
-            Some(target) => Some(target.to_string()),
+            Some(target) => {
+                if is_valid_path(target) {
+                    Some(target.to_string())
+                } else {
+                    eprintln!("path {} doesn't exist", target);
+                    application.quit();
+                    None
+                }
+            },
             None => None,
         };
 

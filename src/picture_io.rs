@@ -162,6 +162,19 @@ pub fn set_image_data(entry: &mut Entry) -> Result<()> {
     }
 }
 
+pub fn is_valid_path(path: &str) -> bool {
+    let path = PathBuf::from(path);
+    if ! path.exists() {
+       return false
+    } else {
+        if let Ok(metadata) = fs::metadata(path) {
+            return metadata.is_dir()
+        } else {
+            return false
+        }
+    }
+}
+
 pub fn draw_palette(ctx: &Context, width: i32, height: i32, colors: &[u32;9]) {
     let square_size: f64 = 16.0;
     let surface = ImageSurface::create(Format::ARgb32, width, height).expect("can't create surface");
