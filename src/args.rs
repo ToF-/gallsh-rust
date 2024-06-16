@@ -20,7 +20,7 @@ pub struct Args {
     pub pattern: Option<String>,
 
     /// Maximized window
-    #[arg(short, long, default_value_t = false, help("show the images in full screen"))]
+    #[arg(long, default_value_t = false, help("show the images in full screen"))]
     pub maximized: bool,
 
     /// Ordered display (or random)
