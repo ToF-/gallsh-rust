@@ -396,14 +396,25 @@ impl Repository {
         }
     }
 
-    pub fn remove_label(&mut self) {
+    pub fn point_remove_label(&mut self) {
+        let index = self.navigator.index();
         self.label_length = 0;
         self.label = ['\0';16];
-        self.record_label();
+        match self.select_start {
+            None => self.record_label(),
+            Some(other) => {
+                let (start,end) = if other <= index { (other,index) } else { (index,other) };
+                println!("label: {}…{}", start, end);
+                for i in start..end+1 {
+                    let entry = &mut self.entry_list[i];
+                    entry.record_label(self.label_length, &self.label);
+                    let _=  picture_io::save_image_data(entry);
+                }
+                self.select_start = None
+            },
+        }
     }
 
-    pub fn select_page(&mut self, value: bool) {
-        let start = self.navigator.start_cell_index();
         let end = min(start + self.navigator.max_cells() as usize, self.navigator.capacity());
         for i in start..end {
             self.entry_list[i].image_data.selected = value;

@@ -439,7 +439,7 @@ fn main() {
                             "s" => if repository.order_choice_on() { repository.sort_by(Order::Size); } else { repository.save_select_entries() },
                             "equal" => repository.set_order_choice_on(),
                             "slash" => repository.begin_label_edit(),
-                            "minus" => repository.remove_label(),
+                            "minus" => repository.point_remove_label(),
                             "asterisk" => repository.apply_last_label(),
                             "plus" => repository.point_label(),
                             "v" => if repository.order_choice_on() { repository.sort_by(Order::Value); },
