@@ -406,7 +406,7 @@ impl Repository {
                 let (start,end) = if other <= index { (other,index) } else { (index,other) };
                 println!("label: {}…{}", start, end);
                 for i in start..end+1 {
-                    let entry = &mut self.entry_list[i];
+                    let entry: &mut Entry = &mut self.entry_list[i];
                     entry.record_label(self.label_length, &self.label);
                     let _=  picture_io::save_image_data(entry);
                 }
@@ -415,6 +415,8 @@ impl Repository {
         }
     }
 
+    pub fn select_page(&mut self, value: bool) {
+        let start = self.navigator.start_cell_index();
         let end = min(start + self.navigator.max_cells() as usize, self.navigator.capacity());
         for i in start..end {
             self.entry_list[i].image_data.selected = value;
