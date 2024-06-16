@@ -51,6 +51,10 @@ pub struct Args {
     #[arg(short, long, default_value_t = false)]
     pub colors: bool,
 
+    /// Label ordered display
+    #[arg(short, long, default_value_t = false)]
+    pub label: bool,
+
     /// Timer delay for next picture
     #[arg(long)]
     pub timer: Option<u64>,
@@ -83,7 +87,7 @@ pub struct Args {
     #[arg(short,long)]
     pub thumbnails: bool,
 
-  /// Update image data and then quit
+    /// Update image data and then quit
     #[arg(short,long)]
     pub update_image_data: bool,
 

@@ -145,7 +145,7 @@ fn main() {
             } else { 1 }
         };
 
-        let order = Order::from_options(args.name, args.date, args.size, args.colors, args.value, args.palette);
+        let order = Order::from_options(args.name, args.date, args.size, args.colors, args.value, args.palette, args.label);
         let path = determine_path(args.directory.clone());
         let entry_list = match read_entries(args.reading.clone(), args.file.clone(), path, args.pattern.clone()) {
             Ok(list) => list,
@@ -416,7 +416,7 @@ fn main() {
                             "Escape" => repository.cancel_point(),
                             "g" => repository.move_to_register(),
                             "j" => repository.move_forward_ten_pages(),
-                            "l" => repository.move_backward_ten_pages(),
+                            "l" => if repository.order_choice_on() { repository.sort_by(Order::Label) } else { repository.move_backward_ten_pages() },
                             "f" => repository.toggle_real_size(),
                             "z" => repository.move_to_index(0),
                             "e" => repository.move_next_page(),

@@ -1,20 +1,21 @@
-use crate::picture_io::delete_selection_file;
-use crate::picture_io::delete_entry;
+use core::cmp::Ordering;
 use crate::Direction;
-use std::cmp::min;
-use crate::picture_io;
-use crate::picture_io::save_image_list;
-use std::path::Path;
-use crate::picture_io::copy_entry;
-use crate::navigator::Navigator;
-use crate::navigator::Coords;
-use crate::entry::{EntryList};
-use crate::rank::Rank;
 use crate::Entry;
 use crate::Order;
+use crate::entry::{EntryList};
+use crate::navigator::Coords;
+use crate::navigator::Navigator;
+use crate::picture_io::copy_entry;
+use crate::picture_io::delete_entry;
+use crate::picture_io::delete_selection_file;
+use crate::picture_io::save_image_list;
+use crate::picture_io;
+use crate::rank::Rank;
+use rand::prelude::SliceRandom;
 use rand::thread_rng;
 use std::cmp::Ordering::Equal;
-use rand::prelude::SliceRandom;
+use std::cmp::min;
+use std::path::Path;
 
 pub struct Repository {
     entry_list: EntryList,
@@ -216,7 +217,22 @@ impl Repository {
         };
         let name = self.current_entry().unwrap().original_file_path();
         match order {
-            Order::Colors => self.entry_list.sort_by(|a, b| { 
+            Order::Label => self.entry_list.sort_by(|a, b| {
+                if let Some(label_a) = a.image_data.label() {
+                    if let Some(label_b) = b.image_data.label() {
+                        label_a.cmp(&label_b)
+                    } else {
+                        Ordering::Less
+                    }
+                } else {
+                    if b.image_data.label().is_some() {
+                        Ordering::Greater
+                    } else {
+                        a.file_path.cmp(&b.file_path)
+                    }
+                }
+            }),
+            Order::Colors => self.entry_list.sort_by(|a, b| {
                 let cmp = (a.image_data.colors).cmp(&b.image_data.colors);
                 if cmp == Equal {
                     a.file_path.cmp(&b.file_path)

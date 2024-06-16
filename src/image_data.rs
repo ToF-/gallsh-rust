@@ -10,3 +10,13 @@ pub struct ImageData {
     pub label_length: usize,
     pub label: [char;16],
 }
+
+impl ImageData {
+    pub fn label(&self) -> Option<String> {
+        if self.label_length > 0 {
+            Some(self.label.iter().collect::<String>())
+        } else {
+            None
+        }
+    }
+}

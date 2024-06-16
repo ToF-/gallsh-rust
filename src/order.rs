@@ -3,11 +3,11 @@ use clap::builder::PossibleValue;
 
 #[derive(Clone, Copy, Debug)]
 pub enum Order {
-    Colors, Date, Name, Random, Size, Value, Palette,
+    Colors, Date, Name, Random, Size, Value, Palette, Label,
 }
 
 impl Order {
-    pub fn from_options(name: bool, date: bool, size: bool, colors: bool, value: bool, palette: bool) -> Self {
+    pub fn from_options(name: bool, date: bool, size: bool, colors: bool, value: bool, palette: bool, label: bool) -> Self {
         if name {
             Self::Name
         } else if date {
@@ -20,6 +20,8 @@ impl Order {
             Self::Value
         } else if palette {
             Self::Palette
+        } else if label {
+            Self::Label
         } else {
             Self::Random
         }
@@ -28,7 +30,7 @@ impl Order {
 
 impl clap::ValueEnum for Order {
     fn value_variants<'a>() -> &'a [Self] {
-        &[Order::Colors, Order::Date, Order::Name, Order::Random, Order::Size, Order::Value, Order::Palette,]
+        &[Order::Colors, Order::Date, Order::Name, Order::Random, Order::Size, Order::Value, Order::Palette, Order::Label]
     }
 
     fn to_possible_value(&self) -> Option<PossibleValue> {
@@ -40,6 +42,7 @@ impl clap::ValueEnum for Order {
             Order::Value => PossibleValue::new("value"),
             Order::Size => PossibleValue::new("size"),
             Order::Palette => PossibleValue::new("palette"),
+            Order::Label => PossibleValue::new("label"),
         })
     }
 }
