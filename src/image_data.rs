@@ -7,4 +7,6 @@ pub struct ImageData {
     pub rank: Rank,
     pub selected: bool,
     pub palette: [u32;9],
+    pub label_length: usize,
+    pub label: [char;16],
 }

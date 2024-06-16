@@ -1,18 +1,19 @@
-use crate::picture_io::is_valid_path;
-use crate::picture_io::draw_palette;
 use clap::Parser;
-use gtk::DrawingArea;
 use crate::args::Args;
 use crate::direction::Direction;
+use crate::gdk::Key;
 use crate::navigator::Coords;
 use crate::paths::determine_path;
+use crate::picture_io::draw_palette;
 use crate::picture_io::ensure_thumbnail;
+use crate::picture_io::is_valid_path;
 use crate::picture_io::{read_entries, set_original_picture_file, set_thumbnail_picture_file};
 use crate::repository::Repository;
 use entry::{Entry, EntryList, make_entry};
 use glib::clone;
 use glib::prelude::*;
 use glib::timeout_add_local;
+use gtk::DrawingArea;
 use gtk::EventControllerMotion;
 use gtk::prelude::*;
 use gtk::traits::WidgetExt;
@@ -382,126 +383,146 @@ fn main() {
         evk.connect_key_pressed(clone!(@strong repository_rc, @strong grid, @strong window => move |_, key, _, _| {
             let step = 100;
             if let Ok(mut repository) = repository_rc.try_borrow_mut() {
-                if let Some(s) = key.name() {
+                if let Some(key_name) = key.name() {
                     //if stack.visible_child().unwrap() == view_scrolled_window {
                     //    stack.set_visible_child(&grid_scrolled_window);
                     //    return gtk::Inhibit(false)
                     //};
                     let mut show_is_on = true;
-                    match s.as_str() {
-                        "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" => {
-                            let digit:usize = s.parse().unwrap();
-                            repository.add_register_digit(digit)
-                        },
-                        "BackSpace" => repository.delete_register_digit(),
-                        "Return" => repository.select_point(),
-                        "comma" => repository.point_select(),
-                        "Escape" => repository.cancel_point(),
-                        "g" => repository.move_to_register(),
-                        "j" => repository.move_forward_ten_pages(),
-                        "l" => repository.move_backward_ten_pages(),
-                        "f" => repository.toggle_real_size(),
-                        "z" => repository.move_to_index(0),
-                        "e" => repository.move_next_page(),
-                        "x" => repository.toggle_palette_extract(),
-                        "n" => if repository.order_choice_on() { repository.sort_by(Order::Name); } else { repository.move_next_page() },
-                        "i" => repository.move_prev_page(),
-                        "p" => if repository.order_choice_on() { repository.sort_by(Order::Palette); } else { repository.move_prev_page() },
-                        "q" => { repository.quit(); show_is_on = false; window.close() },
-                        "Q" => { repository.copy_move_and_quit(&copy_selection_target, &move_selection_target); show_is_on = false; window.close() },
-                        "B"|"plus"|"D" => repository.point_rank(Rank::NoStar),
-                        "M"|"Eacute"|"minus"|"C" => repository.point_rank(Rank::OneStar),
-                        "N"|"P"|"slash" => repository.point_rank(Rank::TwoStars),
-                        "asterisk"|"A"|"O" => repository.point_rank(Rank::ThreeStars),
-                        "c" => if repository.order_choice_on() { repository.sort_by(Order::Colors); },
-                        "d" => if repository.order_choice_on() { repository.sort_by(Order::Date); },
-                        "R" => repository.set_rank(Rank::NoStar),
-                        "r" => if repository.order_choice_on() { repository.sort_by(Order::Random); } else { repository.move_to_random_index() },
-                        "a" => repository.select_page(true),
-                        "u" => repository.select_page(false),
-                        "U" => repository.select_all(false),
-                        "s" => if repository.order_choice_on() { repository.sort_by(Order::Size); } else { repository.save_select_entries() },
-                        "equal" => repository.set_order_choice_on(),
-                        "v" => if repository.order_choice_on() { repository.sort_by(Order::Value); },
-                        "h" => repository.help(),
-                        "period"|"k" => {
-                            if stack.visible_child().unwrap() == grid_scrolled_window {
-                                stack.set_visible_child(&view_scrolled_window);
-                                show_view(&view, &repository, &window);
-                            } else {
-                                stack.set_visible_child(&grid_scrolled_window)
-                            }
-                        },
-                        "colon" => {
-                            println!("{}", repository.title_display());
-                            println!("{}", repository.current_entry().expect("can't access current entry").original_file_path())
-                        },
-                        "space" => repository.move_next_page(),
-                        "Right" => {
-                            show_is_on = repository.cells_per_row() == 1 && !repository.real_size();
-                            if repository.real_size() {
-                                let h_adj = picture_hadjustment(&window);
-                                h_adj.set_value(h_adj.value() + step as f64)
-                            } else {
-                                if repository.cells_per_row() == 1 {
-                                    repository.move_next_page();
-                                } else {
-                                    navigate(&mut repository, &grid, &window, Direction::Right);
-                                    if stack.visible_child().unwrap() == view_scrolled_window {
-                                        show_view(&view, &repository, &window)
-                                    }
+                    if repository.label_edit_mode_on() {
+                        if key_name == "Return" {
+                            repository.confirm_label_edit()
+                        } else if key_name == "BackSpace" {
+                            repository.remove_label_char()
+                        } else if key_name == "Escape" {
+                            repository.cancel_label_edit()
+                        } else {
+                            if let Some(ch) = key.to_lower().to_unicode() {
+                                match ch {
+                                    'a'..='z' => repository.add_label_char(ch),
+                                    other => println!("other {}", ch),
                                 }
                             }
-                        },
-                        "Left" => {
-                            show_is_on = repository.cells_per_row() == 1 && !repository.real_size();
-                            if repository.real_size() {
-                                let h_adj = picture_hadjustment(&window);
-                                h_adj.set_value(h_adj.value() - step as f64)
-                            } else {
-                                if repository.cells_per_row() == 1 {
-                                    repository.move_prev_page();
+                        }
+                    } else {
+                        match key_name.as_str() {
+                            "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" => {
+                                let digit:usize = key_name.parse().unwrap();
+                                repository.add_register_digit(digit)
+                            },
+                            "BackSpace" => repository.delete_register_digit(),
+                            "Return" => repository.select_point(),
+                            "comma" => repository.point_select(),
+                            "Escape" => repository.cancel_point(),
+                            "g" => repository.move_to_register(),
+                            "j" => repository.move_forward_ten_pages(),
+                            "l" => repository.move_backward_ten_pages(),
+                            "f" => repository.toggle_real_size(),
+                            "z" => repository.move_to_index(0),
+                            "e" => repository.move_next_page(),
+                            "x" => repository.toggle_palette_extract(),
+                            "n" => if repository.order_choice_on() { repository.sort_by(Order::Name); } else { repository.move_next_page() },
+                            "i" => repository.move_prev_page(),
+                            "p" => if repository.order_choice_on() { repository.sort_by(Order::Palette); } else { repository.move_prev_page() },
+                            "q" => { repository.quit(); show_is_on = false; window.close() },
+                            "Q" => { repository.copy_move_and_quit(&copy_selection_target, &move_selection_target); show_is_on = false; window.close() },
+                            "B"|"D" => repository.point_rank(Rank::NoStar),
+                            "M"|"Eacute"|"C" => repository.point_rank(Rank::OneStar),
+                            "N"|"P" => repository.point_rank(Rank::TwoStars),
+                            "A"|"O" => repository.point_rank(Rank::ThreeStars),
+                            "c" => if repository.order_choice_on() { repository.sort_by(Order::Colors); },
+                            "d" => if repository.order_choice_on() { repository.sort_by(Order::Date); },
+                            "R" => repository.set_rank(Rank::NoStar),
+                            "r" => if repository.order_choice_on() { repository.sort_by(Order::Random); } else { repository.move_to_random_index() },
+                            "a" => repository.select_page(true),
+                            "u" => repository.select_page(false),
+                            "U" => repository.select_all(false),
+                            "s" => if repository.order_choice_on() { repository.sort_by(Order::Size); } else { repository.save_select_entries() },
+                            "equal" => repository.set_order_choice_on(),
+                            "slash" => repository.begin_label_edit(),
+                            "minus" => repository.remove_label(),
+                            "asterisk" => repository.apply_last_label(),
+                            "v" => if repository.order_choice_on() { repository.sort_by(Order::Value); },
+                            "h" => repository.help(),
+                            "period"|"k" => {
+                                if stack.visible_child().unwrap() == grid_scrolled_window {
+                                    stack.set_visible_child(&view_scrolled_window);
+                                    show_view(&view, &repository, &window);
                                 } else {
-                                    navigate(&mut repository, &grid, &window, Direction::Left);
-                                    if stack.visible_child().unwrap() == view_scrolled_window {
-                                        show_view(&view, &repository, &window)
+                                    stack.set_visible_child(&grid_scrolled_window)
+                                }
+                            },
+                            "colon" => {
+                                println!("{}", repository.title_display());
+                                println!("{}", repository.current_entry().expect("can't access current entry").original_file_path())
+                            },
+                            "space" => repository.move_next_page(),
+                            "Right" => {
+                                show_is_on = repository.cells_per_row() == 1 && !repository.real_size();
+                                if repository.real_size() {
+                                    let h_adj = picture_hadjustment(&window);
+                                    h_adj.set_value(h_adj.value() + step as f64)
+                                } else {
+                                    if repository.cells_per_row() == 1 {
+                                        repository.move_next_page();
+                                    } else {
+                                        navigate(&mut repository, &grid, &window, Direction::Right);
+                                        if stack.visible_child().unwrap() == view_scrolled_window {
+                                            show_view(&view, &repository, &window)
+                                        }
                                     }
                                 }
-                            }
-                        },
-                        "Down" => {
-                            show_is_on = repository.cells_per_row() == 1 && !repository.real_size();
-                            if repository.real_size() {
-                                let v_adj = picture_vadjustment(&window);
-                                v_adj.set_value(v_adj.value() + step as f64)
-                            } else {
-                                if repository.cells_per_row() == 1 {
-                                    repository.move_next_page()
+                            },
+                            "Left" => {
+                                show_is_on = repository.cells_per_row() == 1 && !repository.real_size();
+                                if repository.real_size() {
+                                    let h_adj = picture_hadjustment(&window);
+                                    h_adj.set_value(h_adj.value() - step as f64)
                                 } else {
-                                    navigate(&mut repository, &grid, &window, Direction::Down);
-                                    if stack.visible_child().unwrap() == view_scrolled_window {
-                                        show_view(&view, &repository, &window)
+                                    if repository.cells_per_row() == 1 {
+                                        repository.move_prev_page();
+                                    } else {
+                                        navigate(&mut repository, &grid, &window, Direction::Left);
+                                        if stack.visible_child().unwrap() == view_scrolled_window {
+                                            show_view(&view, &repository, &window)
+                                        }
                                     }
                                 }
-                            }
-                        },
-                        "Up" => {
-                            show_is_on = repository.cells_per_row() == 1 && !repository.real_size();
-                            if repository.real_size() {
-                                let v_adj = picture_vadjustment(&window);
-                                v_adj.set_value(v_adj.value() - step as f64)
-                            } else {
-                                if repository.cells_per_row() == 1 {
-                                    repository.move_next_page();
+                            },
+                            "Down" => {
+                                show_is_on = repository.cells_per_row() == 1 && !repository.real_size();
+                                if repository.real_size() {
+                                    let v_adj = picture_vadjustment(&window);
+                                    v_adj.set_value(v_adj.value() + step as f64)
                                 } else {
-                                    navigate(&mut repository, &grid, &window, Direction::Up);
-                                    if stack.visible_child().unwrap() == view_scrolled_window {
-                                        show_view(&view, &repository, &window)
+                                    if repository.cells_per_row() == 1 {
+                                        repository.move_next_page()
+                                    } else {
+                                        navigate(&mut repository, &grid, &window, Direction::Down);
+                                        if stack.visible_child().unwrap() == view_scrolled_window {
+                                            show_view(&view, &repository, &window)
+                                        }
                                     }
                                 }
-                            }
-                        },
-                        other => println!("{}", other), 
+                            },
+                            "Up" => {
+                                show_is_on = repository.cells_per_row() == 1 && !repository.real_size();
+                                if repository.real_size() {
+                                    let v_adj = picture_vadjustment(&window);
+                                    v_adj.set_value(v_adj.value() - step as f64)
+                                } else {
+                                    if repository.cells_per_row() == 1 {
+                                        repository.move_next_page();
+                                    } else {
+                                        navigate(&mut repository, &grid, &window, Direction::Up);
+                                        if stack.visible_child().unwrap() == view_scrolled_window {
+                                            show_view(&view, &repository, &window)
+                                        }
+                                    }
+                                }
+                            },
+                            other => println!("{}", other), 
+                        }
                     };
                     if show_is_on {
                         if stack.visible_child().unwrap() == grid_scrolled_window {
@@ -562,10 +583,12 @@ fn show_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
             };
             if let Some(index) = repository.index_from_position((col,row)) {
                 if let Some(entry) = repository.entry_at_index(index) {
-                    let status = format!("{} {} {}",
+                    let status = format!("{} {} {} {}",
                         if index == repository.index() && cells_per_row > 1 { "▄" } else { "" },
                         entry.image_data.rank.show(),
-                        if entry.image_data.selected { "△" } else { "" });
+                        if entry.image_data.selected { "△" } else { "" },
+                        if entry.image_data.label_length > 0 { format!("{}", entry.image_data.label.iter().collect::<String>()) } else { String::from("") } 
+                    );
                     label.set_text(&status);
                     let opacity = if entry.image_data.selected { 0.50 } else { 1.0 };
                     picture.set_opacity(opacity);

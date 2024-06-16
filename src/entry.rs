@@ -24,6 +24,8 @@ pub fn make_entry(file_path:String, file_size:u64, colors:usize, modified_time:S
             rank: initial_rank,
             selected: false,
             palette: [0;9],
+            label_length: 0,
+            label: ['\0';16],
         },
         modified_time: modified_time,
     }
@@ -40,10 +42,14 @@ impl Entry {
             self.image_data.rank.show())
     }
     pub fn label_display(&self, has_focus: bool) -> String {
-        format!("{}{}{}",
+        format!("{}{}{}{}",
             if has_focus { "▄" } else { "" },
             self.image_data.rank.show(),
-            if self.image_data.selected { "△" } else { "" })
+            if self.image_data.selected { "△" } else { "" },
+            if self.image_data.label_length > 0 {
+                format!("{}", self.image_data.label.iter().collect::<String>())
+            } else { String::from("") }
+        )
     }
 
     pub fn thumbnail_file_path(&self) -> String {

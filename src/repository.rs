@@ -25,6 +25,9 @@ pub struct Repository {
     real_size: bool,
     palette_extract: bool,
     max_selected: usize,
+    label_edit_mode_on: bool,
+    label: [char;16],
+    label_length: usize,
 }
 
 impl Repository {
@@ -38,9 +41,50 @@ impl Repository {
             real_size: false,
             palette_extract: false,
             max_selected: entries.clone().iter().filter(|e| e.image_data.selected).count(),
+            label_edit_mode_on: false,
+            label: ['\0';16],
+            label_length: 0,
         }
     }
 
+    pub fn label_edit_mode_on(&self) -> bool {
+        self.label_edit_mode_on
+    }
+
+    pub fn add_label_char(&mut self, ch: char) {
+        if self.label_length < 16 {
+            self.label[self.label_length] = ch;
+            self.label_length += 1
+        }
+    }
+
+    pub fn remove_label_char(&mut self) {
+        if self.label_length > 0 {
+            self.label[self.label_length-1] = '\0';
+            self.label_length -= 1
+        }
+    }
+
+    pub fn begin_label_edit(&mut self) {
+        self.label_edit_mode_on = true;
+        self.label_length = 0;
+        self.label = ['\0';16];
+    }
+
+    pub fn confirm_label_edit(&mut self) {
+        self.label_edit_mode_on = false;
+        self.record_label()
+    }
+
+    pub fn cancel_label_edit(&mut self) {
+        self.label_edit_mode_on = false;
+    }
+
+    pub fn apply_last_label(&mut self) {
+        if self.label_length > 0 {
+            self.record_label()
+        }
+    }
     pub fn palette_extract(&self) -> bool {
         self.palette_extract
     }
@@ -75,7 +119,7 @@ impl Repository {
             return "".to_string()
         };
         let entry_title_display = &<Entry as Clone>::clone(&self.current_entry().unwrap()).title_display();
-        format!("S:[{}] {} ordered by {} {}/{}  {} {} {}",
+        format!("S:[{}] {} ordered by {} {}/{}  {} {} {} {}",
             self.max_selected,
             if self.select_start.is_some() { "…" } else { "" },
             if let Some(o) = self.order {
@@ -87,7 +131,9 @@ impl Repository {
             self.navigator.capacity()-1,
             entry_title_display,
             if self.register.is_none() { String::from("") } else { format!("{}", self.register.unwrap()) },
-            if self.real_size { "*" } else { "" })
+            if self.real_size { "*" } else { "" },
+            if self.label_edit_mode_on { format!("Label:{}", self.label.iter().collect::<String>()) } else { String::from("") }
+            )
     }
 
     pub fn real_size(&self) -> bool {
@@ -275,6 +321,8 @@ impl Repository {
         ,: toggle selection\n\
         RET: start a selection/rank group\n\
         s: save selected entries\n\
+        /: enter label edit mode\n\
+        *: apply last label\n\
         ";
         println!("{}", &content)
     }
@@ -319,6 +367,26 @@ impl Repository {
         if picture_io::save_image_data(&entry).is_err() {
             println!("can't save image data {}", &entry.image_data_file_path())
         }
+    }
+
+    pub fn record_label(&mut self) {
+        assert!(self.entry_list.len() > 0);
+        let index = self.navigator.index();
+        let entry = &mut self.entry_list[index];
+        for i in 0..16 {
+            entry.image_data.label[i] = self.label[i]
+        };
+        entry.image_data.label_length = self.label_length;
+        println!("recording label {}", entry.image_data.label.iter().collect::<String>());
+        if picture_io::save_image_data(&entry).is_err() {
+            println!("can't save image data {}", &entry.image_data_file_path())
+        }
+    }
+
+    pub fn remove_label(&mut self) {
+        self.label_length = 0;
+        self.label = ['\0';16];
+        self.record_label();
     }
 
     pub fn select_page(&mut self, value: bool) {

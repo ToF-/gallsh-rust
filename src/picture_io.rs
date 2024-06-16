@@ -152,6 +152,8 @@ pub fn set_image_data(entry: &mut Entry) -> Result<()> {
                     rank: Rank::NoStar,
                     selected: false,
                     palette: [0;9],
+                    label_length: 0,
+                    label: ['\0';16],
                 };
                 set_palette(entry);
                 let _ = save_image_data(&entry);
