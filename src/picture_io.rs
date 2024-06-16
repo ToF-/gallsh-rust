@@ -196,6 +196,7 @@ pub fn draw_palette(ctx: &Context, width: i32, height: i32, colors: &[u32;9]) {
 }
 
 pub fn save_image_data(entry: &Entry) -> Result<()> {
+    println!("saving image data {}", entry.image_data_file_path());
     let image_data_file_path = entry.image_data_file_path();
     let path = Path::new(&image_data_file_path);
     match File::create(path) {
