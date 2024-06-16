@@ -52,6 +52,13 @@ impl Entry {
         )
     }
 
+    pub fn record_label(&mut self, label_length: usize, label: &[char;16]) {
+        for i in 0..16 {
+            self.image_data.label[i] = label[i]
+        };
+        self.image_data.label_length = label_length;
+    }
+
     pub fn thumbnail_file_path(&self) -> String {
         thumbnail_file_path(&self.file_path)
     }

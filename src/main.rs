@@ -1,7 +1,6 @@
 use clap::Parser;
 use crate::args::Args;
 use crate::direction::Direction;
-use crate::gdk::Key;
 use crate::navigator::Coords;
 use crate::paths::determine_path;
 use crate::picture_io::draw_palette;
@@ -400,7 +399,7 @@ fn main() {
                             if let Some(ch) = key.to_lower().to_unicode() {
                                 match ch {
                                     'a'..='z' => repository.add_label_char(ch),
-                                    other => println!("other {}", ch),
+                                    _ => {} ,
                                 }
                             }
                         }
@@ -442,6 +441,7 @@ fn main() {
                             "slash" => repository.begin_label_edit(),
                             "minus" => repository.remove_label(),
                             "asterisk" => repository.apply_last_label(),
+                            "plus" => repository.point_label(),
                             "v" => if repository.order_choice_on() { repository.sort_by(Order::Value); },
                             "h" => repository.help(),
                             "period"|"k" => {

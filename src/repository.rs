@@ -389,10 +389,7 @@ impl Repository {
         assert!(self.entry_list.len() > 0);
         let index = self.navigator.index();
         let entry = &mut self.entry_list[index];
-        for i in 0..16 {
-            entry.image_data.label[i] = self.label[i]
-        };
-        entry.image_data.label_length = self.label_length;
+        entry.record_label(self.label_length, &self.label);
         println!("recording label {}", entry.image_data.label.iter().collect::<String>());
         if picture_io::save_image_data(&entry).is_err() {
             println!("can't save image data {}", &entry.image_data_file_path())
@@ -432,6 +429,26 @@ impl Repository {
     fn update_max_selected(&mut self) {
         self.max_selected = self.entry_list.iter().filter(|e| e.image_data.selected).count()
     }
+
+    pub fn point_label(&mut self) {
+        if self.label_length > 0 {
+            let index = self.navigator.index();
+            match self.select_start {
+                None => self.apply_last_label(),
+                Some(other) => {
+                    let (start,end) = if other <= index { (other,index) } else { (index,other) };
+                    println!("label: {}…{}", start, end);
+                    for i in start..end+1 {
+                        let entry = &mut self.entry_list[i];
+                        entry.record_label(self.label_length, &self.label);
+                        let _=  picture_io::save_image_data(entry);
+                    }
+                    self.select_start = None
+                },
+            }
+        }
+    }
+
     pub fn select_point(&mut self) {
         let index = self.navigator.index();
         println!("select: {}…", index);
