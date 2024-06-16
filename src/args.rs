@@ -96,7 +96,7 @@ pub struct Args {
     pub copy_selection: Option<String>,
 
     /// Move selection to a target folder
-    #[arg(long)]
+    #[arg(short,long)]
     pub move_selection: Option<String>,
 
     /// Window width (default is set with GALLSHWIDTH)
