@@ -387,7 +387,7 @@ impl Repository {
         assert!(self.entry_list.len() > 0);
         let index = self.navigator.index();
         let entry = &mut self.entry_list[index];
-        entry.image_data.rank = rank;
+        entry.set_rank(rank);
         if picture_io::save_image_data(&entry).is_err() {
             println!("can't save image data {}", &entry.image_data_file_path())
         }
@@ -429,7 +429,6 @@ impl Repository {
         for i in start..end {
             let entry = &mut self.entry_list[i];
             entry.set_select(value);
-            self.entry_list[i].image_data.selected = value;
             if picture_io::save_image_data(&self.entry_list[i]).is_err() {
                 println!("can't save image data {}", &self.entry_list[i].image_data_file_path())
             };
@@ -441,7 +440,8 @@ impl Repository {
         let start = 0;
         let end = self.navigator.capacity();
         for i in start..end {
-            self.entry_list[i].image_data.selected = value;
+            let entry = &mut self.entry_list[i];
+            entry.set_select(value);
             if picture_io::save_image_data(&self.entry_list[i]).is_err() {
                 println!("can't save image data {}", &self.entry_list[i].image_data_file_path())
             };
@@ -450,7 +450,7 @@ impl Repository {
     }
     
     fn update_max_selected(&mut self) {
-        self.max_selected = self.entry_list.iter().filter(|e| e.image_data.selected).count()
+        self.max_selected = self.entry_list.iter().filter(|e| e.is_selected()).count()
     }
 
     pub fn point_label(&mut self) {

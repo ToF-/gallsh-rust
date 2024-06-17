@@ -74,6 +74,10 @@ impl Entry {
         self.image_data.selected
     }
 
+    pub fn set_rank(&mut self, value: Rank) {
+        self.image_data.rank = value
+    }
+
     pub fn thumbnail_file_path(&self) -> String {
         thumbnail_file_path(&self.file_path)
     }
