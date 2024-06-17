@@ -12,6 +12,7 @@ pub struct Entry {
     pub file_size: u64,
     pub modified_time: SystemTime,
     pub image_data: ImageData,
+    pub delete: bool,
 }
 
 
@@ -28,28 +29,30 @@ pub fn make_entry(file_path:String, file_size:u64, colors:usize, modified_time:S
             label: ['\0';16],
         },
         modified_time: modified_time,
+        delete: false,
     }
 }
 
 
 impl Entry {
     pub fn title_display(self) -> String {
-        format!("{} {} [{} {} {}]",
+        format!("{} {} [{} {} {}] {}",
             self.original_file_name(),
             if self.image_data.selected { "△" } else { "" },
             self.file_size,
             self.image_data.colors,
-            self.image_data.rank.show())
+            self.image_data.rank.show(),
+            if self.delete { "🗑" } else { ""})
     }
     pub fn label_display(&self, has_focus: bool) -> String {
-        format!("{}{}{}{}",
+        format!("{}{}{}{}{}",
             if has_focus { "▄" } else { "" },
             self.image_data.rank.show(),
             if self.image_data.selected { "△" } else { "" },
             if self.image_data.label_length > 0 {
                 format!("{}", self.image_data.label.iter().collect::<String>())
-            } else { String::from("") }
-        )
+            } else { String::from("") } ,
+            if self.delete { "🗑" } else { "" })
     }
 
     pub fn record_label(&mut self, label_length: usize, label: &[char;16]) {

@@ -18,7 +18,7 @@ use gtk::prelude::*;
 use gtk::traits::WidgetExt;
 use gtk::{self, Align, Application, CssProvider, Orientation, Label, ScrolledWindow, gdk, glib, Grid, Picture};
 use order::{Order};
-use paths::THUMB_SUFFIX; 
+use paths::THUMB_SUFFIX;
 use rank::{Rank};
 use std::cell::{RefCell, RefMut};
 use std::env;
@@ -425,12 +425,13 @@ fn main() {
                             "p" => if repository.order_choice_on() { repository.sort_by(Order::Palette); } else { repository.move_prev_page() },
                             "q" => { repository.quit(); show_is_on = false; window.close() },
                             "Q" => { repository.copy_move_and_quit(&copy_selection_target, &move_selection_target); show_is_on = false; window.close() },
-                            "B"|"D" => repository.point_rank(Rank::NoStar),
-                            "M"|"Eacute"|"C" => repository.point_rank(Rank::OneStar),
-                            "N"|"P" => repository.point_rank(Rank::TwoStars),
-                            "A"|"O" => repository.point_rank(Rank::ThreeStars),
+                            "B" => repository.point_rank(Rank::NoStar),
+                            "Eacute" => repository.point_rank(Rank::OneStar),
+                            "P" => repository.point_rank(Rank::TwoStars),
+                            "O" => repository.point_rank(Rank::ThreeStars),
                             "c" => if repository.order_choice_on() { repository.sort_by(Order::Colors); },
                             "d" => if repository.order_choice_on() { repository.sort_by(Order::Date); },
+                            "D" => repository.toggle_delete(),
                             "R" => repository.set_rank(Rank::NoStar),
                             "r" => if repository.order_choice_on() { repository.sort_by(Order::Random); } else { repository.move_to_random_index() },
                             "a" => repository.select_page(true),
@@ -521,7 +522,7 @@ fn main() {
                                     }
                                 }
                             },
-                            other => println!("{}", other), 
+                            other => println!("{}", other),
                         }
                     };
                     if show_is_on {
@@ -587,10 +588,16 @@ fn show_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
                         if index == repository.index() && cells_per_row > 1 { "▄" } else { "" },
                         entry.image_data.rank.show(),
                         if entry.image_data.selected { "△" } else { "" },
-                        if entry.image_data.label_length > 0 { format!("{}", entry.image_data.label.iter().collect::<String>()) } else { String::from("") } 
+                        if entry.image_data.label_length > 0 { format!("{}", entry.image_data.label.iter().collect::<String>()) } else { String::from("") }
                     );
                     label.set_text(&status);
-                    let opacity = if entry.image_data.selected { 0.50 } else { 1.0 };
+                    let opacity = if entry.delete {
+                        0.10
+                    } else if entry.image_data.selected {
+                        0.50
+                    } else {
+                        1.0
+                    };
                     picture.set_opacity(opacity);
                     picture.set_can_shrink(!repository.real_size());
                     if repository.cells_per_row() < 10 {

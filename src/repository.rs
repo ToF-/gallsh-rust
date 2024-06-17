@@ -375,6 +375,13 @@ impl Repository {
         }
     }
 
+    pub fn toggle_delete(&mut self) {
+        assert!(self.entry_list.len() > 0);
+        let index = self.navigator.index();
+        let entry = &mut self.entry_list[index];
+        entry.delete = ! entry.delete
+    }
+
     pub fn set_rank(&mut self, rank: Rank) {
         assert!(self.entry_list.len() > 0);
         let index = self.navigator.index();
