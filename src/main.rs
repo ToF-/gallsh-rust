@@ -585,15 +585,9 @@ fn show_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
             };
             if let Some(index) = repository.index_from_position((col,row)) {
                 if let Some(entry) = repository.entry_at_index(index) {
-                    let status = format!("{} {} {} {}",
-                        if index == repository.index() && cells_per_row > 1 { "▄" } else { "" },
-                        entry.image_data.rank.show(),
-                        if entry.image_data.selected { "△" } else { "" },
-                        if entry.image_data.label_length > 0 { format!("{}", entry.image_data.label.iter().collect::<String>()) } else { String::from("") }
-                    );
-                    label.set_text(&status);
+                    label.set_text(&entry.label_display(false));
                     let opacity = if entry.delete {
-                        0.10
+                        0.25
                     } else if entry.image_data.selected {
                         0.50
                     } else {
