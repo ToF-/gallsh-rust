@@ -364,8 +364,9 @@ impl Repository {
     pub fn toggle_select(&mut self) {
         assert!(self.entry_list.len() > 0);
         let index = self.navigator.index();
-        self.entry_list[index].image_data.selected = !self.entry_list[index].image_data.selected;
-        if self.entry_list[index].image_data.selected {
+        let entry = &mut self.entry_list[index];
+        entry.toggle_select();
+        if entry.is_selected() { 
             self.max_selected += 1
         } else { 
            self.max_selected -= 1
@@ -426,6 +427,8 @@ impl Repository {
         let start = self.navigator.start_cell_index();
         let end = min(start + self.navigator.max_cells() as usize, self.navigator.capacity());
         for i in start..end {
+            let entry = &mut self.entry_list[i];
+            entry.set_select(value);
             self.entry_list[i].image_data.selected = value;
             if picture_io::save_image_data(&self.entry_list[i]).is_err() {
                 println!("can't save image data {}", &self.entry_list[i].image_data_file_path())

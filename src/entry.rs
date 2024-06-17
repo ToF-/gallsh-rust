@@ -62,6 +62,18 @@ impl Entry {
         self.image_data.label_length = label_length;
     }
 
+    pub fn toggle_select(&mut self) {
+        self.image_data.selected = !self.image_data.selected
+    }
+
+    pub fn set_select(&mut self, value: bool) {
+        self.image_data.selected = value
+    }
+
+    pub fn is_selected(&self) -> bool {
+        self.image_data.selected
+    }
+
     pub fn thumbnail_file_path(&self) -> String {
         thumbnail_file_path(&self.file_path)
     }

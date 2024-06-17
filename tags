@@ -12437,6 +12437,7 @@ is_selected	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-
 is_selected	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/selection_model.rs	/^    fn is_selected(&self, position: u32) -> bool;$/;"	f
 is_selected	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/print_operation_preview.rs	/^    fn is_selected(&self, page_nr: i32) -> bool;$/;"	f
 is_selected	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/selection_model.rs	/^    fn is_selected(&self, position: u32) -> bool {$/;"	f
+is_selected	/home/tof/Coding/gallsh-rust/src/entry.rs	/^    pub fn is_selected(&self) -> bool {$/;"	f
 is_sensitive	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_renderer.rs	/^    fn is_sensitive(&self) -> bool {$/;"	f
 is_sensitive	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/cell_renderer.rs	/^    fn is_sensitive(&self) -> bool;$/;"	f
 is_sensitive	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/widget.rs	/^    fn is_sensitive(&self) -> bool {$/;"	f
@@ -18858,6 +18859,7 @@ set_secondary_text	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001
 set_secondary_use_markup	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/message_dialog.rs	/^    pub fn set_secondary_use_markup(&self, secondary_use_markup: bool) {$/;"	f
 set_section_name	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/shortcuts_section.rs	/^    pub fn set_section_name(&self, section_name: Option<&str>) {$/;"	f
 set_section_name	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/shortcuts_window.rs	/^    pub fn set_section_name(&self, section_name: Option<&str>) {$/;"	f
+set_select	/home/tof/Coding/gallsh-rust/src/entry.rs	/^    pub fn set_select(&mut self, value: bool) {$/;"	f
 set_select_function	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/tree_selection.rs	/^    pub fn set_select_function<$/;"	f
 set_select_multiple	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/file_chooser.rs	/^    fn set_select_multiple(&self, select_multiple: bool) {$/;"	f
 set_select_multiple	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/file_chooser.rs	/^    fn set_select_multiple(&self, select_multiple: bool);$/;"	f
@@ -20741,6 +20743,7 @@ toggle_delete	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn toggle
 toggle_overwrite	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/text_view.rs	/^    fn toggle_overwrite(&self) {$/;"	f
 toggle_palette_extract	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn toggle_palette_extract(&mut self) {$/;"	f
 toggle_real_size	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn toggle_real_size(&mut self) {$/;"	f
+toggle_select	/home/tof/Coding/gallsh-rust/src/entry.rs	/^    pub fn toggle_select(&mut self) {$/;"	f
 toggle_select	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn toggle_select(&mut self) {$/;"	f
 toggled	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/toggle_button.rs	/^    fn toggled(&self) {$/;"	f
 toggled	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/toggle_button.rs	/^    fn toggled(&self);$/;"	f
