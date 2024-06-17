@@ -556,6 +556,13 @@ impl Repository {
     pub fn toggle_palette_extract(&mut self) {
         self.palette_extract = ! self.palette_extract
     }
+
+    pub fn delete_entries(&self) {
+        let selection: Vec<&Entry> = self.entry_list.iter().filter(|e| e.delete).collect();
+        for entry in selection {
+            delete_entry(entry)
+        }
+    }
 }
 
 #[cfg(test)]

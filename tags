@@ -7730,6 +7730,7 @@ deletable	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.
 deletable	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/window.rs	/^    pub fn deletable(self, deletable: bool) -> Self {$/;"	f
 delete	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_buffer.rs	/^    fn delete(&self, start: &mut TextIter, end: &mut TextIter) {$/;"	f
 delete	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_buffer.rs	/^    fn delete(&self, start: &mut TextIter, end: &mut TextIter);$/;"	f
+delete_entries	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn delete_entries(&self) {$/;"	f
 delete_entry	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^pub fn delete_entry(entry: &Entry) {$/;"	f
 delete_from_cursor	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/text_view.rs	/^    fn delete_from_cursor(&self, type_: DeleteType, count: i32) {$/;"	f
 delete_interactive	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/text_buffer.rs	/^    fn delete_interactive($/;"	f

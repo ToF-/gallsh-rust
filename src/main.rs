@@ -425,6 +425,7 @@ fn main() {
                             "p" => if repository.order_choice_on() { repository.sort_by(Order::Palette); } else { repository.move_prev_page() },
                             "q" => { repository.quit(); show_is_on = false; window.close() },
                             "Q" => { repository.copy_move_and_quit(&copy_selection_target, &move_selection_target); show_is_on = false; window.close() },
+                            "X" => { repository.delete_entries(); show_is_on = false; window.close() },
                             "B" => repository.point_rank(Rank::NoStar),
                             "Eacute" => repository.point_rank(Rank::OneStar),
                             "P" => repository.point_rank(Rank::TwoStars),
