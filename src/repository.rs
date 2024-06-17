@@ -101,10 +101,6 @@ impl Repository {
         self.navigator.cells_per_row()
     }
 
-    pub fn index(&self) -> usize {
-        self.navigator.index()
-    }
-
     pub fn index_from_position(&self, coords: Coords) -> Option<usize> {
         self.navigator.index_from_position(coords)
     }
