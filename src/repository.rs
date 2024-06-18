@@ -1,4 +1,3 @@
-use core::cmp::Ordering;
 use crate::Direction;
 use crate::Entry;
 use crate::Order;
@@ -214,36 +213,29 @@ impl Repository {
         let name = self.current_entry().unwrap().original_file_path();
         match order {
             Order::Label => self.entry_list.sort_by(|a, b| {
-                if let Some(label_a) = a.image_data.label() {
-                    if let Some(label_b) = b.image_data.label() {
-                        label_a.cmp(&label_b)
-                    } else {
-                        Ordering::Less
-                    }
+                let cmp = a.image_data.cmp_label(&b.image_data);
+                if cmp == Equal {
+                    a.original_file_path().cmp(&b.original_file_path())
                 } else {
-                    if b.image_data.label().is_some() {
-                        Ordering::Greater
-                    } else {
-                        a.file_path.cmp(&b.file_path)
-                    }
+                    cmp
                 }
             }),
             Order::Colors => self.entry_list.sort_by(|a, b| {
                 let cmp = (a.image_data.colors).cmp(&b.image_data.colors);
                 if cmp == Equal {
-                    a.file_path.cmp(&b.file_path)
+                    a.original_file_path().cmp(&b.original_file_path())
                 } else {
                     cmp
                 }
             }),
             Order::Palette => self.entry_list.sort_by(|a, b| { a.image_data.palette.cmp(&b.image_data.palette) }),
             Order::Date => self.entry_list.sort_by(|a, b| { a.modified_time.cmp(&b.modified_time) }),
-            Order::Name => self.entry_list.sort_by(|a, b| { a.file_path.cmp(&b.file_path) }),
+            Order::Name => self.entry_list.sort_by(|a, b| { a.original_file_path().cmp(&b.original_file_path()) }),
             Order::Size => self.entry_list.sort_by(|a, b| { a.file_size.cmp(&b.file_size) }),
             Order::Value => self.entry_list.sort_by(|a,b| {
                 let cmp = (a.image_data.rank as usize).cmp(&(b.image_data.rank as usize));
                 if cmp == Equal {
-                    a.file_path.cmp(&b.file_path)
+                    a.original_file_path().cmp(&b.original_file_path())
                 } else {
                     cmp
                 }

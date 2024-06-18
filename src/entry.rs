@@ -8,7 +8,7 @@ pub type EntryList = Vec<Entry>;
 
 #[derive(PartialEq,Clone, Debug)]
 pub struct Entry {
-    pub file_path: Rc<String>,
+    file_path: Rc<String>,
     pub file_size: u64,
     pub modified_time: SystemTime,
     pub image_data: ImageData,

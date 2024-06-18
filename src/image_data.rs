@@ -1,5 +1,6 @@
 use crate::Rank;
 use serde::{Deserialize, Serialize};
+use core::cmp::Ordering;
 
 #[derive(PartialEq, Clone, Debug, Deserialize, Serialize)]
 pub struct ImageData {
@@ -17,6 +18,22 @@ impl ImageData {
             Some(self.label.iter().collect::<String>())
         } else {
             None
+        }
+    }
+
+    pub fn cmp_label(&self, other: &ImageData) -> Ordering {
+        if let Some(label_a) = self.label() {
+            if let Some(label_b) = other.label() {
+                label_a.cmp(&label_b)
+            } else {
+                Ordering::Less
+            }
+        } else {
+            if other.label().is_some() {
+                Ordering::Greater
+            } else {
+                Ordering::Equal
+            }
         }
     }
 }
