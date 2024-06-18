@@ -393,7 +393,7 @@ impl Repository {
         assert!(self.entry_list.len() > 0);
         let index = self.navigator.index();
         let entry = &mut self.entry_list[index];
-        entry.record_label(self.label_length, &self.label);
+        entry.set_label(self.label_length, &self.label);
         println!("recording label {}", entry.image_data.label.iter().collect::<String>());
         if picture_io::save_image_data(&entry).is_err() {
             println!("can't save image data {}", &entry.image_data_file_path())
@@ -411,7 +411,7 @@ impl Repository {
                 println!("label: {}…{}", start, end);
                 for i in start..end+1 {
                     let entry: &mut Entry = &mut self.entry_list[i];
-                    entry.record_label(self.label_length, &self.label);
+                    entry.set_label(self.label_length, &self.label);
                     let _=  picture_io::save_image_data(entry);
                 }
                 self.select_start = None
@@ -459,7 +459,7 @@ impl Repository {
                     println!("label: {}…{}", start, end);
                     for i in start..end+1 {
                         let entry = &mut self.entry_list[i];
-                        entry.record_label(self.label_length, &self.label);
+                        entry.set_label(self.label_length, &self.label);
                         let _=  picture_io::save_image_data(entry);
                     }
                     self.select_start = None

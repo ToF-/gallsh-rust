@@ -35,15 +35,14 @@ pub fn make_entry(file_path:String, file_size:u64, colors:usize, modified_time:S
 
 
 impl Entry {
-    pub fn title_display(self) -> String {
-        format!("{} {} [{} {} {}] {}",
-            self.original_file_name(),
-            if self.image_data.selected { "△" } else { "" },
-            self.file_size,
-            self.image_data.colors,
-            self.image_data.rank.show(),
-            if self.delete { "🗑" } else { ""})
+    pub fn image_data_file_path(&self) -> String {
+        image_data_file_path(&self.file_path)
     }
+
+    pub fn is_selected(&self) -> bool {
+        self.image_data.selected
+    }
+
     pub fn label_display(&self, has_focus: bool) -> String {
         format!("{}{}{}{}{}",
             if has_focus { "▄" } else { "" },
@@ -55,44 +54,47 @@ impl Entry {
             if self.delete { "🗑" } else { "" })
     }
 
-    pub fn record_label(&mut self, label_length: usize, label: &[char;16]) {
-        for i in 0..16 {
-            self.image_data.label[i] = label[i]
-        };
-        self.image_data.label_length = label_length;
-    }
-
-    pub fn toggle_select(&mut self) {
-        self.image_data.selected = !self.image_data.selected
-    }
-
-    pub fn set_select(&mut self, value: bool) {
-        self.image_data.selected = value
-    }
-
-    pub fn is_selected(&self) -> bool {
-        self.image_data.selected
-    }
-
-    pub fn set_rank(&mut self, value: Rank) {
-        self.image_data.rank = value
-    }
-
-    pub fn thumbnail_file_path(&self) -> String {
-        thumbnail_file_path(&self.file_path)
+    pub fn original_file_name(&self) -> String {
+        original_file_name(&self.file_path)
     }
 
     pub fn original_file_path(&self) -> String {
         original_file_path(&self.file_path)
     }
 
-    pub fn original_file_name(&self) -> String {
-        original_file_name(&self.file_path)
+    pub fn thumbnail_file_path(&self) -> String {
+        thumbnail_file_path(&self.file_path)
     }
 
-    pub fn image_data_file_path(&self) -> String {
-        image_data_file_path(&self.file_path)
+    pub fn title_display(self) -> String {
+        format!("{} {} [{} {} {}] {}",
+            self.original_file_name(),
+            if self.image_data.selected { "△" } else { "" },
+            self.file_size,
+            self.image_data.colors,
+            self.image_data.rank.show(),
+            if self.delete { "🗑" } else { ""})
     }
+
+    pub fn set_label(&mut self, label_length: usize, label: &[char;16]) {
+        for i in 0..16 {
+            self.image_data.label[i] = label[i]
+        };
+        self.image_data.label_length = label_length;
+    }
+
+    pub fn set_select(&mut self, value: bool) {
+        self.image_data.selected = value
+    }
+
+    pub fn set_rank(&mut self, value: Rank) {
+        self.image_data.rank = value
+    }
+
+    pub fn toggle_select(&mut self) {
+        self.image_data.selected = !self.image_data.selected
+    }
+
 }
 
 #[cfg(test)]
