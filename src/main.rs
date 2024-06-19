@@ -573,15 +573,10 @@ fn show_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
             let picture = vbox.first_child().unwrap().downcast::<gtk::Picture>().unwrap();
             let label = picture.next_sibling().unwrap().downcast::<gtk::Label>().unwrap();
             let drawing_area = label.next_sibling().unwrap().downcast::<gtk::DrawingArea>().unwrap();
-            let palette = match repository.palette_extract_on() {
-                true => {
-                    drawing_area.set_visible(true);
-                    Some(drawing_area)
-                },
-                false => {
-                    drawing_area.set_visible(false);
-                    None
-                },
+            if repository.palette_extract_on() && repository.index_from_position((col,row)).is_some() {
+                drawing_area.set_visible(true);
+            } else {
+                drawing_area.set_visible(false);
             };
             if let Some(index) = repository.index_from_position((col,row)) {
                 if let Some(entry) = repository.entry_at_index(index) {
@@ -605,17 +600,6 @@ fn show_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
                                 println!("{}",err.to_string())
                             },
                         };
-                        if let Some(drawing_area) = palette {
-                            let colors = entry.image_data.palette;
-                            let allocation = vbox.allocation();
-                            let width = picture.width();
-                            let height = allocation.height()/10;
-                            drawing_area.set_content_width(width);
-                            drawing_area.set_content_height(height);
-                            drawing_area.set_draw_func(move |_,ctx,_,_| {
-                                draw_palette(ctx, width, height, &colors)
-                            });
-                        };
                     } else {
                         match set_thumbnail_picture_file(&picture, &entry) {
                             Ok(_) => {
@@ -625,6 +609,19 @@ fn show_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
                                 picture.set_visible(false);
                                 println!("{}",err.to_string())
                             },
+                        }
+                    };
+                    if drawing_area.is_visible() {
+                        if picture.is_visible() {
+                            let colors = entry.image_data.palette;
+                            let allocation = vbox.allocation();
+                            let width = picture.width();
+                            let height = allocation.height()/10;
+                            drawing_area.set_content_width(width);
+                            drawing_area.set_content_height(height);
+                            drawing_area.set_draw_func(move |_,ctx,_,_| {
+                                draw_palette(ctx, width, height, &colors)
+                            })
                         }
                     };
                 }
@@ -668,7 +665,7 @@ fn show_view(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
     }
 }
 
-fn label_at(grid: &gtk::Grid, coords: Coords) -> gtk::Label {
+fn label_at_coords(grid: &gtk::Grid, coords: Coords) -> gtk::Label {
     let (col,row) = coords;
     grid.child_at(col as i32, row as i32).unwrap()
         .downcast::<gtk::Box>().unwrap()
@@ -678,21 +675,22 @@ fn label_at(grid: &gtk::Grid, coords: Coords) -> gtk::Label {
 
 fn navigate(repository: &mut Repository, grid: &gtk::Grid, window: &gtk::ApplicationWindow, direction: Direction) {
     if repository.can_move_rel(direction.clone()) {
-        let old_coords = repository.position();
-        let old_label = label_at(&grid, old_coords);
-        let old_display = match repository.current_entry() {
+        let current_label = label_at_coords(&grid, repository.position());
+        let current_display = match repository.current_entry() {
             Some(entry) => entry.label_display(false),
             None => String::new(),
         };
-        old_label.set_text(&old_display);
+        current_label.set_text(&current_display);
+
         repository.move_rel(direction);
-        let new_coords = repository.position();
-        let new_label = label_at(&grid, new_coords);
+
+        let new_label = label_at_coords(&grid, repository.position());
         let new_display = match repository.current_entry() {
             Some(entry) => entry.label_display(true),
             None => String::new(),
         };
         new_label.set_text(&new_display);
+
         window.set_title(Some(&repository.title_display()));
     }
 }
