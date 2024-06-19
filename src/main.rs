@@ -573,6 +573,9 @@ fn show_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
             let picture = vbox.first_child().unwrap().downcast::<gtk::Picture>().unwrap();
             let label = picture.next_sibling().unwrap().downcast::<gtk::Label>().unwrap();
             let drawing_area = label.next_sibling().unwrap().downcast::<gtk::DrawingArea>().unwrap();
+                    println!("{:?}", (col,row));
+                    println!("picture.is_visible() {}",  picture.is_visible());
+                    println!("drawing_area.is_visible() {}",  drawing_area.is_visible());
             if repository.palette_extract_on() && repository.index_from_position((col,row)).is_some() {
                 drawing_area.set_visible(true);
             } else {
@@ -611,6 +614,8 @@ fn show_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
                             },
                         }
                     };
+                    println!("picture.is_visible() {}",  picture.is_visible());
+                    println!("drawing_area.is_visible() {}",  drawing_area.is_visible());
                     if drawing_area.is_visible() {
                         if picture.is_visible() {
                             let colors = entry.image_data.palette;
@@ -621,7 +626,9 @@ fn show_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
                             drawing_area.set_content_height(height);
                             drawing_area.set_draw_func(move |_,ctx,_,_| {
                                 draw_palette(ctx, width, height, &colors)
-                            })
+                            });
+                            println!("queue_draw");
+                            vbox.queue_draw();
                         }
                     };
                 }

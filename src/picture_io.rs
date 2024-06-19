@@ -192,6 +192,7 @@ pub fn draw_palette(ctx: &Context, width: i32, height: i32, colors: &[u32;9]) {
         context.fill().expect("can't fill rectangle");
     };
     ctx.set_source_surface(&surface, 0.0, 0.0).expect("can't set source surface");
+    println!("painting palette");
     ctx.paint().expect("can't paint surface")
 }
 
