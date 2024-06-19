@@ -573,7 +573,7 @@ fn show_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
             let picture = vbox.first_child().unwrap().downcast::<gtk::Picture>().unwrap();
             let label = picture.next_sibling().unwrap().downcast::<gtk::Label>().unwrap();
             let drawing_area = label.next_sibling().unwrap().downcast::<gtk::DrawingArea>().unwrap();
-            let palette = match repository.palette_extract() {
+            let palette = match repository.palette_extract_on() {
                 true => {
                     drawing_area.set_visible(true);
                     Some(drawing_area)

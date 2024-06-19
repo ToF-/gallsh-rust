@@ -22,8 +22,8 @@ pub struct Repository {
     select_start: Option<usize>,
     order: Option<Order>,
     register: Option<usize>,
-    real_size: bool,
-    palette_extract: bool,
+    real_size_on: bool,
+    palette_extract_on: bool,
     max_selected: usize,
     label_edit_mode_on: bool,
     label: [char;16],
@@ -38,8 +38,8 @@ impl Repository {
             select_start: None,
             order: Some(Order::Random),
             register: None,
-            real_size: false,
-            palette_extract: false,
+            real_size_on: false,
+            palette_extract_on: false,
             max_selected: entries.clone().iter().filter(|e| e.image_data.selected).count(),
             label_edit_mode_on: false,
             label: ['\0';16],
@@ -85,8 +85,8 @@ impl Repository {
             self.record_label()
         }
     }
-    pub fn palette_extract(&self) -> bool {
-        self.palette_extract
+    pub fn palette_extract_on(&self) -> bool {
+        self.palette_extract_on
     }
 
     pub fn capacity(&self) -> usize {
@@ -127,20 +127,20 @@ impl Repository {
             self.navigator.capacity()-1,
             entry_title_display,
             if self.register.is_none() { String::from("") } else { format!("{}", self.register.unwrap()) },
-            if self.real_size { "*" } else { "" },
+            if self.real_size_on { "*" } else { "" },
             if self.label_edit_mode_on { format!("Label:{}", self.label.iter().collect::<String>()) } else { String::from("") }
             )
     }
 
     pub fn real_size(&self) -> bool {
-        self.real_size
+        self.real_size_on
     }
 
     fn jump_to_name(&mut self, name: &String) {
         match self.entry_list.iter().position(|e| &e.original_file_path() == name) {
             Some(index) => { 
                 self.navigator.move_to_index(index);
-                self.real_size = false
+                self.real_size_on = false
             },
             None => {},
         }
@@ -180,7 +180,7 @@ impl Repository {
         if let Some(index) = self.register {
             self.navigator.move_to_index(index);
             self.register = None;
-            self.real_size = false;
+            self.real_size_on = false;
             println!("go to register index: {}", index)
         } else {
             println!("no register index")
@@ -266,7 +266,7 @@ impl Repository {
 
     pub fn toggle_real_size(&mut self) {
         if self.navigator.cells_per_row() == 1 {
-            self.real_size = !self.real_size;
+            self.real_size_on = !self.real_size_on;
             println!("toggle real size")
         } else {
             println!("can't toggle real size in grid mode")
@@ -276,7 +276,7 @@ impl Repository {
     pub fn move_to_index(&mut self, index: usize) {
         if self.navigator.can_move_to_index(index) {
             self.navigator.move_to_index(index);
-            self.real_size = false;
+            self.real_size_on = false;
             println!("move to picture #{}", index)
         } else {
             println!("can't move to picture #{}", index)
@@ -285,19 +285,19 @@ impl Repository {
 
     pub fn move_to_random_index(&mut self) {
         self.navigator.move_to_random_index();
-        self.real_size = false;
+        self.real_size_on = false;
         println!("move to picture #{}", self.navigator.index())
     }
 
     pub fn move_next_page(&mut self) {
         self.navigator.move_next_page();
-        self.real_size = false;
+        self.real_size_on = false;
         println!("move to next page")
     }
 
     pub fn move_prev_page(&mut self) {
         self.navigator.move_prev_page();
-        self.real_size = false;
+        self.real_size_on = false;
         println!("move to prev page")
     }
 
@@ -545,7 +545,7 @@ impl Repository {
     }
 
     pub fn toggle_palette_extract(&mut self) {
-        self.palette_extract = ! self.palette_extract
+        self.palette_extract_on = ! self.palette_extract_on
     }
 
     pub fn delete_entries(&self) {
