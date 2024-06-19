@@ -377,7 +377,6 @@ fn main() {
         }
         grid_scrolled_window.set_child(Some(&panel));
 
-
         let evk = gtk::EventControllerKey::new();
         evk.connect_key_pressed(clone!(@strong repository_rc, @strong grid, @strong window => move |_, key, _, _| {
             let step = 100;
@@ -557,6 +556,7 @@ fn main() {
                 Continue(true)
             }));
         };
+
         show_grid(&grid, &repository, &window);
         window.present();
     }));
@@ -573,14 +573,12 @@ fn show_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
             let picture = vbox.first_child().unwrap().downcast::<gtk::Picture>().unwrap();
             let label = picture.next_sibling().unwrap().downcast::<gtk::Label>().unwrap();
             let drawing_area = label.next_sibling().unwrap().downcast::<gtk::DrawingArea>().unwrap();
-                    println!("{:?}", (col,row));
-                    println!("picture.is_visible() {}",  picture.is_visible());
-                    println!("drawing_area.is_visible() {}",  drawing_area.is_visible());
             if repository.palette_extract_on() && repository.index_from_position((col,row)).is_some() {
                 drawing_area.set_visible(true);
             } else {
                 drawing_area.set_visible(false);
             };
+            drawing_area.set_visible(true);
             if let Some(index) = repository.index_from_position((col,row)) {
                 if let Some(entry) = repository.entry_at_index(index) {
                     label.set_text(&entry.label_display(false));
@@ -596,7 +594,7 @@ fn show_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
                     if repository.cells_per_row() < 10 {
                         match set_original_picture_file(&picture, &entry) {
                             Ok(_) => {
-                                picture.set_visible(true)
+                                picture.set_visible(true);
                             },
                             Err(err) => {
                                 picture.set_visible(false);
@@ -614,8 +612,6 @@ fn show_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
                             },
                         }
                     };
-                    println!("picture.is_visible() {}",  picture.is_visible());
-                    println!("drawing_area.is_visible() {}",  drawing_area.is_visible());
                     if drawing_area.is_visible() {
                         if picture.is_visible() {
                             let colors = entry.image_data.palette;
@@ -627,8 +623,6 @@ fn show_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
                             drawing_area.set_draw_func(move |_,ctx,_,_| {
                                 draw_palette(ctx, width, height, &colors)
                             });
-                            println!("queue_draw");
-                            vbox.queue_draw();
                         }
                     };
                 }

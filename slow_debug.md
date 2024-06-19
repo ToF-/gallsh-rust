@@ -61,3 +61,41 @@ A: call a `vbox.queue_draw();` at the end of setting the drawing area
 O: not called (because it's not visible)
 A: put a trace earlier
 O: the two object are not visible the first time `show_grid` is called
+A: trace visibility of the label
+O: label is not visible
+A: add traces before call to `present()` and after that call
+O: present make all visible, even if drawing area didn't paint
+```
+before present() picture.is_visible() false
+before present() drawing_area.is_visible() false
+before present() label.is_visible() false
+after present() picture.is_visible() true
+after present() drawing_area.is_visible() true
+after present() label.is_visible() true
+```
+H:call to `show_grid` adjust visibility of drawing area
+A: call `show_grid` after `window.present()`
+O: no change in symptom
+H: keyboard event provokes adjustement of drawing area
+A: type a non significant key, like % or w
+O: key typing provokes drawing of the palette
+H: the returning of `gtk::Inhibit(false)` is what provokes the correct display
+A: force all `gtk::Inhibit` return to true
+O: doesn't change symptom
+H: we need a "first appearence" event controller that will do a better job than calling show grid before `window.present()`
+A: remove the call to `show_grid` before `window.present`
+O: the picture and label won't show before first key stroke
+O: at first key stroke, picture and label show, but not drawing area
+H: problem is related to the first image
+A: launch the app with jump to picture index N
+O: same symptom
+H: the very first call to `show_grid` only set up the drawing function, only a second call to `show_grid` will provoke it's actual execution
+A: trace entering `show_grid`
+O: only at the second `show_grid` do the drawing area is visible
+C: the first call only set up the drawing 
+A: lookup what event could be used to provoke the first show without any need to strike a key To avoid excessive work when generating scene graphs, GTK caches render nodes. Each widget keeps a reference to its render node (which in turn, will refer to the render nodes of children, and grandchildren, and so on), and will reuse that node during the Paint phase. Invalidating a widget (by calling gtk_widget_queue_draw()) discards the cached render node, forcing the widget to regenerate it the next time it needs to produce a snapshot.
+H: `drawing_area.queue_draw()` will force the widget to regenerate the drawing: 
+O: wrong
+A: create an event enter and call show grid in it
+F: tired of it. loong methods -- obscure way of working -- empty documentation
+A: restablish call to `show_grid` before `window.present`
