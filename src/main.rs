@@ -631,7 +631,7 @@ fn show_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
                 label.set_text("");
             }
         }
-    }
+    };
     window.set_title(Some(&repository.title_display()));
 }
 

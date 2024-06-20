@@ -101,3 +101,4 @@ F: tired of it. loong methods -- obscure way of working -- empty documentation
 A: restablish call to `show_grid` before `window.present`
 O: palettes are visible according to the content of the grid on the previous page position
 Q: should I separated *setting up* the grid content from *displaying* it
+A: start a sample projet to get an understanding of gtk events
