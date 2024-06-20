@@ -178,7 +178,11 @@ pub fn is_valid_path(path: &str) -> bool {
 }
 
 pub fn draw_palette(ctx: &Context, width: i32, height: i32, colors: &[u32;9]) {
+    const COLOR_MAX: f64 = 9.0;
     let square_size: f64 = 16.0;
+    assert!(width as f64 >= 10.0 * square_size);
+    assert!(height as f64 >= square_size);
+    let offset: f64 = (width as f64 - (COLOR_MAX as f64 * square_size)) / 2.0;
     let surface = ImageSurface::create(Format::ARgb32, width, height).expect("can't create surface");
     let context = Context::new(&surface).expect("can't create context");
     for (i,w) in colors.iter().enumerate() {
@@ -186,13 +190,11 @@ pub fn draw_palette(ctx: &Context, width: i32, height: i32, colors: &[u32;9]) {
         let g = ((w >> 8) & 255) as u8;
         let b = (w & 255) as u8;
         context.set_source_rgb(r as f64 / 255.0, g as f64 / 255.0, b as f64 / 255.0);
-        let offset: f64 = (width as f64 - (10.0 * square_size)) / 2.0;
         let x = i as f64 * square_size;
         context.rectangle(offset + x, 0.0, square_size, square_size);
         context.fill().expect("can't fill rectangle");
     };
     ctx.set_source_surface(&surface, 0.0, 0.0).expect("can't set source surface");
-    println!("painting palette");
     ctx.paint().expect("can't paint surface")
 }
 

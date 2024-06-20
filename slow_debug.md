@@ -99,3 +99,5 @@ O: wrong
 A: create an event enter and call show grid in it
 F: tired of it. loong methods -- obscure way of working -- empty documentation
 A: restablish call to `show_grid` before `window.present`
+
+A: start a sample projet to get an understanding of gtk events
