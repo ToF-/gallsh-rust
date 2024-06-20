@@ -578,7 +578,6 @@ fn show_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
             } else {
                 drawing_area.set_visible(false);
             };
-            drawing_area.set_visible(true);
             if let Some(index) = repository.index_from_position((col,row)) {
                 if let Some(entry) = repository.entry_at_index(index) {
                     label.set_text(&entry.label_display(false));

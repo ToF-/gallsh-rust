@@ -180,8 +180,6 @@ pub fn is_valid_path(path: &str) -> bool {
 pub fn draw_palette(ctx: &Context, width: i32, height: i32, colors: &[u32;9]) {
     const COLOR_MAX: f64 = 9.0;
     let square_size: f64 = 16.0;
-    assert!(width as f64 >= 10.0 * square_size);
-    assert!(height as f64 >= square_size);
     let offset: f64 = (width as f64 - (COLOR_MAX as f64 * square_size)) / 2.0;
     let surface = ImageSurface::create(Format::ARgb32, width, height).expect("can't create surface");
     let context = Context::new(&surface).expect("can't create context");
