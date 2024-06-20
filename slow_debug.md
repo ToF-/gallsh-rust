@@ -99,3 +99,5 @@ O: wrong
 A: create an event enter and call show grid in it
 F: tired of it. loong methods -- obscure way of working -- empty documentation
 A: restablish call to `show_grid` before `window.present`
+O: palettes are visible according to the content of the grid on the previous page position
+Q: should I separated *setting up* the grid content from *displaying* it
