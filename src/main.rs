@@ -323,10 +323,6 @@ fn main() {
             let mut show_is_on = true;
             if let Ok(mut repository) = repository_rc.try_borrow_mut() {
                 if let Some(key_name) = key.name() {
-                    //if stack.visible_child().unwrap() == view_scrolled_window {
-                    //    stack.set_visible_child(&grid_scrolled_window);
-                    //    return gtk::Inhibit(false)
-                    //};
                     if repository.label_edit_mode_on() {
                         if key_name == "Return" {
                             repository.confirm_label_edit()
@@ -457,7 +453,7 @@ fn main() {
                                     } else {
                                         navigate(&mut repository, &grid, &window, Direction::Up);
                                         if stack.visible_child().unwrap() == view_scrolled_window {
-                                            // show_view(&view, &repository, &window)
+                                            set_view(&view, &repository_rc, &window)
                                         }
                                     }
                                 }
@@ -715,97 +711,3 @@ fn set_grid_cell_vbox(window: &gtk::ApplicationWindow, grid: &gtk::Grid, vbox: &
     }
 
 }
-/*
-   fn rotten_set_grid_cell_vbox(vbox: &gtk::Box, coords: Coords, repository: &Repository, repository_rc: &Rc<RefCell<Repository>>, window: &gtk::ApplicationWindow) {
-   while let Some(child) = vbox.first_child() {
-   vbox.remove(&child)
-   };
-   if let Some(index) = repository.index_from_position(coords) {
-   if let Some(entry) = repository.entry_at_index(index) {
-   let picture = gtk::Picture::new();
-   let opacity = if entry.delete { 0.25 }
-   else if entry.image_data.selected { 0.50 } else { 1.0 };
-   picture.set_valign(Align::Center);
-   picture.set_halign(Align::Center);
-   picture.set_opacity(opacity);
-   picture.set_can_shrink(!repository.real_size());
-   let result = if repository.cells_per_row() < 10 {
-   set_original_picture_file(&picture, &entry)
-   } else {
-                set_thumbnail_picture_file(&picture, &entry)
-            };
-            match result {
-                Ok(_) => picture.set_visible(true),
-                Err(err) => {
-                    picture.set_visible(false);
-                    println!("{}", err.to_string())
-                },
-            };
-            let label = gtk::Label::new(Some(&entry.label_display(false)));
-            label.set_valign(Align::Center);
-            label.set_halign(Align::Center);
-            label.set_widget_name("picture_label");
-            vbox.append(&picture);
-            if repository.palette_extract_on() { 
-                let drawing_area = gtk::DrawingArea::new();
-                drawing_area.set_valign(Align::Center);
-                drawing_area.set_halign(Align::Center);
-                let colors = entry.image_data.palette;
-                let allocation = vbox.allocation();
-                let width = allocation.width();
-                let height = allocation.height()/10;
-                drawing_area.set_content_width(54);
-                drawing_area.set_content_height(6);
-                drawing_area.set_hexpand(true);
-                drawing_area.set_vexpand(true);
-                drawing_area.set_draw_func(move |_, ctx, _, _| {
-                    draw_palette(ctx, 54, 6, &colors)
-                });
-                vbox.append(&drawing_area);
-            }
-            let motion_controller = gtk::EventControllerMotion::new();
-            motion_controller.connect_leave(clone!(@strong coords, @strong label, @strong entry, => move |_| {
-                label.set_text(&entry.label_display(false));
-            }));
-            motion_controller.connect_enter(clone!(@strong coords, @strong label, @strong entry, @strong repository_rc, @strong window => move |_,_,_| {
-                if let Ok(repository) = repository_rc.try_borrow_mut() {
-                }
-            }));
-
-            let gesture_left_click = gtk::GestureClick::new();
-            gesture_left_click.set_button(1);
-            gesture_left_click.connect_pressed(clone!(@strong coords, @strong label, @strong entry, @strong repository_rc, @strong window => move |_,_,_,_| {
-                label.set_text(&entry.label_display(true));
-                if let Ok(mut repository) = repository_rc.try_borrow_mut() {
-                    if repository.cells_per_row() > 1 {
-                        if repository.can_move_abs(coords) {
-                            repository.move_abs(coords);
-                            window.set_title(Some(&(repository.title_display())));
-                        }
-                    }
-                }
-            }));
-            picture.add_controller(gesture_left_click);
-
-            let gesture_right_click = gtk::GestureClick::new();
-            gesture_right_click.set_button(3);
-            gesture_right_click.connect_pressed(clone!(@strong coords, @strong label, @strong repository_rc, @strong window => move |_,_,_,_| {
-                label.set_text(&entry.label_display(true));
-                if let Ok(mut repository) = repository_rc.try_borrow_mut() {
-                    if repository.cells_per_row() > 1 {
-                        if repository.can_move_abs(coords) {
-                            repository.move_abs(coords);
-                            repository.select_point();
-                            window.set_title(Some(&(repository.title_display())));
-                        }
-                    }
-                }
-            }));
-            picture.add_controller(gesture_right_click);
-
-            vbox.append(&label);
-        }
-    }
-}
-*/
-
