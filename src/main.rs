@@ -479,9 +479,11 @@ fn main() {
         // if a timer has been passed, set a timeout routine
         if let Some(t) = args.timer {
             timeout_add_local(Duration::new(t,0), clone!(@strong repository_rc, @strong grid, @strong window => move | | {
-                let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
-                repository.move_next_page();
-                window.set_title(Some(&repository.title_display()));
+                {
+                    let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
+                    repository.move_next_page();
+                }
+                set_grid(&grid, &repository_rc, &window);
                 Continue(true)
             }));
         };
