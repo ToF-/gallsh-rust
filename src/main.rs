@@ -53,7 +53,7 @@ fn main() {
 
     application.connect_startup(|_| {
         let css_provider = gtk::CssProvider::new();
-        css_provider.load_from_data("window { background-color:black;} image { margin:1em ; }");
+        css_provider.load_from_data("window { background-color:black;} image { margin:1em ; } label { color:white; }");
         gtk::style_context_add_provider_for_display(
             &gdk::Display::default().unwrap(),
             &css_provider,
@@ -308,7 +308,8 @@ fn main() {
                 vbox.set_halign(Align::Center);
                 vbox.set_hexpand(true);
                 vbox.set_vexpand(true);
-                set_grid_cell_vbox(&vbox, coords, &repository_rc, &buttons_css_provider); 
+                let repository = repository_rc.borrow();
+                set_grid_cell_vbox(&vbox, coords, &repository);
                 grid.attach(&vbox, col as i32, row as i32, 1, 1);
             }
         }
@@ -464,7 +465,7 @@ fn main() {
                     };
                     if show_is_on {
                         if stack.visible_child().unwrap() == grid_scrolled_window {
-                            show_grid(&grid, &repository, &window)
+                            set_grid(&grid, &repository, &window)
                         } else {
                             show_view(&view, &repository, &window)
                         }
@@ -501,17 +502,15 @@ fn main() {
     application.run_with_args(&empty);
 }
 
-fn set_grid(grid: &Grid, repository_rc: &Rc<RefCell<Repository>>, window: &gtk::ApplicationWindow, css_provider: &gtk::CssProvider) {
-    if let Ok(repository) = repository_rc.try_borrow_mut() {
-        let cells_per_row = repository.cells_per_row();
-        for col in 0..cells_per_row {
-            for row in 0..cells_per_row {
-                let vbox = grid.child_at(col,row).unwrap().downcast::<gtk::Box>().unwrap();
-                set_grid_cell_vbox(&vbox, (col, row), repository_rc, css_provider);
-            }
+fn set_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWindow) {
+    let cells_per_row = repository.cells_per_row();
+    for col in 0..cells_per_row {
+        for row in 0..cells_per_row {
+            let vbox = grid.child_at(col,row).unwrap().downcast::<gtk::Box>().unwrap();
+            set_grid_cell_vbox(&vbox, (col, row), repository);
         }
-        window.set_title(Some(&repository.title_display()));
     }
+    window.set_title(Some(&repository.title_display()));
 }
 
 fn picture_hadjustment(window: &gtk::ApplicationWindow) -> gtk::Adjustment {
@@ -545,87 +544,93 @@ fn show_view(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWind
     }
 }
 
-fn label_at_coords(grid: &gtk::Grid, coords: Coords) -> gtk::Label {
+fn label_at_coords(grid: &gtk::Grid, coords: Coords) -> Option<gtk::Label> {
     let (col,row) = coords;
-    grid.child_at(col as i32, row as i32).unwrap()
-        .downcast::<gtk::Box>().unwrap()
-        .first_child().unwrap().downcast::<gtk::Picture>().unwrap()
-        .next_sibling().unwrap().downcast::<gtk::Label>().unwrap()
+    let vbox = grid.child_at(col as i32, row as i32).expect("can't find a child").downcast::<gtk::Box>().expect("can't downcast child to a Box");
+    if let Some(child) = vbox.first_child() {
+        if child.widget_name() == "picture_label" {
+            return Some(child.downcast::<gtk::Label>().unwrap())
+        };
+        while let Some(child) = child.next_sibling() {
+            if child.widget_name() == "picture_label" {
+                return Some(child.downcast::<gtk::Label>().unwrap())
+            }
+        }
+    };
+    None
 }
 
 fn navigate(repository: &mut Repository, grid: &gtk::Grid, window: &gtk::ApplicationWindow, direction: Direction) {
     if repository.can_move_rel(direction.clone()) {
-        let current_label = label_at_coords(&grid, repository.position());
-        let current_display = match repository.current_entry() {
-            Some(entry) => entry.label_display(false),
-            None => String::new(),
-        };
-        current_label.set_text(&current_display);
+        if let Some(current_label) = label_at_coords(&grid, repository.position()) {
+            let current_display = match repository.current_entry() {
+                Some(entry) => entry.label_display(false),
+                None => String::new(),
+            };
+            current_label.set_text(&current_display);
+        }
 
         repository.move_rel(direction);
 
-        let new_label = label_at_coords(&grid, repository.position());
-        let new_display = match repository.current_entry() {
-            Some(entry) => entry.label_display(true),
-            None => String::new(),
-        };
-        new_label.set_text(&new_display);
-
+        if let Some(new_label) = label_at_coords(&grid, repository.position()) {
+            let new_display = match repository.current_entry() {
+                Some(entry) => entry.label_display(true),
+                None => String::new(),
+            };
+            new_label.set_text(&new_display);
+        }
         window.set_title(Some(&repository.title_display()));
     }
 }
 
-fn set_grid_cell_vbox(vbox: &gtk::Box, coords: Coords, repository_rc: &Rc<RefCell<Repository>>, css_provider: &gtk::CssProvider) {
-    if let Ok(repository) = repository_rc.try_borrow_mut() {
-        while let Some(child) = vbox.first_child() {
-            vbox.remove(&child)
-        };
-        if let Some(index) = repository.index_from_position(coords) {
-            if let Some(entry) = repository.entry_at_index(index) {
-                let picture = gtk::Picture::new();
-                let opacity = if entry.delete { 0.25 }
-                else if entry.image_data.selected { 0.50 } else { 1.0 };
-                picture.set_valign(Align::Center);
-                picture.set_halign(Align::Center);
-                picture.set_opacity(opacity);
-                picture.set_can_shrink(!repository.real_size());
-                let result = if repository.cells_per_row() < 10 {
-                    set_original_picture_file(&picture, &entry)
-                } else {
-                    set_thumbnail_picture_file(&picture, &entry)
-                };
-                match result {
-                    Ok(_) => picture.set_visible(true),
-                    Err(err) => {
-                        picture.set_visible(false);
-                        println!("{}", err.to_string())
-                    },
-                };
-                let label = gtk::Label::new(Some(&entry.label_display(false)));
-                let style_context = label.style_context();
-                style_context.add_provider(css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
-                label.set_valign(Align::Center);
-                label.set_halign(Align::Center);
-                vbox.append(&picture);
-                if repository.palette_extract_on() { 
-                    let drawing_area = gtk::DrawingArea::new();
-                    drawing_area.set_valign(Align::Center);
-                    drawing_area.set_halign(Align::Center);
-                    let colors = entry.image_data.palette;
-                    let allocation = vbox.allocation();
-                    let width = allocation.width();
-                    let height = allocation.height()/10;
-                    drawing_area.set_content_width(54);
-                    drawing_area.set_content_height(6);
-                    drawing_area.set_hexpand(true);
-                    drawing_area.set_vexpand(true);
-                    drawing_area.set_draw_func(move |_, ctx, _, _| {
-                        draw_palette(ctx, 54, 6, &colors)
-                    });
-                    vbox.append(&drawing_area);
-                }
-                vbox.append(&label);
+fn set_grid_cell_vbox(vbox: &gtk::Box, coords: Coords, repository: &Repository) {
+    while let Some(child) = vbox.first_child() {
+        vbox.remove(&child)
+    };
+    if let Some(index) = repository.index_from_position(coords) {
+        if let Some(entry) = repository.entry_at_index(index) {
+            let picture = gtk::Picture::new();
+            let opacity = if entry.delete { 0.25 }
+            else if entry.image_data.selected { 0.50 } else { 1.0 };
+            picture.set_valign(Align::Center);
+            picture.set_halign(Align::Center);
+            picture.set_opacity(opacity);
+            picture.set_can_shrink(!repository.real_size());
+            let result = if repository.cells_per_row() < 10 {
+                set_original_picture_file(&picture, &entry)
+            } else {
+                set_thumbnail_picture_file(&picture, &entry)
+            };
+            match result {
+                Ok(_) => picture.set_visible(true),
+                Err(err) => {
+                    picture.set_visible(false);
+                    println!("{}", err.to_string())
+                },
+            };
+            let label = gtk::Label::new(Some(&entry.label_display(false)));
+            label.set_valign(Align::Center);
+            label.set_halign(Align::Center);
+            label.set_widget_name("picture_label");
+            vbox.append(&picture);
+            if repository.palette_extract_on() { 
+                let drawing_area = gtk::DrawingArea::new();
+                drawing_area.set_valign(Align::Center);
+                drawing_area.set_halign(Align::Center);
+                let colors = entry.image_data.palette;
+                let allocation = vbox.allocation();
+                let width = allocation.width();
+                let height = allocation.height()/10;
+                drawing_area.set_content_width(54);
+                drawing_area.set_content_height(6);
+                drawing_area.set_hexpand(true);
+                drawing_area.set_vexpand(true);
+                drawing_area.set_draw_func(move |_, ctx, _, _| {
+                    draw_palette(ctx, 54, 6, &colors)
+                });
+                vbox.append(&drawing_area);
             }
+            vbox.append(&label);
         }
     }
 }
