@@ -28,6 +28,15 @@ const DEFAULT_HEIGHT: i32  = 1000;
 const WIDTH_ENV_VAR :&str  = "GALLSHWIDTH";
 const HEIGHT_ENV_VAR :&str = "GALLSHHEIGHT";
 
+pub struct Graphics {
+    pub application_window:   gtk::ApplicationWindow,
+    pub stack:                gtk::Stack,
+    pub grid_scrolled_window: gtk::ScrolledWindow,
+    pub view_scrolled_window: gtk::ScrolledWindow,
+    pub picture_grid:       gtk::Grid,
+    pub image_view:         gtk::Picture,
+}
+
 mod direction;
 mod picture_io;
 mod entry;
@@ -271,21 +280,21 @@ fn main() {
         right_button.style_context().add_provider(&buttons_css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
         let left_gesture = gtk::GestureClick::new();
 
-        let grid = Grid::new();
-        grid.set_widget_name("picture_grid");
-        grid.set_row_homogeneous(true);
-        grid.set_column_homogeneous(true);
-        grid.set_hexpand(true);
-        grid.set_vexpand(true);
+        let picture_grid = Grid::new();
+        picture_grid.set_widget_name("picture_grid");
+        picture_grid.set_row_homogeneous(true);
+        picture_grid.set_column_homogeneous(true);
+        picture_grid.set_hexpand(true);
+        picture_grid.set_vexpand(true);
         if grid_size > 1 {
             panel.attach(&left_button, 0, 0, 1, 1);
-            panel.attach(&grid, 1, 0, 1, 1);
+            panel.attach(&picture_grid, 1, 0, 1, 1);
             panel.attach(&right_button, 2, 0, 1, 1);
         } else {
-            panel.attach(&grid, 0, 0, 1, 1);
+            panel.attach(&picture_grid, 0, 0, 1, 1);
         }
         left_gesture.set_button(1);
-        left_gesture.connect_pressed(clone!(@strong repository_rc, @strong grid, @strong window => move |_,_,_,_| {
+        left_gesture.connect_pressed(clone!(@strong repository_rc, @strong picture_grid, @strong window => move |_,_,_,_| {
             {
                 let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
                 repository.move_prev_page();
@@ -295,7 +304,7 @@ fn main() {
         left_button.add_controller(left_gesture);
         let right_gesture = gtk::GestureClick::new();
         right_gesture.set_button(1);
-        right_gesture.connect_pressed(clone!(@strong repository_rc, @strong grid, @strong window => move |_,_,_,_| {
+        right_gesture.connect_pressed(clone!(@strong repository_rc, @strong picture_grid, @strong window => move |_,_,_,_| {
             {
                 let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
                 repository.move_next_page();
@@ -311,15 +320,31 @@ fn main() {
                 vbox.set_halign(Align::Center);
                 vbox.set_hexpand(true);
                 vbox.set_vexpand(true);
-                setup_picture_cell(&window, &grid, &vbox, coords, &repository_rc);
-                grid.attach(&vbox, col as i32, row as i32, 1, 1);
+                setup_picture_cell(&window, &picture_grid, &vbox, coords, &repository_rc);
+                picture_grid.attach(&vbox, col as i32, row as i32, 1, 1);
             }
         }
         grid_scrolled_window.set_child(Some(&panel));
 
         let evk = gtk::EventControllerKey::new();
-        evk.connect_key_pressed(clone!(@strong repository_rc, @strong grid, @strong window => move |_, key, _, _| {
+        let graphics = Graphics {
+            application_window: window,
+            stack: stack,
+            grid_scrolled_window: grid_scrolled_window,
+            view_scrolled_window: view_scrolled_window,
+            picture_grid: picture_grid,
+            image_view: image_view,
+        };
+        let graphics_rc = Rc::new(RefCell::new(graphics));
+
+        evk.connect_key_pressed(clone!(@strong repository_rc, @strong graphics_rc => move |_, key, _, _| {
             let step = 100;
+            let graphics = graphics_rc.try_borrow().unwrap();
+            let window = &graphics.application_window;
+            let picture_grid = &graphics.picture_grid;
+            let stack = &graphics.stack;
+            let grid_scrolled_window = &graphics.grid_scrolled_window;
+            let view_scrolled_window = &graphics.view_scrolled_window;
             let mut show_is_on = true;
             if let Ok(mut repository) = repository_rc.try_borrow_mut() {
                 if let Some(key_name) = key.name() {
@@ -382,12 +407,12 @@ fn main() {
                             "v" => if repository.order_choice_on() { repository.sort_by(Order::Value); },
                             "h" => repository.help(),
                             "period"|"k" => {
-                                if stack.visible_child().unwrap() == grid_scrolled_window {
-                                    stack.set_visible_child(&view_scrolled_window);
+                                if stack.visible_child().unwrap() == *grid_scrolled_window {
+                                    stack.set_visible_child(view_scrolled_window);
                                     setup_picture_view(&repository_rc, &window);
                                 } else {
-                                    stack.set_visible_child(&grid_scrolled_window)
-                                }
+                                    stack.set_visible_child(grid_scrolled_window)
+                               }
                             },
                             "colon" => {
                                 println!("{}", repository.title_display());
@@ -403,8 +428,8 @@ fn main() {
                                     if repository.cells_per_row() == 1 {
                                         repository.move_next_page();
                                     } else {
-                                        navigate(&mut repository, &grid, &window, Direction::Right);
-                                        if stack.visible_child().unwrap() == view_scrolled_window {
+                                        navigate(&mut repository, &picture_grid, &window, Direction::Right);
+                                        if stack.visible_child().unwrap() == *view_scrolled_window {
                                             setup_picture_view(&repository_rc, &window)
                                         }
                                     }
@@ -419,8 +444,8 @@ fn main() {
                                     if repository.cells_per_row() == 1 {
                                         repository.move_prev_page();
                                     } else {
-                                        navigate(&mut repository, &grid, &window, Direction::Left);
-                                        if stack.visible_child().unwrap() == view_scrolled_window {
+                                        navigate(&mut repository, &picture_grid, &window, Direction::Left);
+                                        if stack.visible_child().unwrap() == *view_scrolled_window {
                                             setup_picture_view(&repository_rc, &window)
                                         }
                                     }
@@ -435,8 +460,8 @@ fn main() {
                                     if repository.cells_per_row() == 1 {
                                         repository.move_next_page()
                                     } else {
-                                        navigate(&mut repository, &grid, &window, Direction::Down);
-                                        if stack.visible_child().unwrap() == view_scrolled_window {
+                                        navigate(&mut repository, &picture_grid, &window, Direction::Down);
+                                        if stack.visible_child().unwrap() == *view_scrolled_window {
                                             setup_picture_view(&repository_rc, &window)
                                         }
                                     }
@@ -451,8 +476,8 @@ fn main() {
                                     if repository.cells_per_row() == 1 {
                                         repository.move_next_page();
                                     } else {
-                                        navigate(&mut repository, &grid, &window, Direction::Up);
-                                        if stack.visible_child().unwrap() == view_scrolled_window {
+                                        navigate(&mut repository, &picture_grid, &window, Direction::Up);
+                                        if stack.visible_child().unwrap() == *view_scrolled_window {
                                             setup_picture_view(&repository_rc, &window)
                                         }
                                     }
@@ -464,7 +489,7 @@ fn main() {
                 }
             }
             if show_is_on {
-                if stack.visible_child().unwrap() == grid_scrolled_window {
+                if stack.visible_child().unwrap() == *grid_scrolled_window {
                     setup_picture_grid(&repository_rc, &window)
                 } else {
                     setup_picture_view(&repository_rc, &window)
@@ -472,24 +497,28 @@ fn main() {
             }
             gtk::Inhibit(false)
         }));
+        if let Ok(graphics) = graphics_rc.try_borrow() {
+            let window = &graphics.application_window;
+            let picture_grid = &graphics.picture_grid;
+            window.add_controller(evk);
 
-        window.add_controller(evk);
-        // show the first file
-        if args.maximized { window.fullscreen() };
-        // if a timer has been passed, set a timeout routine
-        if let Some(t) = args.timer {
-            timeout_add_local(Duration::new(t,0), clone!(@strong repository_rc, @strong grid, @strong window => move | | {
-                {
-                    let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
-                    repository.move_next_page();
-                }
-                setup_picture_grid(&repository_rc, &window);
-                Continue(true)
-            }));
+            // show the first file
+            if args.maximized { window.fullscreen() };
+            // if a timer has been passed, set a timeout routine
+            if let Some(t) = args.timer {
+                timeout_add_local(Duration::new(t,0), clone!(@strong repository_rc, @strong picture_grid, @strong window => move | | {
+                    {
+                        let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
+                        repository.move_next_page();
+                    }
+                    setup_picture_grid(&repository_rc, &window);
+                    Continue(true)
+                }));
+            };
+
+            setup_picture_grid(&repository_rc, &window);
+            window.present();
         };
-
-        setup_picture_grid(&repository_rc, &window);
-        window.present();
     }));
     let empty: Vec<String> = vec![];
     application.run_with_args(&empty);
