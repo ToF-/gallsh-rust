@@ -501,75 +501,17 @@ fn main() {
     application.run_with_args(&empty);
 }
 
-fn show_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWindow) {
-    return;
-    let cells_per_row = repository.cells_per_row();
-    for col in 0..cells_per_row {
-        for row in 0..cells_per_row {
-            let vbox = grid.child_at(col,row).unwrap().downcast::<gtk::Box>().unwrap();
-            vbox.set_hexpand(true);
-            let picture = vbox.first_child().unwrap().downcast::<gtk::Picture>().unwrap();
-            let label = picture.next_sibling().unwrap().downcast::<gtk::Label>().unwrap();
-            let drawing_area = label.next_sibling().unwrap().downcast::<gtk::DrawingArea>().unwrap();
-            if repository.palette_extract_on() && repository.index_from_position((col,row)).is_some() {
-                drawing_area.set_visible(true);
-            } else {
-                drawing_area.set_visible(false);
-            };
-            if let Some(index) = repository.index_from_position((col,row)) {
-                if let Some(entry) = repository.entry_at_index(index) {
-                    label.set_text(&entry.label_display(false));
-                    let opacity = if entry.delete {
-                        0.25
-                    } else if entry.image_data.selected {
-                        0.50
-                    } else {
-                        1.0
-                    };
-                    picture.set_opacity(opacity);
-                    picture.set_can_shrink(!repository.real_size());
-                    if repository.cells_per_row() < 10 {
-                        match set_original_picture_file(&picture, &entry) {
-                            Ok(_) => {
-                                picture.set_visible(true);
-                            },
-                            Err(err) => {
-                                picture.set_visible(false);
-                                println!("{}",err.to_string())
-                            },
-                        };
-                    } else {
-                        match set_thumbnail_picture_file(&picture, &entry) {
-                            Ok(_) => {
-                                picture.set_visible(true)
-                            },
-                            Err(err) => {
-                                picture.set_visible(false);
-                                println!("{}",err.to_string())
-                            },
-                        }
-                    };
-                    if drawing_area.is_visible() {
-                        if picture.is_visible() {
-                            let colors = entry.image_data.palette;
-                            let allocation = vbox.allocation();
-                            let width = picture.width();
-                            let height = allocation.height()/10;
-                            drawing_area.set_content_width(width);
-                            drawing_area.set_content_height(height);
-                            drawing_area.set_draw_func(move |_,ctx,_,_| {
-                                draw_palette(ctx, width, height, &colors)
-                            });
-                        }
-                    };
-                }
-            } else {
-                picture.set_visible(false);
-                label.set_text("");
+fn set_grid(grid: &Grid, repository_rc: &Rc<RefCell<Repository>>, window: &gtk::ApplicationWindow, css_provider: &gtk::CssProvider) {
+    if let Ok(repository) = repository_rc.try_borrow_mut() {
+        let cells_per_row = repository.cells_per_row();
+        for col in 0..cells_per_row {
+            for row in 0..cells_per_row {
+                let vbox = grid.child_at(col,row).unwrap().downcast::<gtk::Box>().unwrap();
+                set_grid_cell_vbox(&vbox, (col, row), repository_rc, css_provider);
             }
         }
-    };
-    window.set_title(Some(&repository.title_display()));
+        window.set_title(Some(&repository.title_display()));
+    }
 }
 
 fn picture_hadjustment(window: &gtk::ApplicationWindow) -> gtk::Adjustment {
@@ -686,4 +628,8 @@ fn set_grid_cell_vbox(vbox: &gtk::Box, coords: Coords, repository_rc: &Rc<RefCel
             }
         }
     }
+}
+
+fn show_grid(_grid: &gtk::Grid, _repository: &Repository, _window: &gtk::ApplicationWindow) {
+    return
 }
