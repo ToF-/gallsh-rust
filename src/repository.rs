@@ -264,6 +264,9 @@ impl Repository {
         Some(&self.entry_list[self.navigator.index()])
     }
 
+    pub fn current_index(&self) -> usize {
+        self.navigator.index()
+    }
     pub fn toggle_real_size(&mut self) {
         if self.navigator.cells_per_row() == 1 {
             self.real_size_on = !self.real_size_on;
