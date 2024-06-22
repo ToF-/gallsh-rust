@@ -304,7 +304,11 @@ fn main() {
             for row in 0 .. grid_size as i32 {
                 let coords: Coords = (col,row);
                 let vbox = gtk::Box::new(Orientation::Vertical, 0);
-                set_grid_cell_vbox(&vbox, coords, &repository_rc); 
+                vbox.set_valign(Align::Center);
+                vbox.set_halign(Align::Center);
+                vbox.set_hexpand(true);
+                vbox.set_vexpand(true);
+                set_grid_cell_vbox(&vbox, coords, &repository_rc, &buttons_css_provider); 
                 grid.attach(&vbox, col as i32, row as i32, 1, 1);
             }
         }
@@ -629,8 +633,7 @@ fn navigate(repository: &mut Repository, grid: &gtk::Grid, window: &gtk::Applica
     }
 }
 
-fn set_grid_cell_vbox(vbox: &gtk::Box, coords: Coords, repository_rc: &Rc<RefCell<Repository>>) {
-    println!("set_grid_cell_box {:?}", coords);
+fn set_grid_cell_vbox(vbox: &gtk::Box, coords: Coords, repository_rc: &Rc<RefCell<Repository>>, css_provider: &gtk::CssProvider) {
     if let Ok(repository) = repository_rc.try_borrow_mut() {
         while let Some(child) = vbox.first_child() {
             vbox.remove(&child)
@@ -640,6 +643,8 @@ fn set_grid_cell_vbox(vbox: &gtk::Box, coords: Coords, repository_rc: &Rc<RefCel
                 let picture = gtk::Picture::new();
                 let opacity = if entry.delete { 0.25 }
                 else if entry.image_data.selected { 0.50 } else { 1.0 };
+                picture.set_valign(Align::Center);
+                picture.set_halign(Align::Center);
                 picture.set_opacity(opacity);
                 picture.set_can_shrink(!repository.real_size());
                 let result = if repository.cells_per_row() < 10 {
@@ -655,21 +660,28 @@ fn set_grid_cell_vbox(vbox: &gtk::Box, coords: Coords, repository_rc: &Rc<RefCel
                     },
                 };
                 let label = gtk::Label::new(Some(&entry.label_display(false)));
-                let drawing_area = gtk::DrawingArea::new();
-                let colors = entry.image_data.palette;
-                let allocation = vbox.allocation();
-                let width = allocation.width();
-                let height = allocation.height()/10;
-                println!("{}", vbox.width());
-                drawing_area.set_content_width(200);
-                drawing_area.set_content_height(16);
-                drawing_area.set_hexpand(true);
-                drawing_area.set_vexpand(true);
-                drawing_area.set_draw_func(move |_, ctx, _, _| {
-                    draw_palette(ctx, 200, 16, &colors)
-                });
+                let style_context = label.style_context();
+                style_context.add_provider(css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
+                label.set_valign(Align::Center);
+                label.set_halign(Align::Center);
                 vbox.append(&picture);
-                vbox.append(&drawing_area);
+                if repository.palette_extract_on() { 
+                    let drawing_area = gtk::DrawingArea::new();
+                    drawing_area.set_valign(Align::Center);
+                    drawing_area.set_halign(Align::Center);
+                    let colors = entry.image_data.palette;
+                    let allocation = vbox.allocation();
+                    let width = allocation.width();
+                    let height = allocation.height()/10;
+                    drawing_area.set_content_width(54);
+                    drawing_area.set_content_height(6);
+                    drawing_area.set_hexpand(true);
+                    drawing_area.set_vexpand(true);
+                    drawing_area.set_draw_func(move |_, ctx, _, _| {
+                        draw_palette(ctx, 54, 6, &colors)
+                    });
+                    vbox.append(&drawing_area);
+                }
                 vbox.append(&label);
             }
         }
