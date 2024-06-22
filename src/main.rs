@@ -304,76 +304,9 @@ fn main() {
             for row in 0 .. grid_size as i32 {
                 let coords: Coords = (col,row);
                 let vbox = gtk::Box::new(Orientation::Vertical, 0);
-                let image = Picture::new();
-                image.set_hexpand(true);
-                image.set_vexpand(true);
-                let label = Label::new(None);
-                let drawing_area = DrawingArea::new();
-                let style_context = label.style_context();
-                style_context.add_provider(&buttons_css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
-                vbox.set_valign(Align::Center);
-                vbox.set_halign(Align::Center);
-                vbox.set_hexpand(true);
-                vbox.set_vexpand(true);
-                vbox.append(&image);
-                vbox.append(&label);
-                vbox.append(&drawing_area);
+                set_grid_cell_vbox(&vbox, coords, &repository_rc); 
                 grid.attach(&vbox, col as i32, row as i32, 1, 1);
-
-                let select_gesture = gtk::GestureClick::new();
-                select_gesture.set_button(1);
-                select_gesture.connect_pressed(clone!(@strong repository_rc, @strong grid, @strong window => move |_,_, _, _| {
-                    let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
-                    if repository.can_move_abs(coords) {
-                        repository.move_abs(coords);
-                        repository.select_point();
-                    }
-                    show_grid(&grid, &repository, &window);
-                }));
-                image.add_controller(select_gesture);
-
-                let view_gesture = gtk::GestureClick::new();
-                view_gesture.set_button(3);
-
-                view_gesture.connect_pressed(clone!(@strong repository_rc, @strong grid, @strong image, @strong view, @strong stack, @strong view_scrolled_window, @strong grid_scrolled_window, @strong window => move |_, _, _, _| {
-                    let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
-                    if repository.cells_per_row() == 1 { return };
-                    if repository.can_move_abs(coords) {
-                        repository.move_abs(coords);
-                        repository.select_point();
-                        stack.set_visible_child(&view_scrolled_window);
-                        show_view(&view, &repository, &window);
-                    }
-                }));
-                image.add_controller(view_gesture);
-
-                let motion_controller = EventControllerMotion::new();
-                motion_controller.connect_enter(clone!(@strong repository_rc, @strong grid, @strong label, @strong window => move |_,_,_| {
-                    if let Ok(mut repository) = repository_rc.try_borrow_mut() {
-                        if repository.can_move_abs(coords) {
-                            repository.move_abs(coords);
-                            if let Some(entry) = repository.current_entry() {
-                                label.set_text(&entry.label_display(true))
-                            };
-                            window.set_title(Some(&(repository.title_display())));
-                        } else {
-                            println!("{:?} refused", coords)
-                        }
-                    }
-                }));
-
-                motion_controller.connect_leave(clone!(@strong repository_rc, @strong grid, @strong label, @strong window => move |_| {
-                    if let Ok(repository) = repository_rc.try_borrow_mut() {
-                        if let Some(index) = repository.index_from_position(coords) {
-                            if let Some(entry) = repository.entry_at_index(index) {
-                                label.set_text(&entry.label_display(false));
-                            }
-                        }
-                    };
-                }));
-                image.add_controller(motion_controller)
             }
-
         }
         grid_scrolled_window.set_child(Some(&panel));
 
@@ -565,6 +498,7 @@ fn main() {
 }
 
 fn show_grid(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWindow) {
+    return;
     let cells_per_row = repository.cells_per_row();
     for col in 0..cells_per_row {
         for row in 0..cells_per_row {
@@ -692,5 +626,52 @@ fn navigate(repository: &mut Repository, grid: &gtk::Grid, window: &gtk::Applica
         new_label.set_text(&new_display);
 
         window.set_title(Some(&repository.title_display()));
+    }
+}
+
+fn set_grid_cell_vbox(vbox: &gtk::Box, coords: Coords, repository_rc: &Rc<RefCell<Repository>>) {
+    println!("set_grid_cell_box {:?}", coords);
+    if let Ok(repository) = repository_rc.try_borrow_mut() {
+        while let Some(child) = vbox.first_child() {
+            vbox.remove(&child)
+        };
+        if let Some(index) = repository.index_from_position(coords) {
+            if let Some(entry) = repository.entry_at_index(index) {
+                let picture = gtk::Picture::new();
+                let opacity = if entry.delete { 0.25 }
+                else if entry.image_data.selected { 0.50 } else { 1.0 };
+                picture.set_opacity(opacity);
+                picture.set_can_shrink(!repository.real_size());
+                let result = if repository.cells_per_row() < 10 {
+                    set_original_picture_file(&picture, &entry)
+                } else {
+                    set_thumbnail_picture_file(&picture, &entry)
+                };
+                match result {
+                    Ok(_) => picture.set_visible(true),
+                    Err(err) => {
+                        picture.set_visible(false);
+                        println!("{}", err.to_string())
+                    },
+                };
+                let label = gtk::Label::new(Some(&entry.label_display(false)));
+                let drawing_area = gtk::DrawingArea::new();
+                let colors = entry.image_data.palette;
+                let allocation = vbox.allocation();
+                let width = allocation.width();
+                let height = allocation.height()/10;
+                println!("{}", vbox.width());
+                drawing_area.set_content_width(200);
+                drawing_area.set_content_height(16);
+                drawing_area.set_hexpand(true);
+                drawing_area.set_vexpand(true);
+                drawing_area.set_draw_func(move |_, ctx, _, _| {
+                    draw_palette(ctx, 200, 16, &colors)
+                });
+                vbox.append(&picture);
+                vbox.append(&drawing_area);
+                vbox.append(&label);
+            }
+        }
     }
 }
