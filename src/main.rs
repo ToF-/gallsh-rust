@@ -297,8 +297,8 @@ fn main() {
         let right_gesture = gtk::GestureClick::new();
         right_gesture.set_button(1);
         right_gesture.connect_pressed(clone!(@strong repository_rc, @strong grid, @strong window => move |_,_,_,_| {
-            let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
-            repository.move_next_page();
+            { let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
+            repository.move_next_page();}
             set_grid(&grid, &repository_rc, &window);
         }));
         right_button.add_controller(right_gesture);
@@ -311,7 +311,7 @@ fn main() {
                 vbox.set_hexpand(true);
                 vbox.set_vexpand(true);
                 let repository = repository_rc.borrow();
-                set_grid_cell_vbox(&window, &vbox, coords, &repository, &repository_rc);
+                set_grid_cell_vbox(&window, &grid, &vbox, coords, &repository_rc);
                 grid.attach(&vbox, col as i32, row as i32, 1, 1);
             }
         }
@@ -320,13 +320,13 @@ fn main() {
         let evk = gtk::EventControllerKey::new();
         evk.connect_key_pressed(clone!(@strong repository_rc, @strong grid, @strong window => move |_, key, _, _| {
             let step = 100;
+            let mut show_is_on = true;
             if let Ok(mut repository) = repository_rc.try_borrow_mut() {
                 if let Some(key_name) = key.name() {
                     //if stack.visible_child().unwrap() == view_scrolled_window {
                     //    stack.set_visible_child(&grid_scrolled_window);
                     //    return gtk::Inhibit(false)
                     //};
-                    let mut show_is_on = true;
                     if repository.label_edit_mode_on() {
                         if key_name == "Return" {
                             repository.confirm_label_edit()
@@ -441,7 +441,7 @@ fn main() {
                                     } else {
                                         navigate(&mut repository, &grid, &window, Direction::Down);
                                         if stack.visible_child().unwrap() == view_scrolled_window {
-                                            show_view(&view, &repository, &window)
+                                            // show_view(&view, &repository, &window)
                                         }
                                     }
                                 }
@@ -457,7 +457,7 @@ fn main() {
                                     } else {
                                         navigate(&mut repository, &grid, &window, Direction::Up);
                                         if stack.visible_child().unwrap() == view_scrolled_window {
-                                            show_view(&view, &repository, &window)
+                                            // show_view(&view, &repository, &window)
                                         }
                                     }
                                 }
@@ -465,26 +465,21 @@ fn main() {
                             other => println!("{}", other),
                         }
                     };
-                    if show_is_on {
-                        if stack.visible_child().unwrap() == grid_scrolled_window {
-                            set_grid(&grid, &repository_rc, &window)
-                        } else {
-                            show_view(&view, &repository, &window)
-                        }
-                    }
-                    gtk::Inhibit(false)
                 }
-                else {
-                    gtk::Inhibit(false)
-                }
-            } else {
-                gtk::Inhibit(false)
             }
+            if show_is_on {
+                println!("show is on");
+                if stack.visible_child().unwrap() == grid_scrolled_window {
+                    set_grid(&grid, &repository_rc, &window)
+                } else {
+                    // show_view(&view, &repository, &window)
+                }
+            }
+            gtk::Inhibit(false)
         }));
 
         window.add_controller(evk);
         // show the first file
-        let repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
         if args.maximized { window.fullscreen() };
         // if a timer has been passed, set a timeout routine
         if let Some(t) = args.timer {
@@ -509,10 +504,13 @@ fn set_grid(grid: &Grid, repository_rc: &Rc<RefCell<Repository>>, window: &gtk::
         for col in 0..cells_per_row {
             for row in 0..cells_per_row {
                 let vbox = grid.child_at(col,row).unwrap().downcast::<gtk::Box>().unwrap();
-                set_grid_cell_vbox(window, &vbox, (col, row), &repository, repository_rc);
+                set_grid_cell_vbox(window, grid, &vbox, (col, row), &repository_rc);
             }
         }
         window.set_title(Some(&repository.title_display()));
+    }
+    else {
+        println!("can't borrow repository_rc");
     }
 }
 
@@ -569,29 +567,6 @@ fn set_label_text_at_coords(grid: &gtk::Grid, coords: Coords, text: String) {
     }
 }
 
-        //  window: ApplicationWindow
-        //      stack: Stack
-        //          grid_scrolled_window: ScrolledWindow
-        //              panel: Grid
-        //                  left_button: Label
-        //                  grid: Grid
-fn grid(window: &gtk::ApplicationWindow) -> gtk::Grid {
-    let child = window.first_child().expect("can't access window.first_child")
-        .downcast::<gtk::Stack>().expect("can't downcast to Stack")
-        .first_child().expect("can't access stack first child")
-        .downcast::<gtk::ScrolledWindow>().expect("can't downcast to ScrolledWindow")
-        .first_child().expect("can't access scrolled window first child")
-        .downcast::<gtk::Grid>().expect("can't downcast panel to Grid")
-        .first_child().expect("can't access panel first child");
-    if child.widget_name() == "pictures_grid" {
-        child.downcast::<gtk::Grid>().unwrap()
-    } else {
-        let child = child.next_sibling().expect("can't access panel second child");
-        assert!(child.widget_name() == "pictures_grid");
-        child.downcast::<gtk::Grid>().unwrap()
-    }
-}
-
 fn navigate(repository: &mut Repository, grid: &gtk::Grid, window: &gtk::ApplicationWindow, direction: Direction) {
     if repository.can_move_rel(direction.clone()) {
         if let Some(current_label) = label_at_coords(&grid, repository.position()) {
@@ -613,102 +588,110 @@ fn navigate(repository: &mut Repository, grid: &gtk::Grid, window: &gtk::Applica
     }
 }
 
-fn set_grid_cell_vbox(window: &gtk::ApplicationWindow, vbox: &gtk::Box, coords: Coords, repository: &Repository, repository_rc: &Rc<RefCell<Repository>>) {
+fn set_grid_cell_vbox(window: &gtk::ApplicationWindow, grid: &gtk::Grid, vbox: &gtk::Box, coords: Coords, repository_rc: &Rc<RefCell<Repository>>) {
     while let Some(child) = vbox.first_child() {
         vbox.remove(&child)
     };
-    if let Some(index) = repository.index_from_position(coords) {
-        if let Some(entry) = repository.entry_at_index(index) {
-            let picture = gtk::Picture::new();
-            let opacity = if entry.delete { 0.25 }
-            else if entry.image_data.selected { 0.50 } else { 1.0 };
-            picture.set_valign(Align::Center);
-            picture.set_halign(Align::Center);
-            picture.set_opacity(opacity);
-            picture.set_can_shrink(!repository.real_size());
-            let result = if repository.cells_per_row() < 10 {
-                set_original_picture_file(&picture, &entry)
-            } else {
-                set_thumbnail_picture_file(&picture, &entry)
-            };
-            match result {
-                Ok(_) => picture.set_visible(true),
-                Err(err) => {
-                    picture.set_visible(false);
-                    println!("{}", err.to_string())
-                },
-            };
-            let label = gtk::Label::new(Some(&entry.label_display(false)));
-            label.set_valign(Align::Center);
-            label.set_halign(Align::Center);
-            label.set_widget_name("picture_label");
-            vbox.append(&picture);
-            if repository.palette_extract_on() { 
-                let drawing_area = gtk::DrawingArea::new();
-                drawing_area.set_valign(Align::Center);
-                drawing_area.set_halign(Align::Center);
-                let colors = entry.image_data.palette;
-                let allocation = vbox.allocation();
-                let width = allocation.width();
-                let height = allocation.height()/10;
-                drawing_area.set_content_width(54);
-                drawing_area.set_content_height(6);
-                drawing_area.set_hexpand(true);
-                drawing_area.set_vexpand(true);
-                drawing_area.set_draw_func(move |_, ctx, _, _| {
-                    draw_palette(ctx, 54, 6, &colors)
-                });
-                vbox.append(&drawing_area);
-            }
-            let motion_controller = gtk::EventControllerMotion::new();
-            motion_controller.connect_leave(clone!(@strong coords, @strong label, @strong entry, => move |_| {
-                label.set_text(&entry.label_display(false));
-            }));
-            motion_controller.connect_enter(clone!(@strong coords, @strong label, @strong entry, @strong repository_rc, @strong window => move |_,_,_| {
-                if let Ok(repository) = repository_rc.try_borrow_mut() {
+    if let Ok(repository) = repository_rc.try_borrow() {
+        if let Some(index) = repository.index_from_position(coords) {
+            if let Some(entry) = repository.entry_at_index(index) {
+                let picture = gtk::Picture::new();
+                let opacity = if entry.delete { 0.25 }
+                else if entry.image_data.selected { 0.50 } else { 1.0 };
+                picture.set_valign(Align::Center);
+                picture.set_halign(Align::Center);
+                picture.set_opacity(opacity);
+                picture.set_can_shrink(!repository.real_size());
+                let result = if repository.cells_per_row() < 10 {
+                    set_original_picture_file(&picture, &entry)
+                } else {
+                    set_thumbnail_picture_file(&picture, &entry)
+                };
+                match result {
+                    Ok(_) => picture.set_visible(true),
+                    Err(err) => {
+                        picture.set_visible(false);
+                        println!("{}", err.to_string())
+                    },
+                };
+                let label = gtk::Label::new(Some(&entry.label_display(false)));
+                label.set_valign(Align::Center);
+                label.set_halign(Align::Center);
+                label.set_widget_name("picture_label");
+                vbox.append(&picture);
+                if repository.palette_extract_on() { 
+                    let drawing_area = gtk::DrawingArea::new();
+                    drawing_area.set_valign(Align::Center);
+                    drawing_area.set_halign(Align::Center);
+                    let colors = entry.image_data.palette;
+                    let allocation = vbox.allocation();
+                    let width = allocation.width();
+                    let height = allocation.height()/10;
+                    drawing_area.set_content_width(54);
+                    drawing_area.set_content_height(6);
+                    drawing_area.set_hexpand(true);
+                    drawing_area.set_vexpand(true);
+                    drawing_area.set_draw_func(move |_, ctx, _, _| {
+                        draw_palette(ctx, 54, 6, &colors)
+                    });
+                    vbox.append(&drawing_area);
                 }
-            }));
-            let gesture_left_click = gtk::GestureClick::new();
-            gesture_left_click.set_button(1);
-            gesture_left_click.connect_pressed(clone!(@strong coords, @strong label, @strong entry, @strong repository_rc, @strong window => move |_,_,_,_| {
-                if let Ok(mut repository) = repository_rc.try_borrow_mut() {
-                    if repository.cells_per_row() > 1 {
-                        if repository.can_move_abs(coords) {
-                            let current_coords = repository.position();
-                            let grid = grid(&window);
-                            if let Some(index) = repository.index_from_position(current_coords) {
-                                if let Some(current_entry) = repository.entry_at_index(index) {
-                                    set_label_text_at_coords(&grid, current_coords, current_entry.label_display(false))
+                let motion_controller = gtk::EventControllerMotion::new();
+                motion_controller.connect_leave(clone!(@strong coords, @strong label, @strong entry, => move |_| {
+                    label.set_text(&entry.label_display(false));
+                }));
+                motion_controller.connect_enter(clone!(@strong coords, @strong label, @strong entry, @strong repository_rc, @strong window => move |_,_,_| {
+                    if let Ok(repository) = repository_rc.try_borrow_mut() {
+                    }
+                }));
+                let gesture_left_click = gtk::GestureClick::new();
+                gesture_left_click.set_button(1);
+                gesture_left_click.connect_pressed(clone!(@strong coords, @strong label, @strong entry, @strong repository_rc, @strong window, @strong grid => move |_,_,_,_| {
+                    if let Ok(mut repository) = repository_rc.try_borrow_mut() {
+                        if repository.cells_per_row() > 1 {
+                            if repository.can_move_abs(coords) {
+                                let current_coords = repository.position();
+                                if let Some(index) = repository.index_from_position(current_coords) {
+                                    if let Some(current_entry) = repository.entry_at_index(index) {
+                                        set_label_text_at_coords(&grid, current_coords, current_entry.label_display(false))
+                                    }
+                                };
+                                repository.move_abs(coords);
+                                if let Some(entry) = repository.current_entry() {
+                                    label.set_text(&entry.label_display(true));
                                 }
-                            };
-                            repository.move_abs(coords);
-                            window.set_title(Some(&(repository.title_display())));
+
+                                window.set_title(Some(&(repository.title_display())));
+                            }
                         }
                     }
-                }
-            }));
-            picture.add_controller(gesture_left_click);
-            vbox.append(&label);
+                }));
+                picture.add_controller(gesture_left_click);
+                vbox.append(&label);
+            }
         }
+    } else {
+        println!("can't borrow repository_rc");
     }
+
 }
 /*
-fn rotten_set_grid_cell_vbox(vbox: &gtk::Box, coords: Coords, repository: &Repository, repository_rc: &Rc<RefCell<Repository>>, window: &gtk::ApplicationWindow) {
-    while let Some(child) = vbox.first_child() {
-        vbox.remove(&child)
-    };
-    if let Some(index) = repository.index_from_position(coords) {
-       if let Some(entry) = repository.entry_at_index(index) {
-            let picture = gtk::Picture::new();
-            let opacity = if entry.delete { 0.25 }
-            else if entry.image_data.selected { 0.50 } else { 1.0 };
-            picture.set_valign(Align::Center);
-            picture.set_halign(Align::Center);
-            picture.set_opacity(opacity);
-            picture.set_can_shrink(!repository.real_size());
-            let result = if repository.cells_per_row() < 10 {
-                set_original_picture_file(&picture, &entry)
-            } else {
+   fn rotten_set_grid_cell_vbox(vbox: &gtk::Box, coords: Coords, repository: &Repository, repository_rc: &Rc<RefCell<Repository>>, window: &gtk::ApplicationWindow) {
+   while let Some(child) = vbox.first_child() {
+   vbox.remove(&child)
+   };
+   if let Some(index) = repository.index_from_position(coords) {
+   if let Some(entry) = repository.entry_at_index(index) {
+   let picture = gtk::Picture::new();
+   let opacity = if entry.delete { 0.25 }
+   else if entry.image_data.selected { 0.50 } else { 1.0 };
+   picture.set_valign(Align::Center);
+   picture.set_halign(Align::Center);
+   picture.set_opacity(opacity);
+   picture.set_can_shrink(!repository.real_size());
+   let result = if repository.cells_per_row() < 10 {
+   set_original_picture_file(&picture, &entry)
+   } else {
                 set_thumbnail_picture_file(&picture, &entry)
             };
             match result {
