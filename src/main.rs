@@ -20,6 +20,7 @@ use paths::THUMB_SUFFIX;
 use rank::{Rank};
 use std::cell::{RefCell, RefMut};
 use std::env;
+use std::process;
 use std::rc::Rc;
 use std::time::{Duration};
 
@@ -113,30 +114,13 @@ fn main() {
             println!("illegal height value, setting to default");
             DEFAULT_HEIGHT
         };
-        let copy_selection_target: Option<String> = match &args.copy_selection {
-            Some(target) => {
-                if is_valid_path(target) {
-                    Some(target.to_string())
-                } else {
-                    eprintln!("path {} doesn't exist", target);
-                    application.quit();
-                    None
-                }
-            },
-            None => None,
+        let copy_selection_target = match selection_target(&args.copy_selection) {
+            Ok(target) => target,
+            Err(_) => process::exit(1),
         };
-
-        let move_selection_target: Option<String> = match &args.move_selection {
-            Some(target) => {
-                if is_valid_path(target) {
-                    Some(target.to_string())
-                } else {
-                    eprintln!("path {} doesn't exist", target);
-                    application.quit();
-                    None
-                }
-            },
-            None => None,
+        let move_selection_target = match selection_target(&args.move_selection) {
+            Ok(target) => target,
+            Err(_) => process::exit(1),
         };
 
         let grid_size = if args.thumbnails && args.grid == None {
@@ -611,20 +595,6 @@ fn picture_vadjustment(window: &gtk::ApplicationWindow) -> gtk::Adjustment {
         .expect("Failed to get vadjustment").clone()
 }
 
-fn show_view(grid: &Grid, repository: &Repository, window: &gtk::ApplicationWindow) {
-    let entry = repository.current_entry().unwrap();
-    let picture = grid.first_child().unwrap().downcast::<gtk::Picture>().unwrap();
-    match set_original_picture_file(&picture, &entry) {
-        Ok(_) => {
-            window.set_title(Some(&repository.title_display()))
-        },
-        Err(err) => {
-            picture.set_visible(false);
-            println!("{}",err.to_string())
-        },
-    }
-}
-
 fn label_at_coords(grid: &gtk::Grid, coords: Coords) -> Option<gtk::Label> {
     let (col,row) = coords;
     let vbox = grid.child_at(col as i32, row as i32).expect("can't find a child").downcast::<gtk::Box>().expect("can't downcast child to a Box");
@@ -669,6 +639,73 @@ fn navigate(repository: &mut Repository, grid: &gtk::Grid, window: &gtk::Applica
     }
 }
 
+fn picture_for_entry(entry: &Entry, repository: &Repository) -> gtk::Picture {
+    let picture = gtk::Picture::new();
+    let opacity = if entry.delete { 0.25 }
+    else if entry.image_data.selected { 0.50 } else { 1.0 };
+    picture.set_valign(Align::Center);
+    picture.set_halign(Align::Center);
+    picture.set_opacity(opacity);
+    picture.set_can_shrink(!repository.real_size());
+    let result = if repository.cells_per_row() < 10 {
+        set_original_picture_file(&picture, &entry)
+    } else {
+        set_thumbnail_picture_file(&picture, &entry)
+    };
+    match result {
+        Ok(_) => picture.set_visible(true),
+        Err(err) => {
+            picture.set_visible(false);
+            println!("{}", err.to_string())
+        },
+    };
+    picture
+}
+
+fn label_for_entry(entry: &Entry, index: usize, repository: &Repository) -> gtk::Label {
+    let is_current_entry = index == repository.current_index() && repository.cells_per_row() > 1;
+    let label = gtk::Label::new(Some(&entry.label_display(is_current_entry)));
+    label.set_valign(Align::Center);
+    label.set_halign(Align::Center);
+    label.set_widget_name("picture_label");
+    label
+}
+
+fn drawing_area_for_entry(entry: &Entry) -> gtk::DrawingArea {
+    let drawing_area = gtk::DrawingArea::new();
+    drawing_area.set_valign(Align::Center);
+    drawing_area.set_halign(Align::Center);
+    let colors = entry.image_data.palette;
+    drawing_area.set_content_width(90);
+    drawing_area.set_content_height(10);
+    drawing_area.set_hexpand(true);
+    drawing_area.set_vexpand(true);
+    drawing_area.set_draw_func(move |_, ctx, _, _| {
+        draw_palette(ctx, 90, 10, &colors)
+    });
+    drawing_area
+}
+
+fn set_label_text_at_current_position(grid: &gtk::Grid, repository: &Repository, has_focus: bool) {
+    let current_coords = repository.position();
+    if let Some(current_entry) = repository.current_entry() {
+        set_label_text_at_coords(grid, current_coords, current_entry.label_display(has_focus))
+    };
+}
+
+fn focus_on_cell_at_coords(coords: Coords, grid: &gtk::Grid, window: &gtk::ApplicationWindow, repository: &mut Repository, with_select: bool) {
+    if repository.cells_per_row() > 1 {
+        if repository.can_move_abs(coords) {
+            set_label_text_at_current_position(&grid, &repository, false);
+            repository.move_abs(coords);
+            if with_select {
+                repository.select_point();
+            }
+            set_label_text_at_current_position(&grid, &repository, true);
+            window.set_title(Some(&(repository.title_display())));
+        }
+    }
+}
 fn setup_picture_cell(window: &gtk::ApplicationWindow, grid: &gtk::Grid, vbox: &gtk::Box, coords: Coords, repository_rc: &Rc<RefCell<Repository>>) {
     while let Some(child) = vbox.first_child() {
         vbox.remove(&child)
@@ -676,102 +713,30 @@ fn setup_picture_cell(window: &gtk::ApplicationWindow, grid: &gtk::Grid, vbox: &
     if let Ok(repository) = repository_rc.try_borrow() {
         if let Some(index) = repository.index_from_position(coords) {
             if let Some(entry) = repository.entry_at_index(index) {
-                let picture = gtk::Picture::new();
-                let opacity = if entry.delete { 0.25 }
-                else if entry.image_data.selected { 0.50 } else { 1.0 };
-                picture.set_valign(Align::Center);
-                picture.set_halign(Align::Center);
-                picture.set_opacity(opacity);
-                picture.set_can_shrink(!repository.real_size());
-                let result = if repository.cells_per_row() < 10 {
-                    set_original_picture_file(&picture, &entry)
-                } else {
-                    set_thumbnail_picture_file(&picture, &entry)
-                };
-                match result {
-                    Ok(_) => picture.set_visible(true),
-                    Err(err) => {
-                        picture.set_visible(false);
-                        println!("{}", err.to_string())
-                    },
-                };
-                let is_current_entry = index == repository.current_index() && repository.cells_per_row() > 1;
-                let label = gtk::Label::new(Some(&entry.label_display(is_current_entry)));
-                label.set_valign(Align::Center);
-                label.set_halign(Align::Center);
-                label.set_widget_name("picture_label");
+                let picture = picture_for_entry(entry, &repository);
+                let label = label_for_entry(entry, index, &repository);
                 vbox.append(&picture);
                 if repository.palette_extract_on() { 
-                    let drawing_area = gtk::DrawingArea::new();
-                    drawing_area.set_valign(Align::Center);
-                    drawing_area.set_halign(Align::Center);
-                    let colors = entry.image_data.palette;
-                    drawing_area.set_content_width(90);
-                    drawing_area.set_content_height(10);
-                    drawing_area.set_hexpand(true);
-                    drawing_area.set_vexpand(true);
-                    drawing_area.set_draw_func(move |_, ctx, _, _| {
-                        draw_palette(ctx, 90, 10, &colors)
-                    });
+                    let drawing_area = drawing_area_for_entry(entry);
                     vbox.append(&drawing_area);
                 }
-                let motion_controller = gtk::EventControllerMotion::new();
-                motion_controller.connect_leave(clone!(@strong coords, @strong label, @strong entry, => move |_| {
-                    label.set_text(&entry.label_display(false));
-                }));
-                motion_controller.connect_enter(clone!(@strong coords, @strong label, @strong entry, @strong repository_rc, @strong window => move |_,_,_| {
-                    if let Ok(repository) = repository_rc.try_borrow_mut() {
-                    }
-                }));
                 let gesture_left_click = gtk::GestureClick::new();
                 gesture_left_click.set_button(1);
                 gesture_left_click.connect_pressed(clone!(@strong coords, @strong label, @strong entry, @strong repository_rc, @strong window, @strong grid => move |_,_,_,_| {
                     if let Ok(mut repository) = repository_rc.try_borrow_mut() {
-                        if repository.cells_per_row() > 1 {
-                            if repository.can_move_abs(coords) {
-                                let current_coords = repository.position();
-                                if let Some(index) = repository.index_from_position(current_coords) {
-                                    if let Some(current_entry) = repository.entry_at_index(index) {
-                                        set_label_text_at_coords(&grid, current_coords, current_entry.label_display(false))
-                                    }
-                                };
-                                repository.move_abs(coords);
-                                if let Some(entry) = repository.current_entry() {
-                                    label.set_text(&entry.label_display(true));
-                                }
-
-                                window.set_title(Some(&(repository.title_display())));
-                            }
-                        }
+                        focus_on_cell_at_coords(coords, &grid, &window, &mut repository, false);
                     }
                 }));
                 picture.add_controller(gesture_left_click);
+
                 let gesture_right_click = gtk::GestureClick::new();
                 gesture_right_click.set_button(3);
                 gesture_right_click.connect_pressed(clone!(@strong coords, @strong label, @strong repository_rc, @strong window, @strong grid => move |_,_,_,_| {
-                    // label.set_text(&entry.label_display(true));
                     if let Ok(mut repository) = repository_rc.try_borrow_mut() {
-                        if repository.cells_per_row() > 1 {
-                            if repository.can_move_abs(coords) {
-                                let current_coords = repository.position();
-                                if let Some(index) = repository.index_from_position(current_coords) {
-                                    if let Some(current_entry) = repository.entry_at_index(index) {
-                                        set_label_text_at_coords(&grid, current_coords, current_entry.label_display(false))
-                                    }
-                                };
-                                repository.move_abs(coords);
-                                repository.select_point();
-                                if let Some(entry) = repository.current_entry() {
-                                    label.set_text(&entry.label_display(true));
-                                }
-
-                                window.set_title(Some(&(repository.title_display())));
-                            }
-                        }
+                        focus_on_cell_at_coords(coords, &grid, &window, &mut repository, true);
                     }
                 }));
                 picture.add_controller(gesture_right_click);
-
                 vbox.append(&label);
             }
         }
@@ -779,4 +744,18 @@ fn setup_picture_cell(window: &gtk::ApplicationWindow, grid: &gtk::Grid, vbox: &
         println!("can't borrow repository_rc");
     }
 
+}
+
+fn selection_target(target_arg: &Option<String>) -> Result<Option<String>, String> {
+    match target_arg {
+        Some(target) => {
+            if is_valid_path(target) {
+                Ok(Some(target.to_string()))
+            } else {
+                eprintln!("path {} doesn't exist", target);
+                Err(format!("path {} doesn't exist", target))
+            }
+        },
+        None => Ok(None),
+    }
 }
