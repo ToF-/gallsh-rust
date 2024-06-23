@@ -601,6 +601,10 @@ fn setup_picture_cell(window: &gtk::ApplicationWindow, grid: &gtk::Grid, vbox: &
                     vbox.append(&label);
                 }
             }
+        } else {
+            while let Some(child) = vbox.first_child() {
+                vbox.remove(&child)
+            }
         }
     } else {
         println!("can't borrow repository_rc");
