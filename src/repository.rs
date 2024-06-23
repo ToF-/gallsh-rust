@@ -375,14 +375,17 @@ impl Repository {
         }; 
         if picture_io::save_image_data(&self.entry_list[index]).is_err() {
             println!("can't save image data {}", &self.entry_list[index].image_data_file_path())
-        }
+        };
+        self.navigator.refresh()
+
     }
 
     pub fn toggle_delete(&mut self) {
         assert!(self.entry_list.len() > 0);
         let index = self.navigator.index();
         let entry = &mut self.entry_list[index];
-        entry.delete = ! entry.delete
+        entry.delete = ! entry.delete;
+        self.navigator.refresh()
     }
 
     pub fn set_rank(&mut self, rank: Rank) {
@@ -392,7 +395,8 @@ impl Repository {
         entry.set_rank(rank);
         if picture_io::save_image_data(&entry).is_err() {
             println!("can't save image data {}", &entry.image_data_file_path())
-        }
+        };
+        self.navigator.refresh()
     }
 
     pub fn record_label(&mut self) {
@@ -403,7 +407,8 @@ impl Repository {
         println!("recording label {}", entry.image_data.label.iter().collect::<String>());
         if picture_io::save_image_data(&entry).is_err() {
             println!("can't save image data {}", &entry.image_data_file_path())
-        }
+        };
+        self.navigator.refresh()
     }
 
     pub fn point_remove_label(&mut self) {
@@ -422,7 +427,8 @@ impl Repository {
                 }
                 self.select_start = None
             },
-        }
+        };
+        self.navigator.refresh()
     }
 
     pub fn select_page(&mut self, value: bool) {
@@ -435,7 +441,8 @@ impl Repository {
                 println!("can't save image data {}", &self.entry_list[i].image_data_file_path())
             };
             self.update_max_selected()
-        }
+        };
+        self.navigator.refresh()
     }
 
     pub fn select_all(&mut self, value: bool) {
@@ -448,7 +455,8 @@ impl Repository {
                 println!("can't save image data {}", &self.entry_list[i].image_data_file_path())
             };
             self.update_max_selected()
-        }
+        };
+        self.navigator.refresh()
     }
     
     fn update_max_selected(&mut self) {
@@ -471,7 +479,8 @@ impl Repository {
                     self.select_start = None
                 },
             }
-        }
+        };
+        self.navigator.refresh()
     }
 
     pub fn select_point(&mut self) {
@@ -498,6 +507,7 @@ impl Repository {
                 self.select_start = None
             },
         };
+        self.navigator.refresh();
         self.update_max_selected()
     }
 
@@ -521,7 +531,8 @@ impl Repository {
                 }
                 self.select_start = None
             }
-        }
+        };
+        self.navigator.refresh()
     }
 
     pub fn save_select_entries(&self) {
