@@ -304,6 +304,13 @@ impl Repository {
         println!("move to prev page")
     }
 
+    pub fn move_in_direction(&mut self, direction: Direction) {
+        match direction {
+            Direction::Right | Direction::Down => self.move_next_page(),
+            Direction::Left | Direction::Up => self.move_prev_page(),
+        }
+    }
+
     pub fn set_order_choice_on(&mut self) {
         self.order = None;
         println!("order choice on…");

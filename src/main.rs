@@ -35,6 +35,12 @@ pub struct Graphics {
     pub image_view:         gtk::Picture,
 }
 
+impl Graphics {
+    pub fn view_mode(&self) -> bool {
+        self.stack.visible_child().unwrap() == self.view_scrolled_window
+    }
+}
+
 mod direction;
 mod picture_io;
 mod entry;
@@ -269,7 +275,6 @@ fn main() {
         let graphics_rc = Rc::new(RefCell::new(graphics));
 
         evk.connect_key_pressed(clone!(@strong repository_rc, @strong graphics_rc => move |_, key, _, _| {
-            let step = 100;
             let graphics = graphics_rc.try_borrow().unwrap();
             let window = &graphics.application_window;
             let picture_grid = &graphics.picture_grid;
@@ -339,12 +344,12 @@ fn main() {
                             "v" => if repository.order_choice_on() { repository.sort_by(Order::Value); },
                             "h" => repository.help(),
                             "period"|"k" => {
-                                if stack.visible_child().unwrap() == *grid_scrolled_window {
-                                    stack.set_visible_child(view_scrolled_window);
-                                    setup_image_view(&repository_rc, &image_view, &window);
+                                if graphics.view_mode() {
+                                    graphics.stack.set_visible_child(&graphics.grid_scrolled_window)
                                 } else {
-                                    stack.set_visible_child(grid_scrolled_window)
-                               }
+                                    graphics.stack.set_visible_child(&graphics.view_scrolled_window);
+                                    setup_image_view(&repository_rc, &graphics.image_view, &graphics.application_window)
+                                }
                             },
                             "colon" => {
                                 println!("{}", repository.title_display());
@@ -353,67 +358,19 @@ fn main() {
                             "space" => repository.move_next_page(),
                             "Right" => {
                                 refresh = !repository.real_size();
-                                if repository.real_size() {
-                                    let h_adj = picture_hadjustment(&window);
-                                    h_adj.set_value(h_adj.value() + step as f64)
-                                } else {
-                                    if repository.cells_per_row() == 1 {
-                                        repository.move_next_page();
-                                    } else {
-                                        navigate(&mut repository, &picture_grid, &window, Direction::Right);
-                                        if stack.visible_child().unwrap() == *view_scrolled_window {
-                                            setup_image_view(&repository_rc, &image_view, &window)
-                                        }
-                                    }
-                                }
+                                command(Direction::Right, &graphics, &mut repository, &repository_rc)
                             },
                             "Left" => {
                                 refresh = !repository.real_size();
-                                if repository.real_size() {
-                                    let h_adj = picture_hadjustment(&window);
-                                    h_adj.set_value(h_adj.value() - step as f64)
-                                } else {
-                                    if repository.cells_per_row() == 1 {
-                                        repository.move_prev_page();
-                                    } else {
-                                        navigate(&mut repository, &picture_grid, &window, Direction::Left);
-                                        if stack.visible_child().unwrap() == *view_scrolled_window {
-                                            setup_image_view(&repository_rc, &image_view, &window)
-                                        }
-                                    }
-                                }
+                                command(Direction::Left, &graphics, &mut repository, &repository_rc)
                             },
                             "Down" => {
                                 refresh = !repository.real_size();
-                                if repository.real_size() {
-                                    let v_adj = picture_vadjustment(&window);
-                                    v_adj.set_value(v_adj.value() + step as f64)
-                                } else {
-                                    if repository.cells_per_row() == 1 {
-                                        repository.move_next_page()
-                                    } else {
-                                        navigate(&mut repository, &picture_grid, &window, Direction::Down);
-                                        if stack.visible_child().unwrap() == *view_scrolled_window {
-                                            setup_image_view(&repository_rc, &image_view, &window)
-                                        }
-                                    }
-                                }
+                                command(Direction::Down, &graphics, &mut repository, &repository_rc)
                             },
                             "Up" => {
                                 refresh = !repository.real_size();
-                                if repository.real_size() {
-                                    let v_adj = picture_vadjustment(&window);
-                                    v_adj.set_value(v_adj.value() - step as f64)
-                                } else {
-                                    if repository.cells_per_row() == 1 {
-                                        repository.move_next_page();
-                                    } else {
-                                        navigate(&mut repository, &picture_grid, &window, Direction::Up);
-                                        if stack.visible_child().unwrap() == *view_scrolled_window {
-                                            setup_image_view(&repository_rc, &image_view, &window)
-                                        }
-                                    }
-                                }
+                                command(Direction::Up, &graphics, &mut repository, &repository_rc)
                             },
                             other => println!("{}", other),
                         }
@@ -655,4 +612,24 @@ fn setup_picture_cell(window: &gtk::ApplicationWindow, grid: &gtk::Grid, vbox: &
 
 }
 
-
+fn command(direction: Direction, graphics: &Graphics, repository: &mut Repository, repository_rc: &Rc<RefCell<Repository>>) {
+    let step: f64 = 100.0;
+    let (picture_adjustment, step) = match direction {
+        Direction::Right => (picture_hadjustment(&graphics.application_window), step),
+        Direction::Left  => (picture_hadjustment(&graphics.application_window), -step),
+        Direction::Down  => (picture_vadjustment(&graphics.application_window), step),
+        Direction::Up    => (picture_vadjustment(&graphics.application_window), -step),
+    };
+    if repository.real_size() {
+        picture_adjustment.set_value(picture_adjustment.value() + step)
+    } else {
+        if repository.cells_per_row() == 1 {
+            repository.move_in_direction(direction)
+        } else {
+            navigate(repository, &graphics.picture_grid, &graphics.application_window, direction);
+            if graphics.stack.visible_child().unwrap() == graphics.view_scrolled_window {
+                setup_image_view(&repository_rc, &graphics.image_view, &graphics.application_window)
+            }
+        }
+    }
+}
