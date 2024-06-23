@@ -276,12 +276,6 @@ fn main() {
 
         evk.connect_key_pressed(clone!(@strong repository_rc, @strong graphics_rc => move |_, key, _, _| {
             let graphics = graphics_rc.try_borrow().unwrap();
-            let window = &graphics.application_window;
-            let picture_grid = &graphics.picture_grid;
-            let image_view = &graphics.image_view;
-            let stack = &graphics.stack;
-            let grid_scrolled_window = &graphics.grid_scrolled_window;
-            let view_scrolled_window = &graphics.view_scrolled_window;
             let mut refresh = true;
             if let Ok(mut repository) = repository_rc.try_borrow_mut() {
                 if let Some(key_name) = key.name() {
@@ -320,9 +314,9 @@ fn main() {
                             "n" => if repository.order_choice_on() { repository.sort_by(Order::Name); } else { repository.move_next_page() },
                             "i" => repository.move_prev_page(),
                             "p" => if repository.order_choice_on() { repository.sort_by(Order::Palette); } else { repository.move_prev_page() },
-                            "q" => { repository.quit(); refresh = false; window.close() },
-                            "Q" => { repository.copy_move_and_quit(&copy_selection_target, &move_selection_target); refresh = false; window.close() },
-                            "X" => { repository.delete_entries(); refresh = false; window.close() },
+                            "q" => { repository.quit(); refresh = false; graphics.application_window.close() },
+                            "Q" => { repository.copy_move_and_quit(&copy_selection_target, &move_selection_target); refresh = false; graphics.application_window.close() },
+                            "X" => { repository.delete_entries(); refresh = false; graphics.application_window.close() },
                             "B" => repository.point_rank(Rank::NoStar),
                             "Eacute" => repository.point_rank(Rank::OneStar),
                             "P" => repository.point_rank(Rank::TwoStars),
@@ -378,10 +372,10 @@ fn main() {
                 }
             }
             if refresh {
-                if stack.visible_child().unwrap() == *grid_scrolled_window {
-                    setup_picture_grid(&repository_rc, &picture_grid, &window)
+                if graphics.stack.visible_child().unwrap() == graphics.grid_scrolled_window {
+                    setup_picture_grid(&repository_rc, &graphics.picture_grid, &graphics.application_window)
                 } else {
-                    setup_image_view(&repository_rc, &image_view, &window)
+                    setup_image_view(&repository_rc, &graphics.image_view, &graphics.application_window)
                 }
             }
             gtk::Inhibit(false)
@@ -573,37 +567,39 @@ fn focus_on_cell_at_coords(coords: Coords, grid: &gtk::Grid, window: &gtk::Appli
     }
 }
 fn setup_picture_cell(window: &gtk::ApplicationWindow, grid: &gtk::Grid, vbox: &gtk::Box, coords: Coords, repository_rc: &Rc<RefCell<Repository>>) {
-    while let Some(child) = vbox.first_child() {
-        vbox.remove(&child)
-    };
     if let Ok(repository) = repository_rc.try_borrow() {
         if let Some(index) = repository.index_from_position(coords) {
             if let Some(entry) = repository.entry_at_index(index) {
-                let picture = picture_for_entry(entry, &repository);
-                let label = label_for_entry(entry, index, &repository);
-                vbox.append(&picture);
-                if repository.palette_extract_on() { 
-                    let drawing_area = drawing_area_for_entry(entry);
-                    vbox.append(&drawing_area);
-                }
-                let gesture_left_click = gtk::GestureClick::new();
-                gesture_left_click.set_button(1);
-                gesture_left_click.connect_pressed(clone!(@strong coords, @strong label, @strong entry, @strong repository_rc, @strong window, @strong grid => move |_,_,_,_| {
-                    if let Ok(mut repository) = repository_rc.try_borrow_mut() {
-                        focus_on_cell_at_coords(coords, &grid, &window, &mut repository, false);
+                if repository.page_changed() {
+                    while let Some(child) = vbox.first_child() {
+                        vbox.remove(&child)
+                    };
+                    let picture = picture_for_entry(entry, &repository);
+                    let label = label_for_entry(entry, index, &repository);
+                    vbox.append(&picture);
+                    if repository.palette_extract_on() { 
+                        let drawing_area = drawing_area_for_entry(entry);
+                        vbox.append(&drawing_area);
                     }
-                }));
-                picture.add_controller(gesture_left_click);
+                    let gesture_left_click = gtk::GestureClick::new();
+                    gesture_left_click.set_button(1);
+                    gesture_left_click.connect_pressed(clone!(@strong coords, @strong label, @strong entry, @strong repository_rc, @strong window, @strong grid => move |_,_,_,_| {
+                        if let Ok(mut repository) = repository_rc.try_borrow_mut() {
+                            focus_on_cell_at_coords(coords, &grid, &window, &mut repository, false);
+                        }
+                    }));
+                    picture.add_controller(gesture_left_click);
 
-                let gesture_right_click = gtk::GestureClick::new();
-                gesture_right_click.set_button(3);
-                gesture_right_click.connect_pressed(clone!(@strong coords, @strong label, @strong repository_rc, @strong window, @strong grid => move |_,_,_,_| {
-                    if let Ok(mut repository) = repository_rc.try_borrow_mut() {
-                        focus_on_cell_at_coords(coords, &grid, &window, &mut repository, true);
-                    }
-                }));
-                picture.add_controller(gesture_right_click);
-                vbox.append(&label);
+                    let gesture_right_click = gtk::GestureClick::new();
+                    gesture_right_click.set_button(3);
+                    gesture_right_click.connect_pressed(clone!(@strong coords, @strong label, @strong repository_rc, @strong window, @strong grid => move |_,_,_,_| {
+                        if let Ok(mut repository) = repository_rc.try_borrow_mut() {
+                            focus_on_cell_at_coords(coords, &grid, &window, &mut repository, true);
+                        }
+                    }));
+                    picture.add_controller(gesture_right_click);
+                    vbox.append(&label);
+                }
             }
         }
     } else {

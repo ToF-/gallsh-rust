@@ -11,6 +11,7 @@ pub struct Navigator {
     max_cells: i32,
     start_cell_index: i32,
     position: Coords,
+    page_changed: bool,
 }
 
 impl Navigator {
@@ -21,6 +22,7 @@ impl Navigator {
             max_cells: cells_per_row * cells_per_row,
             start_cell_index: 0,
             position: (0,0),
+            page_changed: true,
         }
     }
 
@@ -41,6 +43,10 @@ impl Navigator {
 
     pub fn position(&self) -> Coords {
         self.position
+    }
+
+    pub fn page_changed(&self) -> bool {
+        self.page_changed
     }
 
     pub fn index_from_position(&self, position: Coords) -> Option<usize> {
@@ -76,6 +82,7 @@ impl Navigator {
     pub fn move_rel(&mut self, direction: Direction) {
         let (col, row) = direction.into();
         self.position = (self.position.0 + col, self.position.1 + row);
+        self.page_changed = false;
         assert!(self.position.0 >= 0 && self.position.0 < self.cells_per_row && self.position.1 >= 0 && self.position.1 < self.cells_per_row)
     }
 
@@ -85,12 +92,13 @@ impl Navigator {
             && position.1 >= 0
             && position.1 < self.cells_per_row
             && self.index_from_position(position).is_some()
-
     }
 
     pub fn move_abs(&mut self, position: Coords) {
         if self.can_move_abs(position) {
-            self.position = position
+            self.position = position;
+            self.page_changed = false;
+
         } else {
             panic!("Navigator {:?} can't move to this position: {:?}", self, position)
         }
@@ -106,6 +114,7 @@ impl Navigator {
             let rel_index = index % self.max_cells;
             self.start_cell_index = index - rel_index;
             self.position = (rel_index % self.cells_per_row, rel_index / self.cells_per_row);
+            self.page_changed = true;
         } else {
             panic!("Navigator {:?} can't move to this absolute position: {:?}", self, n);
         }
@@ -122,7 +131,8 @@ impl Navigator {
             self.start_cell_index += self.max_cells
         } else {
             self.start_cell_index = 0
-        }
+        };
+        self.page_changed = true;
     }
 
     pub fn move_prev_page(&mut self) {
@@ -132,6 +142,11 @@ impl Navigator {
         } else {
             self.start_cell_index = ((self.capacity-1) / self.max_cells) * self.max_cells
         };
+        self.page_changed = true;
+    }
+
+    pub fn refresh(&mut self) {
+        self.page_changed = true
     }
 }
 #[cfg(test)]

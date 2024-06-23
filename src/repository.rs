@@ -311,6 +311,10 @@ impl Repository {
         }
     }
 
+    pub fn page_changed(&self) -> bool {
+        self.navigator.page_changed()
+    }
+
     pub fn set_order_choice_on(&mut self) {
         self.order = None;
         println!("order choice on…");
@@ -555,7 +559,8 @@ impl Repository {
     }
 
     pub fn toggle_palette_extract(&mut self) {
-        self.palette_extract_on = ! self.palette_extract_on
+        self.palette_extract_on = ! self.palette_extract_on;
+        self.navigator.refresh()
     }
 
     pub fn delete_entries(&self) {

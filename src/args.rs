@@ -107,11 +107,11 @@ pub struct Args {
     pub move_selection: Option<String>,
 
     /// Window width (default is set with GALLSHWIDTH)
-    #[arg(short, long)]
+    #[arg(long)]
     pub width: Option<i32>,
     ///
     /// Window width (default is set with GALLSHHEIGHT)
-    #[arg(short, long)]
+    #[arg(long)]
     pub height: Option<i32>,
 
     /// Show palette extraction
