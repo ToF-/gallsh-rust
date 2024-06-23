@@ -1,6 +1,13 @@
 use clap_num::number_range;
+use std::env;
 use clap::Parser;
 use crate::Order;
+use crate::is_valid_path;
+
+const DEFAULT_WIDTH: i32   = 1000;
+const DEFAULT_HEIGHT: i32  = 1000;
+const WIDTH_ENV_VAR :&str  = "GALLSHWIDTH";
+const HEIGHT_ENV_VAR :&str = "GALLSHHEIGHT";
 
 fn less_than_11(s: &str) -> Result<usize, String> {
     number_range(s,1,10)
@@ -112,3 +119,71 @@ pub struct Args {
     pub extraction: bool,
 }
 
+pub fn selection_target(target_arg: &Option<String>) -> Result<Option<String>, String> {
+    match target_arg {
+        Some(target) => {
+            if is_valid_path(target) {
+                Ok(Some(target.to_string()))
+            } else {
+                eprintln!("path {} doesn't exist", target);
+                Err(format!("path {} doesn't exist", target))
+            }
+        },
+        None => Ok(None),
+    }
+}
+
+pub fn grid_size(thumbnails: bool, grid: Option<usize>) -> usize {
+    match grid {
+        Some(size) => if size > 0 && size <= 10 { size } else { if thumbnails { 10 } else { 1 } },
+        None => if thumbnails { 10 } else { 1 },
+    }
+}
+
+pub fn width(width_arg: Option<i32>) -> i32 {
+    let candidate_width = match width_arg {
+        Some(n) => n,
+        None => match env::var(WIDTH_ENV_VAR) {
+            Ok(s) => match s.parse::<i32>() {
+                Ok(n) => n,
+                _ => {
+                    println!("illegal width value, setting to default");
+                    DEFAULT_WIDTH
+                }
+            },
+            _ => {
+                DEFAULT_WIDTH
+            }
+        }
+    };
+    if candidate_width < 3000 && candidate_width > 100 {
+        candidate_width
+    } else {
+        println!("illegal width value, setting to default");
+        DEFAULT_WIDTH
+    }
+}
+
+pub fn height(height_arg: Option<i32>) -> i32 {
+    let candidate_height = match height_arg {
+        Some(n) => n,
+        None => match env::var(HEIGHT_ENV_VAR) {
+            Ok(s) => match s.parse::<i32>() {
+                Ok(n) => n,
+                _ => {
+                    println!("illegal height value, setting to default");
+                    DEFAULT_HEIGHT
+                }
+            },
+            _ => {
+                DEFAULT_HEIGHT
+            }
+        }
+    };
+    if candidate_height < 3000 && candidate_height > 100 {
+        candidate_height
+    } else {
+        println!("illegal height value, setting to default");
+        DEFAULT_HEIGHT
+    }
+}

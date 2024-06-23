@@ -1,5 +1,8 @@
 use clap::Parser;
 use crate::args::Args;
+use crate::args::grid_size;
+use crate::args::selection_target;
+use crate::args::{height, width};
 use crate::direction::Direction;
 use crate::navigator::Coords;
 use crate::paths::determine_path;
@@ -19,15 +22,9 @@ use order::{Order};
 use paths::THUMB_SUFFIX;
 use rank::{Rank};
 use std::cell::{RefCell, RefMut};
-use std::env;
 use std::process;
 use std::rc::Rc;
 use std::time::{Duration};
-
-const DEFAULT_WIDTH: i32   = 1000;
-const DEFAULT_HEIGHT: i32  = 1000;
-const WIDTH_ENV_VAR :&str  = "GALLSHWIDTH";
-const HEIGHT_ENV_VAR :&str = "GALLSHHEIGHT";
 
 pub struct Graphics {
     pub application_window:   gtk::ApplicationWindow,
@@ -72,48 +69,8 @@ fn main() {
     // clone! passes a strong reference to a variable in the closure that activates the application
     // move converts any variables captured by reference or mutable reference to variables captured by value.
     application.connect_activate(clone!(@strong args => move |application: &gtk::Application| {
-        let candidate_width = match args.width {
-            Some(n) => n,
-            None => match env::var(WIDTH_ENV_VAR) {
-                Ok(s) => match s.parse::<i32>() {
-                    Ok(n) => n,
-                    _ => {
-                        println!("illegal width value, setting to default");
-                        DEFAULT_WIDTH
-                    }
-                },
-                _ => {
-                    DEFAULT_WIDTH
-                }
-            }
-        };
-        let width = if candidate_width < 3000 && candidate_width > 100 {
-            candidate_width
-        } else {
-            println!("illegal width value, setting to default");
-            DEFAULT_WIDTH
-        };
-        let candidate_height = match args.height {
-            Some(n) => n,
-            None => match env::var(HEIGHT_ENV_VAR) {
-                Ok(s) => match s.parse::<i32>() {
-                    Ok(n) => n,
-                    _ => {
-                        println!("illegal height value, setting to default");
-                        DEFAULT_HEIGHT
-                    }
-                },
-                _ => {
-                    DEFAULT_HEIGHT
-                }
-            }
-        };
-        let height = if candidate_height < 3000 && candidate_height > 100 {
-            candidate_height
-        } else {
-            println!("illegal height value, setting to default");
-            DEFAULT_HEIGHT
-        };
+        let width = width(args.width);
+        let height = height(args.height);
         let copy_selection_target = match selection_target(&args.copy_selection) {
             Ok(target) => target,
             Err(_) => process::exit(1),
@@ -123,17 +80,7 @@ fn main() {
             Err(_) => process::exit(1),
         };
 
-        let grid_size = if args.thumbnails && args.grid == None {
-            10
-        } else {
-            if let Some(size) = args.grid {
-                if size <= 10 {
-                    size
-                } else {
-                    if args.thumbnails { 10 } else { 1 }
-                }
-            } else { 1 }
-        };
+        let grid_size = grid_size(args.thumbnails, args.grid);
 
         let order = Order::from_options(args.name, args.date, args.size, args.colors, args.value, args.palette, args.label);
         let path = determine_path(args.directory.clone());
@@ -746,16 +693,4 @@ fn setup_picture_cell(window: &gtk::ApplicationWindow, grid: &gtk::Grid, vbox: &
 
 }
 
-fn selection_target(target_arg: &Option<String>) -> Result<Option<String>, String> {
-    match target_arg {
-        Some(target) => {
-            if is_valid_path(target) {
-                Ok(Some(target.to_string()))
-            } else {
-                eprintln!("path {} doesn't exist", target);
-                Err(format!("path {} doesn't exist", target))
-            }
-        },
-        None => Ok(None),
-    }
-}
+
