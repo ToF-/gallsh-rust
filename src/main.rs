@@ -341,7 +341,7 @@ fn main() {
                             "period"|"k" => {
                                 if stack.visible_child().unwrap() == *grid_scrolled_window {
                                     stack.set_visible_child(view_scrolled_window);
-                                    setup_picture_view(&repository_rc, &image_view, &window);
+                                    setup_image_view(&repository_rc, &image_view, &window);
                                 } else {
                                     stack.set_visible_child(grid_scrolled_window)
                                }
@@ -362,7 +362,7 @@ fn main() {
                                     } else {
                                         navigate(&mut repository, &picture_grid, &window, Direction::Right);
                                         if stack.visible_child().unwrap() == *view_scrolled_window {
-                                            setup_picture_view(&repository_rc, &image_view, &window)
+                                            setup_image_view(&repository_rc, &image_view, &window)
                                         }
                                     }
                                 }
@@ -378,7 +378,7 @@ fn main() {
                                     } else {
                                         navigate(&mut repository, &picture_grid, &window, Direction::Left);
                                         if stack.visible_child().unwrap() == *view_scrolled_window {
-                                            setup_picture_view(&repository_rc, &image_view, &window)
+                                            setup_image_view(&repository_rc, &image_view, &window)
                                         }
                                     }
                                 }
@@ -394,7 +394,7 @@ fn main() {
                                     } else {
                                         navigate(&mut repository, &picture_grid, &window, Direction::Down);
                                         if stack.visible_child().unwrap() == *view_scrolled_window {
-                                            setup_picture_view(&repository_rc, &image_view, &window)
+                                            setup_image_view(&repository_rc, &image_view, &window)
                                         }
                                     }
                                 }
@@ -410,7 +410,7 @@ fn main() {
                                     } else {
                                         navigate(&mut repository, &picture_grid, &window, Direction::Up);
                                         if stack.visible_child().unwrap() == *view_scrolled_window {
-                                            setup_picture_view(&repository_rc, &image_view, &window)
+                                            setup_image_view(&repository_rc, &image_view, &window)
                                         }
                                     }
                                 }
@@ -424,7 +424,7 @@ fn main() {
                 if stack.visible_child().unwrap() == *grid_scrolled_window {
                     setup_picture_grid(&repository_rc, &picture_grid, &window)
                 } else {
-                    setup_picture_view(&repository_rc, &image_view, &window)
+                    setup_image_view(&repository_rc, &image_view, &window)
                 }
             }
             gtk::Inhibit(false)
@@ -456,42 +456,6 @@ fn main() {
     application.run_with_args(&empty);
 }
 
-fn picture_grid(window: &gtk::ApplicationWindow) -> gtk::Grid {
-    let stack = window.first_child().expect("can't access to stack")
-        .downcast::<gtk::Stack>().expect("can't downcast to Stack");
-    let grid_scrolled_window = stack.first_child().expect("can't access to grid_scrolled_window")
-        .downcast::<gtk::ScrolledWindow>().expect("can't downcast to ScrolledWindow");
-    let view_port = grid_scrolled_window.first_child().expect("can't access to view_port")
-        .downcast::<gtk::Viewport>().expect("can't downcast to Viewport");
-    let panel = view_port.first_child().expect("can't access to panel")
-        .downcast::<gtk::Grid>().expect("can't downcast to Grid");
-    let child = panel.first_child().expect("can't access panel first child");
-    if child.widget_name() == "picture_grid" {
-        child.downcast::<gtk::Grid>().expect("can't downcast to Grid")
-    } else {
-        let next = child.next_sibling().expect("can't access panel second child");
-        if next.widget_name() == "picture_grid" {
-            next.downcast::<gtk::Grid>().expect("can't downcast to Grid")
-        } else {
-            panic!("can't access to picture grid")
-        }
-    }
-}
-
-fn picture_view(window: &gtk::ApplicationWindow) -> gtk::Grid {
-    let stack = window.first_child().expect("can't access to stack")
-        .downcast::<gtk::Stack>().expect("can't downcast to Stack");
-    let grid_scrolled_window = stack.first_child().expect("can't access to grid_scrolled_window")
-        .downcast::<gtk::ScrolledWindow>().expect("can't downcast to ScrolledWindow");
-    let view_scrolled_window = grid_scrolled_window.next_sibling().expect("can't access to view_scrollde_window")
-        .downcast::<gtk::ScrolledWindow>().expect("can't downcast to ScrolledWindow");
-    let view_port = view_scrolled_window.first_child().expect("can't access to view_port")
-        .downcast::<gtk::Viewport>().expect("can't downcast to Viewport");
-    let view = view_port.first_child().expect("can't access to view")
-        .downcast::<gtk::Grid>().expect("can't downcast to Grid");
-    view
-}
-
 fn setup_picture_grid(repository_rc: &Rc<RefCell<Repository>>, picture_grid: &gtk::Grid, window: &gtk::ApplicationWindow) {
     if let Ok(repository) = repository_rc.try_borrow() {
         let cells_per_row = repository.cells_per_row();
@@ -508,16 +472,15 @@ fn setup_picture_grid(repository_rc: &Rc<RefCell<Repository>>, picture_grid: &gt
     }
 }
 
-fn setup_picture_view(repository_rc: &Rc<RefCell<Repository>>, picture_view: &gtk::Picture, window: &gtk::ApplicationWindow) {
+fn setup_image_view(repository_rc: &Rc<RefCell<Repository>>, picture_view: &gtk::Picture, window: &gtk::ApplicationWindow) {
     if let Ok(repository) = repository_rc.try_borrow() {
         let entry = repository.current_entry().unwrap();
-        let picture = picture_view.first_child().unwrap().downcast::<gtk::Picture>().unwrap();
-        match set_original_picture_file(&picture, &entry) {
+        match set_original_picture_file(&picture_view, &entry) {
             Ok(_) => {
                 window.set_title(Some(&repository.title_display()))
             },
             Err(err) => {
-                picture.set_visible(false);
+                picture_view.set_visible(false);
                 println!("{}",err.to_string())
             },
         }
