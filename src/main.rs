@@ -225,12 +225,12 @@ fn main() {
             panel.attach(&picture_grid, 0, 0, 1, 1);
         }
         left_gesture.set_button(1);
-        left_gesture.connect_pressed(clone!(@strong repository_rc, @strong picture_grid, @strong window => move |_,_,_,_| {
+        left_gesture.connect_pressed(clone!(@strong repository_rc, @strong picture_grid, @strong picture_grid, @strong window => move |_,_,_,_| {
             {
                 let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
                 repository.move_prev_page();
             }
-            setup_picture_grid(&repository_rc, &window);
+            setup_picture_grid(&repository_rc, &picture_grid, &window);
         }));
         left_button.add_controller(left_gesture);
         let right_gesture = gtk::GestureClick::new();
@@ -240,7 +240,7 @@ fn main() {
                 let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
                 repository.move_next_page();
             }
-            setup_picture_grid(&repository_rc, &window);
+            setup_picture_grid(&repository_rc, &picture_grid, &window);
         }));
         right_button.add_controller(right_gesture);
         for col in 0 .. grid_size as i32 {
@@ -273,10 +273,11 @@ fn main() {
             let graphics = graphics_rc.try_borrow().unwrap();
             let window = &graphics.application_window;
             let picture_grid = &graphics.picture_grid;
+            let image_view = &graphics.image_view;
             let stack = &graphics.stack;
             let grid_scrolled_window = &graphics.grid_scrolled_window;
             let view_scrolled_window = &graphics.view_scrolled_window;
-            let mut show_is_on = true;
+            let mut refresh = true;
             if let Ok(mut repository) = repository_rc.try_borrow_mut() {
                 if let Some(key_name) = key.name() {
                     if repository.label_edit_mode_on() {
@@ -314,9 +315,9 @@ fn main() {
                             "n" => if repository.order_choice_on() { repository.sort_by(Order::Name); } else { repository.move_next_page() },
                             "i" => repository.move_prev_page(),
                             "p" => if repository.order_choice_on() { repository.sort_by(Order::Palette); } else { repository.move_prev_page() },
-                            "q" => { repository.quit(); show_is_on = false; window.close() },
-                            "Q" => { repository.copy_move_and_quit(&copy_selection_target, &move_selection_target); show_is_on = false; window.close() },
-                            "X" => { repository.delete_entries(); show_is_on = false; window.close() },
+                            "q" => { repository.quit(); refresh = false; window.close() },
+                            "Q" => { repository.copy_move_and_quit(&copy_selection_target, &move_selection_target); refresh = false; window.close() },
+                            "X" => { repository.delete_entries(); refresh = false; window.close() },
                             "B" => repository.point_rank(Rank::NoStar),
                             "Eacute" => repository.point_rank(Rank::OneStar),
                             "P" => repository.point_rank(Rank::TwoStars),
@@ -340,7 +341,7 @@ fn main() {
                             "period"|"k" => {
                                 if stack.visible_child().unwrap() == *grid_scrolled_window {
                                     stack.set_visible_child(view_scrolled_window);
-                                    setup_picture_view(&repository_rc, &window);
+                                    setup_picture_view(&repository_rc, &image_view, &window);
                                 } else {
                                     stack.set_visible_child(grid_scrolled_window)
                                }
@@ -351,7 +352,7 @@ fn main() {
                             },
                             "space" => repository.move_next_page(),
                             "Right" => {
-                                show_is_on = !repository.real_size();
+                                refresh = !repository.real_size();
                                 if repository.real_size() {
                                     let h_adj = picture_hadjustment(&window);
                                     h_adj.set_value(h_adj.value() + step as f64)
@@ -361,13 +362,13 @@ fn main() {
                                     } else {
                                         navigate(&mut repository, &picture_grid, &window, Direction::Right);
                                         if stack.visible_child().unwrap() == *view_scrolled_window {
-                                            setup_picture_view(&repository_rc, &window)
+                                            setup_picture_view(&repository_rc, &image_view, &window)
                                         }
                                     }
                                 }
                             },
                             "Left" => {
-                                show_is_on = !repository.real_size();
+                                refresh = !repository.real_size();
                                 if repository.real_size() {
                                     let h_adj = picture_hadjustment(&window);
                                     h_adj.set_value(h_adj.value() - step as f64)
@@ -377,13 +378,13 @@ fn main() {
                                     } else {
                                         navigate(&mut repository, &picture_grid, &window, Direction::Left);
                                         if stack.visible_child().unwrap() == *view_scrolled_window {
-                                            setup_picture_view(&repository_rc, &window)
+                                            setup_picture_view(&repository_rc, &image_view, &window)
                                         }
                                     }
                                 }
                             },
                             "Down" => {
-                                show_is_on = !repository.real_size();
+                                refresh = !repository.real_size();
                                 if repository.real_size() {
                                     let v_adj = picture_vadjustment(&window);
                                     v_adj.set_value(v_adj.value() + step as f64)
@@ -393,13 +394,13 @@ fn main() {
                                     } else {
                                         navigate(&mut repository, &picture_grid, &window, Direction::Down);
                                         if stack.visible_child().unwrap() == *view_scrolled_window {
-                                            setup_picture_view(&repository_rc, &window)
+                                            setup_picture_view(&repository_rc, &image_view, &window)
                                         }
                                     }
                                 }
                             },
                             "Up" => {
-                                show_is_on = !repository.real_size();
+                                refresh = !repository.real_size();
                                 if repository.real_size() {
                                     let v_adj = picture_vadjustment(&window);
                                     v_adj.set_value(v_adj.value() - step as f64)
@@ -409,7 +410,7 @@ fn main() {
                                     } else {
                                         navigate(&mut repository, &picture_grid, &window, Direction::Up);
                                         if stack.visible_child().unwrap() == *view_scrolled_window {
-                                            setup_picture_view(&repository_rc, &window)
+                                            setup_picture_view(&repository_rc, &image_view, &window)
                                         }
                                     }
                                 }
@@ -419,11 +420,11 @@ fn main() {
                     };
                 }
             }
-            if show_is_on {
+            if refresh {
                 if stack.visible_child().unwrap() == *grid_scrolled_window {
-                    setup_picture_grid(&repository_rc, &window)
+                    setup_picture_grid(&repository_rc, &picture_grid, &window)
                 } else {
-                    setup_picture_view(&repository_rc, &window)
+                    setup_picture_view(&repository_rc, &image_view, &window)
                 }
             }
             gtk::Inhibit(false)
@@ -442,12 +443,12 @@ fn main() {
                         let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
                         repository.move_next_page();
                     }
-                    setup_picture_grid(&repository_rc, &window);
+                    setup_picture_grid(&repository_rc, &picture_grid, &window);
                     Continue(true)
                 }));
             };
 
-            setup_picture_grid(&repository_rc, &window);
+            setup_picture_grid(&repository_rc, &picture_grid, &window);
             window.present();
         };
     }));
@@ -491,8 +492,7 @@ fn picture_view(window: &gtk::ApplicationWindow) -> gtk::Grid {
     view
 }
 
-fn setup_picture_grid(repository_rc: &Rc<RefCell<Repository>>, window: &gtk::ApplicationWindow) {
-    let picture_grid = picture_grid(window);
+fn setup_picture_grid(repository_rc: &Rc<RefCell<Repository>>, picture_grid: &gtk::Grid, window: &gtk::ApplicationWindow) {
     if let Ok(repository) = repository_rc.try_borrow() {
         let cells_per_row = repository.cells_per_row();
         for col in 0..cells_per_row {
@@ -508,8 +508,7 @@ fn setup_picture_grid(repository_rc: &Rc<RefCell<Repository>>, window: &gtk::App
     }
 }
 
-fn setup_picture_view(repository_rc: &Rc<RefCell<Repository>>, window: &gtk::ApplicationWindow) {
-    let picture_view = picture_view(window);
+fn setup_picture_view(repository_rc: &Rc<RefCell<Repository>>, picture_view: &gtk::Picture, window: &gtk::ApplicationWindow) {
     if let Ok(repository) = repository_rc.try_borrow() {
         let entry = repository.current_entry().unwrap();
         let picture = picture_view.first_child().unwrap().downcast::<gtk::Picture>().unwrap();
