@@ -139,7 +139,7 @@ fn main() {
         //                  image_view: Picture
         //
 
-        let window = gtk::ApplicationWindow::builder()
+        let application_window = gtk::ApplicationWindow::builder()
             .application(application)
             .default_width(width)
             .default_height(height)
@@ -184,12 +184,12 @@ fn main() {
         stack.set_visible_child(&view_scrolled_window);
         stack.set_visible_child(&grid_scrolled_window);
 
-        window.set_child(Some(&stack));
+        application_window.set_child(Some(&stack));
 
         let image_view = Picture::new();
         let view_gesture = gtk::GestureClick::new();
         view_gesture.set_button(0);
-        view_gesture.connect_pressed(clone!(@strong repository_rc, @strong stack, @strong grid_scrolled_window, @strong window => move |_,_, _, _| {
+        view_gesture.connect_pressed(clone!(@strong repository_rc, @strong stack, @strong grid_scrolled_window, @strong application_window => move |_,_, _, _| {
             stack.set_visible_child(&grid_scrolled_window);
         }));
 
@@ -225,22 +225,22 @@ fn main() {
             panel.attach(&picture_grid, 0, 0, 1, 1);
         }
         left_gesture.set_button(1);
-        left_gesture.connect_pressed(clone!(@strong repository_rc, @strong picture_grid, @strong picture_grid, @strong window => move |_,_,_,_| {
+        left_gesture.connect_pressed(clone!(@strong repository_rc, @strong picture_grid, @strong picture_grid, @strong application_window => move |_,_,_,_| {
             {
                 let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
                 repository.move_prev_page();
             }
-            setup_picture_grid(&repository_rc, &picture_grid, &window);
+            setup_picture_grid(&repository_rc, &picture_grid, &application_window);
         }));
         left_button.add_controller(left_gesture);
         let right_gesture = gtk::GestureClick::new();
         right_gesture.set_button(1);
-        right_gesture.connect_pressed(clone!(@strong repository_rc, @strong picture_grid, @strong window => move |_,_,_,_| {
+        right_gesture.connect_pressed(clone!(@strong repository_rc, @strong picture_grid, @strong application_window => move |_,_,_,_| {
             {
                 let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
                 repository.move_next_page();
             }
-            setup_picture_grid(&repository_rc, &picture_grid, &window);
+            setup_picture_grid(&repository_rc, &picture_grid, &application_window);
         }));
         right_button.add_controller(right_gesture);
         for col in 0 .. grid_size as i32 {
@@ -251,15 +251,14 @@ fn main() {
                 vbox.set_halign(Align::Center);
                 vbox.set_hexpand(true);
                 vbox.set_vexpand(true);
-                setup_picture_cell(&window, &picture_grid, &vbox, coords, &repository_rc);
+                setup_picture_cell(&application_window, &picture_grid, &vbox, coords, &repository_rc);
                 picture_grid.attach(&vbox, col as i32, row as i32, 1, 1);
             }
         }
         grid_scrolled_window.set_child(Some(&panel));
 
-        let evk = gtk::EventControllerKey::new();
         let graphics = Graphics {
-            application_window: window,
+            application_window: application_window,
             stack: stack,
             grid_scrolled_window: grid_scrolled_window,
             view_scrolled_window: view_scrolled_window,
@@ -267,6 +266,8 @@ fn main() {
             image_view: image_view,
         };
         let graphics_rc = Rc::new(RefCell::new(graphics));
+
+        let evk = gtk::EventControllerKey::new();
 
         evk.connect_key_pressed(clone!(@strong repository_rc, @strong graphics_rc => move |_, key, _, _| {
             let graphics = graphics_rc.try_borrow().unwrap();
