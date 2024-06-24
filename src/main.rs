@@ -1,15 +1,9 @@
 use clap::Parser;
-use crate::args::Args;
-use crate::args::grid_size;
-use crate::args::selection_target;
-use crate::args::{height, width};
+use crate::args::{Args, grid_size, height, selection_target, width};
 use crate::direction::Direction;
 use crate::navigator::Coords;
 use crate::paths::determine_path;
-use crate::picture_io::draw_palette;
-use crate::picture_io::ensure_thumbnail;
-use crate::picture_io::is_valid_path;
-use crate::picture_io::{read_entries, set_original_picture_file, set_thumbnail_picture_file};
+use crate::picture_io::{draw_palette, ensure_thumbnail, is_valid_path, read_entries, set_original_picture_file, set_thumbnail_picture_file};
 use crate::repository::Repository;
 use entry::{Entry, EntryList, make_entry};
 use glib::clone;
