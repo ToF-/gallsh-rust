@@ -1,11 +1,10 @@
-use clap::Parser;
 use crate::args::{Args, grid_size, height, selection_target, width};
 use crate::direction::Direction;
 use crate::navigator::Coords;
 use crate::paths::determine_path;
-use crate::picture_io::{draw_palette, ensure_thumbnail, is_valid_path, read_entries, set_original_picture_file, set_thumbnail_picture_file};
+use crate::picture_io::{ensure_thumbnail, is_valid_path, read_entries};
 use crate::repository::Repository;
-use entry::{Entry, EntryList, make_entry};
+use entry::Entry;
 use glib::clone;
 use glib::prelude::*;
 use glib::timeout_add_local;
@@ -14,13 +13,21 @@ use gtk::traits::WidgetExt;
 use gtk::{self, Align, Application, CssProvider, Orientation, Label, ScrolledWindow, gdk, glib, Grid, Picture};
 use order::{Order};
 use paths::THUMB_SUFFIX;
-use rank::{Rank};
-use std::cell::{RefCell, RefMut};
-use std::process;
+use std::cell::RefCell;
+use clap::Parser;
 use std::rc::Rc;
-use std::time::{Duration};
 use crate::graphics::{command, setup_image_view, setup_picture_cell, setup_picture_grid};
 use crate::graphics::Graphics;
+use crate::entry::EntryList;
+use std::cell::RefMut;
+use std::time::Duration;
+use crate::rank::Rank;
+use std::process;
+
+
+
+
+
 
 
 

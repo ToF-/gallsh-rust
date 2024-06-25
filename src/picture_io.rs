@@ -1,11 +1,11 @@
 use gtk::cairo::{Context, Format, ImageSurface};
-use crate::Entry;
+use crate::entry::make_entry;
 use crate::EntryList;
-use crate::Rank;
+use crate::rank::Rank;
+use crate::Entry;
 use crate::THUMB_SUFFIX;
 use crate::image::get_image_color;
 use crate::image_data::ImageData;
-use crate::make_entry;
 use crate::paths::is_thumbnail;
 use palette_extract::{get_palette_rgb};
 use regex::Regex;

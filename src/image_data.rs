@@ -1,6 +1,7 @@
-use crate::Rank;
 use serde::{Deserialize, Serialize};
 use core::cmp::Ordering;
+use crate::rank::Rank;
+
 
 #[derive(PartialEq, Clone, Debug, Deserialize, Serialize)]
 pub struct ImageData {
