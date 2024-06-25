@@ -1,3 +1,9 @@
+use gtk::Orientation;
+use std::cell::RefMut;
+use gtk::Picture;
+use gtk::Label;
+use gtk::Grid;
+use gtk::CssProvider;
 use crate::direction::Direction;
 use crate::navigator::Coords;
 use crate::picture_io::{draw_palette, set_original_picture_file, set_thumbnail_picture_file};
@@ -10,6 +16,27 @@ use gtk::traits::WidgetExt;
 use gtk::{self, Align, ScrolledWindow};
 use std::cell::{RefCell};
 use std::rc::Rc;
+
+// build the main window
+// here's the deal:
+//
+//  window: ApplicationWindow
+//      stack: Stack
+//          grid_scrolled_window: ScrolledWindow
+//              panel: Grid
+//                  left_button: Label
+//                  grid: Grid
+//                      { cells_per_row x cells_per_row }
+//                      …
+//                      vbox: Box
+//                          image: Picture
+//                          label: Label
+//                      …
+//                  right_button: Label
+//          view_scrolled_window: ScrolledWindow
+//              view: Grid
+//                  image_view: Picture
+//
 
 pub struct Graphics {
     pub application_window:   gtk::ApplicationWindow,
@@ -186,6 +213,137 @@ pub fn focus_on_cell_at_coords(coords: Coords, grid: &gtk::Grid, window: &gtk::A
             window.set_title(Some(&(repository.title_display())));
         }
     }
+}
+
+
+pub fn create_graphics(application: &gtk::Application, width: i32, height: i32, grid_size: usize, repository_rc: &Rc<RefCell<Repository>>) -> Graphics {
+    let application_window = gtk::ApplicationWindow::builder()
+        .application(application)
+        .default_width(width)
+        .default_height(height)
+        .build();
+
+    let grid_scrolled_window = ScrolledWindow::builder()
+        .hscrollbar_policy(gtk::PolicyType::Automatic)
+        .vscrollbar_policy(gtk::PolicyType::Automatic)
+        .name("grid")
+        .build();
+
+    let view_scrolled_window = ScrolledWindow::builder()
+        .hscrollbar_policy(gtk::PolicyType::Automatic)
+        .vscrollbar_policy(gtk::PolicyType::Automatic)
+        .name("view")
+        .build();
+
+    let buttons_css_provider = CssProvider::new();
+    buttons_css_provider.load_from_data(
+        "
+            label {
+                color: gray;
+                font-size: 12px;
+            }
+            text-button {
+                background-color: black;
+            }
+        ");
+
+        let view = Grid::new();
+        view.set_row_homogeneous(true);
+        view.set_column_homogeneous(true);
+        view.set_hexpand(true);
+        view.set_vexpand(true);
+        view_scrolled_window.set_child(Some(&view));
+
+        let stack = gtk::Stack::new();
+        stack.set_hexpand(true);
+        stack.set_vexpand(true);
+        let _ = stack.add_child(&grid_scrolled_window);
+        let _ = stack.add_child(&view_scrolled_window);
+        stack.set_visible_child(&view_scrolled_window);
+        stack.set_visible_child(&grid_scrolled_window);
+
+        application_window.set_child(Some(&stack));
+
+        let image_view = Picture::new();
+        let view_gesture = gtk::GestureClick::new();
+        view_gesture.set_button(0);
+        view_gesture.connect_pressed(clone!(@strong repository_rc, @strong stack, @strong grid_scrolled_window, @strong application_window => move |_,_, _, _| {
+            stack.set_visible_child(&grid_scrolled_window);
+        }));
+
+        image_view.add_controller(view_gesture);
+
+        view.attach(&image_view, 0, 0, 1, 1);
+
+
+        let panel = Grid::new();
+        panel.set_hexpand(true);
+        panel.set_vexpand(true);
+        panel.set_row_homogeneous(true);
+        panel.set_column_homogeneous(false);
+        let left_button = Label::new(Some("←"));
+        let right_button = Label::new(Some("→"));
+        left_button.set_width_chars(10);
+        right_button.set_width_chars(10);
+        left_button.style_context().add_provider(&buttons_css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
+        right_button.style_context().add_provider(&buttons_css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
+        let left_gesture = gtk::GestureClick::new();
+
+        let picture_grid = Grid::new();
+        picture_grid.set_widget_name("picture_grid");
+        picture_grid.set_row_homogeneous(true);
+        picture_grid.set_column_homogeneous(true);
+        picture_grid.set_hexpand(true);
+        picture_grid.set_vexpand(true);
+        if grid_size > 1 {
+            panel.attach(&left_button, 0, 0, 1, 1);
+            panel.attach(&picture_grid, 1, 0, 1, 1);
+            panel.attach(&right_button, 2, 0, 1, 1);
+        } else {
+            panel.attach(&picture_grid, 0, 0, 1, 1);
+        }
+        left_gesture.set_button(1);
+        left_gesture.connect_pressed(clone!(@strong repository_rc, @strong picture_grid, @strong picture_grid, @strong application_window => move |_,_,_,_| {
+            {
+                let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
+                repository.move_prev_page();
+            }
+            setup_picture_grid(&repository_rc, &picture_grid, &application_window);
+        }));
+        left_button.add_controller(left_gesture);
+        let right_gesture = gtk::GestureClick::new();
+        right_gesture.set_button(1);
+        right_gesture.connect_pressed(clone!(@strong repository_rc, @strong picture_grid, @strong application_window => move |_,_,_,_| {
+            {
+                let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
+                repository.move_next_page();
+            }
+            setup_picture_grid(&repository_rc, &picture_grid, &application_window);
+        }));
+        right_button.add_controller(right_gesture);
+        for col in 0 .. grid_size as i32 {
+            for row in 0 .. grid_size as i32 {
+                let coords: Coords = (col,row);
+                let vbox = gtk::Box::new(Orientation::Vertical, 0);
+                vbox.set_valign(Align::Center);
+                vbox.set_halign(Align::Center);
+                vbox.set_hexpand(true);
+                vbox.set_vexpand(true);
+                setup_picture_cell(&application_window, &picture_grid, &vbox, coords, &repository_rc);
+                picture_grid.attach(&vbox, col as i32, row as i32, 1, 1);
+            }
+        }
+        grid_scrolled_window.set_child(Some(&panel));
+
+        let graphics = Graphics {
+            application_window: application_window,
+            stack: stack,
+            grid_scrolled_window: grid_scrolled_window,
+            view_scrolled_window: view_scrolled_window,
+            picture_grid: picture_grid,
+            image_view: image_view,
+        };
+        graphics
 }
 pub fn setup_picture_cell(window: &gtk::ApplicationWindow, grid: &gtk::Grid, vbox: &gtk::Box, coords: Coords, repository_rc: &Rc<RefCell<Repository>>) {
     if let Ok(repository) = repository_rc.try_borrow() {
