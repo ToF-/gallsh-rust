@@ -28,10 +28,12 @@ pub struct Repository {
     label_edit_mode_on: bool,
     label: [char;16],
     label_length: usize,
+    copy_selection_target: Option<String>,
+    move_selection_target: Option<String>,
 }
 
 impl Repository {
-    pub fn from_entries(entries: EntryList, cells_per_row: usize) -> Self {
+    pub fn from_entries(entries: EntryList, cells_per_row: usize, copy_selection_target: Option<String>, move_selection_target: Option<String>) -> Self {
         Repository{
             entry_list: entries.clone(),
             navigator: Navigator::new(entries.len() as i32, cells_per_row as i32),
@@ -44,6 +46,8 @@ impl Repository {
             label_edit_mode_on: false,
             label: ['\0';16],
             label_length: 0,
+            copy_selection_target : copy_selection_target,
+            move_selection_target : move_selection_target,
         }
     }
 
@@ -344,13 +348,13 @@ impl Repository {
         ";
         println!("{}", &content)
     }
-    pub fn copy_move_and_quit(&self, copy_selection_target: &Option<String>, move_selection_target: &Option<String>) {
+    pub fn copy_move_and_quit(&self) {
         self.save_select_entries();
-        if let Some(target_path) = copy_selection_target {
+        if let Some(target_path) = &self.copy_selection_target {
             println!("copy selection to target path");
             self.copy_select_entries(&target_path)
         };
-        if let Some(target_path) = move_selection_target {
+        if let Some(target_path) = &self.move_selection_target {
             println!("move selection to target path");
             self.copy_select_entries(&target_path);
             self.delete_select_entries();

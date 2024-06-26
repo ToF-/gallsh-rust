@@ -98,7 +98,7 @@ fn build_ui(args: &Args, application: &gtk::Application) {
         application.quit()
     };
 
-    let mut repository = Repository::from_entries(entry_list, grid_size);
+    let mut repository = Repository::from_entries(entry_list, grid_size, copy_selection_target.clone(), move_selection_target.clone());
     repository.sort_by(order);
     repository.slice(args.from, args.to);
 
@@ -123,8 +123,8 @@ fn build_ui(args: &Args, application: &gtk::Application) {
 
     let evk = gtk::EventControllerKey::new();
 
-    evk.connect_key_pressed(clone!(@strong repository_rc, @strong graphics_rc, @strong copy_selection_target, @strong move_selection_target => move |_, key, _, _| {
-        process_key(&repository_rc, &graphics_rc, &copy_selection_target, &move_selection_target, key) 
+    evk.connect_key_pressed(clone!(@strong repository_rc, @strong graphics_rc => move |_, key, _, _| {
+        process_key(&repository_rc, &graphics_rc, key) 
     }));
     if let Ok(graphics) = graphics_rc.try_borrow() {
         let window = &graphics.application_window;
@@ -150,7 +150,7 @@ fn build_ui(args: &Args, application: &gtk::Application) {
     };
 }
 
-fn process_key(repository_rc: &Rc<RefCell<Repository>>, graphics_rc: &Rc<RefCell<Graphics>>, copy_selection_target: &Option<String>, move_selection_target: &Option<String>, key: Key) -> gtk::Inhibit {
+fn process_key(repository_rc: &Rc<RefCell<Repository>>, graphics_rc: &Rc<RefCell<Graphics>>, key: Key) -> gtk::Inhibit {
     let graphics = graphics_rc.try_borrow().unwrap();
     let mut refresh = true;
     if let Ok(mut repository) = repository_rc.try_borrow_mut() {
@@ -191,7 +191,7 @@ fn process_key(repository_rc: &Rc<RefCell<Repository>>, graphics_rc: &Rc<RefCell
                     "i" => repository.move_prev_page(),
                     "p" => if repository.order_choice_on() { repository.sort_by(Order::Palette); } else { repository.move_prev_page() },
                     "q" => { repository.quit(); refresh = false; graphics.application_window.close() },
-                    "Q" => { repository.copy_move_and_quit(&copy_selection_target, &move_selection_target); refresh = false; graphics.application_window.close() },
+                    "Q" => { repository.copy_move_and_quit(); refresh = false; graphics.application_window.close() },
                     "X" => { repository.delete_entries(); refresh = false; graphics.application_window.close() },
                     "B" => repository.point_rank(Rank::NoStar),
                     "Eacute" => repository.point_rank(Rank::OneStar),
