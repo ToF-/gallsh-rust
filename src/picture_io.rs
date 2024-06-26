@@ -1,12 +1,13 @@
-use gtk::cairo::{Context, Format, ImageSurface};
-use crate::entry::make_entry;
-use crate::EntryList;
-use crate::rank::Rank;
 use crate::Entry;
+use crate::EntryList;
 use crate::THUMB_SUFFIX;
+use crate::entry::make_entry;
 use crate::image::get_image_color;
 use crate::image_data::ImageData;
+use crate::paths::check_path;
 use crate::paths::is_thumbnail;
+use crate::rank::Rank;
+use gtk::cairo::{Context, Format, ImageSurface};
 use palette_extract::{get_palette_rgb};
 use regex::Regex;
 use std::collections::HashSet;
@@ -93,6 +94,12 @@ fn create_thumbnail(entry: &Entry) -> Result<()> {
             }
         },
     }
+}
+
+pub fn ensure_thumbnails(entry_list: &EntryList) {
+    for entry in entry_list {
+        let _ = ensure_thumbnail(&entry);
+    };
 }
 
 pub fn ensure_thumbnail(entry: &Entry) -> Result<()> {
@@ -281,11 +288,16 @@ fn push_entry_from_path(path: &Path, pattern_opt: Option<String>, entry_list: &m
     Ok(())
 }
 pub fn entries_from_directory(dir: &str, pattern_opt: Option<String>) -> Result<EntryList> {
-    let mut entry_list: EntryList = Vec::new();
-    for path in WalkDir::new(dir).into_iter().filter_map(|e| e.ok()).map(|e| e.into_path()) {
-        push_entry_from_path(&path, pattern_opt.clone(), &mut entry_list).unwrap();
-    };
-    Ok(entry_list.clone())
+    match check_path(dir) {
+        Ok(directory) => {
+            let mut entry_list: EntryList = Vec::new();
+            for path in WalkDir::new(directory).into_iter().filter_map(|e| e.ok()).map(|e| e.into_path()) {
+                push_entry_from_path(&path, pattern_opt.clone(), &mut entry_list).unwrap();
+            };
+            Ok(entry_list.clone())
+        },
+        Err(e) => Err(e),
+    }
 }
 
 pub fn entries_from_file(file: &str) -> Result<EntryList> {

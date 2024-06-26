@@ -1,5 +1,7 @@
-use std::path::PathBuf;
+use std::path::{Path,PathBuf};
+use std::fs;
 use std::env;
+use std::io::{Result, Error, ErrorKind};
 
 pub const THUMB_SUFFIX: &str = "THUMB";
 pub const IMAGE_DATA: &str = "IMAGE_DATA";
@@ -7,6 +9,22 @@ pub const IMAGE_DATA: &str = "IMAGE_DATA";
 const DEFAULT_DIR :&str    = "images/";
 const DIR_ENV_VAR :&str    = "GALLSHDIR";
 
+pub fn check_path(dir: &str) -> Result<PathBuf> {
+    let path = PathBuf::from(dir);
+    if !path.exists() {
+        Err(Error::new(ErrorKind::Other, format!("path {} doesn't exist", dir)))
+    } else {
+        if let Ok(metadata) = fs::metadata(path.clone()) {
+            if !metadata.is_dir() {
+                Err(Error::new(ErrorKind::Other, format!("path {} is not a directory", dir)))
+            } else {
+                Ok(path)
+            }
+        } else {
+            panic!("can't read path {}", dir)
+        }
+    }
+}
 pub fn determine_path(directory: Option<String>) -> String {
     let gallshdir = env::var(DIR_ENV_VAR);
     if let Some(directory_arg) = directory {

@@ -1,9 +1,9 @@
 use crate::graphics::create_graphics;
-use crate::args::{Args, grid_size, height, selection_target, width};
+use crate::args::{Args, selection_target};
 use crate::direction::Direction;
 use crate::navigator::Coords;
 use crate::paths::determine_path;
-use crate::picture_io::{ensure_thumbnail, is_valid_path, read_entries};
+use crate::picture_io::{ensure_thumbnails, is_valid_path, read_entries};
 use crate::repository::Repository;
 use entry::Entry;
 use glib::clone;
@@ -68,22 +68,20 @@ fn main() {
 }
 
 fn build_ui(args: &Args, application: &gtk::Application) {
-    let width = width(args.width);
-    let height = height(args.height);
-    let copy_selection_target = match selection_target(&args.copy_selection) {
+    let width = args.width();
+    let height = args.height();
+    let copy_selection_target = match args.copy_selection_target() {
         Ok(target) => target,
         Err(_) => process::exit(1),
     };
-    let move_selection_target = match selection_target(&args.move_selection) {
+    let move_selection_target = match args.move_selection_target() {
         Ok(target) => target,
         Err(_) => process::exit(1),
     };
+    let grid_size = args.grid_size();
+    let order = args.order();
 
-    let grid_size = grid_size(args.thumbnails, args.grid);
-
-    let order = Order::from_options(args.name, args.date, args.size, args.colors, args.value, args.palette, args.label);
-    let path = determine_path(args.directory.clone());
-    let entry_list = match read_entries(args.reading.clone(), args.file.clone(), path, args.pattern.clone()) {
+    let entry_list = match read_entries(args.reading.clone(), args.file.clone(), args.path(), args.pattern.clone()) {
         Ok(list) => list,
         Err(err) => {
             println!("{}", err);
@@ -92,9 +90,7 @@ fn build_ui(args: &Args, application: &gtk::Application) {
         }
     };
     if args.update_image_data {
-        for entry in &entry_list {
-            let _ = ensure_thumbnail(&entry);
-        };
+        ensure_thumbnails(&entry_list);
         application.quit()
     };
 
@@ -115,14 +111,12 @@ fn build_ui(args: &Args, application: &gtk::Application) {
     if args.extraction {
         repository.toggle_palette_extract();
     }
+
     let repository_rc = Rc::new(RefCell::new(repository));
-
     let graphics = create_graphics(application, width, height, grid_size, &repository_rc);
-
     let graphics_rc = Rc::new(RefCell::new(graphics));
 
     let evk = gtk::EventControllerKey::new();
-
     evk.connect_key_pressed(clone!(@strong repository_rc, @strong graphics_rc => move |_, key, _, _| {
         process_key(&repository_rc, &graphics_rc, key) 
     }));

@@ -1,3 +1,4 @@
+use crate::determine_path;
 use clap_num::number_range;
 use std::env;
 use clap::Parser;
@@ -119,6 +120,80 @@ pub struct Args {
     pub extraction: bool,
 }
 
+impl Args {
+    pub fn width(&self) -> i32 {
+        let candidate_width = match self.width {
+            Some(n) => n,
+            None => match env::var(WIDTH_ENV_VAR) {
+                Ok(s) => match s.parse::<i32>() {
+                    Ok(n) => n,
+                    _ => {
+                        println!("illegal width value, setting to default");
+                        DEFAULT_WIDTH
+                    }
+                },
+                _ => {
+                    DEFAULT_WIDTH
+                }
+            }
+        };
+        if candidate_width < 3000 && candidate_width > 100 {
+            candidate_width
+        } else {
+            println!("illegal width value, setting to default");
+            DEFAULT_WIDTH
+        }
+    }
+
+    pub fn height(&self) -> i32 {
+        let candidate_height = match self.height {
+            Some(n) => n,
+            None => match env::var(HEIGHT_ENV_VAR) {
+                Ok(s) => match s.parse::<i32>() {
+                    Ok(n) => n,
+                    _ => {
+                        println!("illegal height value, setting to default");
+                        DEFAULT_HEIGHT
+                    }
+                },
+                _ => {
+                    DEFAULT_HEIGHT
+                }
+            }
+        };
+        if candidate_height < 3000 && candidate_height > 100 {
+            candidate_height
+        } else {
+            println!("illegal height value, setting to default");
+            DEFAULT_HEIGHT
+        }
+    }
+
+    pub fn copy_selection_target(&self) -> Result<Option<String>, String> {
+        selection_target(&self.copy_selection)
+    }
+
+    pub fn move_selection_target(&self) -> Result<Option<String>, String> {
+        selection_target(&self.move_selection)
+    }
+
+    pub fn grid_size(&self) -> usize {
+        match self.grid {
+            Some(size) => if size > 0 && size <= 10 { size } else { if self.thumbnails { 10 } else { 1 } },
+            None => if self.thumbnails { 10 } else { 1 },
+        }
+    }
+
+    pub fn order(&self) -> Order {
+        Order::from_options(self.name, self.date, self.size, self.colors, self.value, self.palette, self.label)
+    }
+
+    pub fn path(&self) -> String {
+        determine_path(self.directory.clone())
+    }
+
+}
+
 pub fn selection_target(target_arg: &Option<String>) -> Result<Option<String>, String> {
     match target_arg {
         Some(target) => {
@@ -133,57 +208,5 @@ pub fn selection_target(target_arg: &Option<String>) -> Result<Option<String>, S
     }
 }
 
-pub fn grid_size(thumbnails: bool, grid: Option<usize>) -> usize {
-    match grid {
-        Some(size) => if size > 0 && size <= 10 { size } else { if thumbnails { 10 } else { 1 } },
-        None => if thumbnails { 10 } else { 1 },
-    }
-}
 
-pub fn width(width_arg: Option<i32>) -> i32 {
-    let candidate_width = match width_arg {
-        Some(n) => n,
-        None => match env::var(WIDTH_ENV_VAR) {
-            Ok(s) => match s.parse::<i32>() {
-                Ok(n) => n,
-                _ => {
-                    println!("illegal width value, setting to default");
-                    DEFAULT_WIDTH
-                }
-            },
-            _ => {
-                DEFAULT_WIDTH
-            }
-        }
-    };
-    if candidate_width < 3000 && candidate_width > 100 {
-        candidate_width
-    } else {
-        println!("illegal width value, setting to default");
-        DEFAULT_WIDTH
-    }
-}
 
-pub fn height(height_arg: Option<i32>) -> i32 {
-    let candidate_height = match height_arg {
-        Some(n) => n,
-        None => match env::var(HEIGHT_ENV_VAR) {
-            Ok(s) => match s.parse::<i32>() {
-                Ok(n) => n,
-                _ => {
-                    println!("illegal height value, setting to default");
-                    DEFAULT_HEIGHT
-                }
-            },
-            _ => {
-                DEFAULT_HEIGHT
-            }
-        }
-    };
-    if candidate_height < 3000 && candidate_height > 100 {
-        candidate_height
-    } else {
-        println!("illegal height value, setting to default");
-        DEFAULT_HEIGHT
-    }
-}
