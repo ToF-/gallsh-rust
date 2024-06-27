@@ -121,24 +121,24 @@ fn build_ui(args: &Args, application: &gtk::Application) {
         process_key(&repository_rc, &graphics_rc, key) 
     }));
     let graphics = graphics_rc.try_borrow().unwrap();
-    let window = &graphics.application_window;
+    let application_window = &graphics.application_window;
     let picture_grid = &graphics.picture_grid;
-    window.add_controller(evk);
-    if args.maximized { window.fullscreen() };
+    graphics.application_window.add_controller(evk);
+    if args.maximized { graphics.application_window.fullscreen() };
     // if a timer has been passed, set a timeout routine
     if let Some(t) = args.timer {
-        timeout_add_local(Duration::new(t,0), clone!(@strong repository_rc, @strong picture_grid, @strong window => move | | {
+        timeout_add_local(Duration::new(t,0), clone!(@strong repository_rc, @strong picture_grid, @strong application_window => move | | {
             {
                 let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
                 repository.move_next_page();
             }
-            setup_picture_grid(&repository_rc, &picture_grid, &window);
+            setup_picture_grid(&repository_rc, &picture_grid, &application_window);
             Continue(true)
         }));
     };
 
-    setup_picture_grid(&repository_rc, &picture_grid, &window);
-    window.present();
+    setup_picture_grid(&repository_rc, &picture_grid, &application_window);
+    application_window.present();
 }
 
 
