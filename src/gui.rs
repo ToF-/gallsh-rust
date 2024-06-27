@@ -38,7 +38,7 @@ use std::rc::Rc;
 //                  image_view: Picture
 //
 
-pub struct Graphics {
+pub struct Gui {
     pub application_window:   gtk::ApplicationWindow,
     pub stack:                gtk::Stack,
     pub grid_scrolled_window: gtk::ScrolledWindow,
@@ -47,7 +47,7 @@ pub struct Graphics {
     pub image_view:         gtk::Picture,
 }
 
-impl Graphics {
+impl Gui {
 
     pub fn view_mode(&self) -> bool {
         self.stack.visible_child().unwrap() == self.view_scrolled_window
@@ -216,7 +216,7 @@ pub fn focus_on_cell_at_coords(coords: Coords, grid: &gtk::Grid, window: &gtk::A
 }
 
 
-pub fn create_graphics(application: &gtk::Application, width: i32, height: i32, grid_size: usize, repository_rc: &Rc<RefCell<Repository>>) -> Graphics {
+pub fn create_gui(application: &gtk::Application, width: i32, height: i32, grid_size: usize, repository_rc: &Rc<RefCell<Repository>>) -> Gui {
     let application_window = gtk::ApplicationWindow::builder()
         .application(application)
         .default_width(width)
@@ -335,7 +335,7 @@ pub fn create_graphics(application: &gtk::Application, width: i32, height: i32, 
         }
         grid_scrolled_window.set_child(Some(&panel));
 
-        let graphics = Graphics {
+        let gui = Gui {
             application_window: application_window,
             stack: stack,
             grid_scrolled_window: grid_scrolled_window,
@@ -343,7 +343,7 @@ pub fn create_graphics(application: &gtk::Application, width: i32, height: i32, 
             picture_grid: picture_grid,
             image_view: image_view,
         };
-        graphics
+        gui
 }
 pub fn setup_picture_cell(window: &gtk::ApplicationWindow, grid: &gtk::Grid, vbox: &gtk::Box, coords: Coords, repository_rc: &Rc<RefCell<Repository>>) {
     if let Ok(repository) = repository_rc.try_borrow() {
@@ -391,13 +391,13 @@ pub fn setup_picture_cell(window: &gtk::ApplicationWindow, grid: &gtk::Grid, vbo
 
 }
 
-pub fn command(direction: Direction, graphics: &Graphics, repository: &mut Repository, repository_rc: &Rc<RefCell<Repository>>) {
+pub fn command(direction: Direction, gui: &Gui, repository: &mut Repository, repository_rc: &Rc<RefCell<Repository>>) {
     let step: f64 = 100.0;
     let (picture_adjustment, step) = match direction {
-        Direction::Right => (picture_hadjustment(&graphics.application_window), step),
-        Direction::Left  => (picture_hadjustment(&graphics.application_window), -step),
-        Direction::Down  => (picture_vadjustment(&graphics.application_window), step),
-        Direction::Up    => (picture_vadjustment(&graphics.application_window), -step),
+        Direction::Right => (picture_hadjustment(&gui.application_window), step),
+        Direction::Left  => (picture_hadjustment(&gui.application_window), -step),
+        Direction::Down  => (picture_vadjustment(&gui.application_window), step),
+        Direction::Up    => (picture_vadjustment(&gui.application_window), -step),
     };
     if repository.real_size() {
         picture_adjustment.set_value(picture_adjustment.value() + step)
@@ -405,9 +405,9 @@ pub fn command(direction: Direction, graphics: &Graphics, repository: &mut Repos
         if repository.cells_per_row() == 1 {
             repository.move_in_direction(direction)
         } else {
-            navigate(repository, &graphics.picture_grid, &graphics.application_window, direction);
-            if graphics.stack.visible_child().unwrap() == graphics.view_scrolled_window {
-                setup_image_view(&repository_rc, &graphics.image_view, &graphics.application_window)
+            navigate(repository, &gui.picture_grid, &gui.application_window, direction);
+            if gui.stack.visible_child().unwrap() == gui.view_scrolled_window {
+                setup_image_view(&repository_rc, &gui.image_view, &gui.application_window)
             }
         }
     }

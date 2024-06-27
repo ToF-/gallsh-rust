@@ -1,4 +1,4 @@
-use crate::graphics::create_graphics;
+use crate::gui::create_gui;
 use crate::args::{Args, selection_target};
 use crate::direction::Direction;
 use crate::navigator::Coords;
@@ -18,8 +18,8 @@ use paths::THUMB_SUFFIX;
 use std::cell::RefCell;
 use clap::Parser;
 use std::rc::Rc;
-use crate::graphics::{command, setup_image_view, setup_picture_cell, setup_picture_grid};
-use crate::graphics::Graphics;
+use crate::gui::{command, setup_image_view, setup_picture_cell, setup_picture_grid};
+use crate::gui::Gui;
 use crate::entry::EntryList;
 use std::cell::RefMut;
 use std::time::Duration;
@@ -29,7 +29,7 @@ use std::process;
 mod args;
 mod direction;
 mod entry;
-mod graphics;
+mod gui;
 mod image;
 mod image_data;
 mod navigator;
@@ -113,18 +113,18 @@ fn build_ui(args: &Args, application: &gtk::Application) {
     }
 
     let repository_rc = Rc::new(RefCell::new(repository));
-    let graphics = create_graphics(application, width, height, grid_size, &repository_rc);
-    let graphics_rc = Rc::new(RefCell::new(graphics));
+    let gui = create_gui(application, width, height, grid_size, &repository_rc);
+    let gui_rc = Rc::new(RefCell::new(gui));
 
     let evk = gtk::EventControllerKey::new();
-    evk.connect_key_pressed(clone!(@strong repository_rc, @strong graphics_rc => move |_, key, _, _| {
-        process_key(&repository_rc, &graphics_rc, key) 
+    evk.connect_key_pressed(clone!(@strong repository_rc, @strong gui_rc => move |_, key, _, _| {
+        process_key(&repository_rc, &gui_rc, key) 
     }));
-    let graphics = graphics_rc.try_borrow().unwrap();
-    let application_window = &graphics.application_window;
-    let picture_grid = &graphics.picture_grid;
-    graphics.application_window.add_controller(evk);
-    if args.maximized { graphics.application_window.fullscreen() };
+    let gui = gui_rc.try_borrow().unwrap();
+    let application_window = &gui.application_window;
+    let picture_grid = &gui.picture_grid;
+    gui.application_window.add_controller(evk);
+    if args.maximized { gui.application_window.fullscreen() };
     // if a timer has been passed, set a timeout routine
     if let Some(t) = args.timer {
         timeout_add_local(Duration::new(t,0), clone!(@strong repository_rc, @strong picture_grid, @strong application_window => move | | {
@@ -142,8 +142,8 @@ fn build_ui(args: &Args, application: &gtk::Application) {
 }
 
 
-fn process_key(repository_rc: &Rc<RefCell<Repository>>, graphics_rc: &Rc<RefCell<Graphics>>, key: Key) -> gtk::Inhibit {
-    let graphics = graphics_rc.try_borrow().unwrap();
+fn process_key(repository_rc: &Rc<RefCell<Repository>>, gui_rc: &Rc<RefCell<Gui>>, key: Key) -> gtk::Inhibit {
+    let gui = gui_rc.try_borrow().unwrap();
     let mut refresh = true;
     if let Ok(mut repository) = repository_rc.try_borrow_mut() {
         if let Some(key_name) = key.name() {
@@ -182,9 +182,9 @@ fn process_key(repository_rc: &Rc<RefCell<Repository>>, graphics_rc: &Rc<RefCell
                     "n" => if repository.order_choice_on() { repository.sort_by(Order::Name); } else { repository.move_next_page() },
                     "i" => repository.move_prev_page(),
                     "p" => if repository.order_choice_on() { repository.sort_by(Order::Palette); } else { repository.move_prev_page() },
-                    "q" => { repository.quit(); refresh = false; graphics.application_window.close() },
-                    "Q" => { repository.copy_move_and_quit(); refresh = false; graphics.application_window.close() },
-                    "X" => { repository.delete_entries(); refresh = false; graphics.application_window.close() },
+                    "q" => { repository.quit(); refresh = false; gui.application_window.close() },
+                    "Q" => { repository.copy_move_and_quit(); refresh = false; gui.application_window.close() },
+                    "X" => { repository.delete_entries(); refresh = false; gui.application_window.close() },
                     "B" => repository.point_rank(Rank::NoStar),
                     "Eacute" => repository.point_rank(Rank::OneStar),
                     "P" => repository.point_rank(Rank::TwoStars),
@@ -206,11 +206,11 @@ fn process_key(repository_rc: &Rc<RefCell<Repository>>, graphics_rc: &Rc<RefCell
                     "v" => if repository.order_choice_on() { repository.sort_by(Order::Value); },
                     "h" => repository.help(),
                     "period"|"k" => {
-                        if graphics.view_mode() {
-                            graphics.stack.set_visible_child(&graphics.grid_scrolled_window)
+                        if gui.view_mode() {
+                            gui.stack.set_visible_child(&gui.grid_scrolled_window)
                         } else {
-                            graphics.stack.set_visible_child(&graphics.view_scrolled_window);
-                            setup_image_view(&repository_rc, &graphics.image_view, &graphics.application_window)
+                            gui.stack.set_visible_child(&gui.view_scrolled_window);
+                            setup_image_view(&repository_rc, &gui.image_view, &gui.application_window)
                         }
                     },
                     "colon" => {
@@ -220,19 +220,19 @@ fn process_key(repository_rc: &Rc<RefCell<Repository>>, graphics_rc: &Rc<RefCell
                     "space" => repository.move_next_page(),
                     "Right" => {
                         refresh = !repository.real_size();
-                        command(Direction::Right, &graphics, &mut repository, &repository_rc)
+                        command(Direction::Right, &gui, &mut repository, &repository_rc)
                     },
                     "Left" => {
                         refresh = !repository.real_size();
-                        command(Direction::Left, &graphics, &mut repository, &repository_rc)
+                        command(Direction::Left, &gui, &mut repository, &repository_rc)
                     },
                     "Down" => {
                         refresh = !repository.real_size();
-                        command(Direction::Down, &graphics, &mut repository, &repository_rc)
+                        command(Direction::Down, &gui, &mut repository, &repository_rc)
                     },
                     "Up" => {
                         refresh = !repository.real_size();
-                        command(Direction::Up, &graphics, &mut repository, &repository_rc)
+                        command(Direction::Up, &gui, &mut repository, &repository_rc)
                     },
                     other => println!("{}", other),
                 }
@@ -240,10 +240,10 @@ fn process_key(repository_rc: &Rc<RefCell<Repository>>, graphics_rc: &Rc<RefCell
         }
     }
     if refresh {
-        if graphics.stack.visible_child().unwrap() == graphics.grid_scrolled_window {
-            setup_picture_grid(&repository_rc, &graphics.picture_grid, &graphics.application_window)
+        if gui.stack.visible_child().unwrap() == gui.grid_scrolled_window {
+            setup_picture_grid(&repository_rc, &gui.picture_grid, &gui.application_window)
         } else {
-            setup_image_view(&repository_rc, &graphics.image_view, &graphics.application_window)
+            setup_image_view(&repository_rc, &gui.image_view, &gui.application_window)
         }
     }
     gtk::Inhibit(false)
