@@ -3430,6 +3430,7 @@ arguments	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.
 array_impl	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rand-0.8.5/src/distributions/other.rs	/^macro_rules! array_impl {$/;"	d
 array_impls	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.202/src/de/impls.rs	/^macro_rules! array_impls {$/;"	d
 array_impls	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.202/src/ser/impls.rs	/^macro_rules! array_impls {$/;"	d
+arrow_command	/home/tof/Coding/gallsh-rust/src/gui.rs	/^pub fn arrow_command(direction: Direction, gui: &Gui, repository: &mut Repository, repository_rc: &Rc<RefCell<Repository>>) {$/;"	f
 artists	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/about_dialog.rs	/^    pub fn artists(&self) -> Vec<glib::GString> {$/;"	f
 artists	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/about_dialog.rs	/^    pub fn artists(self, artists: impl Into<glib::StrV>) -> Self {$/;"	f
 as_arbitrary	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/codecs/pnm/header.rs	/^    pub fn as_arbitrary(&self) -> Option<&ArbitraryHeader> {$/;"	f
@@ -3927,6 +3928,7 @@ build	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/
 build	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/regex-1.10.4/src/builders.rs	/^        pub fn build(&self) -> Result<Regex, Error> {$/;"	f
 build	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/regex-1.10.4/src/builders.rs	/^        pub fn build(&self) -> Result<RegexSet, Error> {$/;"	f
 build_frame_header	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/codecs/jpeg/encoder.rs	/^fn build_frame_header($/;"	f
+build_gui	/home/tof/Coding/gallsh-rust/src/gui.rs	/^pub fn build_gui(args: &Args, application: &gtk::Application) {$/;"	f
 build_huffman_segment	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/codecs/jpeg/encoder.rs	/^fn build_huffman_segment($/;"	f
 build_jfif_header	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/codecs/jpeg/encoder.rs	/^fn build_jfif_header(m: &mut Vec<u8>, density: PixelDensity) {$/;"	f
 build_many_bytes	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/regex-1.10.4/src/builders.rs	/^    fn build_many_bytes(&self) -> Result<crate::bytes::RegexSet, Error> {$/;"	f
@@ -3935,7 +3937,6 @@ build_one_bytes	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/r
 build_one_string	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/regex-1.10.4/src/builders.rs	/^    fn build_one_string(&self) -> Result<crate::Regex, Error> {$/;"	f
 build_quantization_segment	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/codecs/jpeg/encoder.rs	/^fn build_quantization_segment(m: &mut Vec<u8>, precision: u8, identifier: u8, qtable: &[u8; 64]) {$/;"	f
 build_scan_header	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/codecs/jpeg/encoder.rs	/^fn build_scan_header(m: &mut Vec<u8>, components: &[Component]) {$/;"	f
-build_ui	/home/tof/Coding/gallsh-rust/src/gui.rs	/^pub fn build_ui(args: &Args, application: &gtk::Application) {$/;"	f
 buildable_id	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/buildable.rs	/^    fn buildable_id(&self) -> Option<glib::GString> {$/;"	f
 buildable_id	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/buildable.rs	/^    fn buildable_id(&self) -> Option<glib::GString>;$/;"	f
 builder	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/about_dialog.rs	/^    pub fn builder() -> AboutDialogBuilder {$/;"	f
@@ -4831,7 +4832,6 @@ columns	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.
 columns_autosize	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/tree_view.rs	/^    fn columns_autosize(&self) {$/;"	f
 columns_autosize	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/tree_view.rs	/^    fn columns_autosize(&self);$/;"	f
 columns_changed	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/subclass/tree_view.rs	/^    fn columns_changed(&self) {$/;"	f
-command	/home/tof/Coding/gallsh-rust/src/gui.rs	/^pub fn command(direction: Direction, gui: &Gui, repository: &mut Repository, repository_rc: &Rc<RefCell<Repository>>) {$/;"	f
 comments	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/about_dialog.rs	/^    pub fn comments(&self) -> Option<glib::GString> {$/;"	f
 comments	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/about_dialog.rs	/^    pub fn comments(self, comments: impl Into<glib::GString>) -> Self {$/;"	f
 commit	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/assistant.rs	/^    pub fn commit(&self) {$/;"	f

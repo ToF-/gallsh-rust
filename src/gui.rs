@@ -478,19 +478,19 @@ pub fn process_key(repository_rc: &Rc<RefCell<Repository>>, gui_rc: &Rc<RefCell<
                     "space" => repository.move_next_page(),
                     "Right" => {
                         refresh = !repository.real_size();
-                        command(Direction::Right, &gui, &mut repository, &repository_rc)
+                        arrow_command(Direction::Right, &gui, &mut repository, &repository_rc)
                     },
                     "Left" => {
                         refresh = !repository.real_size();
-                        command(Direction::Left, &gui, &mut repository, &repository_rc)
+                        arrow_command(Direction::Left, &gui, &mut repository, &repository_rc)
                     },
                     "Down" => {
                         refresh = !repository.real_size();
-                        command(Direction::Down, &gui, &mut repository, &repository_rc)
+                        arrow_command(Direction::Down, &gui, &mut repository, &repository_rc)
                     },
                     "Up" => {
                         refresh = !repository.real_size();
-                        command(Direction::Up, &gui, &mut repository, &repository_rc)
+                        arrow_command(Direction::Up, &gui, &mut repository, &repository_rc)
                     },
                     other => println!("{}", other),
                 }
@@ -506,7 +506,7 @@ pub fn process_key(repository_rc: &Rc<RefCell<Repository>>, gui_rc: &Rc<RefCell<
     }
     gtk::Inhibit(false)
 }
-pub fn command(direction: Direction, gui: &Gui, repository: &mut Repository, repository_rc: &Rc<RefCell<Repository>>) {
+pub fn arrow_command(direction: Direction, gui: &Gui, repository: &mut Repository, repository_rc: &Rc<RefCell<Repository>>) {
     let step: f64 = 100.0;
     let (picture_adjustment, step) = match direction {
         Direction::Right => (picture_hadjustment(&gui.application_window), step),
@@ -528,7 +528,7 @@ pub fn command(direction: Direction, gui: &Gui, repository: &mut Repository, rep
     }
 }
 
-pub fn build_ui(args: &Args, application: &gtk::Application) {
+pub fn build_gui(args: &Args, application: &gtk::Application) {
     let width = args.width();
     let height = args.height();
     let copy_selection_target = match args.copy_selection_target() {
