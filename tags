@@ -3935,7 +3935,7 @@ build_one_bytes	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/r
 build_one_string	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/regex-1.10.4/src/builders.rs	/^    fn build_one_string(&self) -> Result<crate::Regex, Error> {$/;"	f
 build_quantization_segment	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/codecs/jpeg/encoder.rs	/^fn build_quantization_segment(m: &mut Vec<u8>, precision: u8, identifier: u8, qtable: &[u8; 64]) {$/;"	f
 build_scan_header	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.25.1/src/codecs/jpeg/encoder.rs	/^fn build_scan_header(m: &mut Vec<u8>, components: &[Component]) {$/;"	f
-build_ui	/home/tof/Coding/gallsh-rust/src/main.rs	/^fn build_ui(args: &Args, application: &gtk::Application) {$/;"	f
+build_ui	/home/tof/Coding/gallsh-rust/src/gui.rs	/^pub fn build_ui(args: &Args, application: &gtk::Application) {$/;"	f
 buildable_id	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/buildable.rs	/^    fn buildable_id(&self) -> Option<glib::GString> {$/;"	f
 buildable_id	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/buildable.rs	/^    fn buildable_id(&self) -> Option<glib::GString>;$/;"	f
 builder	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/about_dialog.rs	/^    pub fn builder() -> AboutDialogBuilder {$/;"	f
@@ -16122,7 +16122,7 @@ private	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/image-0.2
 private	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.202/src/de/value.rs	/^mod private {$/;"	m
 private	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_json-1.0.117/src/read.rs	/^mod private {$/;"	m
 private	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_json-1.0.117/src/value/index.rs	/^mod private {$/;"	m
-process_key	/home/tof/Coding/gallsh-rust/src/main.rs	/^fn process_key(repository_rc: &Rc<RefCell<Repository>>, gui_rc: &Rc<RefCell<Gui>>, key: Key) -> gtk::Inhibit {$/;"	f
+process_key	/home/tof/Coding/gallsh-rust/src/gui.rs	/^pub fn process_key(repository_rc: &Rc<RefCell<Repository>>, gui_rc: &Rc<RefCell<Gui>>, key: Key) -> gtk::Inhibit {$/;"	f
 program_name	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/about_dialog.rs	/^    pub fn program_name(&self) -> Option<glib::GString> {$/;"	f
 program_name	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/about_dialog.rs	/^    pub fn program_name(self, program_name: impl Into<glib::GString>) -> Self {$/;"	f
 progress_fraction	/home/tof/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gtk4-0.6.6/src/auto/entry.rs	/^    fn progress_fraction(&self) -> f64 {$/;"	f
