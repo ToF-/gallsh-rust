@@ -120,29 +120,27 @@ fn build_ui(args: &Args, application: &gtk::Application) {
     evk.connect_key_pressed(clone!(@strong repository_rc, @strong graphics_rc => move |_, key, _, _| {
         process_key(&repository_rc, &graphics_rc, key) 
     }));
-    if let Ok(graphics) = graphics_rc.try_borrow() {
-        let window = &graphics.application_window;
-        let picture_grid = &graphics.picture_grid;
-        window.add_controller(evk);
-
-        // show the first file
-        if args.maximized { window.fullscreen() };
-        // if a timer has been passed, set a timeout routine
-        if let Some(t) = args.timer {
-            timeout_add_local(Duration::new(t,0), clone!(@strong repository_rc, @strong picture_grid, @strong window => move | | {
-                {
-                    let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
-                    repository.move_next_page();
-                }
-                setup_picture_grid(&repository_rc, &picture_grid, &window);
-                Continue(true)
-            }));
-        };
-
-        setup_picture_grid(&repository_rc, &picture_grid, &window);
-        window.present();
+    let graphics = graphics_rc.try_borrow().unwrap();
+    let window = &graphics.application_window;
+    let picture_grid = &graphics.picture_grid;
+    window.add_controller(evk);
+    if args.maximized { window.fullscreen() };
+    // if a timer has been passed, set a timeout routine
+    if let Some(t) = args.timer {
+        timeout_add_local(Duration::new(t,0), clone!(@strong repository_rc, @strong picture_grid, @strong window => move | | {
+            {
+                let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
+                repository.move_next_page();
+            }
+            setup_picture_grid(&repository_rc, &picture_grid, &window);
+            Continue(true)
+        }));
     };
+
+    setup_picture_grid(&repository_rc, &picture_grid, &window);
+    window.present();
 }
+
 
 fn process_key(repository_rc: &Rc<RefCell<Repository>>, graphics_rc: &Rc<RefCell<Graphics>>, key: Key) -> gtk::Inhibit {
     let graphics = graphics_rc.try_borrow().unwrap();
