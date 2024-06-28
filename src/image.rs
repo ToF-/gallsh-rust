@@ -14,6 +14,7 @@ fn rgba_key(rgba: Rgba<u8>) -> u32 {
     result 
 }
 pub fn get_image_color(file_path: &str) -> ImageResult<usize> {
+    println!("get image color of {}", file_path);
     match open(file_path) {
         Ok(dynamic_image) => {
             let iter: Vec<_>= dynamic_image.pixels().collect();
