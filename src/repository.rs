@@ -280,6 +280,10 @@ impl Repository {
         }
     }
 
+    pub fn can_move_to_index(&self, index: usize) -> bool {
+        self.navigator.can_move_to_index(index)
+    }
+
     pub fn move_to_index(&mut self, index: usize) {
         if self.navigator.can_move_to_index(index) {
             self.navigator.move_to_index(index);

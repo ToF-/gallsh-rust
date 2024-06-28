@@ -533,11 +533,19 @@ pub fn build_gui(args: &Args, application: &gtk::Application) {
     let height = args.height();
     let copy_selection_target = match args.copy_selection_target() {
         Ok(target) => target,
-        Err(_) => process::exit(1),
+        Err(err) => {
+            eprintln!("{}", err);
+            application.quit();
+            return
+        },
     };
     let move_selection_target = match args.move_selection_target() {
         Ok(target) => target,
-        Err(_) => process::exit(1),
+        Err(err) => {
+            eprintln!("{}", err);
+            application.quit();
+            return
+        },
     };
     let grid_size = args.grid_size();
     let order = args.order();
@@ -545,10 +553,10 @@ pub fn build_gui(args: &Args, application: &gtk::Application) {
     let entry_list = match read_entries(args.reading.clone(), args.file.clone(), args.path(), args.pattern.clone()) {
         Ok(list) => list,
         Err(err) => {
-            println!("{}", err);
+            eprintln!("{}", err);
             application.quit();
             return
-        }
+        },
     };
     if args.update_image_data {
         ensure_thumbnails(&entry_list);
@@ -560,13 +568,15 @@ pub fn build_gui(args: &Args, application: &gtk::Application) {
     repository.slice(args.from, args.to);
 
     println!("{} entries", repository.capacity());
-    if repository.capacity() == 0 {
-        application.quit();
-        return
-    };
 
     if let Some(index) = args.index {
-        repository.move_to_index(index)
+        if repository.can_move_to_index(index) {
+            repository.move_to_index(index)
+        } else {
+            eprintln!("entry index out of range");
+            application.quit();
+            return
+        }
     };
 
     if args.extraction {

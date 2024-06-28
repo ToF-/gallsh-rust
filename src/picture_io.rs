@@ -336,7 +336,13 @@ pub fn read_entries(reading_list_opt: Option<String>, file_name_opt: Option<Stri
         entries_from_file(&file_name)
     } else {
         entries_from_directory(&path, pattern_opt.clone())
-    }
+    }.and_then( |list| {
+        if list.is_empty() {
+            Err(Error::new(ErrorKind::Other, "no entries in the selection"))
+        } else {
+            Ok(list)
+        }
+    })
 }
 
 fn copy_file_to_target_directory(file_path: &Path, target_directory: &Path) -> Result<u64> {

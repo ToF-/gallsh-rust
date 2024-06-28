@@ -200,7 +200,6 @@ pub fn selection_target(target_arg: &Option<String>) -> Result<Option<String>, S
             if is_valid_path(target) {
                 Ok(Some(target.to_string()))
             } else {
-                eprintln!("path {} doesn't exist", target);
                 Err(format!("path {} doesn't exist", target))
             }
         },

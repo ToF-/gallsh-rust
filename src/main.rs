@@ -1,8 +1,11 @@
-use crate::gui::build_gui;
+use clap::Parser;
 use crate::args::Args;
 use crate::direction::Direction;
+use crate::entry::EntryList;
+use crate::gui::build_gui;
 use crate::paths::determine_path;
 use crate::picture_io::{ensure_thumbnails, is_valid_path, read_entries};
+use crate::rank::Rank;
 use entry::Entry;
 use glib::clone;
 use glib::timeout_add_local;
@@ -10,9 +13,6 @@ use gtk::prelude::*;
 use gtk::{self, Application, gdk, glib};
 use order::{Order};
 use paths::THUMB_SUFFIX;
-use clap::Parser;
-use crate::entry::EntryList;
-use crate::rank::Rank;
 
 mod args;
 mod direction;
@@ -26,8 +26,6 @@ mod paths;
 mod picture_io;
 mod rank;
 mod repository;
-
-
 
 fn main() {
     let args = Args::parse();
