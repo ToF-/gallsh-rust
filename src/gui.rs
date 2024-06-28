@@ -424,7 +424,17 @@ pub fn process_key(repository_rc: &Rc<RefCell<Repository>>, gui_rc: &Rc<RefCell<
                 match key_name.as_str() {
                     "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" => {
                         let digit:usize = key_name.parse().unwrap();
-                        repository.add_register_digit(digit)
+                        if repository.register_on() {
+                            repository.add_register_digit(digit)
+                        } else {
+                            match key_name.as_str() {
+                                "0" => repository.point_rank(Rank::NoStar),
+                                "1" => repository.point_rank(Rank::OneStar),
+                                "2" => repository.point_rank(Rank::TwoStars),
+                                "3" => repository.point_rank(Rank::ThreeStars),
+                                other => println!("{}", other),
+                            }
+                        }
                     },
                     "BackSpace" => repository.delete_register_digit(),
                     "Return" => repository.select_point(),

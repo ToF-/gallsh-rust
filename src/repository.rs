@@ -187,7 +187,8 @@ impl Repository {
             self.real_size_on = false;
             println!("go to register index: {}", index)
         } else {
-            println!("no register index")
+            self.register = Some(0);
+            println!("start register index…")
         }
     }
 
@@ -197,9 +198,11 @@ impl Repository {
                 let new_acc = acc * 10 + digit;
                 if new_acc < self.navigator.capacity() { Some(new_acc) } else { Some(acc) }
             },
-            None => Some(digit),
-        };
-        println!("register index: {}", self.register.unwrap())
+            None => {
+                println!("no register index");
+                None
+            }
+        }
     }
 
     pub fn delete_register_digit(&mut self) {
@@ -207,6 +210,10 @@ impl Repository {
         if let Some(index) = self.register {
             println!("register index: {}", index)
         }
+    }
+
+    pub fn register_on(&self) -> bool {
+        self.register.is_some()
     }
 
     pub fn sort_by(&mut self, order: Order) {
