@@ -30,6 +30,7 @@ mod repository;
 fn main() {
     let args = Args::parse();
 
+
     let application = Application::builder()
         .application_id("org.example.gallsh")
         .build();

@@ -1,3 +1,6 @@
+use crate::read_entries;
+use crate::ensure_thumbnails;
+use crate::Args;
 use crate::Direction;
 use crate::Entry;
 use crate::Order;
@@ -7,6 +10,7 @@ use crate::navigator::Navigator;
 use crate::picture_io::copy_entry;
 use crate::picture_io::delete_entry;
 use crate::picture_io::delete_selection_file;
+use crate::picture_io::move_entries_with_label;
 use crate::picture_io::save_image_list;
 use crate::picture_io;
 use crate::rank::Rank;
@@ -595,6 +599,66 @@ impl Repository {
             delete_entry(entry)
         }
     }
+}
+
+pub fn init_repository(args: &Args) -> Option<Repository> {
+    let copy_selection_target = match args.copy_selection_target() {
+        Ok(target) => target,
+        Err(err) => {
+            eprintln!("{}", err);
+            return None
+        },
+    };
+    let move_selection_target = match args.move_selection_target() {
+        Ok(target) => target,
+        Err(err) => {
+            eprintln!("{}", err);
+            return None
+        },
+    };
+    let entry_list = match read_entries(args.reading.clone(), args.file.clone(), args.path(), args.pattern.clone()) {
+        Ok(list) => list,
+        Err(err) => {
+            eprintln!("{}", err);
+            return None
+        },
+    };
+    if args.update_image_data {
+        ensure_thumbnails(&entry_list);
+        return None
+    };
+
+    if let Some(parameters) = &args.move_label {
+        let label = parameters[0].clone();
+        let target = parameters[1].clone();
+        match move_entries_with_label(&entry_list, &label, &target) {
+            Ok(()) => {} ,
+            Err(err) => eprintln!("{}", err),
+        }
+        return None
+    }
+
+    let mut repository = Repository::from_entries(entry_list, args.grid_size(), copy_selection_target.clone(), move_selection_target.clone());
+
+
+    repository.sort_by(args.order());
+    repository.slice(args.from, args.to);
+
+    println!("{} entries", repository.capacity());
+
+    if let Some(index) = args.index {
+        if repository.can_move_to_index(index) {
+            repository.move_to_index(index)
+        } else {
+            eprintln!("entry index out of range");
+            return None
+        }
+    };
+
+    if args.extraction {
+        repository.toggle_palette_extract();
+    };
+    Some(repository)
 }
 
 #[cfg(test)]

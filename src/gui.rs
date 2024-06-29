@@ -1,11 +1,10 @@
+use crate::repository::init_repository;
 use crate::picture_io::move_entries_with_label;
-use crate::paths::check_path;
 use crate::timeout_add_local;
 use crate::ensure_thumbnails;
 use crate::read_entries;
 use crate::Args;
 use std::time::Duration;
-use std::process;
 use crate::Rank;
 use crate::Order;
 use gtk::gdk::Key;
@@ -540,74 +539,12 @@ pub fn arrow_command(direction: Direction, gui: &Gui, repository: &mut Repositor
     }
 }
 
+
 pub fn build_gui(args: &Args, application: &gtk::Application) {
     let width = args.width();
     let height = args.height();
-    let copy_selection_target = match args.copy_selection_target() {
-        Ok(target) => target,
-        Err(err) => {
-            eprintln!("{}", err);
-            application.quit();
-            return
-        },
-    };
-    let move_selection_target = match args.move_selection_target() {
-        Ok(target) => target,
-        Err(err) => {
-            eprintln!("{}", err);
-            application.quit();
-            return
-        },
-    };
     let grid_size = args.grid_size();
-    let order = args.order();
-
-    let entry_list = match read_entries(args.reading.clone(), args.file.clone(), args.path(), args.pattern.clone()) {
-        Ok(list) => list,
-        Err(err) => {
-            eprintln!("{}", err);
-            application.quit();
-            return
-        },
-    };
-    if args.update_image_data {
-        ensure_thumbnails(&entry_list);
-        application.quit()
-    };
-
-    if let Some(parameters) = &args.move_label {
-        let label = parameters[0].clone();
-        let target = parameters[1].clone();
-        match move_entries_with_label(&entry_list, &label, &target) {
-            Ok(()) => {} ,
-            Err(err) => eprintln!("{}", err),
-        }
-        application.quit();
-        return
-    }
-
-    let mut repository = Repository::from_entries(entry_list, grid_size, copy_selection_target.clone(), move_selection_target.clone());
-
-
-    repository.sort_by(order);
-    repository.slice(args.from, args.to);
-
-    println!("{} entries", repository.capacity());
-
-    if let Some(index) = args.index {
-        if repository.can_move_to_index(index) {
-            repository.move_to_index(index)
-        } else {
-            eprintln!("entry index out of range");
-            application.quit();
-            return
-        }
-    };
-
-    if args.extraction {
-        repository.toggle_palette_extract();
-    }
-
+    if let Some(repository) = init_repository(args) {
     let repository_rc = Rc::new(RefCell::new(repository));
     let gui = create_gui(application, width, height, grid_size, &repository_rc);
     let gui_rc = Rc::new(RefCell::new(gui));
@@ -632,7 +569,7 @@ pub fn build_gui(args: &Args, application: &gtk::Application) {
             Continue(true)
         }));
     };
-
     setup_picture_grid(&repository_rc, &picture_grid, &application_window);
     application_window.present();
+    }
 }
