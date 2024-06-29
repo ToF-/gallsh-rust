@@ -417,6 +417,8 @@ pub fn process_key(repository_rc: &Rc<RefCell<Repository>>, gui_rc: &Rc<RefCell<
                     if let Some(ch) = key.to_lower().to_unicode() {
                         match ch {
                             'a'..='z' => repository.add_label_char(ch),
+                            '0'..='9' => repository.add_label_char(ch),
+                            '-'|'_'   => repository.add_label_char(ch),
                             _ => {} ,
                         }
                     }
