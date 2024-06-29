@@ -1,3 +1,4 @@
+use crate::entry::entries_with_label;
 use crate::Entry;
 use crate::EntryList;
 use crate::THUMB_SUFFIX;
@@ -343,6 +344,23 @@ pub fn read_entries(reading_list_opt: Option<String>, file_name_opt: Option<Stri
             Ok(list)
         }
     })
+}
+
+pub fn move_entries_with_label(entry_list: &EntryList, label: &str, target: &str) -> Result<()> {
+    let entries = entries_with_label(entry_list, &label);
+    check_path(target)
+        .and_then(|path| {
+            if entries.len() > 0 {
+                entries.iter().for_each( |entry| {
+                    copy_entry(entry, &path).unwrap();
+                    delete_entry(entry)
+                });
+                Ok(())
+            } else {
+                println!("no entries found with this label: {}", label);
+                Ok(())
+            }
+        })
 }
 
 fn copy_file_to_target_directory(file_path: &Path, target_directory: &Path) -> Result<u64> {

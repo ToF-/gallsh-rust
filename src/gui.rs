@@ -1,3 +1,4 @@
+use crate::picture_io::move_entries_with_label;
 use crate::paths::check_path;
 use crate::timeout_add_local;
 use crate::ensure_thumbnails;
@@ -574,29 +575,19 @@ pub fn build_gui(args: &Args, application: &gtk::Application) {
         application.quit()
     };
 
-    let mut repository = Repository::from_entries(entry_list, grid_size, copy_selection_target.clone(), move_selection_target.clone());
-
     if let Some(parameters) = &args.move_label {
-        println!("moving {:?}", parameters);
         let label = parameters[0].clone();
         let target = parameters[1].clone();
-        let entries = repository.entries_with_label(&label);
-        let result = check_path(&parameters[1])
-            .and_then(|path| {
-                if entries.len() > 0 {
-                    println!("{:?}", entries);
-                    Ok(())
-                } else {
-                    println!("no entries found with this label: {}", label);
-                    Ok(())
-                }
-            });
-        match result {
-            Ok(()) => {},
+        match move_entries_with_label(&entry_list, &label, &target) {
+            Ok(()) => {} ,
             Err(err) => eprintln!("{}", err),
-        };
-        application.quit()
+        }
+        application.quit();
+        return
     }
+
+    let mut repository = Repository::from_entries(entry_list, grid_size, copy_selection_target.clone(), move_selection_target.clone());
+
 
     repository.sort_by(order);
     repository.slice(args.from, args.to);

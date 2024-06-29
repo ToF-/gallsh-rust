@@ -257,18 +257,6 @@ impl Repository {
         self.jump_to_name(&name)
     }
 
-    pub fn entries_with_label(&self, target: &str) -> Vec<&Entry> {
-        self.entry_list.iter().filter(|e| {
-            if let Some(l) = e.image_data.label() {
-                let label = l.as_str();
-                println!("{:?} {:?}", label, target);
-                label == target
-            } else {
-                false
-            }
-        }).collect::<Vec<_>>().clone()
-    }
-
     pub fn slice(&mut self, low_index: Option<usize>, high_index: Option<usize>) {
         let start = match low_index {
             None => 0,

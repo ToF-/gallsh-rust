@@ -97,6 +97,18 @@ impl Entry {
 
 }
 
+pub fn entries_with_label<'a>(entry_list: &'a EntryList, target: &'a str) -> Vec<&'a Entry> {
+    entry_list.iter().filter(|e| {
+        if let Some(l) = e.image_data.label() {
+            let label = l.as_str();
+            label == target
+        } else {
+            false
+        }
+    }).collect::<Vec<_>>().clone()
+}
+
+
 #[cfg(test)]
 mod tests {
     use super::*;

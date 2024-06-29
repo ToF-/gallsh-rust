@@ -16,7 +16,7 @@ pub struct ImageData {
 impl ImageData {
     pub fn label(&self) -> Option<String> {
         if self.label_length > 0 {
-            Some(self.label.iter().collect::<String>())
+            Some(self.label.iter().take_while(|c| **c != '\0').collect::<String>())
         } else {
             None
         }
