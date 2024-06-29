@@ -104,11 +104,11 @@ pub struct Args {
     pub copy_selection: Option<String>,
 
     /// Move selection to a target folder
-    #[arg(short,long)]
+    #[arg(long)]
     pub move_selection: Option<String>,
 
     /// Move entries with labels to target folders
-    #[arg(long,value_delimiter=' ',num_args=2, value_names(&["LABEL","DIRECTORY"]))]
+    #[arg(short,long,value_delimiter=' ',num_args=2, value_names(&["LABEL","DIRECTORY"]))]
     pub move_label: Option<Vec<String>>,
 
     /// Window width (default is set with GALLSHWIDTH)
