@@ -2,7 +2,7 @@ use std::rc::Rc;
 use std::time::SystemTime;
 use crate::rank::Rank;
 use crate::image_data::ImageData;
-use crate::paths::{thumbnail_file_path, image_data_file_path, original_file_name, original_file_path};
+use crate::paths::{thumbnail_file_path, image_data_file_path, original_file_name, original_file_path, directory};
 
 pub type EntryList = Vec<Entry>;
 
@@ -43,17 +43,22 @@ impl Entry {
         self.image_data.selected
     }
 
-    pub fn label_display(&self, has_focus: bool) -> String {
-        format!("{}{}{}{}{}",
+    pub fn label_display(&self, has_focus: bool, show_parent: bool) -> String {
+        format!("{}{}{}{}{} {}",
             if has_focus { "▄" } else { "" },
             self.image_data.rank.show(),
             if self.image_data.selected { "△" } else { "" },
             if self.image_data.label_length > 0 {
                 format!("{}", self.image_data.label.iter().collect::<String>())
             } else { String::from("") } ,
-            if self.delete { "🗑" } else { "" })
+            if self.delete { "🗑" } else { "" },
+            if show_parent { self.directory() } else { String::from("") })
+
     }
 
+    pub fn directory(&self) -> String {
+        directory(&self.file_path)
+    }
     pub fn original_file_name(&self) -> String {
         original_file_name(&self.file_path)
     }

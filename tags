@@ -157,6 +157,8 @@ original_file_path	/Users/christophethibaut/Coding/gallsh-rust/src/paths.rs	/^pu
 page_changed	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn page_changed(&self) -> bool {$/;"	f
 page_changed	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn page_changed(&self) -> bool {$/;"	f
 palette_extract_on	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn palette_extract_on(&self) -> bool {$/;"	f
+parent_file_path	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^    pub fn parent_file_path(&self) -> String {$/;"	f
+parent_file_path	/Users/christophethibaut/Coding/gallsh-rust/src/paths.rs	/^pub fn parent_file_path(file_path: &str) -> String {$/;"	f
 path	/Users/christophethibaut/Coding/gallsh-rust/src/args.rs	/^    pub fn path(&self) -> String {$/;"	f
 picture_for_entry	/Users/christophethibaut/Coding/gallsh-rust/src/gui.rs	/^pub fn picture_for_entry(entry: &Entry, repository: &Repository) -> gtk::Picture {$/;"	f
 picture_hadjustment	/Users/christophethibaut/Coding/gallsh-rust/src/gui.rs	/^pub fn picture_hadjustment(window: &gtk::ApplicationWindow) -> gtk::Adjustment {$/;"	f

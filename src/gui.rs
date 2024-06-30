@@ -137,7 +137,7 @@ pub fn navigate(repository: &mut Repository, grid: &gtk::Grid, window: &gtk::App
     if repository.can_move_rel(direction.clone()) {
         if let Some(current_label) = label_at_coords(&grid, repository.position()) {
             let current_display = match repository.current_entry() {
-                Some(entry) => entry.label_display(false),
+                Some(entry) => entry.label_display(false, repository.sample()),
                 None => String::new(),
             };
             current_label.set_text(&current_display);
@@ -145,7 +145,7 @@ pub fn navigate(repository: &mut Repository, grid: &gtk::Grid, window: &gtk::App
         repository.move_rel(direction);
         if let Some(new_label) = label_at_coords(&grid, repository.position()) {
             let new_display = match repository.current_entry() {
-                Some(entry) => entry.label_display(true),
+                Some(entry) => entry.label_display(true, repository.sample()),
                 None => String::new(),
             };
             new_label.set_text(&new_display);
@@ -179,7 +179,7 @@ pub fn picture_for_entry(entry: &Entry, repository: &Repository) -> gtk::Picture
 
 pub fn label_for_entry(entry: &Entry, index: usize, repository: &Repository) -> gtk::Label {
     let is_current_entry = index == repository.current_index() && repository.cells_per_row() > 1;
-    let label = gtk::Label::new(Some(&entry.label_display(is_current_entry)));
+    let label = gtk::Label::new(Some(&entry.label_display(is_current_entry, repository.sample())));
     label.set_valign(Align::Center);
     label.set_halign(Align::Center);
     label.set_widget_name("picture_label");
@@ -204,7 +204,7 @@ pub fn drawing_area_for_entry(entry: &Entry) -> gtk::DrawingArea {
 pub fn set_label_text_at_current_position(grid: &gtk::Grid, repository: &Repository, has_focus: bool) {
     let current_coords = repository.position();
     if let Some(current_entry) = repository.current_entry() {
-        set_label_text_at_coords(grid, current_coords, current_entry.label_display(has_focus))
+        set_label_text_at_coords(grid, current_coords, current_entry.label_display(has_focus, repository.sample()))
     };
 }
 

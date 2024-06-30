@@ -91,6 +91,10 @@ pub struct Args {
     #[arg(short, long)]
     pub file: Option<String>,
 
+    /// Sample
+    #[arg(long, default_value_t = false)]
+    pub sample: bool,
+
     /// Thumbnails only
     #[arg(short,long)]
     pub thumbnails: bool,
@@ -194,6 +198,10 @@ impl Args {
 
     pub fn path(&self) -> String {
         determine_path(self.directory.clone())
+    }
+
+    pub fn sample(&self) -> bool {
+        self.sample
     }
 
 }

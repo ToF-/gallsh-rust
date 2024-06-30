@@ -1,3 +1,5 @@
+use rand::thread_rng;
+use rand::prelude::SliceRandom;
 use crate::entry::entries_with_label;
 use crate::Entry;
 use crate::EntryList;
@@ -288,14 +290,29 @@ fn push_entry_from_path(path: &Path, pattern_opt: Option<String>, entry_list: &m
     };
     Ok(())
 }
-pub fn entries_from_directory(dir: &str, pattern_opt: Option<String>) -> Result<EntryList> {
+pub fn entries_from_directory(dir: &str, pattern_opt: Option<String>, sample: bool) -> Result<EntryList> {
     match check_path(dir) {
         Ok(directory) => {
             let mut entry_list: EntryList = Vec::new();
             for path in WalkDir::new(directory).into_iter().filter_map(|e| e.ok()).map(|e| e.into_path()) {
                 push_entry_from_path(&path, pattern_opt.clone(), &mut entry_list).unwrap();
             };
-            Ok(entry_list.clone())
+            if sample {
+                println!("sampling..");
+                entry_list.shuffle(&mut thread_rng());
+                let mut sample_list: EntryList = EntryList::new();
+                let mut parent_paths: HashSet<String> = HashSet::new();
+                entry_list.into_iter().for_each( |entry| {
+                    let key = entry.directory();
+                    if !parent_paths.contains(&key) {
+                        parent_paths.insert(key);
+                        sample_list.push(entry.clone());
+                    }
+                });
+                Ok(sample_list.clone())
+            } else {
+                Ok(entry_list.clone())
+            }
         },
         Err(e) => Err(e),
     }
@@ -330,13 +347,13 @@ pub fn entries_from_reading_list(reading_list: &str, pattern_opt: Option<String>
     }
 }
 
-pub fn read_entries(reading_list_opt: Option<String>, file_name_opt: Option<String>, path: String, pattern_opt: Option<String>) -> Result<EntryList> {  
+pub fn read_entries(reading_list_opt: Option<String>, file_name_opt: Option<String>, path: String, pattern_opt: Option<String>, sample: bool) -> Result<EntryList> {  
     if let Some(list_file_name) = reading_list_opt {
         entries_from_reading_list(&list_file_name, pattern_opt.clone())
     } else if let Some(file_name) = file_name_opt {
         entries_from_file(&file_name)
     } else {
-        entries_from_directory(&path, pattern_opt.clone())
+        entries_from_directory(&path, pattern_opt.clone(), sample)
     }.and_then( |list| {
         if list.is_empty() {
             Err(Error::new(ErrorKind::Other, "no entries in the selection"))

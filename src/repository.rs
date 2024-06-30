@@ -35,6 +35,7 @@ pub struct Repository {
     label_length: usize,
     copy_selection_target: Option<String>,
     move_selection_target: Option<String>,
+    sample: bool,
 }
 
 pub fn init_repository(args: &Args) -> Result<Repository> {
@@ -46,7 +47,7 @@ pub fn init_repository(args: &Args) -> Result<Repository> {
         Ok(target) => target,
         Err(err) => return Err(Error::new(ErrorKind::Other, err)),
     };
-    let entry_list = match read_entries(args.reading.clone(), args.file.clone(), args.path(), args.pattern.clone()) {
+    let entry_list = match read_entries(args.reading.clone(), args.file.clone(), args.path(), args.pattern.clone(), args.sample()) {
         Ok(list) => list,
         Err(err) => return Err(Error::new(ErrorKind::Other, err)),
     };
@@ -64,7 +65,7 @@ pub fn init_repository(args: &Args) -> Result<Repository> {
         }
     }
 
-    let mut repository = Repository::from_entries(entry_list, args.grid_size(), copy_selection_target.clone(), move_selection_target.clone());
+    let mut repository = Repository::from_entries(entry_list, args.grid_size(), copy_selection_target.clone(), move_selection_target.clone(), args.sample());
 
 
     repository.sort_by(args.order());
@@ -86,7 +87,7 @@ pub fn init_repository(args: &Args) -> Result<Repository> {
     Ok(repository)
 }
 impl Repository {
-    pub fn from_entries(entries: EntryList, cells_per_row: usize, copy_selection_target: Option<String>, move_selection_target: Option<String>) -> Self {
+    pub fn from_entries(entries: EntryList, cells_per_row: usize, copy_selection_target: Option<String>, move_selection_target: Option<String>, sample: bool) -> Self {
         Repository{
             entry_list: entries.clone(),
             navigator: Navigator::new(entries.len() as i32, cells_per_row as i32),
@@ -101,7 +102,12 @@ impl Repository {
             label_length: 0,
             copy_selection_target : copy_selection_target,
             move_selection_target : move_selection_target,
+            sample: sample,
         }
+    }
+
+    pub fn sample(&self) -> bool {
+        self.sample
     }
 
     pub fn label_edit_mode_on(&self) -> bool {

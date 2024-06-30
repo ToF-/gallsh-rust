@@ -1,3 +1,5 @@
+use std::path::Path;
+use std::path::Component;
 use std::path::{PathBuf};
 use std::fs;
 use std::env;
@@ -58,6 +60,15 @@ pub fn image_data_file_path(file_path: &str) -> String {
     let new_file_name = format!("{}{}.json", file_stem, IMAGE_DATA);
     let new_path = parent.join(new_file_name);
     new_path.to_str().unwrap().to_string()
+}
+
+pub fn directory(file_path: &str) -> String {
+    let path = PathBuf::from(file_path);
+    let parent = path.parent()
+        .expect(&format!("file path {} has no parent",file_path));
+    let directory = parent.components().next_back()
+        .expect(&format!("can't find directory of {}", file_path));
+    <Component<'_> as AsRef<Path>>::as_ref(&directory).to_str().unwrap().to_string()
 }
 
 pub fn original_file_path(file_path: &str) -> String {
