@@ -1,3 +1,4 @@
+use std::io::{Result,Error, ErrorKind};
 use crate::read_entries;
 use crate::ensure_thumbnails;
 use crate::Args;
@@ -36,6 +37,54 @@ pub struct Repository {
     move_selection_target: Option<String>,
 }
 
+pub fn init_repository(args: &Args) -> Result<Repository> {
+    let copy_selection_target = match args.copy_selection_target() {
+        Ok(target) => target,
+        Err(err) => return Err(Error::new(ErrorKind::Other, err)),
+    };
+    let move_selection_target = match args.move_selection_target() {
+        Ok(target) => target,
+        Err(err) => return Err(Error::new(ErrorKind::Other, err)),
+    };
+    let entry_list = match read_entries(args.reading.clone(), args.file.clone(), args.path(), args.pattern.clone()) {
+        Ok(list) => list,
+        Err(err) => return Err(Error::new(ErrorKind::Other, err)),
+    };
+    if args.update_image_data {
+        ensure_thumbnails(&entry_list);
+        return Err(Error::new(ErrorKind::Other, "updating thumbnails done"))
+    };
+
+    if let Some(parameters) = &args.move_label {
+        let label = parameters[0].clone();
+        let target = parameters[1].clone();
+        match move_entries_with_label(&entry_list, &label, &target) {
+            Ok(()) => return Err(Error::new(ErrorKind::Other, "move entries done")),
+            Err(err) => return Err(Error::new(ErrorKind::Other, err)),
+        }
+    }
+
+    let mut repository = Repository::from_entries(entry_list, args.grid_size(), copy_selection_target.clone(), move_selection_target.clone());
+
+
+    repository.sort_by(args.order());
+    repository.slice(args.from, args.to);
+
+    println!("{} entries", repository.capacity());
+
+    if let Some(index) = args.index {
+        if repository.can_move_to_index(index) {
+            repository.move_to_index(index)
+        } else {
+            return Err(Error::new(ErrorKind::Other, "entry index out of range"))
+        }
+    };
+
+    if args.extraction {
+        repository.toggle_palette_extract();
+    };
+    Ok(repository)
+}
 impl Repository {
     pub fn from_entries(entries: EntryList, cells_per_row: usize, copy_selection_target: Option<String>, move_selection_target: Option<String>) -> Self {
         Repository{
@@ -601,65 +650,6 @@ impl Repository {
     }
 }
 
-pub fn init_repository(args: &Args) -> Option<Repository> {
-    let copy_selection_target = match args.copy_selection_target() {
-        Ok(target) => target,
-        Err(err) => {
-            eprintln!("{}", err);
-            return None
-        },
-    };
-    let move_selection_target = match args.move_selection_target() {
-        Ok(target) => target,
-        Err(err) => {
-            eprintln!("{}", err);
-            return None
-        },
-    };
-    let entry_list = match read_entries(args.reading.clone(), args.file.clone(), args.path(), args.pattern.clone()) {
-        Ok(list) => list,
-        Err(err) => {
-            eprintln!("{}", err);
-            return None
-        },
-    };
-    if args.update_image_data {
-        ensure_thumbnails(&entry_list);
-        return None
-    };
-
-    if let Some(parameters) = &args.move_label {
-        let label = parameters[0].clone();
-        let target = parameters[1].clone();
-        match move_entries_with_label(&entry_list, &label, &target) {
-            Ok(()) => {} ,
-            Err(err) => eprintln!("{}", err),
-        }
-        return None
-    }
-
-    let mut repository = Repository::from_entries(entry_list, args.grid_size(), copy_selection_target.clone(), move_selection_target.clone());
-
-
-    repository.sort_by(args.order());
-    repository.slice(args.from, args.to);
-
-    println!("{} entries", repository.capacity());
-
-    if let Some(index) = args.index {
-        if repository.can_move_to_index(index) {
-            repository.move_to_index(index)
-        } else {
-            eprintln!("entry index out of range");
-            return None
-        }
-    };
-
-    if args.extraction {
-        repository.toggle_palette_extract();
-    };
-    Some(repository)
-}
 
 #[cfg(test)]
 mod tests {

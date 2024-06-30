@@ -543,32 +543,37 @@ pub fn build_gui(args: &Args, application: &gtk::Application) {
     let width = args.width();
     let height = args.height();
     let grid_size = args.grid_size();
-    if let Some(repository) = init_repository(args) {
-    let repository_rc = Rc::new(RefCell::new(repository));
-    let gui = create_gui(application, width, height, grid_size, &repository_rc);
-    let gui_rc = Rc::new(RefCell::new(gui));
+    match init_repository(args) {
+        Ok(repository) => {
+            let repository_rc = Rc::new(RefCell::new(repository));
+            let gui = create_gui(application, width, height, grid_size, &repository_rc);
+            let gui_rc = Rc::new(RefCell::new(gui));
 
-    let evk = gtk::EventControllerKey::new();
-    evk.connect_key_pressed(clone!(@strong repository_rc, @strong gui_rc => move |_, key, _, _| {
-        process_key(&repository_rc, &gui_rc, key) 
-    }));
-    let gui = gui_rc.try_borrow().unwrap();
-    let application_window = &gui.application_window;
-    let picture_grid = &gui.picture_grid;
-    gui.application_window.add_controller(evk);
-    if args.maximized { gui.application_window.fullscreen() };
-    // if a timer has been passed, set a timeout routine
-    if let Some(t) = args.timer {
-        timeout_add_local(Duration::new(t,0), clone!(@strong repository_rc, @strong picture_grid, @strong application_window => move | | {
-            {
-                let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
-                repository.move_next_page();
-            }
+            let evk = gtk::EventControllerKey::new();
+            evk.connect_key_pressed(clone!(@strong repository_rc, @strong gui_rc => move |_, key, _, _| {
+                process_key(&repository_rc, &gui_rc, key) 
+            }));
+            let gui = gui_rc.try_borrow().unwrap();
+            let application_window = &gui.application_window;
+            let picture_grid = &gui.picture_grid;
+            gui.application_window.add_controller(evk);
+            if args.maximized { gui.application_window.fullscreen() };
+            // if a timer has been passed, set a timeout routine
+            if let Some(t) = args.timer {
+                timeout_add_local(Duration::new(t,0), clone!(@strong repository_rc, @strong picture_grid, @strong application_window => move | | {
+                    {
+                        let mut repository: RefMut<'_,Repository> = repository_rc.borrow_mut();
+                        repository.move_next_page();
+                    }
+                    setup_picture_grid(&repository_rc, &picture_grid, &application_window);
+                    Continue(true)
+                }));
+            };
             setup_picture_grid(&repository_rc, &picture_grid, &application_window);
-            Continue(true)
-        }));
-    };
-    setup_picture_grid(&repository_rc, &picture_grid, &application_window);
-    application_window.present();
+            application_window.present();
+        },
+        Err(err) => {
+            eprintln!("{}", err)
+        },
     }
 }
