@@ -1,8 +1,5 @@
 use crate::repository::init_repository;
-use crate::picture_io::move_entries_with_label;
 use crate::timeout_add_local;
-use crate::ensure_thumbnails;
-use crate::read_entries;
 use crate::Args;
 use std::time::Duration;
 use crate::Rank;
