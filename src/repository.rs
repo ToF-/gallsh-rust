@@ -172,7 +172,7 @@ impl Repository {
             return "".to_string()
         };
         let entry_title_display = &<Entry as Clone>::clone(&self.current_entry().unwrap()).title_display();
-        format!("S:[{}] {} ordered by {} {}/{}  {} {} {} {}",
+        let result = format!("S:[{}] {} ordered by {} {}/{}  {} {} {} {}",
             self.max_selected,
             if self.select_start.is_some() { "…" } else { "" },
             if let Some(o) = self.order {
@@ -186,7 +186,9 @@ impl Repository {
             if self.register.is_none() { String::from("") } else { format!("{}", self.register.unwrap()) },
             if self.real_size_on { "*" } else { "" },
             if self.label_edit_mode_on { format!("Label:{}", self.label.iter().collect::<String>()) } else { String::from("") }
-            )
+            );
+        println!("{}",result);
+        result
     }
 
     pub fn real_size(&self) -> bool {
