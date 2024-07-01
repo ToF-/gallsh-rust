@@ -417,6 +417,13 @@ fn copy_file_to_target_directory(file_path: &Path, target_directory: &Path) -> R
     std::fs::copy(file_path, target_file_path)
 }
 
+pub fn copy_entry_filename_to_current_dir(entry: &Entry) {
+    let s = entry.original_file_path();
+    let file_path = Path::new(&s);
+    let path = Path::new(".");
+    let _ = copy_file_to_target_directory(file_path, path);
+}
+
 pub fn copy_entry(entry: &Entry, target_path: &Path) -> Result<()> {
     let file_name = entry.original_file_path();
     let thumbnail_name = entry.thumbnail_file_path();

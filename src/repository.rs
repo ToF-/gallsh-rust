@@ -1,3 +1,5 @@
+use crate::picture_io::copy_entry_filename_to_current_dir;
+use std::path::PathBuf;
 use crate::picture_io::move_entries_with_label_to_target;
 use std::io::{Result,Error, ErrorKind};
 use crate::read_entries;
@@ -440,6 +442,12 @@ impl Repository {
             delete_selection_file()
         };
         println!("quit gallery show")
+    }
+
+    pub fn copy_temp(&self) {
+        if let Some(entry) = self.current_entry() {
+            copy_entry_filename_to_current_dir(entry);
+        }
     }
 
     pub fn move_all_labels_and_quit(&self) {

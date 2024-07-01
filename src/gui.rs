@@ -459,6 +459,7 @@ pub fn process_key(repository_rc: &Rc<RefCell<Repository>>, gui_rc: &Rc<RefCell<
                     "P" => repository.point_rank(Rank::TwoStars),
                     "O" => repository.point_rank(Rank::ThreeStars),
                     "c" => if repository.order_choice_on() { repository.sort_by(Order::Colors); },
+                    "C" => repository.copy_temp(),
                     "d" => if repository.order_choice_on() { repository.sort_by(Order::Date); },
                     "D" => repository.toggle_delete(),
                     "R" => repository.set_rank(Rank::NoStar),
