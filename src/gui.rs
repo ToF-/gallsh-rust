@@ -452,6 +452,7 @@ pub fn process_key(repository_rc: &Rc<RefCell<Repository>>, gui_rc: &Rc<RefCell<
                     "p" => if repository.order_choice_on() { repository.sort_by(Order::Palette); } else { repository.move_prev_page() },
                     "q" => { repository.quit(); refresh = false; gui.application_window.close() },
                     "Q" => { repository.copy_move_and_quit(); refresh = false; gui.application_window.close() },
+                    "M" => { repository.move_all_labels_and_quit(); refresh = false; gui.application_window.close() },
                     "X" => { repository.delete_entries(); refresh = false; gui.application_window.close() },
                     "B" => repository.point_rank(Rank::NoStar),
                     "Eacute" => repository.point_rank(Rank::OneStar),

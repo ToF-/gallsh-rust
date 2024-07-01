@@ -27,6 +27,12 @@ pub fn check_path(dir: &str) -> Result<PathBuf> {
         }
     }
 }
+
+pub fn check_label_path(dir: &str, label: &str) -> Result<PathBuf> {
+    let path = PathBuf::from(dir).join(label);
+    check_path(path.to_str().unwrap())
+}
+
 pub fn determine_path(directory: Option<String>) -> String {
     let gallshdir = env::var(DIR_ENV_VAR);
     if let Some(directory_arg) = directory {

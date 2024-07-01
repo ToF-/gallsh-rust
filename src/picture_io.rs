@@ -1,3 +1,4 @@
+use crate::paths::check_label_path;
 use rand::thread_rng;
 use rand::prelude::SliceRandom;
 use crate::entry::entries_with_label;
@@ -378,6 +379,27 @@ pub fn move_entries_with_label(entry_list: &EntryList, label: &str, target: &str
                 Ok(())
             }
         })
+}
+
+pub fn move_entries_with_label_to_target(entry_list: &EntryList, target: &str) -> Result<()> {
+    let mut result = Ok(());
+    entry_list.into_iter().filter(|&entry| entry.image_data.label().is_some()).for_each( |entry| {
+        let label = entry.image_data.label().unwrap();
+        let check = match check_label_path(target, &label) {
+            Ok(path) => {
+                let _ = copy_entry(&entry, &path).unwrap();
+                let _ = delete_entry(&entry);
+                Ok(())
+            },
+            Err(err) => {
+                Err(err)
+            },
+        };
+        if check.is_err() {
+            result = check;
+        }
+    });
+    result
 }
 
 fn copy_file_to_target_directory(file_path: &Path, target_directory: &Path) -> Result<u64> {

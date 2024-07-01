@@ -111,9 +111,13 @@ pub struct Args {
     #[arg(long)]
     pub move_selection: Option<String>,
 
-    /// Move entries with labels to target folders
+    /// Move entries with labels to target folder
     #[arg(short,long,value_delimiter=' ',num_args=2, value_names(&["LABEL","DIRECTORY"]))]
     pub move_label: Option<Vec<String>>,
+
+    /// All labels move target directory
+    #[arg(short, long, value_name("TARGET"))]
+    pub all_label_move_target: Option<String>,
 
     /// Window width (default is set with GALLSHWIDTH)
     #[arg(long)]
@@ -183,6 +187,10 @@ impl Args {
 
     pub fn move_selection_target(&self) -> Result<Option<String>, String> {
         selection_target(&self.move_selection)
+    }
+
+    pub fn all_label_move_target(&self) -> Result<Option<String>, String> {
+        selection_target(&self.all_label_move_target)
     }
 
     pub fn grid_size(&self) -> usize {

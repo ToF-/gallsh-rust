@@ -1,3 +1,4 @@
+use crate::picture_io::move_entries_with_label_to_target;
 use std::io::{Result,Error, ErrorKind};
 use crate::read_entries;
 use crate::ensure_thumbnails;
@@ -35,10 +36,15 @@ pub struct Repository {
     label_length: usize,
     copy_selection_target: Option<String>,
     move_selection_target: Option<String>,
+    all_label_move_target: Option<String>,
     sample: bool,
 }
 
 pub fn init_repository(args: &Args) -> Result<Repository> {
+    let all_label_move_target = match args.all_label_move_target() {
+        Ok(target) => target,
+        Err(err) => return Err(Error::new(ErrorKind::Other, err)),
+    };
     let copy_selection_target = match args.copy_selection_target() {
         Ok(target) => target,
         Err(err) => return Err(Error::new(ErrorKind::Other, err)),
@@ -65,7 +71,7 @@ pub fn init_repository(args: &Args) -> Result<Repository> {
         }
     }
 
-    let mut repository = Repository::from_entries(entry_list, args.grid_size(), copy_selection_target.clone(), move_selection_target.clone(), args.sample());
+    let mut repository = Repository::from_entries(entry_list, args.grid_size(), copy_selection_target.clone(), move_selection_target.clone(), all_label_move_target.clone(), args.sample());
 
 
     repository.sort_by(args.order());
@@ -87,7 +93,7 @@ pub fn init_repository(args: &Args) -> Result<Repository> {
     Ok(repository)
 }
 impl Repository {
-    pub fn from_entries(entries: EntryList, cells_per_row: usize, copy_selection_target: Option<String>, move_selection_target: Option<String>, sample: bool) -> Self {
+    pub fn from_entries(entries: EntryList, cells_per_row: usize, copy_selection_target: Option<String>, move_selection_target: Option<String>, all_label_move_target: Option<String>, sample: bool) -> Self {
         Repository{
             entry_list: entries.clone(),
             navigator: Navigator::new(entries.len() as i32, cells_per_row as i32),
@@ -102,6 +108,7 @@ impl Repository {
             label_length: 0,
             copy_selection_target : copy_selection_target,
             move_selection_target : move_selection_target,
+            all_label_move_target : all_label_move_target,
             sample: sample,
         }
     }
@@ -433,6 +440,17 @@ impl Repository {
             delete_selection_file()
         };
         println!("quit gallery show")
+    }
+
+    pub fn move_all_labels_and_quit(&self) {
+        if let Some(target_path) = &self.all_label_move_target {
+            match move_entries_with_label_to_target(&self.entry_list, target_path) {
+                Ok(()) => {},
+                Err(err) => eprintln!("{}", err),
+            }
+        } else {
+            println!("target directory for label moves is not set");
+        }
     }
 
     pub fn order_choice_on(&self) -> bool {
