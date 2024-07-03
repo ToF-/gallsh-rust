@@ -1,3 +1,4 @@
+use std::io;
 use std::path::Path;
 use std::path::Component;
 use std::path::{PathBuf};
@@ -11,10 +12,30 @@ pub const IMAGE_DATA: &str = "IMAGE_DATA";
 const DEFAULT_DIR :&str    = "images/";
 const DIR_ENV_VAR :&str    = "GALLSHDIR";
 
-pub fn check_path(dir: &str) -> Result<PathBuf> {
+pub fn check_path(dir: &str, confirm_create: bool) -> Result<PathBuf> {
     let path = PathBuf::from(dir);
     if !path.exists() {
-        Err(Error::new(ErrorKind::Other, format!("path {} doesn't exist", dir)))
+        if confirm_create {
+            println!("directory {} doesn't exist. Create ?", dir);
+            let mut response = String::new();
+            let stdin = io::stdin();
+            stdin.read_line(&mut response).expect("can't read from stdin");
+            match response.chars().next() {
+                Some(c) => {
+                    if c == 'y' || c == 'Y' {
+                        match fs::create_dir(path.clone()) {
+                            Ok(()) => Ok(path),
+                            Err(err) => Err(err),
+                        }
+                    } else {
+                        Err(Error::new(ErrorKind::Other, "directory creation cancelled"))
+                    }
+                },
+                None => Err(Error::new(ErrorKind::Other, "directory creation cancelled")),
+            }
+        } else {
+            Err(Error::new(ErrorKind::Other, format!("path {} doesn't exist", dir)))
+        }
     } else {
         if let Ok(metadata) = fs::metadata(path.clone()) {
             if !metadata.is_dir() {
@@ -30,7 +51,7 @@ pub fn check_path(dir: &str) -> Result<PathBuf> {
 
 pub fn check_label_path(dir: &str, label: &str) -> Result<PathBuf> {
     let path = PathBuf::from(dir).join(label);
-    check_path(path.to_str().unwrap())
+    check_path(path.to_str().unwrap(),true)
 }
 
 pub fn determine_path(directory: Option<String>) -> String {

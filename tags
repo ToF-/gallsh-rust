@@ -63,7 +63,7 @@ capacity	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub
 cells_per_row	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn cells_per_row(&self) -> i32 {$/;"	f
 cells_per_row	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn cells_per_row(&self) -> i32 {$/;"	f
 check_label_path	/Users/christophethibaut/Coding/gallsh-rust/src/paths.rs	/^pub fn check_label_path(dir: &str, label: &str) -> Result<PathBuf> {$/;"	f
-check_path	/Users/christophethibaut/Coding/gallsh-rust/src/paths.rs	/^pub fn check_path(dir: &str) -> Result<PathBuf> {$/;"	f
+check_path	/Users/christophethibaut/Coding/gallsh-rust/src/paths.rs	/^pub fn check_path(dir: &str, confirm_create: bool) -> Result<PathBuf> {$/;"	f
 cmp_label	/Users/christophethibaut/Coding/gallsh-rust/src/image_data.rs	/^    pub fn cmp_label(&self, other: &ImageData) -> Ordering {$/;"	f
 confirm_label_edit	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn confirm_label_edit(&mut self) {$/;"	f
 copy_entry	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^pub fn copy_entry(entry: &Entry, target_path: &Path) -> Result<()> {$/;"	f

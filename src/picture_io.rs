@@ -292,7 +292,7 @@ fn push_entry_from_path(path: &Path, pattern_opt: Option<String>, entry_list: &m
     Ok(())
 }
 pub fn entries_from_directory(dir: &str, pattern_opt: Option<String>) -> Result<EntryList> {
-    match check_path(dir) {
+    match check_path(dir, false) {
         Ok(directory) => {
             let mut entry_list: EntryList = Vec::new();
             for path in WalkDir::new(directory).into_iter().filter_map(|e| e.ok()).map(|e| e.into_path()) {
@@ -374,7 +374,7 @@ pub fn read_entries(reading_list_opt: Option<String>, file_name_opt: Option<Stri
 
 pub fn move_entries_with_label(entry_list: &EntryList, label: &str, target: &str) -> Result<()> {
     let entries = entries_with_label(entry_list, &label);
-    check_path(target)
+    check_path(target, false)
         .and_then(|path| {
             if entries.len() > 0 {
                 entries.iter().for_each( |entry| {
