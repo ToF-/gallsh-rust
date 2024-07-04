@@ -1,27 +1,19 @@
-use crate::picture_io::copy_entry_filename_to_current_dir;
-use std::path::PathBuf;
-use crate::picture_io::move_entries_with_label_to_target;
-use std::io::{Result,Error, ErrorKind};
-use crate::read_entries;
-use crate::ensure_thumbnails;
 use crate::Args;
 use crate::Direction;
 use crate::Entry;
 use crate::Order;
+use crate::ensure_thumbnails;
 use crate::entry::{EntryList};
-use crate::navigator::Coords;
-use crate::navigator::Navigator;
-use crate::picture_io::copy_entry;
-use crate::picture_io::delete_entry;
-use crate::picture_io::delete_selection_file;
-use crate::picture_io::move_entries_with_label;
-use crate::picture_io::save_image_list;
+use crate::navigator::{Coords, Navigator};
+use crate::picture_io::{copy_entry, copy_entry_filename_to_current_dir, delete_entry, delete_selection_file, move_entries_with_label, move_entries_with_label_to_target, save_image_list};
 use crate::picture_io;
 use crate::rank::Rank;
+use crate::read_entries;
 use rand::prelude::SliceRandom;
 use rand::thread_rng;
 use std::cmp::Ordering::Equal;
 use std::cmp::min;
+use std::io::{Result,Error, ErrorKind};
 use std::path::Path;
 
 pub struct Repository {

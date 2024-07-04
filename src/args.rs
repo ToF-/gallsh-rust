@@ -3,7 +3,8 @@ use clap_num::number_range;
 use std::env;
 use clap::Parser;
 use crate::Order;
-use crate::is_valid_path;
+use crate::paths::is_valid_directory;
+
 
 const DEFAULT_WIDTH: i32   = 1000;
 const DEFAULT_HEIGHT: i32  = 1000;
@@ -217,7 +218,7 @@ impl Args {
 pub fn selection_target(target_arg: &Option<String>) -> Result<Option<String>, String> {
     match target_arg {
         Some(target) => {
-            if is_valid_path(target) {
+            if is_valid_directory(target) {
                 Ok(Some(target.to_string()))
             } else {
                 Err(format!("path {} doesn't exist", target))

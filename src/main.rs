@@ -4,7 +4,7 @@ use crate::direction::Direction;
 use crate::entry::EntryList;
 use crate::gui::build_gui;
 use crate::paths::determine_path;
-use crate::picture_io::{ensure_thumbnails, is_valid_path, read_entries};
+use crate::picture_io::{ensure_thumbnails, read_entries};
 use crate::rank::Rank;
 use entry::Entry;
 use glib::clone;

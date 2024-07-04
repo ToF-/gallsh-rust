@@ -12,6 +12,19 @@ pub const IMAGE_DATA: &str = "IMAGE_DATA";
 const DEFAULT_DIR :&str    = "images/";
 const DIR_ENV_VAR :&str    = "GALLSHDIR";
 
+pub fn is_valid_directory(dir: &str) -> bool {
+    let path = PathBuf::from(dir);
+    if ! path.exists() {
+       return false
+    } else {
+        if let Ok(metadata) = fs::metadata(path) {
+            return metadata.is_dir()
+        } else {
+            return false
+        }
+    }
+}
+
 pub fn check_path(dir: &str, confirm_create: bool) -> Result<PathBuf> {
     let path = PathBuf::from(dir);
     if !path.exists() {
@@ -37,14 +50,10 @@ pub fn check_path(dir: &str, confirm_create: bool) -> Result<PathBuf> {
             Err(Error::new(ErrorKind::Other, format!("path {} doesn't exist", dir)))
         }
     } else {
-        if let Ok(metadata) = fs::metadata(path.clone()) {
-            if !metadata.is_dir() {
-                Err(Error::new(ErrorKind::Other, format!("path {} is not a directory", dir)))
-            } else {
-                Ok(path)
-            }
+        if is_valid_directory(dir) {
+            Ok(path)
         } else {
-            panic!("can't read path {}", dir)
+            Err(Error::new(ErrorKind::Other, format!("path {} is not a directory", dir)))
         }
     }
 }
