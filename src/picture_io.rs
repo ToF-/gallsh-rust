@@ -175,19 +175,6 @@ pub fn set_image_data(entry: &mut Entry) -> Result<()> {
     }
 }
 
-pub fn is_valid_path(path: &str) -> bool {
-    let path = PathBuf::from(path);
-    if ! path.exists() {
-       return false
-    } else {
-        if let Ok(metadata) = fs::metadata(path) {
-            return metadata.is_dir()
-        } else {
-            return false
-        }
-    }
-}
-
 pub fn draw_palette(ctx: &Context, width: i32, height: i32, colors: &[u32;9]) {
     const COLOR_MAX: f64 = 9.0;
     let square_size: f64 = height as f64;
