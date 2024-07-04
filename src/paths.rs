@@ -25,7 +25,7 @@ pub fn check_path(dir: &str, confirm_create: bool) -> Result<PathBuf> {
                     if c == 'y' || c == 'Y' {
                         match fs::create_dir(path.clone()) {
                             Ok(()) => Ok(path),
-                            Err(err) => Err(err),
+                            Err(err) => return Err(err),
                         }
                     } else {
                         Err(Error::new(ErrorKind::Other, "directory creation cancelled"))

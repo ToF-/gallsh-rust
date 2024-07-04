@@ -228,12 +228,12 @@ impl Repository {
         self.navigator.move_abs(coords)
     }
 
-    pub fn can_move_rel(&self, direction: Direction) -> bool {
-        self.navigator.can_move_rel(direction)
+    pub fn can_move_towards(&self, direction: Direction) -> bool {
+        self.navigator.can_move_towards(direction)
     }
 
-    pub fn move_rel(&mut self, direction: Direction) {
-        self.navigator.move_rel(direction)
+    pub fn move_towards(&mut self, direction: Direction) {
+        self.navigator.move_towards(direction)
     }
 
     pub fn move_forward_ten_pages(&mut self) {
@@ -719,7 +719,7 @@ mod tests {
     #[test]
     fn after_moving_one_col_current_entry_is_the_second_entry() {
         let mut repository = Repository::from_entries(example().clone(), 2);
-        repository.navigator.move_rel(Direction::Right);
+        repository.navigator.move_towards(Direction::Right);
         let entry: &Entry = repository.current_entry().unwrap();
         assert_eq!(example().clone()[1], *entry);
     }
@@ -745,9 +745,9 @@ mod tests {
     #[test]
     fn after_two_select_points_a_group_of_entries_is_selected() {
         let repository_rc = Rc::new(RefCell::new(Repository::from_entries(example().clone(), 2)));
-        { repository_rc.borrow_mut().navigator.move_rel(Direction::Down) }; // now current entry is #2 
+        { repository_rc.borrow_mut().navigator.move_towards(Direction::Down) }; // now current entry is #2 
         { repository_rc.borrow_mut().select_point() };
-        { repository_rc.borrow_mut().navigator.move_rel(Direction::Up) }; // now current entry is #0
+        { repository_rc.borrow_mut().navigator.move_towards(Direction::Up) }; // now current entry is #0
         { repository_rc.borrow_mut().point_select() }; // only entries 0,1,2 are selected
         let repository = repository_rc.borrow();
         for entry in &repository.entry_list[0..3] {
@@ -767,9 +767,9 @@ mod tests {
     #[test]
     fn after_two_rank_points_a_group_on_entries_has_rank_changed() {
         let repository_rc = Rc::new(RefCell::new(Repository::from_entries(example().clone(), 2)));
-        { repository_rc.borrow_mut().navigator.move_rel(Direction::Down) }; // now current entry is #2 
+        { repository_rc.borrow_mut().navigator.move_towards(Direction::Down) }; // now current entry is #2 
         { repository_rc.borrow_mut().select_point() };
-        { repository_rc.borrow_mut().navigator.move_rel(Direction::Up) }; // now current entry is #0
+        { repository_rc.borrow_mut().navigator.move_towards(Direction::Up) }; // now current entry is #0
         { repository_rc.borrow_mut().point_rank(Rank::TwoStars) }; // only entries 0,1,2 are ranked
         let repository = repository_rc.borrow();
         for entry in &repository.entry_list[0..3] {

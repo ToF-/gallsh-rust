@@ -30,7 +30,7 @@ a_day	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^    fn a_day() 
 add_label_char	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn add_label_char(&mut self, ch: char) {$/;"	f
 add_register_digit	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn add_register_digit(&mut self, digit: usize ) {$/;"	f
 after_a_move_abs_index_has_changed	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn after_a_move_abs_index_has_changed() {$/;"	f
-after_a_move_rel_index_has_changed	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn after_a_move_rel_index_has_changed() {$/;"	f
+after_a_move_towards_index_has_changed	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn after_a_move_towards_index_has_changed() {$/;"	f
 after_creation_the_current_entry_is_the_first_entry	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    fn after_creation_the_current_entry_is_the_first_entry() {$/;"	f
 after_move_to_index_page_can_be_changed	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn after_move_to_index_page_can_be_changed() {$/;"	f
 after_moving_one_col_current_entry_is_the_second_entry	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    fn after_moving_one_col_current_entry_is_the_second_entry() {$/;"	f
@@ -48,10 +48,10 @@ begin_label_edit	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/
 build_gui	/Users/christophethibaut/Coding/gallsh-rust/src/gui.rs	/^pub fn build_gui(args: &Args, application: &gtk::Application) {$/;"	f
 can_move_abs	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn can_move_abs(&self, position: Coords) -> bool {$/;"	f
 can_move_abs	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn can_move_abs(&self, coords: Coords) -> bool {$/;"	f
-can_move_rel	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn can_move_rel(&self, direction: Direction) -> bool {$/;"	f
-can_move_rel	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn can_move_rel(&self, direction: Direction) -> bool {$/;"	f
 can_move_to_index	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn can_move_to_index(&self, index: usize) -> bool {$/;"	f
 can_move_to_index	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn can_move_to_index(&self, index: usize) -> bool {$/;"	f
+can_move_towards	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn can_move_towards(&self, direction: Direction) -> bool {$/;"	f
+can_move_towards	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn can_move_towards(&self, direction: Direction) -> bool {$/;"	f
 can_read_entries_from_a_directory_with_pattern	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^    fn can_read_entries_from_a_directory_with_pattern() {$/;"	f
 can_read_entries_from_a_directory_without_reading_the_thumbnails	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^    fn can_read_entries_from_a_directory_without_reading_the_thumbnails() {$/;"	f
 can_read_entries_from_reading_list	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^    fn can_read_entries_from_reading_list() {$/;"	f
@@ -141,8 +141,6 @@ move_next_page	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^  
 move_next_page	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_next_page(&mut self) {$/;"	f
 move_prev_page	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn move_prev_page(&mut self) {$/;"	f
 move_prev_page	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_prev_page(&mut self) {$/;"	f
-move_rel	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn move_rel(&mut self, direction: Direction) {$/;"	f
-move_rel	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_rel(&mut self, direction: Direction) {$/;"	f
 move_selection_target	/Users/christophethibaut/Coding/gallsh-rust/src/args.rs	/^    pub fn move_selection_target(&self) -> Result<Option<String>, String> {$/;"	f
 move_to_index	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn move_to_index(&mut self, n: usize) {$/;"	f
 move_to_index	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_to_index(&mut self, index: usize) {$/;"	f
@@ -150,9 +148,11 @@ move_to_index_can_be_checked	/Users/christophethibaut/Coding/gallsh-rust/src/nav
 move_to_random_index	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn move_to_random_index(&mut self) {$/;"	f
 move_to_random_index	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_to_random_index(&mut self) {$/;"	f
 move_to_register	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_to_register(&mut self) {$/;"	f
+move_towards	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn move_towards(&mut self, direction: Direction) {$/;"	f
+move_towards	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_towards(&mut self, direction: Direction) {$/;"	f
 navigate	/Users/christophethibaut/Coding/gallsh-rust/src/gui.rs	/^pub fn navigate(repository: &mut Repository, grid: &gtk::Grid, window: &gtk::ApplicationWindow, direction: Direction) {$/;"	f
-navigator_should_panic_if_move_rel_where_not_allowed	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn navigator_should_panic_if_move_rel_where_not_allowed() {$/;"	f
 navigator_should_panic_if_move_to_index_where_not_allowed	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn navigator_should_panic_if_move_to_index_where_not_allowed() {$/;"	f
+navigator_should_panic_if_move_towards_where_not_allowed	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn navigator_should_panic_if_move_towards_where_not_allowed() {$/;"	f
 new	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn new(capacity: i32, cells_per_row: i32) -> Self {$/;"	f
 on_last_page_move_is_checked_against_capacity	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn on_last_page_move_is_checked_against_capacity() {$/;"	f
 order	/Users/christophethibaut/Coding/gallsh-rust/src/args.rs	/^    pub fn order(&self) -> Order {$/;"	f

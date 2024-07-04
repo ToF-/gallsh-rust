@@ -134,7 +134,7 @@ pub fn set_label_text_at_coords(grid: &gtk::Grid, coords: Coords, text: String) 
 }
 
 pub fn navigate(repository: &mut Repository, grid: &gtk::Grid, window: &gtk::ApplicationWindow, direction: Direction) {
-    if repository.can_move_rel(direction.clone()) {
+    if repository.can_move_towards(direction.clone()) {
         if let Some(current_label) = label_at_coords(&grid, repository.position()) {
             let current_display = match repository.current_entry() {
                 Some(entry) => entry.label_display(false, repository.sample()),
@@ -142,7 +142,7 @@ pub fn navigate(repository: &mut Repository, grid: &gtk::Grid, window: &gtk::App
             };
             current_label.set_text(&current_display);
         }
-        repository.move_rel(direction);
+        repository.move_towards(direction);
         if let Some(new_label) = label_at_coords(&grid, repository.position()) {
             let new_display = match repository.current_entry() {
                 Some(entry) => entry.label_display(true, repository.sample()),
@@ -151,6 +151,36 @@ pub fn navigate(repository: &mut Repository, grid: &gtk::Grid, window: &gtk::App
             new_label.set_text(&new_display);
         }
         window.set_title(Some(&repository.title_display()));
+    } else {
+        let coords = repository.position();
+        let index = repository.index_from_position(coords).unwrap();
+        let cells_per_row = repository.cells_per_row() as usize;
+        let capacity = repository.capacity();
+        let column = coords.0 as usize;
+        let next_index = match direction {
+            Direction::Right => if index+1 < capacity { index + 1 } else { 0 },
+            Direction::Left => if index > 0 { index - 1 } else { capacity - 1 },
+            Direction::Down => if index + cells_per_row < capacity { index + cells_per_row } else { index + cells_per_row - capacity },
+            Direction::Up => if index > cells_per_row { index - cells_per_row } else { capacity - cells_per_row + column },
+        };
+        if repository.can_move_to_index(next_index) {
+        if let Some(current_label) = label_at_coords(&grid, repository.position()) {
+            let current_display = match repository.current_entry() {
+                Some(entry) => entry.label_display(false, repository.sample()),
+                None => String::new(),
+            };
+            current_label.set_text(&current_display);
+        }
+        repository.move_to_index(next_index);
+        if let Some(new_label) = label_at_coords(&grid, repository.position()) {
+            let new_display = match repository.current_entry() {
+                Some(entry) => entry.label_display(true, repository.sample()),
+                None => String::new(),
+            };
+            new_label.set_text(&new_display);
+        }
+        window.set_title(Some(&repository.title_display()));
+        }
     }
 }
 
