@@ -230,14 +230,6 @@ impl Repository {
         self.navigator.move_abs(coords)
     }
 
-    pub fn can_move_towards(&self, direction: Direction) -> bool {
-        self.navigator.can_move_towards(direction)
-    }
-
-    pub fn move_towards(&mut self, direction: Direction) {
-        self.navigator.move_towards(direction)
-    }
-
     pub fn move_forward_ten_pages(&mut self) {
         for _ in 0..10 {
             self.navigator.move_next_page()

@@ -50,8 +50,6 @@ can_move_abs	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    
 can_move_abs	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn can_move_abs(&self, coords: Coords) -> bool {$/;"	f
 can_move_to_index	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn can_move_to_index(&self, index: usize) -> bool {$/;"	f
 can_move_to_index	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn can_move_to_index(&self, index: usize) -> bool {$/;"	f
-can_move_towards	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn can_move_towards(&self, direction: Direction) -> bool {$/;"	f
-can_move_towards	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn can_move_towards(&self, direction: Direction) -> bool {$/;"	f
 can_read_entries_from_a_directory_with_pattern	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^    fn can_read_entries_from_a_directory_with_pattern() {$/;"	f
 can_read_entries_from_a_directory_without_reading_the_thumbnails	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^    fn can_read_entries_from_a_directory_without_reading_the_thumbnails() {$/;"	f
 can_read_entries_from_reading_list	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^    fn can_read_entries_from_reading_list() {$/;"	f
@@ -151,8 +149,6 @@ move_to_index_can_be_checked	/Users/christophethibaut/Coding/gallsh-rust/src/nav
 move_to_random_index	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn move_to_random_index(&mut self) {$/;"	f
 move_to_random_index	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_to_random_index(&mut self) {$/;"	f
 move_to_register	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_to_register(&mut self) {$/;"	f
-move_towards	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn move_towards(&mut self, direction: Direction) {$/;"	f
-move_towards	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_towards(&mut self, direction: Direction) {$/;"	f
 navigate	/Users/christophethibaut/Coding/gallsh-rust/src/gui.rs	/^pub fn navigate(repository: &mut Repository, grid: &gtk::Grid, window: &gtk::ApplicationWindow, direction: Direction) {$/;"	f
 navigator_should_panic_if_move_to_index_where_not_allowed	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn navigator_should_panic_if_move_to_index_where_not_allowed() {$/;"	f
 navigator_should_panic_if_move_towards_where_not_allowed	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn navigator_should_panic_if_move_towards_where_not_allowed() {$/;"	f

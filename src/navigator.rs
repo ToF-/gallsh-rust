@@ -1,4 +1,3 @@
-use crate::Direction;
 use rand::Rng;
 use rand::thread_rng;
 
@@ -66,24 +65,6 @@ impl Navigator {
                 0
             },
         }
-    }
-
-    pub fn can_move_towards(&self, direction: Direction) -> bool {
-        let coords: Coords = direction.into();
-        let position = (self.position.0 + coords.0, self.position.1 + coords.1);
-        position.0 >= 0
-            && position.0 < self.cells_per_row
-            && position.1 >= 0
-            && position.1 < self.cells_per_row
-            && self.index_from_position(position).is_some()
-
-    }
-
-    pub fn move_towards(&mut self, direction: Direction) {
-        let (col, row) = direction.into();
-        self.position = (self.position.0 + col, self.position.1 + row);
-        self.page_changed = false;
-        assert!(self.position.0 >= 0 && self.position.0 < self.cells_per_row && self.position.1 >= 0 && self.position.1 < self.cells_per_row)
     }
 
     pub fn can_move_abs(&self, position: Coords) -> bool {
