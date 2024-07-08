@@ -139,11 +139,22 @@ pub fn navigate(repository: &mut Repository, grid: &gtk::Grid, window: &gtk::App
     let cells_per_row = repository.cells_per_row() as usize;
     let capacity = repository.capacity();
     let column = coords.0 as usize;
-    let next_index = match direction {
-        Direction::Right => if index+1 < capacity { index + 1 } else { 0 },
-        Direction::Left => if index > 0 { index - 1 } else { capacity - 1 },
-        Direction::Down => if index + cells_per_row < capacity { index + cells_per_row } else { index + cells_per_row - capacity },
-        Direction::Up => if index > cells_per_row { index - cells_per_row } else { capacity - cells_per_row + column },
+    let row = coords.1 as usize;
+    let next_index = if  !repository.grid_limit_on() {
+        match direction {
+            Direction::Right => if index+1 < capacity { index + 1 } else { 0 },
+            Direction::Left => if index > 0 { index - 1 } else { capacity - 1 },
+            Direction::Down => if index + cells_per_row < capacity { index + cells_per_row } else { index + cells_per_row - capacity },
+            Direction::Up => if index > cells_per_row { index - cells_per_row } else { capacity - cells_per_row + column },
+        }
+    } else {
+        let impossible = capacity + 1;
+        match direction {
+            Direction::Right => if column + 1 < cells_per_row { index + 1 } else { impossible },
+            Direction::Left => if column > 0 { index - 1 } else { impossible },
+            Direction::Down => if row + 1 < cells_per_row { index + cells_per_row } else { impossible },
+            Direction::Up => if row > 0 { index - cells_per_row } else { impossible },
+        }
     };
     if repository.can_move_to_index(next_index) {
         if let Some(current_label) = label_at_coords(&grid, repository.position()) {
@@ -482,6 +493,7 @@ pub fn process_key(repository_rc: &Rc<RefCell<Repository>>, gui_rc: &Rc<RefCell<
                     "B" => repository.point_rank(Rank::NoStar),
                     "Eacute" => repository.point_rank(Rank::OneStar),
                     "P" => repository.point_rank(Rank::TwoStars),
+                    "o" => repository.toggle_grid_limit(),
                     "O" => repository.point_rank(Rank::ThreeStars),
                     "c" => if repository.order_choice_on() { repository.sort_by(Order::Colors); },
                     "C" => repository.copy_temp(),
@@ -544,14 +556,14 @@ pub fn process_key(repository_rc: &Rc<RefCell<Repository>>, gui_rc: &Rc<RefCell<
     gtk::Inhibit(false)
 }
 pub fn arrow_command(direction: Direction, gui: &Gui, repository: &mut Repository, repository_rc: &Rc<RefCell<Repository>>) {
-    let step: f64 = 100.0;
-    let (picture_adjustment, step) = match direction {
-        Direction::Right => (picture_hadjustment(&gui.application_window), step),
-        Direction::Left  => (picture_hadjustment(&gui.application_window), -step),
-        Direction::Down  => (picture_vadjustment(&gui.application_window), step),
-        Direction::Up    => (picture_vadjustment(&gui.application_window), -step),
-    };
     if repository.real_size() {
+        let step: f64 = 100.0;
+        let (picture_adjustment, step) = match direction {
+            Direction::Right => (picture_hadjustment(&gui.application_window), step),
+            Direction::Left  => (picture_hadjustment(&gui.application_window), -step),
+            Direction::Down  => (picture_vadjustment(&gui.application_window), step),
+            Direction::Up    => (picture_vadjustment(&gui.application_window), -step),
+        };
         picture_adjustment.set_value(picture_adjustment.value() + step)
     } else {
         if repository.cells_per_row() == 1 {

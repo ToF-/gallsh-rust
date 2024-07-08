@@ -32,6 +32,7 @@ pub struct Repository {
     move_selection_target: Option<String>,
     all_label_move_target: Option<String>,
     sample: bool,
+    grid_limit_on: bool,
 }
 
 pub fn init_repository(args: &Args) -> Result<Repository> {
@@ -104,11 +105,21 @@ impl Repository {
             move_selection_target : move_selection_target,
             all_label_move_target : all_label_move_target,
             sample: sample,
+            grid_limit_on: true,
         }
     }
 
     pub fn sample(&self) -> bool {
         self.sample
+    }
+
+    pub fn grid_limit_on(&self) -> bool {
+        self.grid_limit_on
+    }
+
+    pub fn toggle_grid_limit(&mut self) {
+        self.grid_limit_on = !self.grid_limit_on;
+        println!("grid limit {}", if self.grid_limit_on { "on" } else { "off" })
     }
 
     pub fn label_edit_mode_on(&self) -> bool {

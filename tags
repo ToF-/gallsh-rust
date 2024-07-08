@@ -105,6 +105,7 @@ from	/Users/christophethibaut/Coding/gallsh-rust/src/direction.rs	/^    fn from(
 from_entries	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn from_entries(entries: EntryList, cells_per_row: usize, copy_selection_target: Option<String>, move_selection_target: Option<String>, all_label_move_target: Option<String>, sample: bool) -> Self {$/;"	f
 from_options	/Users/christophethibaut/Coding/gallsh-rust/src/order.rs	/^    pub fn from_options(name: bool, date: bool, size: bool, colors: bool, value: bool, palette: bool, label: bool) -> Self {$/;"	f
 get_image_color	/Users/christophethibaut/Coding/gallsh-rust/src/image.rs	/^pub fn get_image_color(file_path: &str) -> ImageResult<usize> {$/;"	f
+grid_limit_on	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn grid_limit_on(&self) -> bool {$/;"	f
 grid_size	/Users/christophethibaut/Coding/gallsh-rust/src/args.rs	/^    pub fn grid_size(&self) -> usize {$/;"	f
 height	/Users/christophethibaut/Coding/gallsh-rust/src/args.rs	/^    pub fn height(&self) -> i32 {$/;"	f
 help	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn help(&self) {$/;"	f
@@ -232,6 +233,7 @@ title_display	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^  
 title_show_the_entry_information	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^    fn title_show_the_entry_information() {$/;"	f
 to_possible_value	/Users/christophethibaut/Coding/gallsh-rust/src/order.rs	/^    fn to_possible_value(&self) -> Option<PossibleValue> {$/;"	f
 toggle_delete	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn toggle_delete(&mut self) {$/;"	f
+toggle_grid_limit	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn toggle_grid_limit(&mut self) {$/;"	f
 toggle_palette_extract	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn toggle_palette_extract(&mut self) {$/;"	f
 toggle_real_size	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn toggle_real_size(&mut self) {$/;"	f
 toggle_select	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^    pub fn toggle_select(&mut self) {$/;"	f
