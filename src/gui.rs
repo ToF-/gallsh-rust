@@ -74,7 +74,7 @@ pub fn setup_picture_grid(repository_rc: &Rc<RefCell<Repository>>, picture_grid:
         window.set_title(Some(&repository.title_display()));
     }
     else {
-        println!("can't borrow repository_rc");
+        eprintln!("can't borrow repository_rc");
     }
 }
 
@@ -87,7 +87,7 @@ pub fn setup_image_view(repository_rc: &Rc<RefCell<Repository>>, picture_view: &
             },
             Err(err) => {
                 picture_view.set_visible(false);
-                println!("{}",err.to_string())
+                eprintln!("{}",err.to_string())
             },
         }
     }
@@ -193,7 +193,7 @@ pub fn picture_for_entry(entry: &Entry, repository: &Repository) -> gtk::Picture
         Ok(_) => picture.set_visible(true),
         Err(err) => {
             picture.set_visible(false);
-            println!("{}", err.to_string())
+            eprintln!("{}", err.to_string())
         },
     };
     picture
@@ -429,7 +429,7 @@ pub fn setup_picture_cell(window: &gtk::ApplicationWindow, grid: &gtk::Grid, vbo
             vbox.append(&label);
         }
     } else {
-        println!("can't borrow repository_rc");
+        eprintln!("can't borrow repository_rc");
     }
 
 }
@@ -522,7 +522,7 @@ pub fn process_key(repository_rc: &Rc<RefCell<Repository>>, gui_rc: &Rc<RefCell<
                     },
                     "colon" => {
                         println!("{}", repository.title_display());
-                        println!("{}", repository.current_entry().expect("can't access current entry").original_file_path())
+                        eprintln!("{}", repository.current_entry().expect("can't access current entry").original_file_path())
                     },
                     "space" => repository.move_next_page(),
                     "Right" => {

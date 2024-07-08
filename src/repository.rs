@@ -205,7 +205,6 @@ impl Repository {
             if self.real_size_on { "*" } else { "" },
             if self.label_edit_mode_on { format!("Label:{}", self.label.iter().collect::<String>()) } else { String::from("") }
             );
-        println!("{}",result);
         result
     }
 
@@ -243,14 +242,12 @@ impl Repository {
         for _ in 0..10 {
             self.navigator.move_next_page()
         };
-        println!("move forward ten pages")
     }
 
     pub fn move_backward_ten_pages(&mut self) {
         for _ in 0..10 { 
             self.navigator.move_prev_page()
         };
-        println!("move backward ten pages")
     }
 
     pub fn move_to_register(&mut self) {
@@ -356,7 +353,7 @@ impl Repository {
             self.real_size_on = !self.real_size_on;
             println!("toggle real size")
         } else {
-            println!("can't toggle real size in grid mode")
+            eprintln!("can't toggle real size in grid mode")
         }
     }
 
@@ -368,28 +365,24 @@ impl Repository {
         if self.navigator.can_move_to_index(index) {
             self.navigator.move_to_index(index);
             self.real_size_on = false;
-            println!("move to picture #{}", index)
         } else {
-            println!("can't move to picture #{}", index)
+            eprintln!("can't move to picture #{}", index)
         }
     }
 
     pub fn move_to_random_index(&mut self) {
         self.navigator.move_to_random_index();
         self.real_size_on = false;
-        println!("move to picture #{}", self.navigator.index())
     }
 
     pub fn move_next_page(&mut self) {
         self.navigator.move_next_page();
         self.real_size_on = false;
-        println!("move to next page")
     }
 
     pub fn move_prev_page(&mut self) {
         self.navigator.move_prev_page();
         self.real_size_on = false;
-        println!("move to prev page")
     }
 
     pub fn move_in_direction(&mut self, direction: Direction) {
@@ -460,7 +453,7 @@ impl Repository {
                 Err(err) => eprintln!("{}", err),
             }
         } else {
-            println!("target directory for label moves is not set");
+            eprintln!("target directory for label moves is not set");
         }
     }
 
@@ -479,7 +472,7 @@ impl Repository {
            self.max_selected -= 1
         }; 
         if picture_io::save_image_data(&self.entry_list[index]).is_err() {
-            println!("can't save image data {}", &self.entry_list[index].image_data_file_path())
+            eprintln!("can't save image data {}", &self.entry_list[index].image_data_file_path())
         };
         self.navigator.refresh()
 
@@ -499,7 +492,7 @@ impl Repository {
         let entry = &mut self.entry_list[index];
         entry.set_rank(rank);
         if picture_io::save_image_data(&entry).is_err() {
-            println!("can't save image data {}", &entry.image_data_file_path())
+            eprintln!("can't save image data {}", &entry.image_data_file_path())
         };
         self.navigator.refresh()
     }
@@ -511,7 +504,7 @@ impl Repository {
         entry.set_label(self.label_length, &self.label);
         println!("recording label {}", entry.image_data.label.iter().collect::<String>());
         if picture_io::save_image_data(&entry).is_err() {
-            println!("can't save image data {}", &entry.image_data_file_path())
+            eprintln!("can't save image data {}", &entry.image_data_file_path())
         };
         self.navigator.refresh()
     }
@@ -543,7 +536,7 @@ impl Repository {
             let entry = &mut self.entry_list[i];
             entry.set_select(value);
             if picture_io::save_image_data(&self.entry_list[i]).is_err() {
-                println!("can't save image data {}", &self.entry_list[i].image_data_file_path())
+                eprintln!("can't save image data {}", &self.entry_list[i].image_data_file_path())
             };
             self.update_max_selected()
         };
@@ -557,7 +550,7 @@ impl Repository {
             let entry = &mut self.entry_list[i];
             entry.set_select(value);
             if picture_io::save_image_data(&self.entry_list[i]).is_err() {
-                println!("can't save image data {}", &self.entry_list[i].image_data_file_path())
+                eprintln!("can't save image data {}", &self.entry_list[i].image_data_file_path())
             };
             self.update_max_selected()
         };
@@ -654,7 +647,7 @@ impl Repository {
     pub fn copy_select_entries(&self, target: &str) {
         let target_path = Path::new(target);
         if !target_path.exists() {
-            println!("directory doesn't exist: {}", target);
+            eprintln!("directory doesn't exist: {}", target);
             return
         };
         let selection: Vec<&Entry> = self.entry_list.iter().filter(|e| e.image_data.selected).collect();
