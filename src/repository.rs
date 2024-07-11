@@ -33,6 +33,9 @@ pub struct Repository {
     all_label_move_target: Option<String>,
     sample: bool,
     grid_limit_on: bool,
+    search_edit_mode_on: bool,
+    search: [char; 16],
+    search_length: usize,
 }
 
 pub fn init_repository(args: &Args) -> Result<Repository> {
@@ -106,9 +109,42 @@ impl Repository {
             all_label_move_target : all_label_move_target,
             sample: sample,
             grid_limit_on: true,
+            search_edit_mode_on: false,
+            search: ['\0';16],
+            search_length: 0,
         }
     }
 
+    pub fn search_edit_mode_on(&self) -> bool {
+        self.search_edit_mode_on
+    }
+
+    pub fn add_search_char(&mut self, ch: char) {
+        if self.search_length < 16 {
+            self.search[self.search_length] = ch;
+            self.search_length += 1
+        }
+    }
+
+    pub fn remove_search_char(&mut self) {
+        if self.label_length > 0 {
+            self.label[self.label_length-1] = '\0';
+            self.label_length -= 1
+        }
+    }
+
+    pub fn cancel_search_edit(&mut self) {
+        self.search_edit_mode_on = false;
+    }
+
+    pub fn confirm_search_edit(&mut self) {
+        self.search_edit_mode_on = false;
+        self.search()
+    }
+
+    pub fn search(&self) {
+
+    }
     pub fn sample(&self) -> bool {
         self.sample
     }

@@ -18,7 +18,9 @@ fn less_than_11(s: &str) -> Result<usize, String> {
 /// Gallery Show
 #[derive(Parser, Clone, Debug)]
 #[command(infer_subcommands = true, infer_long_args = true, author, version, about, long_about = None)]
-    /// Directory to search (default is set with variable GALLSHDIR)
+/// Pattern that displayed files must have
+pub struct Args {
+     /// Directory to search (default is set with variable GALLSHDIR)
     pub directory: Option<String>,
 
     /// Pattern (only files with names matching the regular expression will be displayed)

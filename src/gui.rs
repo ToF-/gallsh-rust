@@ -457,8 +457,25 @@ pub fn process_key(repository_rc: &Rc<RefCell<Repository>>, gui_rc: &Rc<RefCell<
                     }
                 }
             } else {
-                if repository.search_enter_on() {
-                    match key_name.as_str() {
+                if repository.search_edit_mode_on() {
+                    if let Some(key_name) = key.name() {
+                        if key_name == "Return" {
+                            repository.confirm_search_edit()
+                        } else if key_name == "BackSpace" {
+                            repository.remove_search_char()
+                        } else if key_name == "Escape" {
+                            repository.cancel_search_edit()
+                        } else {
+                            if let Some(ch) = key.to_unicode() {
+                                match ch { 
+                                    'A'..='Z' => repository.add_search_char(ch),
+                                    'a'..='z' => repository.add_search_char(ch),
+                                    '0'..='9' => repository.add_search_char(ch),
+                                    '-'|'_'   => repository.add_search_char(ch),
+                                    _ => { },
+                                }
+                            }
+                        }
                     }
                 } else {
 

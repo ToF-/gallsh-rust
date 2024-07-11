@@ -3,239 +3,250 @@
 !_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
-!_TAG_PROGRAM_VERSION	5.8	//
-Args	/Users/christophethibaut/Coding/gallsh-rust/src/args.rs	/^pub struct Args {$/;"	s
-COLOR_MAX	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^    const COLOR_MAX: f64 = 9.0;$/;"	c
-Coords	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^pub type Coords = (i32, i32);$/;"	T
-DEFAULT_DIR	/Users/christophethibaut/Coding/gallsh-rust/src/paths.rs	/^const DEFAULT_DIR :&str    = "images\/";$/;"	c
-DEFAULT_HEIGHT	/Users/christophethibaut/Coding/gallsh-rust/src/args.rs	/^const DEFAULT_HEIGHT: i32  = 1000;$/;"	c
-DEFAULT_WIDTH	/Users/christophethibaut/Coding/gallsh-rust/src/args.rs	/^const DEFAULT_WIDTH: i32   = 1000;$/;"	c
-DIR_ENV_VAR	/Users/christophethibaut/Coding/gallsh-rust/src/paths.rs	/^const DIR_ENV_VAR :&str    = "GALLSHDIR";$/;"	c
-Direction	/Users/christophethibaut/Coding/gallsh-rust/src/direction.rs	/^pub enum Direction {$/;"	g
-Entry	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^pub struct Entry {$/;"	s
-EntryList	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^pub type EntryList = Vec<Entry>;$/;"	T
-Gui	/Users/christophethibaut/Coding/gallsh-rust/src/gui.rs	/^pub struct Gui {$/;"	s
-HEIGHT_ENV_VAR	/Users/christophethibaut/Coding/gallsh-rust/src/args.rs	/^const HEIGHT_ENV_VAR :&str = "GALLSHHEIGHT";$/;"	c
-IMAGE_DATA	/Users/christophethibaut/Coding/gallsh-rust/src/paths.rs	/^pub const IMAGE_DATA: &str = "IMAGE_DATA";$/;"	c
-ImageData	/Users/christophethibaut/Coding/gallsh-rust/src/image_data.rs	/^pub struct ImageData {$/;"	s
-Navigator	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^pub struct Navigator {$/;"	s
-Order	/Users/christophethibaut/Coding/gallsh-rust/src/order.rs	/^pub enum Order {$/;"	g
-Rank	/Users/christophethibaut/Coding/gallsh-rust/src/rank.rs	/^pub enum Rank {$/;"	g
-Repository	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^pub struct Repository {$/;"	s
-SELECTION_FILE_NAME	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^const SELECTION_FILE_NAME: &str = "selections";$/;"	c
-THUMB_SUFFIX	/Users/christophethibaut/Coding/gallsh-rust/src/paths.rs	/^pub const THUMB_SUFFIX: &str = "THUMB";$/;"	c
-VALID_EXTENSIONS	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^const VALID_EXTENSIONS: [&'static str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];$/;"	c
-WIDTH_ENV_VAR	/Users/christophethibaut/Coding/gallsh-rust/src/args.rs	/^const WIDTH_ENV_VAR :&str  = "GALLSHWIDTH";$/;"	c
-a_day	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^    fn a_day() -> SystemTime {$/;"	f
-add_label_char	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn add_label_char(&mut self, ch: char) {$/;"	f
-add_register_digit	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn add_register_digit(&mut self, digit: usize ) {$/;"	f
-after_a_move_abs_index_has_changed	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn after_a_move_abs_index_has_changed() {$/;"	f
-after_a_move_towards_index_has_changed	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn after_a_move_towards_index_has_changed() {$/;"	f
-after_creation_the_current_entry_is_the_first_entry	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    fn after_creation_the_current_entry_is_the_first_entry() {$/;"	f
-after_move_to_index_page_can_be_changed	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn after_move_to_index_page_can_be_changed() {$/;"	f
-after_moving_one_col_current_entry_is_the_second_entry	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    fn after_moving_one_col_current_entry_is_the_second_entry() {$/;"	f
-after_next_page_on_last_page_index_is_start_of_first_page	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn after_next_page_on_last_page_index_is_start_of_first_page() {$/;"	f
-after_next_page_or_prev_page_index_is_changed_and_aligned_to_a_page	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn after_next_page_or_prev_page_index_is_changed_and_aligned_to_a_page() {$/;"	f
-after_prev_page_on_first_page_index_is_start_of_last_page	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn after_prev_page_on_first_page_index_is_start_of_last_page() {$/;"	f
-after_setting_rank_current_entries_has_a_new_rank	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    fn after_setting_rank_current_entries_has_a_new_rank() {$/;"	f
-after_toggle_select_current_entry_is_selected_or_unselected	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    fn after_toggle_select_current_entry_is_selected_or_unselected() {$/;"	f
-after_two_rank_points_a_group_on_entries_has_rank_changed	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    fn after_two_rank_points_a_group_on_entries_has_rank_changed() {$/;"	f
-after_two_select_points_a_group_of_entries_is_selected	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    fn after_two_select_points_a_group_of_entries_is_selected() {$/;"	f
-all_label_move_target	/Users/christophethibaut/Coding/gallsh-rust/src/args.rs	/^    pub fn all_label_move_target(&self) -> Result<Option<String>, String> {$/;"	f
-apply_last_label	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn apply_last_label(&mut self) {$/;"	f
-arrow_command	/Users/christophethibaut/Coding/gallsh-rust/src/gui.rs	/^pub fn arrow_command(direction: Direction, gui: &Gui, repository: &mut Repository, repository_rc: &Rc<RefCell<Repository>>) {$/;"	f
-begin_label_edit	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn begin_label_edit(&mut self) {$/;"	f
-build_gui	/Users/christophethibaut/Coding/gallsh-rust/src/gui.rs	/^pub fn build_gui(args: &Args, application: &gtk::Application) {$/;"	f
-can_move_abs	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn can_move_abs(&self, position: Coords) -> bool {$/;"	f
-can_move_abs	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn can_move_abs(&self, coords: Coords) -> bool {$/;"	f
-can_move_to_index	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn can_move_to_index(&self, index: usize) -> bool {$/;"	f
-can_move_to_index	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn can_move_to_index(&self, index: usize) -> bool {$/;"	f
-can_read_entries_from_a_directory_with_pattern	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^    fn can_read_entries_from_a_directory_with_pattern() {$/;"	f
-can_read_entries_from_a_directory_without_reading_the_thumbnails	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^    fn can_read_entries_from_a_directory_without_reading_the_thumbnails() {$/;"	f
-can_read_entries_from_reading_list	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^    fn can_read_entries_from_reading_list() {$/;"	f
-can_read_entry_for_a_file	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^    fn can_read_entry_for_a_file() {$/;"	f
-cancel_label_edit	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn cancel_label_edit(&mut self) {$/;"	f
-cancel_point	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn cancel_point(&mut self) {$/;"	f
-capacity	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn capacity(&self) -> usize {$/;"	f
-capacity	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn capacity(&self) -> usize {$/;"	f
-cells_per_row	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn cells_per_row(&self) -> i32 {$/;"	f
-cells_per_row	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn cells_per_row(&self) -> i32 {$/;"	f
-check_label_path	/Users/christophethibaut/Coding/gallsh-rust/src/paths.rs	/^pub fn check_label_path(dir: &str, label: &str) -> Result<PathBuf> {$/;"	f
-check_path	/Users/christophethibaut/Coding/gallsh-rust/src/paths.rs	/^pub fn check_path(dir: &str, confirm_create: bool) -> Result<PathBuf> {$/;"	f
-cmp_label	/Users/christophethibaut/Coding/gallsh-rust/src/image_data.rs	/^    pub fn cmp_label(&self, other: &ImageData) -> Ordering {$/;"	f
-confirm_label_edit	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn confirm_label_edit(&mut self) {$/;"	f
-copy_entry	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^pub fn copy_entry(entry: &Entry, target_path: &Path) -> Result<()> {$/;"	f
-copy_entry_filename_to_current_dir	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^pub fn copy_entry_filename_to_current_dir(entry: &Entry) {$/;"	f
-copy_file_to_target_directory	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^fn copy_file_to_target_directory(file_path: &Path, target_directory: &Path) -> Result<u64> {$/;"	f
-copy_move_and_quit	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn copy_move_and_quit(&self) {$/;"	f
-copy_select_entries	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn copy_select_entries(&self, target: &str) {$/;"	f
-copy_selection_target	/Users/christophethibaut/Coding/gallsh-rust/src/args.rs	/^    pub fn copy_selection_target(&self) -> Result<Option<String>, String> {$/;"	f
-copy_temp	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn copy_temp(&self) {$/;"	f
-create_gui	/Users/christophethibaut/Coding/gallsh-rust/src/gui.rs	/^pub fn create_gui(application: &gtk::Application, width: i32, height: i32, grid_size: usize, repository_rc: &Rc<RefCell<Repository>>) -> Gui {$/;"	f
-create_thumbnail	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^fn create_thumbnail(entry: &Entry) -> Result<()> {$/;"	f
-current_entry	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn current_entry(&self) -> Option<&Entry> {$/;"	f
-current_index	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn current_index(&self) -> usize {$/;"	f
-current_index_before_any_move_is_given_index	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn current_index_before_any_move_is_given_index() {$/;"	f
-delete_entries	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn delete_entries(&self) {$/;"	f
-delete_entry	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^pub fn delete_entry(entry: &Entry) {$/;"	f
-delete_register_digit	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn delete_register_digit(&mut self) {$/;"	f
-delete_select_entries	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn delete_select_entries(&self) {$/;"	f
-delete_selection_file	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^pub fn delete_selection_file() {$/;"	f
-determine_path	/Users/christophethibaut/Coding/gallsh-rust/src/paths.rs	/^pub fn determine_path(directory: Option<String>) -> String {$/;"	f
-directory	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^    pub fn directory(&self) -> String {$/;"	f
-directory	/Users/christophethibaut/Coding/gallsh-rust/src/paths.rs	/^pub fn directory(file_path: &str) -> String {$/;"	f
-draw_palette	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^pub fn draw_palette(ctx: &Context, width: i32, height: i32, colors: &[u32;9]) {$/;"	f
-drawing_area_for_entry	/Users/christophethibaut/Coding/gallsh-rust/src/gui.rs	/^pub fn drawing_area_for_entry(entry: &Entry) -> gtk::DrawingArea {$/;"	f
-empty_label	/Users/christophethibaut/Coding/gallsh-rust/src/gui.rs	/^pub fn empty_label() -> gtk::Label {$/;"	f
-empty_picture	/Users/christophethibaut/Coding/gallsh-rust/src/gui.rs	/^pub fn empty_picture() -> gtk::Picture {$/;"	f
-ensure_thumbnail	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^pub fn ensure_thumbnail(entry: &Entry) -> Result<()> {$/;"	f
-ensure_thumbnails	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^pub fn ensure_thumbnails(entry_list: &EntryList) {$/;"	f
-entries_from_directory	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^pub fn entries_from_directory(dir: &str, pattern_opt: Option<String>) -> Result<EntryList> {$/;"	f
-entries_from_file	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^pub fn entries_from_file(file: &str) -> Result<EntryList> {$/;"	f
-entries_from_reading_list	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^pub fn entries_from_reading_list(reading_list: &str, pattern_opt: Option<String>) -> Result<EntryList> {$/;"	f
-entries_with_label	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^pub fn entries_with_label<'a>(entry_list: &'a EntryList, target: &'a str) -> Vec<&'a Entry> {$/;"	f
-entry_at_index	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn entry_at_index(&self, index: usize) -> Option<&Entry> {$/;"	f
-example	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    fn example() -> EntryList {$/;"	f
-fmt	/Users/christophethibaut/Coding/gallsh-rust/src/order.rs	/^    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {$/;"	f
-fmt	/Users/christophethibaut/Coding/gallsh-rust/src/rank.rs	/^    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {$/;"	f
-focus_on_cell_at_coords	/Users/christophethibaut/Coding/gallsh-rust/src/gui.rs	/^pub fn focus_on_cell_at_coords(coords: Coords, grid: &gtk::Grid, window: &gtk::ApplicationWindow, repository: &mut Repository, with_select: bool) {$/;"	f
-from	/Users/christophethibaut/Coding/gallsh-rust/src/direction.rs	/^    fn from(coords: (i32, i32)) -> Self {$/;"	f
-from_entries	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn from_entries(entries: EntryList, cells_per_row: usize, copy_selection_target: Option<String>, move_selection_target: Option<String>, all_label_move_target: Option<String>, sample: bool) -> Self {$/;"	f
-from_options	/Users/christophethibaut/Coding/gallsh-rust/src/order.rs	/^    pub fn from_options(name: bool, date: bool, size: bool, colors: bool, value: bool, palette: bool, label: bool) -> Self {$/;"	f
-get_image_color	/Users/christophethibaut/Coding/gallsh-rust/src/image.rs	/^pub fn get_image_color(file_path: &str) -> ImageResult<usize> {$/;"	f
-grid_limit_on	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn grid_limit_on(&self) -> bool {$/;"	f
-grid_size	/Users/christophethibaut/Coding/gallsh-rust/src/args.rs	/^    pub fn grid_size(&self) -> usize {$/;"	f
-height	/Users/christophethibaut/Coding/gallsh-rust/src/args.rs	/^    pub fn height(&self) -> i32 {$/;"	f
-help	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn help(&self) {$/;"	f
-image_data_file_path	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^    pub fn image_data_file_path(&self) -> String {$/;"	f
-image_data_file_path	/Users/christophethibaut/Coding/gallsh-rust/src/paths.rs	/^pub fn image_data_file_path(file_path: &str) -> String {$/;"	f
-image_data_file_path_is_added_the_image_data_suffix_and_json_extension	/Users/christophethibaut/Coding/gallsh-rust/src/paths.rs	/^    fn image_data_file_path_is_added_the_image_data_suffix_and_json_extension() {$/;"	f
-index	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn index(&self) -> usize {$/;"	f
-index_from_position	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn index_from_position(&self, position: Coords) -> Option<usize> {$/;"	f
-index_from_position	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn index_from_position(&self, coords: Coords) -> Option<usize> {$/;"	f
-index_from_position_can_yield_a_possible_index	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn index_from_position_can_yield_a_possible_index() {$/;"	f
-init_repository	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^pub fn init_repository(args: &Args) -> Result<Repository> {$/;"	f
-into	/Users/christophethibaut/Coding/gallsh-rust/src/direction.rs	/^    fn into(self) -> (i32,i32) {$/;"	f
-is_selected	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^    pub fn is_selected(&self) -> bool {$/;"	f
-is_thumbnail	/Users/christophethibaut/Coding/gallsh-rust/src/paths.rs	/^pub fn is_thumbnail(file_path: &str) -> bool {$/;"	f
-is_valid_directory	/Users/christophethibaut/Coding/gallsh-rust/src/paths.rs	/^pub fn is_valid_directory(dir: &str) -> bool {$/;"	f
-jump_to_name	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    fn jump_to_name(&mut self, name: &String) {$/;"	f
-label	/Users/christophethibaut/Coding/gallsh-rust/src/image_data.rs	/^    pub fn label(&self) -> Option<String> {$/;"	f
-label_at_coords	/Users/christophethibaut/Coding/gallsh-rust/src/gui.rs	/^pub fn label_at_coords(grid: &gtk::Grid, coords: Coords) -> Option<gtk::Label> {$/;"	f
-label_display	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^    pub fn label_display(&self, has_focus: bool, show_parent: bool) -> String {$/;"	f
-label_edit_mode_on	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn label_edit_mode_on(&self) -> bool {$/;"	f
-label_for_entry	/Users/christophethibaut/Coding/gallsh-rust/src/gui.rs	/^pub fn label_for_entry(entry: &Entry, index: usize, repository: &Repository) -> gtk::Label {$/;"	f
-label_show_basic_entry_information	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^    fn label_show_basic_entry_information() {$/;"	f
-less_than_11	/Users/christophethibaut/Coding/gallsh-rust/src/args.rs	/^fn less_than_11(s: &str) -> Result<usize, String> {$/;"	f
-main	/Users/christophethibaut/Coding/gallsh-rust/src/main.rs	/^fn main() {$/;"	f
-make_entry	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^pub fn make_entry(file_path:String, file_size:u64, colors:usize, modified_time:SystemTime, initial_rank: Rank) -> Entry {$/;"	f
-max_cells	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn max_cells(&self) -> i32 {$/;"	f
-move_abs	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn move_abs(&mut self, position: Coords) {$/;"	f
-move_abs	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_abs(&mut self, coords: Coords) {$/;"	f
-move_all_labels_and_quit	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_all_labels_and_quit(&self) {$/;"	f
-move_backward_ten_pages	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_backward_ten_pages(&mut self) {$/;"	f
-move_entries_with_label	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^pub fn move_entries_with_label(entry_list: &EntryList, label: &str, target: &str) -> Result<()> {$/;"	f
-move_entries_with_label_to_target	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^pub fn move_entries_with_label_to_target(entry_list: &EntryList, target: &str) -> Result<()> {$/;"	f
-move_forward_ten_pages	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_forward_ten_pages(&mut self) {$/;"	f
-move_in_direction	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_in_direction(&mut self, direction: Direction) {$/;"	f
-move_next_page	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn move_next_page(&mut self) {$/;"	f
-move_next_page	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_next_page(&mut self) {$/;"	f
-move_prev_page	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn move_prev_page(&mut self) {$/;"	f
-move_prev_page	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_prev_page(&mut self) {$/;"	f
-move_selection_target	/Users/christophethibaut/Coding/gallsh-rust/src/args.rs	/^    pub fn move_selection_target(&self) -> Result<Option<String>, String> {$/;"	f
-move_to_index	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn move_to_index(&mut self, n: usize) {$/;"	f
-move_to_index	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_to_index(&mut self, index: usize) {$/;"	f
-move_to_index_can_be_checked	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn move_to_index_can_be_checked() {$/;"	f
-move_to_random_index	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn move_to_random_index(&mut self) {$/;"	f
-move_to_random_index	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_to_random_index(&mut self) {$/;"	f
-move_to_register	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_to_register(&mut self) {$/;"	f
-navigate	/Users/christophethibaut/Coding/gallsh-rust/src/gui.rs	/^pub fn navigate(repository: &mut Repository, grid: &gtk::Grid, window: &gtk::ApplicationWindow, direction: Direction) {$/;"	f
-navigator_should_panic_if_move_to_index_where_not_allowed	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn navigator_should_panic_if_move_to_index_where_not_allowed() {$/;"	f
-navigator_should_panic_if_move_towards_where_not_allowed	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn navigator_should_panic_if_move_towards_where_not_allowed() {$/;"	f
-new	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn new(capacity: i32, cells_per_row: i32) -> Self {$/;"	f
-on_last_page_move_is_checked_against_capacity	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn on_last_page_move_is_checked_against_capacity() {$/;"	f
-order	/Users/christophethibaut/Coding/gallsh-rust/src/args.rs	/^    pub fn order(&self) -> Order {$/;"	f
-order_choice_on	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn order_choice_on(&self) -> bool {$/;"	f
-original_file_name	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^    pub fn original_file_name(&self) -> String {$/;"	f
-original_file_name	/Users/christophethibaut/Coding/gallsh-rust/src/paths.rs	/^pub fn original_file_name(file_path: &str) -> String  {$/;"	f
-original_file_name_is_rid_of_any_thumb_suffix_and_path	/Users/christophethibaut/Coding/gallsh-rust/src/paths.rs	/^    fn original_file_name_is_rid_of_any_thumb_suffix_and_path() {$/;"	f
-original_file_path	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^    pub fn original_file_path(&self) -> String {$/;"	f
-original_file_path	/Users/christophethibaut/Coding/gallsh-rust/src/paths.rs	/^pub fn original_file_path(file_path: &str) -> String {$/;"	f
-page_changed	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn page_changed(&self) -> bool {$/;"	f
-page_changed	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn page_changed(&self) -> bool {$/;"	f
-palette_extract_on	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn palette_extract_on(&self) -> bool {$/;"	f
-path	/Users/christophethibaut/Coding/gallsh-rust/src/args.rs	/^    pub fn path(&self) -> String {$/;"	f
-picture_for_entry	/Users/christophethibaut/Coding/gallsh-rust/src/gui.rs	/^pub fn picture_for_entry(entry: &Entry, repository: &Repository) -> gtk::Picture {$/;"	f
-picture_hadjustment	/Users/christophethibaut/Coding/gallsh-rust/src/gui.rs	/^pub fn picture_hadjustment(window: &gtk::ApplicationWindow) -> gtk::Adjustment {$/;"	f
-picture_vadjustment	/Users/christophethibaut/Coding/gallsh-rust/src/gui.rs	/^fn picture_vadjustment(window: &gtk::ApplicationWindow) -> gtk::Adjustment {$/;"	f
-point_label	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn point_label(&mut self) {$/;"	f
-point_rank	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn point_rank(&mut self, rank: Rank) {$/;"	f
-point_remove_label	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn point_remove_label(&mut self) {$/;"	f
-point_select	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn point_select(&mut self) {$/;"	f
-position	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn position(&self) -> Coords {$/;"	f
-position	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn position(&self) -> Coords {$/;"	f
-process_key	/Users/christophethibaut/Coding/gallsh-rust/src/gui.rs	/^pub fn process_key(repository_rc: &Rc<RefCell<Repository>>, gui_rc: &Rc<RefCell<Gui>>, key: Key) -> gtk::Inhibit {$/;"	f
-push_entry_from_path	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^fn push_entry_from_path(path: &Path, pattern_opt: Option<String>, entry_list: &mut EntryList) -> Result<()> {$/;"	f
-quit	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn quit(&self) {$/;"	f
-read_entries	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^pub fn read_entries(reading_list_opt: Option<String>, file_name_opt: Option<String>, path: String, pattern_opt: Option<String>, sample: bool) -> Result<EntryList> {  $/;"	f
-real_size	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn real_size(&self) -> bool {$/;"	f
-record_label	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn record_label(&mut self) {$/;"	f
-refresh	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn refresh(&mut self) {$/;"	f
-register_on	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn register_on(&self) -> bool {$/;"	f
-relative_move_can_be_checked	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn relative_move_can_be_checked() {$/;"	f
-remove_label_char	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn remove_label_char(&mut self) {$/;"	f
-rgba_key	/Users/christophethibaut/Coding/gallsh-rust/src/image.rs	/^fn rgba_key(rgba: Rgba<u8>) -> u32 {$/;"	f
-sample	/Users/christophethibaut/Coding/gallsh-rust/src/args.rs	/^    pub fn sample(&self) -> bool {$/;"	f
-sample	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn sample(&self) -> bool {$/;"	f
-sample_entries	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^pub fn sample_entries(entry_list: &EntryList) -> EntryList {$/;"	f
-save_image_data	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^pub fn save_image_data(entry: &Entry) -> Result<()> {$/;"	f
-save_image_list	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^pub fn save_image_list(list: Vec<String>) {$/;"	f
-save_select_entries	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn save_select_entries(&self) {$/;"	f
-select_all	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn select_all(&mut self, value: bool) {$/;"	f
-select_page	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn select_page(&mut self, value: bool) {$/;"	f
-select_point	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn select_point(&mut self) {$/;"	f
-selection_target	/Users/christophethibaut/Coding/gallsh-rust/src/args.rs	/^pub fn selection_target(target_arg: &Option<String>) -> Result<Option<String>, String> {$/;"	f
-set_image_data	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^pub fn set_image_data(entry: &mut Entry) -> Result<()> {$/;"	f
-set_label	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^    pub fn set_label(&mut self, label_length: usize, label: &[char;16]) {$/;"	f
-set_label_text_at_coords	/Users/christophethibaut/Coding/gallsh-rust/src/gui.rs	/^pub fn set_label_text_at_coords(grid: &gtk::Grid, coords: Coords, text: String) {$/;"	f
-set_label_text_at_current_position	/Users/christophethibaut/Coding/gallsh-rust/src/gui.rs	/^pub fn set_label_text_at_current_position(grid: &gtk::Grid, repository: &Repository, has_focus: bool) {$/;"	f
-set_order_choice_on	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn set_order_choice_on(&mut self) {$/;"	f
-set_original_picture_file	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^pub fn set_original_picture_file(picture: &gtk::Picture, entry: &Entry) -> Result<()> {$/;"	f
-set_palette	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^fn set_palette(entry: &mut Entry) {$/;"	f
-set_rank	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^    pub fn set_rank(&mut self, value: Rank) {$/;"	f
-set_rank	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn set_rank(&mut self, rank: Rank) {$/;"	f
-set_select	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^    pub fn set_select(&mut self, value: bool) {$/;"	f
-set_thumbnail_picture_file	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^pub fn set_thumbnail_picture_file(picture: &gtk::Picture, entry: &Entry) -> Result<()> {$/;"	f
-setup_image_view	/Users/christophethibaut/Coding/gallsh-rust/src/gui.rs	/^pub fn setup_image_view(repository_rc: &Rc<RefCell<Repository>>, picture_view: &gtk::Picture, window: &gtk::ApplicationWindow) {$/;"	f
-setup_picture_cell	/Users/christophethibaut/Coding/gallsh-rust/src/gui.rs	/^pub fn setup_picture_cell(window: &gtk::ApplicationWindow, grid: &gtk::Grid, vbox: &gtk::Box, coords: Coords, repository_rc: &Rc<RefCell<Repository>>) {$/;"	f
-setup_picture_grid	/Users/christophethibaut/Coding/gallsh-rust/src/gui.rs	/^pub fn setup_picture_grid(repository_rc: &Rc<RefCell<Repository>>, picture_grid: &gtk::Grid, window: &gtk::ApplicationWindow) {$/;"	f
-show	/Users/christophethibaut/Coding/gallsh-rust/src/rank.rs	/^    pub fn show(&self) -> String {$/;"	f
-slice	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn slice(&mut self, low_index: Option<usize>, high_index: Option<usize>) {$/;"	f
-slicing_entries_with_high_limit_yields_a_portion_of_the_set	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    fn slicing_entries_with_high_limit_yields_a_portion_of_the_set() {$/;"	f
-slicing_entries_with_low_limit_yields_a_portion_of_the_set	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    fn slicing_entries_with_low_limit_yields_a_portion_of_the_set() {$/;"	f
-slicing_entries_without_limits_yields_the_whole_set	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    fn slicing_entries_without_limits_yields_the_whole_set() {$/;"	f
-sort_by	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn sort_by(&mut self, order: Order) {$/;"	f
-sorting_entries_by_colors_then_name	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    fn sorting_entries_by_colors_then_name() {$/;"	f
-sorting_entries_by_date	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    fn sorting_entries_by_date() {$/;"	f
-sorting_entries_by_name	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    fn sorting_entries_by_name() {$/;"	f
-sorting_entries_by_value_then_name	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    fn sorting_entries_by_value_then_name() {$/;"	f
-start_cell_index	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn start_cell_index(&self) -> usize {$/;"	f
-thumbnail_file_path	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^    pub fn thumbnail_file_path(&self) -> String {$/;"	f
-thumbnail_file_path	/Users/christophethibaut/Coding/gallsh-rust/src/paths.rs	/^pub fn thumbnail_file_path(file_path: &str) -> String {$/;"	f
-thumbnail_file_path_is_added_the_thumb_suffix	/Users/christophethibaut/Coding/gallsh-rust/src/paths.rs	/^    fn thumbnail_file_path_is_added_the_thumb_suffix() {$/;"	f
-thumbnail_file_path_is_file_path_with_an_add_thumb_suffix	/Users/christophethibaut/Coding/gallsh-rust/src/paths.rs	/^    fn thumbnail_file_path_is_file_path_with_an_add_thumb_suffix() {$/;"	f
-title_display	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^    pub fn title_display(self) -> String {$/;"	f
-title_display	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn title_display(&self) -> String {$/;"	f
-title_show_the_entry_information	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^    fn title_show_the_entry_information() {$/;"	f
-to_possible_value	/Users/christophethibaut/Coding/gallsh-rust/src/order.rs	/^    fn to_possible_value(&self) -> Option<PossibleValue> {$/;"	f
-toggle_delete	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn toggle_delete(&mut self) {$/;"	f
-toggle_grid_limit	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn toggle_grid_limit(&mut self) {$/;"	f
-toggle_palette_extract	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn toggle_palette_extract(&mut self) {$/;"	f
-toggle_real_size	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn toggle_real_size(&mut self) {$/;"	f
-toggle_select	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^    pub fn toggle_select(&mut self) {$/;"	f
-toggle_select	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn toggle_select(&mut self) {$/;"	f
-update_max_selected	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    fn update_max_selected(&mut self) {$/;"	f
-value_variants	/Users/christophethibaut/Coding/gallsh-rust/src/order.rs	/^    fn value_variants<'a>() -> &'a [Self] {$/;"	f
-view_mode	/Users/christophethibaut/Coding/gallsh-rust/src/gui.rs	/^    pub fn view_mode(&self) -> bool {$/;"	f
-width	/Users/christophethibaut/Coding/gallsh-rust/src/args.rs	/^    pub fn width(&self) -> i32 {$/;"	f
-write_thumbnail	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^fn write_thumbnail<R: std::io::Seek + std::io::Read>(reader: BufReader<R>, extension: &str, mut output_file: File) -> ThumbResult<()> {$/;"	f
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+Args	/home/tof/Coding/gallsh-rust/src/args.rs	/^pub struct Args {$/;"	s
+COLOR_MAX	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^    const COLOR_MAX: f64 = 9.0;$/;"	c
+Coords	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^pub type Coords = (i32, i32);$/;"	T
+DEFAULT_DIR	/home/tof/Coding/gallsh-rust/src/paths.rs	/^const DEFAULT_DIR :&str    = "images\/";$/;"	c
+DEFAULT_HEIGHT	/home/tof/Coding/gallsh-rust/src/args.rs	/^const DEFAULT_HEIGHT: i32  = 1000;$/;"	c
+DEFAULT_WIDTH	/home/tof/Coding/gallsh-rust/src/args.rs	/^const DEFAULT_WIDTH: i32   = 1000;$/;"	c
+DIR_ENV_VAR	/home/tof/Coding/gallsh-rust/src/paths.rs	/^const DIR_ENV_VAR :&str    = "GALLSHDIR";$/;"	c
+Direction	/home/tof/Coding/gallsh-rust/src/direction.rs	/^pub enum Direction {$/;"	g
+Entry	/home/tof/Coding/gallsh-rust/src/entry.rs	/^pub struct Entry {$/;"	s
+EntryList	/home/tof/Coding/gallsh-rust/src/entry.rs	/^pub type EntryList = Vec<Entry>;$/;"	T
+Gui	/home/tof/Coding/gallsh-rust/src/gui.rs	/^pub struct Gui {$/;"	s
+HEIGHT_ENV_VAR	/home/tof/Coding/gallsh-rust/src/args.rs	/^const HEIGHT_ENV_VAR :&str = "GALLSHHEIGHT";$/;"	c
+IMAGE_DATA	/home/tof/Coding/gallsh-rust/src/paths.rs	/^pub const IMAGE_DATA: &str = "IMAGE_DATA";$/;"	c
+ImageData	/home/tof/Coding/gallsh-rust/src/image_data.rs	/^pub struct ImageData {$/;"	s
+Navigator	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^pub struct Navigator {$/;"	s
+Order	/home/tof/Coding/gallsh-rust/src/order.rs	/^pub enum Order {$/;"	g
+Rank	/home/tof/Coding/gallsh-rust/src/rank.rs	/^pub enum Rank {$/;"	g
+Repository	/home/tof/Coding/gallsh-rust/src/repository.rs	/^pub struct Repository {$/;"	s
+SELECTION_FILE_NAME	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^const SELECTION_FILE_NAME: &str = "selections";$/;"	c
+THUMB_SUFFIX	/home/tof/Coding/gallsh-rust/src/paths.rs	/^pub const THUMB_SUFFIX: &str = "THUMB";$/;"	c
+VALID_EXTENSIONS	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^const VALID_EXTENSIONS: [&'static str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];$/;"	c
+WIDTH_ENV_VAR	/home/tof/Coding/gallsh-rust/src/args.rs	/^const WIDTH_ENV_VAR :&str  = "GALLSHWIDTH";$/;"	c
+a_day	/home/tof/Coding/gallsh-rust/src/entry.rs	/^    fn a_day() -> SystemTime {$/;"	f
+add_label_char	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn add_label_char(&mut self, ch: char) {$/;"	f
+add_register_digit	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn add_register_digit(&mut self, digit: usize ) {$/;"	f
+add_search_char	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn add_search_char(&mut self, ch: char) {$/;"	f
+after_a_move_abs_index_has_changed	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^    fn after_a_move_abs_index_has_changed() {$/;"	f
+after_a_move_towards_index_has_changed	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^    fn after_a_move_towards_index_has_changed() {$/;"	f
+after_creation_the_current_entry_is_the_first_entry	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    fn after_creation_the_current_entry_is_the_first_entry() {$/;"	f
+after_move_to_index_page_can_be_changed	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^    fn after_move_to_index_page_can_be_changed() {$/;"	f
+after_moving_one_col_current_entry_is_the_second_entry	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    fn after_moving_one_col_current_entry_is_the_second_entry() {$/;"	f
+after_next_page_on_last_page_index_is_start_of_first_page	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^    fn after_next_page_on_last_page_index_is_start_of_first_page() {$/;"	f
+after_next_page_or_prev_page_index_is_changed_and_aligned_to_a_page	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^    fn after_next_page_or_prev_page_index_is_changed_and_aligned_to_a_page() {$/;"	f
+after_prev_page_on_first_page_index_is_start_of_last_page	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^    fn after_prev_page_on_first_page_index_is_start_of_last_page() {$/;"	f
+after_setting_rank_current_entries_has_a_new_rank	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    fn after_setting_rank_current_entries_has_a_new_rank() {$/;"	f
+after_toggle_select_current_entry_is_selected_or_unselected	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    fn after_toggle_select_current_entry_is_selected_or_unselected() {$/;"	f
+after_two_rank_points_a_group_on_entries_has_rank_changed	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    fn after_two_rank_points_a_group_on_entries_has_rank_changed() {$/;"	f
+after_two_select_points_a_group_of_entries_is_selected	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    fn after_two_select_points_a_group_of_entries_is_selected() {$/;"	f
+all_label_move_target	/home/tof/Coding/gallsh-rust/src/args.rs	/^    pub fn all_label_move_target(&self) -> Result<Option<String>, String> {$/;"	f
+apply_last_label	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn apply_last_label(&mut self) {$/;"	f
+arrow_command	/home/tof/Coding/gallsh-rust/src/gui.rs	/^pub fn arrow_command(direction: Direction, gui: &Gui, repository: &mut Repository, repository_rc: &Rc<RefCell<Repository>>) {$/;"	f
+begin_label_edit	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn begin_label_edit(&mut self) {$/;"	f
+build_gui	/home/tof/Coding/gallsh-rust/src/gui.rs	/^pub fn build_gui(args: &Args, application: &gtk::Application) {$/;"	f
+can_move_abs	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^    pub fn can_move_abs(&self, position: Coords) -> bool {$/;"	f
+can_move_abs	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn can_move_abs(&self, coords: Coords) -> bool {$/;"	f
+can_move_to_index	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^    pub fn can_move_to_index(&self, index: usize) -> bool {$/;"	f
+can_move_to_index	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn can_move_to_index(&self, index: usize) -> bool {$/;"	f
+can_read_entries_from_a_directory_with_pattern	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^    fn can_read_entries_from_a_directory_with_pattern() {$/;"	f
+can_read_entries_from_a_directory_without_reading_the_thumbnails	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^    fn can_read_entries_from_a_directory_without_reading_the_thumbnails() {$/;"	f
+can_read_entries_from_reading_list	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^    fn can_read_entries_from_reading_list() {$/;"	f
+can_read_entry_for_a_file	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^    fn can_read_entry_for_a_file() {$/;"	f
+cancel_label_edit	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn cancel_label_edit(&mut self) {$/;"	f
+cancel_point	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn cancel_point(&mut self) {$/;"	f
+cancel_search_edit	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn cancel_search_edit(&mut self) {$/;"	f
+capacity	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^    pub fn capacity(&self) -> usize {$/;"	f
+capacity	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn capacity(&self) -> usize {$/;"	f
+cells_per_row	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^    pub fn cells_per_row(&self) -> i32 {$/;"	f
+cells_per_row	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn cells_per_row(&self) -> i32 {$/;"	f
+check_label_path	/home/tof/Coding/gallsh-rust/src/paths.rs	/^pub fn check_label_path(dir: &str, label: &str) -> Result<PathBuf> {$/;"	f
+check_path	/home/tof/Coding/gallsh-rust/src/paths.rs	/^pub fn check_path(dir: &str, confirm_create: bool) -> Result<PathBuf> {$/;"	f
+cmp_label	/home/tof/Coding/gallsh-rust/src/image_data.rs	/^    pub fn cmp_label(&self, other: &ImageData) -> Ordering {$/;"	f
+confirm_label_edit	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn confirm_label_edit(&mut self) {$/;"	f
+confirm_search_edit	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn confirm_search_edit(&mut self) {$/;"	f
+copy_entry	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^pub fn copy_entry(entry: &Entry, target_path: &Path) -> Result<()> {$/;"	f
+copy_entry_filename_to_current_dir	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^pub fn copy_entry_filename_to_current_dir(entry: &Entry) {$/;"	f
+copy_file_to_target_directory	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^fn copy_file_to_target_directory(file_path: &Path, target_directory: &Path) -> Result<u64> {$/;"	f
+copy_move_and_quit	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn copy_move_and_quit(&self) {$/;"	f
+copy_select_entries	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn copy_select_entries(&self, target: &str) {$/;"	f
+copy_selection_target	/home/tof/Coding/gallsh-rust/src/args.rs	/^    pub fn copy_selection_target(&self) -> Result<Option<String>, String> {$/;"	f
+copy_temp	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn copy_temp(&self) {$/;"	f
+create_gui	/home/tof/Coding/gallsh-rust/src/gui.rs	/^pub fn create_gui(application: &gtk::Application, width: i32, height: i32, grid_size: usize, repository_rc: &Rc<RefCell<Repository>>) -> Gui {$/;"	f
+create_thumbnail	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^fn create_thumbnail(entry: &Entry) -> Result<()> {$/;"	f
+current_entry	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn current_entry(&self) -> Option<&Entry> {$/;"	f
+current_index	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn current_index(&self) -> usize {$/;"	f
+current_index_before_any_move_is_given_index	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^    fn current_index_before_any_move_is_given_index() {$/;"	f
+delete_entries	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn delete_entries(&self) {$/;"	f
+delete_entry	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^pub fn delete_entry(entry: &Entry) {$/;"	f
+delete_register_digit	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn delete_register_digit(&mut self) {$/;"	f
+delete_select_entries	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn delete_select_entries(&self) {$/;"	f
+delete_selection_file	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^pub fn delete_selection_file() {$/;"	f
+determine_path	/home/tof/Coding/gallsh-rust/src/paths.rs	/^pub fn determine_path(directory: Option<String>) -> String {$/;"	f
+directory	/home/tof/Coding/gallsh-rust/src/entry.rs	/^    pub fn directory(&self) -> String {$/;"	f
+directory	/home/tof/Coding/gallsh-rust/src/paths.rs	/^pub fn directory(file_path: &str) -> String {$/;"	f
+draw_palette	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^pub fn draw_palette(ctx: &Context, width: i32, height: i32, colors: &[u32;9]) {$/;"	f
+drawing_area_for_entry	/home/tof/Coding/gallsh-rust/src/gui.rs	/^pub fn drawing_area_for_entry(entry: &Entry) -> gtk::DrawingArea {$/;"	f
+empty_label	/home/tof/Coding/gallsh-rust/src/gui.rs	/^pub fn empty_label() -> gtk::Label {$/;"	f
+empty_picture	/home/tof/Coding/gallsh-rust/src/gui.rs	/^pub fn empty_picture() -> gtk::Picture {$/;"	f
+ensure_thumbnail	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^pub fn ensure_thumbnail(entry: &Entry) -> Result<()> {$/;"	f
+ensure_thumbnails	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^pub fn ensure_thumbnails(entry_list: &EntryList) {$/;"	f
+entries_from_directory	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^pub fn entries_from_directory(dir: &str, pattern_opt: Option<String>) -> Result<EntryList> {$/;"	f
+entries_from_file	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^pub fn entries_from_file(file: &str) -> Result<EntryList> {$/;"	f
+entries_from_reading_list	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^pub fn entries_from_reading_list(reading_list: &str, pattern_opt: Option<String>) -> Result<EntryList> {$/;"	f
+entries_with_label	/home/tof/Coding/gallsh-rust/src/entry.rs	/^pub fn entries_with_label<'a>(entry_list: &'a EntryList, target: &'a str) -> Vec<&'a Entry> {$/;"	f
+entry_at_index	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn entry_at_index(&self, index: usize) -> Option<&Entry> {$/;"	f
+example	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    fn example() -> EntryList {$/;"	f
+fmt	/home/tof/Coding/gallsh-rust/src/order.rs	/^    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {$/;"	f
+fmt	/home/tof/Coding/gallsh-rust/src/rank.rs	/^    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {$/;"	f
+focus_on_cell_at_coords	/home/tof/Coding/gallsh-rust/src/gui.rs	/^pub fn focus_on_cell_at_coords(coords: Coords, grid: &gtk::Grid, window: &gtk::ApplicationWindow, repository: &mut Repository, with_select: bool) {$/;"	f
+from	/home/tof/Coding/gallsh-rust/src/direction.rs	/^    fn from(coords: (i32, i32)) -> Self {$/;"	f
+from_entries	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn from_entries(entries: EntryList, cells_per_row: usize, copy_selection_target: Option<String>, move_selection_target: Option<String>, all_label_move_target: Option<String>, sample: bool) -> Self {$/;"	f
+from_options	/home/tof/Coding/gallsh-rust/src/order.rs	/^    pub fn from_options(name: bool, date: bool, size: bool, colors: bool, value: bool, palette: bool, label: bool) -> Self {$/;"	f
+get_image_color	/home/tof/Coding/gallsh-rust/src/image.rs	/^pub fn get_image_color(file_path: &str) -> ImageResult<usize> {$/;"	f
+grid_limit_on	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn grid_limit_on(&self) -> bool {$/;"	f
+grid_size	/home/tof/Coding/gallsh-rust/src/args.rs	/^    pub fn grid_size(&self) -> usize {$/;"	f
+height	/home/tof/Coding/gallsh-rust/src/args.rs	/^    pub fn height(&self) -> i32 {$/;"	f
+help	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn help(&self) {$/;"	f
+image_data_file_path	/home/tof/Coding/gallsh-rust/src/entry.rs	/^    pub fn image_data_file_path(&self) -> String {$/;"	f
+image_data_file_path	/home/tof/Coding/gallsh-rust/src/paths.rs	/^pub fn image_data_file_path(file_path: &str) -> String {$/;"	f
+image_data_file_path_is_added_the_image_data_suffix_and_json_extension	/home/tof/Coding/gallsh-rust/src/paths.rs	/^    fn image_data_file_path_is_added_the_image_data_suffix_and_json_extension() {$/;"	f
+index	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^    pub fn index(&self) -> usize {$/;"	f
+index_from_position	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^    pub fn index_from_position(&self, position: Coords) -> Option<usize> {$/;"	f
+index_from_position	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn index_from_position(&self, coords: Coords) -> Option<usize> {$/;"	f
+index_from_position_can_yield_a_possible_index	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^    fn index_from_position_can_yield_a_possible_index() {$/;"	f
+init_repository	/home/tof/Coding/gallsh-rust/src/repository.rs	/^pub fn init_repository(args: &Args) -> Result<Repository> {$/;"	f
+into	/home/tof/Coding/gallsh-rust/src/direction.rs	/^    fn into(self) -> (i32,i32) {$/;"	f
+is_selected	/home/tof/Coding/gallsh-rust/src/entry.rs	/^    pub fn is_selected(&self) -> bool {$/;"	f
+is_thumbnail	/home/tof/Coding/gallsh-rust/src/paths.rs	/^pub fn is_thumbnail(file_path: &str) -> bool {$/;"	f
+is_valid_directory	/home/tof/Coding/gallsh-rust/src/paths.rs	/^pub fn is_valid_directory(dir: &str) -> bool {$/;"	f
+jump_to_name	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    fn jump_to_name(&mut self, name: &String) {$/;"	f
+label	/home/tof/Coding/gallsh-rust/src/image_data.rs	/^    pub fn label(&self) -> Option<String> {$/;"	f
+label_at_coords	/home/tof/Coding/gallsh-rust/src/gui.rs	/^pub fn label_at_coords(grid: &gtk::Grid, coords: Coords) -> Option<gtk::Label> {$/;"	f
+label_display	/home/tof/Coding/gallsh-rust/src/entry.rs	/^    pub fn label_display(&self, has_focus: bool, show_parent: bool) -> String {$/;"	f
+label_edit_mode_on	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn label_edit_mode_on(&self) -> bool {$/;"	f
+label_for_entry	/home/tof/Coding/gallsh-rust/src/gui.rs	/^pub fn label_for_entry(entry: &Entry, index: usize, repository: &Repository) -> gtk::Label {$/;"	f
+label_show_basic_entry_information	/home/tof/Coding/gallsh-rust/src/entry.rs	/^    fn label_show_basic_entry_information() {$/;"	f
+less_than_11	/home/tof/Coding/gallsh-rust/src/args.rs	/^fn less_than_11(s: &str) -> Result<usize, String> {$/;"	f
+main	/home/tof/Coding/gallsh-rust/src/main.rs	/^fn main() {$/;"	f
+make_entry	/home/tof/Coding/gallsh-rust/src/entry.rs	/^pub fn make_entry(file_path:String, file_size:u64, colors:usize, modified_time:SystemTime, initial_rank: Rank) -> Entry {$/;"	f
+max_cells	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^    pub fn max_cells(&self) -> i32 {$/;"	f
+move_abs	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^    pub fn move_abs(&mut self, position: Coords) {$/;"	f
+move_abs	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_abs(&mut self, coords: Coords) {$/;"	f
+move_all_labels_and_quit	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_all_labels_and_quit(&self) {$/;"	f
+move_backward_ten_pages	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_backward_ten_pages(&mut self) {$/;"	f
+move_entries_with_label	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^pub fn move_entries_with_label(entry_list: &EntryList, label: &str, target: &str) -> Result<()> {$/;"	f
+move_entries_with_label_to_target	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^pub fn move_entries_with_label_to_target(entry_list: &EntryList, target: &str) -> Result<()> {$/;"	f
+move_forward_ten_pages	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_forward_ten_pages(&mut self) {$/;"	f
+move_in_direction	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_in_direction(&mut self, direction: Direction) {$/;"	f
+move_next_page	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^    pub fn move_next_page(&mut self) {$/;"	f
+move_next_page	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_next_page(&mut self) {$/;"	f
+move_prev_page	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^    pub fn move_prev_page(&mut self) {$/;"	f
+move_prev_page	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_prev_page(&mut self) {$/;"	f
+move_selection_target	/home/tof/Coding/gallsh-rust/src/args.rs	/^    pub fn move_selection_target(&self) -> Result<Option<String>, String> {$/;"	f
+move_to_index	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^    pub fn move_to_index(&mut self, n: usize) {$/;"	f
+move_to_index	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_to_index(&mut self, index: usize) {$/;"	f
+move_to_index_can_be_checked	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^    fn move_to_index_can_be_checked() {$/;"	f
+move_to_random_index	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^    pub fn move_to_random_index(&mut self) {$/;"	f
+move_to_random_index	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_to_random_index(&mut self) {$/;"	f
+move_to_register	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_to_register(&mut self) {$/;"	f
+navigate	/home/tof/Coding/gallsh-rust/src/gui.rs	/^pub fn navigate(repository: &mut Repository, grid: &gtk::Grid, window: &gtk::ApplicationWindow, direction: Direction) {$/;"	f
+navigator_should_panic_if_move_to_index_where_not_allowed	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^    fn navigator_should_panic_if_move_to_index_where_not_allowed() {$/;"	f
+navigator_should_panic_if_move_towards_where_not_allowed	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^    fn navigator_should_panic_if_move_towards_where_not_allowed() {$/;"	f
+new	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^    pub fn new(capacity: i32, cells_per_row: i32) -> Self {$/;"	f
+on_last_page_move_is_checked_against_capacity	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^    fn on_last_page_move_is_checked_against_capacity() {$/;"	f
+order	/home/tof/Coding/gallsh-rust/src/args.rs	/^    pub fn order(&self) -> Order {$/;"	f
+order_choice_on	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn order_choice_on(&self) -> bool {$/;"	f
+original_file_name	/home/tof/Coding/gallsh-rust/src/entry.rs	/^    pub fn original_file_name(&self) -> String {$/;"	f
+original_file_name	/home/tof/Coding/gallsh-rust/src/paths.rs	/^pub fn original_file_name(file_path: &str) -> String  {$/;"	f
+original_file_name_is_rid_of_any_thumb_suffix_and_path	/home/tof/Coding/gallsh-rust/src/paths.rs	/^    fn original_file_name_is_rid_of_any_thumb_suffix_and_path() {$/;"	f
+original_file_path	/home/tof/Coding/gallsh-rust/src/entry.rs	/^    pub fn original_file_path(&self) -> String {$/;"	f
+original_file_path	/home/tof/Coding/gallsh-rust/src/paths.rs	/^pub fn original_file_path(file_path: &str) -> String {$/;"	f
+page_changed	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^    pub fn page_changed(&self) -> bool {$/;"	f
+page_changed	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn page_changed(&self) -> bool {$/;"	f
+palette_extract_on	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn palette_extract_on(&self) -> bool {$/;"	f
+path	/home/tof/Coding/gallsh-rust/src/args.rs	/^    pub fn path(&self) -> String {$/;"	f
+picture_for_entry	/home/tof/Coding/gallsh-rust/src/gui.rs	/^pub fn picture_for_entry(entry: &Entry, repository: &Repository) -> gtk::Picture {$/;"	f
+picture_hadjustment	/home/tof/Coding/gallsh-rust/src/gui.rs	/^pub fn picture_hadjustment(window: &gtk::ApplicationWindow) -> gtk::Adjustment {$/;"	f
+picture_vadjustment	/home/tof/Coding/gallsh-rust/src/gui.rs	/^fn picture_vadjustment(window: &gtk::ApplicationWindow) -> gtk::Adjustment {$/;"	f
+point_label	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn point_label(&mut self) {$/;"	f
+point_rank	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn point_rank(&mut self, rank: Rank) {$/;"	f
+point_remove_label	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn point_remove_label(&mut self) {$/;"	f
+point_select	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn point_select(&mut self) {$/;"	f
+position	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^    pub fn position(&self) -> Coords {$/;"	f
+position	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn position(&self) -> Coords {$/;"	f
+process_key	/home/tof/Coding/gallsh-rust/src/gui.rs	/^pub fn process_key(repository_rc: &Rc<RefCell<Repository>>, gui_rc: &Rc<RefCell<Gui>>, key: Key) -> gtk::Inhibit {$/;"	f
+push_entry_from_path	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^fn push_entry_from_path(path: &Path, pattern_opt: Option<String>, entry_list: &mut EntryList) -> Result<()> {$/;"	f
+quit	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn quit(&self) {$/;"	f
+read_entries	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^pub fn read_entries(reading_list_opt: Option<String>, file_name_opt: Option<String>, path: String, pattern_opt: Option<String>, sample: bool) -> Result<EntryList> {  $/;"	f
+real_size	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn real_size(&self) -> bool {$/;"	f
+record_label	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn record_label(&mut self) {$/;"	f
+refresh	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^    pub fn refresh(&mut self) {$/;"	f
+register_on	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn register_on(&self) -> bool {$/;"	f
+relative_move_can_be_checked	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^    fn relative_move_can_be_checked() {$/;"	f
+remove_label_char	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn remove_label_char(&mut self) {$/;"	f
+remove_search_char	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn remove_search_char(&mut self) {$/;"	f
+rgba_key	/home/tof/Coding/gallsh-rust/src/image.rs	/^fn rgba_key(rgba: Rgba<u8>) -> u32 {$/;"	f
+sample	/home/tof/Coding/gallsh-rust/src/args.rs	/^    pub fn sample(&self) -> bool {$/;"	f
+sample	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn sample(&self) -> bool {$/;"	f
+sample_entries	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^pub fn sample_entries(entry_list: &EntryList) -> EntryList {$/;"	f
+save_image_data	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^pub fn save_image_data(entry: &Entry) -> Result<()> {$/;"	f
+save_image_list	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^pub fn save_image_list(list: Vec<String>) {$/;"	f
+save_select_entries	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn save_select_entries(&self) {$/;"	f
+search	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn search(&self) {$/;"	f
+search_edit_mode_on	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn search_edit_mode_on(&self) -> bool {$/;"	f
+select_all	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn select_all(&mut self, value: bool) {$/;"	f
+select_page	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn select_page(&mut self, value: bool) {$/;"	f
+select_point	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn select_point(&mut self) {$/;"	f
+selection_target	/home/tof/Coding/gallsh-rust/src/args.rs	/^pub fn selection_target(target_arg: &Option<String>) -> Result<Option<String>, String> {$/;"	f
+set_image_data	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^pub fn set_image_data(entry: &mut Entry) -> Result<()> {$/;"	f
+set_label	/home/tof/Coding/gallsh-rust/src/entry.rs	/^    pub fn set_label(&mut self, label_length: usize, label: &[char;16]) {$/;"	f
+set_label_text_at_coords	/home/tof/Coding/gallsh-rust/src/gui.rs	/^pub fn set_label_text_at_coords(grid: &gtk::Grid, coords: Coords, text: String) {$/;"	f
+set_label_text_at_current_position	/home/tof/Coding/gallsh-rust/src/gui.rs	/^pub fn set_label_text_at_current_position(grid: &gtk::Grid, repository: &Repository, has_focus: bool) {$/;"	f
+set_order_choice_on	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn set_order_choice_on(&mut self) {$/;"	f
+set_original_picture_file	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^pub fn set_original_picture_file(picture: &gtk::Picture, entry: &Entry) -> Result<()> {$/;"	f
+set_palette	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^fn set_palette(entry: &mut Entry) {$/;"	f
+set_rank	/home/tof/Coding/gallsh-rust/src/entry.rs	/^    pub fn set_rank(&mut self, value: Rank) {$/;"	f
+set_rank	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn set_rank(&mut self, rank: Rank) {$/;"	f
+set_select	/home/tof/Coding/gallsh-rust/src/entry.rs	/^    pub fn set_select(&mut self, value: bool) {$/;"	f
+set_thumbnail_picture_file	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^pub fn set_thumbnail_picture_file(picture: &gtk::Picture, entry: &Entry) -> Result<()> {$/;"	f
+setup_image_view	/home/tof/Coding/gallsh-rust/src/gui.rs	/^pub fn setup_image_view(repository_rc: &Rc<RefCell<Repository>>, picture_view: &gtk::Picture, window: &gtk::ApplicationWindow) {$/;"	f
+setup_picture_cell	/home/tof/Coding/gallsh-rust/src/gui.rs	/^pub fn setup_picture_cell(window: &gtk::ApplicationWindow, grid: &gtk::Grid, vbox: &gtk::Box, coords: Coords, repository_rc: &Rc<RefCell<Repository>>) {$/;"	f
+setup_picture_grid	/home/tof/Coding/gallsh-rust/src/gui.rs	/^pub fn setup_picture_grid(repository_rc: &Rc<RefCell<Repository>>, picture_grid: &gtk::Grid, window: &gtk::ApplicationWindow) {$/;"	f
+show	/home/tof/Coding/gallsh-rust/src/rank.rs	/^    pub fn show(&self) -> String {$/;"	f
+slice	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn slice(&mut self, low_index: Option<usize>, high_index: Option<usize>) {$/;"	f
+slicing_entries_with_high_limit_yields_a_portion_of_the_set	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    fn slicing_entries_with_high_limit_yields_a_portion_of_the_set() {$/;"	f
+slicing_entries_with_low_limit_yields_a_portion_of_the_set	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    fn slicing_entries_with_low_limit_yields_a_portion_of_the_set() {$/;"	f
+slicing_entries_without_limits_yields_the_whole_set	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    fn slicing_entries_without_limits_yields_the_whole_set() {$/;"	f
+sort_by	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn sort_by(&mut self, order: Order) {$/;"	f
+sorting_entries_by_colors_then_name	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    fn sorting_entries_by_colors_then_name() {$/;"	f
+sorting_entries_by_date	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    fn sorting_entries_by_date() {$/;"	f
+sorting_entries_by_name	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    fn sorting_entries_by_name() {$/;"	f
+sorting_entries_by_value_then_name	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    fn sorting_entries_by_value_then_name() {$/;"	f
+start_cell_index	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^    pub fn start_cell_index(&self) -> usize {$/;"	f
+tests	/home/tof/Coding/gallsh-rust/src/entry.rs	/^mod tests {$/;"	m
+tests	/home/tof/Coding/gallsh-rust/src/navigator.rs	/^mod tests {$/;"	m
+tests	/home/tof/Coding/gallsh-rust/src/paths.rs	/^mod tests {$/;"	m
+tests	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^mod tests {$/;"	m
+tests	/home/tof/Coding/gallsh-rust/src/repository.rs	/^mod tests {$/;"	m
+thumbnail_file_path	/home/tof/Coding/gallsh-rust/src/entry.rs	/^    pub fn thumbnail_file_path(&self) -> String {$/;"	f
+thumbnail_file_path	/home/tof/Coding/gallsh-rust/src/paths.rs	/^pub fn thumbnail_file_path(file_path: &str) -> String {$/;"	f
+thumbnail_file_path_is_added_the_thumb_suffix	/home/tof/Coding/gallsh-rust/src/paths.rs	/^    fn thumbnail_file_path_is_added_the_thumb_suffix() {$/;"	f
+thumbnail_file_path_is_file_path_with_an_add_thumb_suffix	/home/tof/Coding/gallsh-rust/src/paths.rs	/^    fn thumbnail_file_path_is_file_path_with_an_add_thumb_suffix() {$/;"	f
+title_display	/home/tof/Coding/gallsh-rust/src/entry.rs	/^    pub fn title_display(self) -> String {$/;"	f
+title_display	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn title_display(&self) -> String {$/;"	f
+title_show_the_entry_information	/home/tof/Coding/gallsh-rust/src/entry.rs	/^    fn title_show_the_entry_information() {$/;"	f
+to_possible_value	/home/tof/Coding/gallsh-rust/src/order.rs	/^    fn to_possible_value(&self) -> Option<PossibleValue> {$/;"	f
+toggle_delete	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn toggle_delete(&mut self) {$/;"	f
+toggle_grid_limit	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn toggle_grid_limit(&mut self) {$/;"	f
+toggle_palette_extract	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn toggle_palette_extract(&mut self) {$/;"	f
+toggle_real_size	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn toggle_real_size(&mut self) {$/;"	f
+toggle_select	/home/tof/Coding/gallsh-rust/src/entry.rs	/^    pub fn toggle_select(&mut self) {$/;"	f
+toggle_select	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    pub fn toggle_select(&mut self) {$/;"	f
+update_max_selected	/home/tof/Coding/gallsh-rust/src/repository.rs	/^    fn update_max_selected(&mut self) {$/;"	f
+value_variants	/home/tof/Coding/gallsh-rust/src/order.rs	/^    fn value_variants<'a>() -> &'a [Self] {$/;"	f
+view_mode	/home/tof/Coding/gallsh-rust/src/gui.rs	/^    pub fn view_mode(&self) -> bool {$/;"	f
+width	/home/tof/Coding/gallsh-rust/src/args.rs	/^    pub fn width(&self) -> i32 {$/;"	f
+write_thumbnail	/home/tof/Coding/gallsh-rust/src/picture_io.rs	/^fn write_thumbnail<R: std::io::Seek + std::io::Read>(reader: BufReader<R>, extension: &str, mut output_file: File) -> ThumbResult<()> {$/;"	f
