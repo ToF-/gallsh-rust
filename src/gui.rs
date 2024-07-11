@@ -457,91 +457,97 @@ pub fn process_key(repository_rc: &Rc<RefCell<Repository>>, gui_rc: &Rc<RefCell<
                     }
                 }
             } else {
-                match key_name.as_str() {
-                    "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" => {
-                        let digit:usize = key_name.parse().unwrap();
-                        if repository.register_on() {
-                            repository.add_register_digit(digit)
-                        } else {
-                            match key_name.as_str() {
-                                "0" => repository.point_rank(Rank::NoStar),
-                                "1" => repository.point_rank(Rank::OneStar),
-                                "2" => repository.point_rank(Rank::TwoStars),
-                                "3" => repository.point_rank(Rank::ThreeStars),
-                                other => println!("{}", other),
+                if repository.search_enter_on() {
+                    match key_name.as_str() {
+                    }
+                } else {
+
+                    match key_name.as_str() {
+                        "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" => {
+                            let digit:usize = key_name.parse().unwrap();
+                            if repository.register_on() {
+                                repository.add_register_digit(digit)
+                            } else {
+                                match key_name.as_str() {
+                                    "0" => repository.point_rank(Rank::NoStar),
+                                    "1" => repository.point_rank(Rank::OneStar),
+                                    "2" => repository.point_rank(Rank::TwoStars),
+                                    "3" => repository.point_rank(Rank::ThreeStars),
+                                    other => println!("{}", other),
+                                }
                             }
-                        }
-                    },
-                    "BackSpace" => repository.delete_register_digit(),
-                    "Return" => repository.select_point(),
-                    "comma" => repository.point_select(),
-                    "Escape" => repository.cancel_point(),
-                    "g" => repository.move_to_register(),
-                    "j" => repository.move_forward_ten_pages(),
-                    "l" => if repository.order_choice_on() { repository.sort_by(Order::Label) } else { repository.move_backward_ten_pages() },
-                    "f" => repository.toggle_real_size(),
-                    "z" => repository.move_to_index(0),
-                    "e" => repository.move_next_page(),
-                    "x" => repository.toggle_palette_extract(),
-                    "n" => if repository.order_choice_on() { repository.sort_by(Order::Name); } else { repository.move_next_page() },
-                    "i" => repository.move_prev_page(),
-                    "p" => if repository.order_choice_on() { repository.sort_by(Order::Palette); } else { repository.move_prev_page() },
-                    "q" => { repository.quit(); refresh = false; gui.application_window.close() },
-                    "Q" => { repository.copy_move_and_quit(); refresh = false; gui.application_window.close() },
-                    "M" => { repository.move_all_labels_and_quit(); refresh = false; gui.application_window.close() },
-                    "X" => { repository.delete_entries(); refresh = false; gui.application_window.close() },
-                    "B" => repository.point_rank(Rank::NoStar),
-                    "Eacute" => repository.point_rank(Rank::OneStar),
-                    "P" => repository.point_rank(Rank::TwoStars),
-                    "o" => repository.toggle_grid_limit(),
-                    "O" => repository.point_rank(Rank::ThreeStars),
-                    "c" => if repository.order_choice_on() { repository.sort_by(Order::Colors); },
-                    "C" => repository.copy_temp(),
-                    "d" => if repository.order_choice_on() { repository.sort_by(Order::Date); },
-                    "D" => repository.toggle_delete(),
-                    "R" => repository.set_rank(Rank::NoStar),
-                    "r" => if repository.order_choice_on() { repository.sort_by(Order::Random); } else { repository.move_to_random_index() },
-                    "a" => repository.select_page(true),
-                    "u" => repository.select_page(false),
-                    "U" => repository.select_all(false),
-                    "s" => if repository.order_choice_on() { repository.sort_by(Order::Size); } else { repository.save_select_entries() },
-                    "equal" => repository.set_order_choice_on(),
-                    "slash" => repository.begin_label_edit(),
-                    "minus" => repository.point_remove_label(),
-                    "asterisk" => repository.apply_last_label(),
-                    "plus" => repository.point_label(),
-                    "v" => if repository.order_choice_on() { repository.sort_by(Order::Value); },
-                    "h" => repository.help(),
-                    "period"|"k" => {
-                        if gui.view_mode() {
-                            gui.stack.set_visible_child(&gui.grid_scrolled_window)
-                        } else {
-                            gui.stack.set_visible_child(&gui.view_scrolled_window);
-                            setup_image_view(&repository_rc, &gui.image_view, &gui.application_window)
-                        }
-                    },
-                    "colon" => {
-                        println!("{}", repository.title_display());
-                        eprintln!("{}", repository.current_entry().expect("can't access current entry").original_file_path())
-                    },
-                    "space" => repository.move_next_page(),
-                    "Right" => {
-                        refresh = !repository.real_size();
-                        arrow_command(Direction::Right, &gui, &mut repository, &repository_rc)
-                    },
-                    "Left" => {
-                        refresh = !repository.real_size();
-                        arrow_command(Direction::Left, &gui, &mut repository, &repository_rc)
-                    },
-                    "Down" => {
-                        refresh = !repository.real_size();
-                        arrow_command(Direction::Down, &gui, &mut repository, &repository_rc)
-                    },
-                    "Up" => {
-                        refresh = !repository.real_size();
-                        arrow_command(Direction::Up, &gui, &mut repository, &repository_rc)
-                    },
-                    other => println!("{}", other),
+                        },
+                        "BackSpace" => repository.delete_register_digit(),
+                        "Return" => repository.select_point(),
+                        "comma" => repository.point_select(),
+                        "Escape" => repository.cancel_point(),
+                        "g" => repository.move_to_register(),
+                        "j" => repository.move_forward_ten_pages(),
+                        "l" => if repository.order_choice_on() { repository.sort_by(Order::Label) } else { repository.move_backward_ten_pages() },
+                        "f" => repository.toggle_real_size(),
+                        "z" => repository.move_to_index(0),
+                        "e" => repository.move_next_page(),
+                        "x" => repository.toggle_palette_extract(),
+                        "n" => if repository.order_choice_on() { repository.sort_by(Order::Name); } else { repository.move_next_page() },
+                        "i" => repository.move_prev_page(),
+                        "p" => if repository.order_choice_on() { repository.sort_by(Order::Palette); } else { repository.move_prev_page() },
+                        "q" => { repository.quit(); refresh = false; gui.application_window.close() },
+                        "Q" => { repository.copy_move_and_quit(); refresh = false; gui.application_window.close() },
+                        "M" => { repository.move_all_labels_and_quit(); refresh = false; gui.application_window.close() },
+                        "X" => { repository.delete_entries(); refresh = false; gui.application_window.close() },
+                        "B" => repository.point_rank(Rank::NoStar),
+                        "Eacute" => repository.point_rank(Rank::OneStar),
+                        "P" => repository.point_rank(Rank::TwoStars),
+                        "o" => repository.toggle_grid_limit(),
+                        "O" => repository.point_rank(Rank::ThreeStars),
+                        "c" => if repository.order_choice_on() { repository.sort_by(Order::Colors); },
+                        "C" => repository.copy_temp(),
+                        "d" => if repository.order_choice_on() { repository.sort_by(Order::Date); },
+                        "D" => repository.toggle_delete(),
+                        "R" => repository.set_rank(Rank::NoStar),
+                        "r" => if repository.order_choice_on() { repository.sort_by(Order::Random); } else { repository.move_to_random_index() },
+                        "a" => repository.select_page(true),
+                        "u" => repository.select_page(false),
+                        "U" => repository.select_all(false),
+                        "s" => if repository.order_choice_on() { repository.sort_by(Order::Size); } else { repository.save_select_entries() },
+                        "equal" => repository.set_order_choice_on(),
+                        "slash" => repository.begin_label_edit(),
+                        "minus" => repository.point_remove_label(),
+                        "asterisk" => repository.apply_last_label(),
+                        "plus" => repository.point_label(),
+                        "v" => if repository.order_choice_on() { repository.sort_by(Order::Value); },
+                        "h" => repository.help(),
+                        "period"|"k" => {
+                            if gui.view_mode() {
+                                gui.stack.set_visible_child(&gui.grid_scrolled_window)
+                            } else {
+                                gui.stack.set_visible_child(&gui.view_scrolled_window);
+                                setup_image_view(&repository_rc, &gui.image_view, &gui.application_window)
+                            }
+                        },
+                        "colon" => {
+                            println!("{}", repository.title_display());
+                            eprintln!("{}", repository.current_entry().expect("can't access current entry").original_file_path())
+                        },
+                        "space" => repository.move_next_page(),
+                        "Right" => {
+                            refresh = !repository.real_size();
+                            arrow_command(Direction::Right, &gui, &mut repository, &repository_rc)
+                        },
+                        "Left" => {
+                            refresh = !repository.real_size();
+                            arrow_command(Direction::Left, &gui, &mut repository, &repository_rc)
+                        },
+                        "Down" => {
+                            refresh = !repository.real_size();
+                            arrow_command(Direction::Down, &gui, &mut repository, &repository_rc)
+                        },
+                        "Up" => {
+                            refresh = !repository.real_size();
+                            arrow_command(Direction::Up, &gui, &mut repository, &repository_rc)
+                        },
+                        other => println!("{}", other),
+                    }
                 }
             };
         }
