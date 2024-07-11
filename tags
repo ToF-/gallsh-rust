@@ -196,7 +196,7 @@ sample_entries	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^p
 save_image_data	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^pub fn save_image_data(entry: &Entry) -> Result<()> {$/;"	f
 save_image_list	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^pub fn save_image_list(list: Vec<String>) {$/;"	f
 save_select_entries	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn save_select_entries(&self) {$/;"	f
-search	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn search(&self) {$/;"	f
+search	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn search(&mut self) {$/;"	f
 search_edit_mode_on	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn search_edit_mode_on(&self) -> bool {$/;"	f
 select_all	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn select_all(&mut self, value: bool) {$/;"	f
 select_page	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn select_page(&mut self, value: bool) {$/;"	f

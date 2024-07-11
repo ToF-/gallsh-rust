@@ -148,7 +148,17 @@ impl Repository {
         self.search()
     }
 
-    pub fn search(&self) {
+    pub fn search(&mut self) {
+        let pattern = self.search.iter().take_while(|&c| *c!='\0').collect::<String>();
+        println!("search {:?}", pattern);
+        if !pattern.is_empty() {
+            if let Some(index) = self.entry_list.iter().position(|entry| entry.original_file_name().contains(&pattern)) {
+                println!("found {}", self.entry_list[index].original_file_name());
+                self.move_to_index(index)
+            } else {
+                println!("no picture found");
+            }
+        }
 
     }
     pub fn sample(&self) -> bool {
