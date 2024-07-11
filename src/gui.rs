@@ -526,7 +526,7 @@ pub fn process_key(repository_rc: &Rc<RefCell<Repository>>, gui_rc: &Rc<RefCell<
                         "a" => repository.select_page(true),
                         "u" => repository.select_page(false),
                         "U" => repository.select_all(false),
-                        "s" => if repository.order_choice_on() { repository.sort_by(Order::Size); } else { repository.save_select_entries() },
+                        "s" => if repository.order_choice_on() { repository.sort_by(Order::Size); } else { repository.begin_search_edit() },
                         "equal" => repository.set_order_choice_on(),
                         "slash" => repository.begin_label_edit(),
                         "minus" => repository.point_remove_label(),

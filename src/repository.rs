@@ -115,6 +115,12 @@ impl Repository {
         }
     }
 
+    pub fn begin_search_edit(&mut self) {
+        self.search_edit_mode_on = true;
+        self.search = ['\0';16];
+        self.search_length = 0;
+    }
+
     pub fn search_edit_mode_on(&self) -> bool {
         self.search_edit_mode_on
     }
@@ -127,9 +133,9 @@ impl Repository {
     }
 
     pub fn remove_search_char(&mut self) {
-        if self.label_length > 0 {
-            self.label[self.label_length-1] = '\0';
-            self.label_length -= 1
+        if self.search_length > 0 {
+            self.search[self.search_length-1] = '\0';
+            self.search_length -= 1
         }
     }
 
@@ -226,7 +232,7 @@ impl Repository {
             return "".to_string()
         };
         let entry_title_display = &<Entry as Clone>::clone(&self.current_entry().unwrap()).title_display();
-        let result = format!("S:[{}] {} ordered by {} {}/{}  {} {} {} {}",
+        let result = format!("S:[{}] {} ordered by {} {}/{}  {} {} {} {} {}",
             self.max_selected,
             if self.select_start.is_some() { "…" } else { "" },
             if let Some(o) = self.order {
@@ -239,7 +245,8 @@ impl Repository {
             entry_title_display,
             if self.register.is_none() { String::from("") } else { format!("{}", self.register.unwrap()) },
             if self.real_size_on { "*" } else { "" },
-            if self.label_edit_mode_on { format!("Label:{}", self.label.iter().collect::<String>()) } else { String::from("") }
+            if self.label_edit_mode_on { format!("Label:{}", self.label.iter().collect::<String>()) } else { String::from("") },
+            if self.search_edit_mode_on { format!("Search:{}", self.search.iter().collect::<String>()) } else { String::from("") }
             );
         result
     }
