@@ -26,16 +26,14 @@ pub struct Repository {
     palette_extract_on: bool,
     max_selected: usize,
     label_edit_mode_on: bool,
-    label: [char;16],
-    label_length: usize,
     copy_selection_target: Option<String>,
     move_selection_target: Option<String>,
     all_label_move_target: Option<String>,
     sample: bool,
     grid_limit_on: bool,
     search_edit_mode_on: bool,
-    search: [char; 16],
-    search_length: usize,
+    edit: [char; 16],
+    edit_length: usize,
 }
 
 pub fn init_repository(args: &Args) -> Result<Repository> {
@@ -102,41 +100,39 @@ impl Repository {
             palette_extract_on: false,
             max_selected: entries.clone().iter().filter(|e| e.image_data.selected).count(),
             label_edit_mode_on: false,
-            label: ['\0';16],
-            label_length: 0,
             copy_selection_target : copy_selection_target,
             move_selection_target : move_selection_target,
             all_label_move_target : all_label_move_target,
             sample: sample,
             grid_limit_on: true,
             search_edit_mode_on: false,
-            search: ['\0';16],
-            search_length: 0,
+            edit: ['\0';16],
+            edit_length: 0,
         }
     }
 
-    pub fn begin_search_edit(&mut self) {
-        self.search_edit_mode_on = true;
-        self.search = ['\0';16];
-        self.search_length = 0;
+    pub fn add_edit_char(&mut self, ch: char) {
+        if self.edit_length < 16 {
+            self.edit[self.edit_length] = ch;
+            self.edit_length += 1
+        }
+    }
+
+    pub fn remove_edit_char(&mut self) {
+        if self.edit_length > 0 {
+            self.edit[self.edit_length-1] = '\0';
+            self.edit_length -= 1
+        }
     }
 
     pub fn search_edit_mode_on(&self) -> bool {
         self.search_edit_mode_on
     }
 
-    pub fn add_search_char(&mut self, ch: char) {
-        if self.search_length < 16 {
-            self.search[self.search_length] = ch;
-            self.search_length += 1
-        }
-    }
-
-    pub fn remove_search_char(&mut self) {
-        if self.search_length > 0 {
-            self.search[self.search_length-1] = '\0';
-            self.search_length -= 1
-        }
+    pub fn begin_search_edit(&mut self) {
+        self.search_edit_mode_on = true;
+        self.edit = ['\0';16];
+        self.edit_length = 0;
     }
 
     pub fn cancel_search_edit(&mut self) {
@@ -148,8 +144,28 @@ impl Repository {
         self.search()
     }
 
+
+    pub fn label_edit_mode_on(&self) -> bool {
+        self.label_edit_mode_on
+    }
+
+    pub fn begin_label_edit(&mut self) {
+        self.label_edit_mode_on = true;
+        self.edit_length = 0;
+        self.edit = ['\0';16];
+    }
+
+    pub fn confirm_label_edit(&mut self) {
+        self.label_edit_mode_on = false;
+        self.record_label()
+    }
+
+    pub fn cancel_label_edit(&mut self) {
+        self.label_edit_mode_on = false;
+    }
+
     pub fn search(&mut self) {
-        let pattern = self.search.iter().take_while(|&c| *c!='\0').collect::<String>();
+        let pattern = self.edit.iter().take_while(|&c| *c!='\0').collect::<String>();
         println!("search {:?}", pattern);
         if !pattern.is_empty() {
             if let Some(index) = self.entry_list.iter().position(|entry| entry.original_file_name().contains(&pattern)) {
@@ -174,41 +190,8 @@ impl Repository {
         println!("grid limit {}", if self.grid_limit_on { "on" } else { "off" })
     }
 
-    pub fn label_edit_mode_on(&self) -> bool {
-        self.label_edit_mode_on
-    }
-
-    pub fn add_label_char(&mut self, ch: char) {
-        if self.label_length < 16 {
-            self.label[self.label_length] = ch;
-            self.label_length += 1
-        }
-    }
-
-    pub fn remove_label_char(&mut self) {
-        if self.label_length > 0 {
-            self.label[self.label_length-1] = '\0';
-            self.label_length -= 1
-        }
-    }
-
-    pub fn begin_label_edit(&mut self) {
-        self.label_edit_mode_on = true;
-        self.label_length = 0;
-        self.label = ['\0';16];
-    }
-
-    pub fn confirm_label_edit(&mut self) {
-        self.label_edit_mode_on = false;
-        self.record_label()
-    }
-
-    pub fn cancel_label_edit(&mut self) {
-        self.label_edit_mode_on = false;
-    }
-
     pub fn apply_last_label(&mut self) {
-        if self.label_length > 0 {
+        if self.edit_length > 0 {
             self.record_label()
         }
     }
@@ -255,8 +238,8 @@ impl Repository {
             entry_title_display,
             if self.register.is_none() { String::from("") } else { format!("{}", self.register.unwrap()) },
             if self.real_size_on { "*" } else { "" },
-            if self.label_edit_mode_on { format!("Label:{}", self.label.iter().collect::<String>()) } else { String::from("") },
-            if self.search_edit_mode_on { format!("Search:{}", self.search.iter().collect::<String>()) } else { String::from("") }
+            if self.label_edit_mode_on { format!("Label:{}", self.edit.iter().collect::<String>()) } else { String::from("") },
+            if self.search_edit_mode_on { format!("Search:{}", self.edit.iter().collect::<String>()) } else { String::from("") }
             );
         result
     }
@@ -546,7 +529,7 @@ impl Repository {
         assert!(self.entry_list.len() > 0);
         let index = self.navigator.index();
         let entry = &mut self.entry_list[index];
-        entry.set_label(self.label_length, &self.label);
+        entry.set_label(self.edit_length, &self.edit);
         println!("recording label {}", entry.image_data.label.iter().collect::<String>());
         if picture_io::save_image_data(&entry).is_err() {
             eprintln!("can't save image data {}", &entry.image_data_file_path())
@@ -556,8 +539,8 @@ impl Repository {
 
     pub fn point_remove_label(&mut self) {
         let index = self.navigator.index();
-        self.label_length = 0;
-        self.label = ['\0';16];
+        self.edit_length = 0;
+        self.edit = ['\0';16];
         match self.select_start {
             None => self.record_label(),
             Some(other) => {
@@ -565,7 +548,7 @@ impl Repository {
                 println!("label: {}…{}", start, end);
                 for i in start..end+1 {
                     let entry: &mut Entry = &mut self.entry_list[i];
-                    entry.set_label(self.label_length, &self.label);
+                    entry.set_label(self.edit_length, &self.edit);
                     let _=  picture_io::save_image_data(entry);
                 }
                 self.select_start = None
@@ -607,7 +590,7 @@ impl Repository {
     }
 
     pub fn point_label(&mut self) {
-        if self.label_length > 0 {
+        if self.edit_length > 0 {
             let index = self.navigator.index();
             match self.select_start {
                 None => self.apply_last_label(),
@@ -616,7 +599,7 @@ impl Repository {
                     println!("label: {}…{}", start, end);
                     for i in start..end+1 {
                         let entry = &mut self.entry_list[i];
-                        entry.set_label(self.label_length, &self.label);
+                        entry.set_label(self.edit_length, &self.edit);
                         let _=  picture_io::save_image_data(entry);
                     }
                     self.select_start = None

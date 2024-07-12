@@ -443,15 +443,15 @@ pub fn process_key(repository_rc: &Rc<RefCell<Repository>>, gui_rc: &Rc<RefCell<
                 if key_name == "Return" {
                     repository.confirm_label_edit()
                 } else if key_name == "BackSpace" {
-                    repository.remove_label_char()
+                    repository.remove_edit_char()
                 } else if key_name == "Escape" {
                     repository.cancel_label_edit()
                 } else {
                     if let Some(ch) = key.to_lower().to_unicode() {
                         match ch {
-                            'a'..='z' => repository.add_label_char(ch),
-                            '0'..='9' => repository.add_label_char(ch),
-                            '-'|'_'   => repository.add_label_char(ch),
+                            'a'..='z' => repository.add_edit_char(ch),
+                            '0'..='9' => repository.add_edit_char(ch),
+                            '-'|'_'   => repository.add_edit_char(ch),
                             _ => {} ,
                         }
                     }
@@ -462,16 +462,16 @@ pub fn process_key(repository_rc: &Rc<RefCell<Repository>>, gui_rc: &Rc<RefCell<
                         if key_name == "Return" {
                             repository.confirm_search_edit()
                         } else if key_name == "BackSpace" {
-                            repository.remove_search_char()
+                            repository.remove_edit_char()
                         } else if key_name == "Escape" {
                             repository.cancel_search_edit()
                         } else {
                             if let Some(ch) = key.to_unicode() {
                                 match ch { 
-                                    'A'..='Z' => repository.add_search_char(ch),
-                                    'a'..='z' => repository.add_search_char(ch),
-                                    '0'..='9' => repository.add_search_char(ch),
-                                    '-'|'_'   => repository.add_search_char(ch),
+                                    'A'..='Z' => repository.add_edit_char(ch),
+                                    'a'..='z' => repository.add_edit_char(ch),
+                                    '0'..='9' => repository.add_edit_char(ch),
+                                    '-'|'_'   => repository.add_edit_char(ch),
                                     _ => { },
                                 }
                             }
