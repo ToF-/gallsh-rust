@@ -527,6 +527,7 @@ pub fn process_key(repository_rc: &Rc<RefCell<Repository>>, gui_rc: &Rc<RefCell<
                         "u" => repository.select_page(false),
                         "U" => repository.select_all(false),
                         "s" => if repository.order_choice_on() { repository.sort_by(Order::Size); } else { repository.begin_search_edit() },
+                        "S" => repository.save_select_entries(),
                         "equal" => repository.set_order_choice_on(),
                         "slash" => repository.begin_label_edit(),
                         "minus" => repository.point_remove_label(),
@@ -544,7 +545,9 @@ pub fn process_key(repository_rc: &Rc<RefCell<Repository>>, gui_rc: &Rc<RefCell<
                         },
                         "colon" => {
                             println!("{}", repository.title_display());
-                            eprintln!("{}", repository.current_entry().expect("can't access current entry").original_file_path())
+                            println!("{}", repository.current_entry().expect("can't access current entry").original_file_path());
+                            println!("{:?}", repository.current_entry().expect("can't access current entry").image_data);
+
                         },
                         "space" => repository.move_next_page(),
                         "Right" => {

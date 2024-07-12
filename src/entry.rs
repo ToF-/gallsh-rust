@@ -83,10 +83,11 @@ impl Entry {
 
     pub fn set_label(&mut self, label: &String) {
         self.image_data.label = ['\0';16];
+        self.image_data.label_length = 0;
         let mut chars = label.char_indices();
         while let Some((i, ch)) = chars.next() {
             self.image_data.label[i] = ch;
-            self.image_data.label_length = i;
+            self.image_data.label_length = i + 1;
         }
     }
 

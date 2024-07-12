@@ -425,7 +425,6 @@ impl Repository {
     }
 
     pub fn quit(&self) {
-        self.save_select_entries();
         println!("quit gallery show")
     }
 
