@@ -32,8 +32,7 @@ pub struct Repository {
     sample: bool,
     grid_limit_on: bool,
     search_edit_mode_on: bool,
-    edit: [char; 16],
-    edit_length: usize,
+    field: String,
 }
 
 pub fn init_repository(args: &Args) -> Result<Repository> {
@@ -106,22 +105,19 @@ impl Repository {
             sample: sample,
             grid_limit_on: true,
             search_edit_mode_on: false,
-            edit: ['\0';16],
-            edit_length: 0,
+            field: String::from(""),
         }
     }
 
     pub fn add_edit_char(&mut self, ch: char) {
-        if self.edit_length < 16 {
-            self.edit[self.edit_length] = ch;
-            self.edit_length += 1
+        if self.field.len() < 16 {
+            self.field.push(ch);
         }
     }
 
     pub fn remove_edit_char(&mut self) {
-        if self.edit_length > 0 {
-            self.edit[self.edit_length-1] = '\0';
-            self.edit_length -= 1
+        if self.field.len() > 0 {
+            self.field.pop();
         }
     }
 
@@ -130,9 +126,8 @@ impl Repository {
     }
 
     pub fn begin_search_edit(&mut self) {
+        self.field = String::from("");
         self.search_edit_mode_on = true;
-        self.edit = ['\0';16];
-        self.edit_length = 0;
     }
 
     pub fn cancel_search_edit(&mut self) {
@@ -151,8 +146,7 @@ impl Repository {
 
     pub fn begin_label_edit(&mut self) {
         self.label_edit_mode_on = true;
-        self.edit_length = 0;
-        self.edit = ['\0';16];
+        self.field = String::from("");
     }
 
     pub fn confirm_label_edit(&mut self) {
@@ -165,7 +159,8 @@ impl Repository {
     }
 
     pub fn search(&mut self) {
-        let pattern = self.edit.iter().take_while(|&c| *c!='\0').collect::<String>();
+        // let pattern = self.edit.iter().take_while(|&c| *c!='\0').collect::<String>();
+        let pattern = self.field.clone();
         println!("search {:?}", pattern);
         if !pattern.is_empty() {
             if let Some(index) = self.entry_list.iter().position(|entry| entry.original_file_name().contains(&pattern)) {
@@ -191,7 +186,7 @@ impl Repository {
     }
 
     pub fn apply_last_label(&mut self) {
-        if self.edit_length > 0 {
+        if self.field.len() > 0 {
             self.record_label()
         }
     }
@@ -238,8 +233,8 @@ impl Repository {
             entry_title_display,
             if self.register.is_none() { String::from("") } else { format!("{}", self.register.unwrap()) },
             if self.real_size_on { "*" } else { "" },
-            if self.label_edit_mode_on { format!("Label:{}", self.edit.iter().collect::<String>()) } else { String::from("") },
-            if self.search_edit_mode_on { format!("Search:{}", self.edit.iter().collect::<String>()) } else { String::from("") }
+            if self.label_edit_mode_on { format!("Label:{}", self.field) } else { String::from("") },
+            if self.search_edit_mode_on { format!("Search:{}", self.field) } else { String::from("") }
             );
         result
     }
@@ -529,7 +524,7 @@ impl Repository {
         assert!(self.entry_list.len() > 0);
         let index = self.navigator.index();
         let entry = &mut self.entry_list[index];
-        entry.set_label(self.edit_length, &self.edit);
+        entry.set_label(&self.field);
         println!("recording label {}", entry.image_data.label.iter().collect::<String>());
         if picture_io::save_image_data(&entry).is_err() {
             eprintln!("can't save image data {}", &entry.image_data_file_path())
@@ -539,8 +534,7 @@ impl Repository {
 
     pub fn point_remove_label(&mut self) {
         let index = self.navigator.index();
-        self.edit_length = 0;
-        self.edit = ['\0';16];
+        self.field = String::from("");
         match self.select_start {
             None => self.record_label(),
             Some(other) => {
@@ -548,7 +542,7 @@ impl Repository {
                 println!("label: {}…{}", start, end);
                 for i in start..end+1 {
                     let entry: &mut Entry = &mut self.entry_list[i];
-                    entry.set_label(self.edit_length, &self.edit);
+                    entry.set_label(&self.field);
                     let _=  picture_io::save_image_data(entry);
                 }
                 self.select_start = None
@@ -590,7 +584,7 @@ impl Repository {
     }
 
     pub fn point_label(&mut self) {
-        if self.edit_length > 0 {
+        if self.field.len() > 0 {
             let index = self.navigator.index();
             match self.select_start {
                 None => self.apply_last_label(),
@@ -599,7 +593,7 @@ impl Repository {
                     println!("label: {}…{}", start, end);
                     for i in start..end+1 {
                         let entry = &mut self.entry_list[i];
-                        entry.set_label(self.edit_length, &self.edit);
+                        entry.set_label(&self.field);
                         let _=  picture_io::save_image_data(entry);
                     }
                     self.select_start = None

@@ -27,9 +27,8 @@ THUMB_SUFFIX	/Users/christophethibaut/Coding/gallsh-rust/src/paths.rs	/^pub cons
 VALID_EXTENSIONS	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^const VALID_EXTENSIONS: [&'static str; 6] = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"];$/;"	c
 WIDTH_ENV_VAR	/Users/christophethibaut/Coding/gallsh-rust/src/args.rs	/^const WIDTH_ENV_VAR :&str  = "GALLSHWIDTH";$/;"	c
 a_day	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^    fn a_day() -> SystemTime {$/;"	f
-add_label_char	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn add_label_char(&mut self, ch: char) {$/;"	f
+add_edit_char	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn add_edit_char(&mut self, ch: char) {$/;"	f
 add_register_digit	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn add_register_digit(&mut self, digit: usize ) {$/;"	f
-add_search_char	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn add_search_char(&mut self, ch: char) {$/;"	f
 after_a_move_abs_index_has_changed	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn after_a_move_abs_index_has_changed() {$/;"	f
 after_a_move_towards_index_has_changed	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn after_a_move_towards_index_has_changed() {$/;"	f
 after_creation_the_current_entry_is_the_first_entry	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    fn after_creation_the_current_entry_is_the_first_entry() {$/;"	f
@@ -187,8 +186,7 @@ record_label	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^   
 refresh	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn refresh(&mut self) {$/;"	f
 register_on	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn register_on(&self) -> bool {$/;"	f
 relative_move_can_be_checked	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn relative_move_can_be_checked() {$/;"	f
-remove_label_char	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn remove_label_char(&mut self) {$/;"	f
-remove_search_char	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn remove_search_char(&mut self) {$/;"	f
+remove_edit_char	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn remove_edit_char(&mut self) {$/;"	f
 rgba_key	/Users/christophethibaut/Coding/gallsh-rust/src/image.rs	/^fn rgba_key(rgba: Rgba<u8>) -> u32 {$/;"	f
 sample	/Users/christophethibaut/Coding/gallsh-rust/src/args.rs	/^    pub fn sample(&self) -> bool {$/;"	f
 sample	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn sample(&self) -> bool {$/;"	f
@@ -203,7 +201,7 @@ select_page	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    
 select_point	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn select_point(&mut self) {$/;"	f
 selection_target	/Users/christophethibaut/Coding/gallsh-rust/src/args.rs	/^pub fn selection_target(target_arg: &Option<String>) -> Result<Option<String>, String> {$/;"	f
 set_image_data	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^pub fn set_image_data(entry: &mut Entry) -> Result<()> {$/;"	f
-set_label	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^    pub fn set_label(&mut self, label_length: usize, label: &[char;16]) {$/;"	f
+set_label	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^    pub fn set_label(&mut self, label: &String) {$/;"	f
 set_label_text_at_coords	/Users/christophethibaut/Coding/gallsh-rust/src/gui.rs	/^pub fn set_label_text_at_coords(grid: &gtk::Grid, coords: Coords, text: String) {$/;"	f
 set_label_text_at_current_position	/Users/christophethibaut/Coding/gallsh-rust/src/gui.rs	/^pub fn set_label_text_at_current_position(grid: &gtk::Grid, repository: &Repository, has_focus: bool) {$/;"	f
 set_order_choice_on	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn set_order_choice_on(&mut self) {$/;"	f

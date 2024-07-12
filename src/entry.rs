@@ -81,11 +81,13 @@ impl Entry {
             if self.delete { "🗑" } else { ""})
     }
 
-    pub fn set_label(&mut self, label_length: usize, label: &[char;16]) {
-        for i in 0..16 {
-            self.image_data.label[i] = label[i]
-        };
-        self.image_data.label_length = label_length;
+    pub fn set_label(&mut self, label: &String) {
+        self.image_data.label = ['\0';16];
+        let mut chars = label.char_indices();
+        while let Some((i, ch)) = chars.next() {
+            self.image_data.label[i] = ch;
+            self.image_data.label_length = i;
+        }
     }
 
     pub fn set_select(&mut self, value: bool) {
