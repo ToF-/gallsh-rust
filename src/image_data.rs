@@ -22,17 +22,14 @@ impl ImageData {
     }
 
     pub fn cmp_label(&self, other: &ImageData) -> Ordering {
-        if let Some(label_a) = self.label() {
-            if let Some(label_b) = other.label() {
-                label_a.cmp(&label_b)
-            } else {
-                Ordering::Less
-            }
-        } else {
-            if other.label().is_some() {
-                Ordering::Greater
-            } else {
-                Ordering::Equal
+        match self.label() {
+            Some(a) => match other.label() {
+                Some(b) => a.cmp(&b),
+                None => Ordering::Less,
+            },
+            None => match other.label() {
+                Some(b) => Ordering::Greater,
+                None => Ordering::Equal,
             }
         }
     }
