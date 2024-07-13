@@ -14,7 +14,6 @@ DIR_ENV_VAR	/Users/christophethibaut/Coding/gallsh-rust/src/paths.rs	/^const DIR
 Direction	/Users/christophethibaut/Coding/gallsh-rust/src/direction.rs	/^pub enum Direction {$/;"	g
 Entry	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^pub struct Entry {$/;"	s
 EntryList	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^pub type EntryList = Vec<Entry>;$/;"	T
-FormerImageData	/Users/christophethibaut/Coding/gallsh-rust/src/image_data.rs	/^pub struct FormerImageData {$/;"	s
 Gui	/Users/christophethibaut/Coding/gallsh-rust/src/gui.rs	/^pub struct Gui {$/;"	s
 HEIGHT_ENV_VAR	/Users/christophethibaut/Coding/gallsh-rust/src/args.rs	/^const HEIGHT_ENV_VAR :&str = "GALLSHHEIGHT";$/;"	c
 IMAGE_DATA	/Users/christophethibaut/Coding/gallsh-rust/src/paths.rs	/^pub const IMAGE_DATA: &str = "IMAGE_DATA";$/;"	c
@@ -114,7 +113,6 @@ help	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn 
 image_data_file_path	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^    pub fn image_data_file_path(&self) -> String {$/;"	f
 image_data_file_path	/Users/christophethibaut/Coding/gallsh-rust/src/paths.rs	/^pub fn image_data_file_path(file_path: &str) -> String {$/;"	f
 image_data_file_path_is_added_the_image_data_suffix_and_json_extension	/Users/christophethibaut/Coding/gallsh-rust/src/paths.rs	/^    fn image_data_file_path_is_added_the_image_data_suffix_and_json_extension() {$/;"	f
-image_data_from_former_image_data	/Users/christophethibaut/Coding/gallsh-rust/src/image_data.rs	/^pub fn image_data_from_former_image_data(former: &FormerImageData) -> ImageData {$/;"	f
 index	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn index(&self) -> usize {$/;"	f
 index_from_position	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn index_from_position(&self, position: Coords) -> Option<usize> {$/;"	f
 index_from_position	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn index_from_position(&self, coords: Coords) -> Option<usize> {$/;"	f

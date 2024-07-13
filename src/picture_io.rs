@@ -1,5 +1,4 @@
 use crate::paths::check_label_path;
-use crate::image_data::image_data_from_former_image_data;
 use rand::thread_rng;
 use rand::prelude::SliceRandom;
 use crate::entry::entries_with_label;
@@ -152,16 +151,7 @@ pub fn set_image_data(entry: &mut Entry) -> Result<()> {
                     entry.image_data = image_data;
                     Ok(())
                 },
-                Err(_) => {
-                    match serde_json::from_str(&content) {
-                        Ok(former_image_data) => {
-                            entry.image_data = image_data_from_former_image_data(&former_image_data);
-                            let _ = save_image_data(&entry);
-                            Ok(())
-                        },
-                        Err(err) => Err(err.into()),
-                    }
-                },
+                Err(err) => Err(err.into()),
             },
             Err(err) => Err(err),
         }
