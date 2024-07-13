@@ -135,7 +135,6 @@ make_entry	/Users/christophethibaut/Coding/gallsh-rust/src/entry.rs	/^pub fn mak
 max_cells	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn max_cells(&self) -> i32 {$/;"	f
 move_abs	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn move_abs(&mut self, position: Coords) {$/;"	f
 move_abs	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_abs(&mut self, coords: Coords) {$/;"	f
-move_all_labels_and_quit	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_all_labels_and_quit(&self) {$/;"	f
 move_backward_ten_pages	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn move_backward_ten_pages(&mut self) {$/;"	f
 move_entries_with_label	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^pub fn move_entries_with_label(entry_list: &EntryList, label: &str, target: &str) -> Result<()> {$/;"	f
 move_entries_with_label_to_target	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^pub fn move_entries_with_label_to_target(entry_list: &EntryList, target: &str) -> Result<()> {$/;"	f

@@ -436,7 +436,7 @@ impl Repository {
         b: move 10 pages backward\n\
         z: move to first picture\n\
         r: move to a random picture\n\
-        =: change order (followed by c,d,n,r,v for colors, date, name, random, value)\n\
+        =: change order (followed by c,d,l,n,r,v for colors, date, label, name, random, value)\n\
         .: view picture (when in grid mode)\n\
         f: view real size (when not in grid mode)\n\
         ,: toggle selection\n\
@@ -459,23 +459,19 @@ impl Repository {
             self.delete_select_entries();
             delete_selection_file()
         };
+        if let Some(target_path) = &self.all_label_move_target {
+            match move_entries_with_label_to_target(&self.entry_list, target_path) {
+                Ok(()) => {},
+                Err(err) => eprintln!("{}", err),
+            }
+        }
+        self.delete_entries();
         println!("quit gallery show")
     }
 
     pub fn copy_temp(&self) {
         if let Some(entry) = self.current_entry() {
             copy_entry_filename_to_current_dir(entry);
-        }
-    }
-
-    pub fn move_all_labels_and_quit(&self) {
-        if let Some(target_path) = &self.all_label_move_target {
-            match move_entries_with_label_to_target(&self.entry_list, target_path) {
-                Ok(()) => {},
-                Err(err) => eprintln!("{}", err),
-            }
-        } else {
-            eprintln!("target directory for label moves is not set");
         }
     }
 

@@ -495,45 +495,59 @@ pub fn process_key(repository_rc: &Rc<RefCell<Repository>>, gui_rc: &Rc<RefCell<
                             }
                         },
                         "BackSpace" => repository.delete_register_digit(),
+
+
                         "Return" => repository.select_point(),
                         "comma" => repository.point_select(),
                         "Escape" => repository.cancel_point(),
+
+                        "equal" => repository.set_order_choice_on(),
+                        "c" if repository.order_choice_on() => repository.sort_by(Order::Colors),
+                        "d" if repository.order_choice_on() => repository.sort_by(Order::Date),
+                        "l" if repository.order_choice_on() => repository.sort_by(Order::Label),
+                        "n" if repository.order_choice_on() => repository.sort_by(Order::Name),
+                        "p" if repository.order_choice_on() => repository.sort_by(Order::Palette),
+                        "r" if repository.order_choice_on() => repository.sort_by(Order::Random),
+                        "s" if repository.order_choice_on() => repository.sort_by(Order::Size),
+                        "v" if repository.order_choice_on() => repository.sort_by(Order::Value),
+
                         "g" => repository.move_to_register(),
-                        "j" => repository.move_forward_ten_pages(),
-                        "l" => if repository.order_choice_on() { repository.sort_by(Order::Label) } else { repository.move_backward_ten_pages() },
-                        "f" => repository.toggle_real_size(),
                         "z" => repository.move_to_index(0),
+                        "r" => repository.move_to_random_index(),
+
+                        "j" => repository.move_forward_ten_pages(),
+                        "l" => repository.move_backward_ten_pages(),
                         "e" => repository.move_next_page(),
-                        "x" => repository.toggle_palette_extract(),
-                        "n" => if repository.order_choice_on() { repository.sort_by(Order::Name); } else { repository.move_next_page() },
+                        "n" => repository.move_next_page(),
                         "i" => repository.move_prev_page(),
-                        "p" => if repository.order_choice_on() { repository.sort_by(Order::Palette); } else { repository.move_prev_page() },
+                        "p" => repository.move_prev_page(),
+
+                        "s" => repository.begin_search_edit(),
+
+                        "f" => repository.toggle_real_size(),
+                        "x" => repository.toggle_palette_extract(),
+                        "o" => repository.toggle_grid_limit(),
+
+
+                        "D" => repository.toggle_delete(),
+
+                        "C" => repository.copy_temp(),
                         "q" => { repository.quit(); refresh = false; gui.application_window.close() },
                         "Q" => { repository.copy_move_and_quit(); refresh = false; gui.application_window.close() },
-                        "M" => { repository.move_all_labels_and_quit(); refresh = false; gui.application_window.close() },
-                        "X" => { repository.delete_entries(); refresh = false; gui.application_window.close() },
+
                         "B" => repository.point_rank(Rank::NoStar),
                         "Eacute" => repository.point_rank(Rank::OneStar),
                         "P" => repository.point_rank(Rank::TwoStars),
-                        "o" => repository.toggle_grid_limit(),
                         "O" => repository.point_rank(Rank::ThreeStars),
-                        "c" => if repository.order_choice_on() { repository.sort_by(Order::Colors); },
-                        "C" => repository.copy_temp(),
-                        "d" => if repository.order_choice_on() { repository.sort_by(Order::Date); },
-                        "D" => repository.toggle_delete(),
                         "R" => repository.set_rank(Rank::NoStar),
-                        "r" => if repository.order_choice_on() { repository.sort_by(Order::Random); } else { repository.move_to_random_index() },
                         "a" => repository.select_page(true),
                         "u" => repository.select_page(false),
                         "U" => repository.select_all(false),
-                        "s" => if repository.order_choice_on() { repository.sort_by(Order::Size); } else { repository.begin_search_edit() },
                         "S" => repository.save_select_entries(),
-                        "equal" => repository.set_order_choice_on(),
                         "slash" => repository.begin_label_edit(),
-                        "minus" => repository.point_remove_label(),
                         "asterisk" => repository.apply_last_label(),
                         "plus" => repository.point_label(),
-                        "v" => if repository.order_choice_on() { repository.sort_by(Order::Value); },
+                        "minus" => repository.point_remove_label(),
                         "h" => repository.help(),
                         "period"|"k" => {
                             if gui.view_mode() {
