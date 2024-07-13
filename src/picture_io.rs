@@ -141,9 +141,10 @@ fn set_palette(entry: &mut Entry) {
     });
     entry.image_data.palette.sort();
 }
+
 pub fn set_image_data(entry: &mut Entry) -> Result<()> {
-    let image_data = entry.image_data_file_path();
-    let path = Path::new(&image_data);
+    let file_path = entry.image_data_file_path();
+    let path = Path::new(&file_path);
     if path.exists() {
         match read_to_string(path) {
             Ok(content) => match serde_json::from_str(&content) {
@@ -158,13 +159,7 @@ pub fn set_image_data(entry: &mut Entry) -> Result<()> {
     } else {
         match get_image_color(&entry.original_file_path()) {
             Ok(colors) => {
-                entry.image_data = ImageData {
-                    colors: colors,
-                    rank: Rank::NoStar,
-                    selected: false,
-                    palette: [0;9],
-                    label: String::new(),
-                };
+                entry.image_data = ImageData::new(colors, Rank::NoStar);
                 set_palette(entry);
                 let _ = save_image_data(&entry);
                 Ok(())

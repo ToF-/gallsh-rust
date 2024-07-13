@@ -20,13 +20,7 @@ pub fn make_entry(file_path:String, file_size:u64, colors:usize, modified_time:S
     return Entry { 
         file_path: Rc::new(file_path),
         file_size: file_size,
-        image_data: ImageData {
-            colors: colors,
-            rank: initial_rank,
-            selected: false,
-            palette: [0;9],
-            label: String::new(),
-        },
+        image_data: ImageData::new(colors, initial_rank),
         modified_time: modified_time,
         delete: false,
     }

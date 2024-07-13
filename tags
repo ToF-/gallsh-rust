@@ -154,6 +154,7 @@ move_to_register	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/
 navigate	/Users/christophethibaut/Coding/gallsh-rust/src/gui.rs	/^pub fn navigate(repository: &mut Repository, grid: &gtk::Grid, window: &gtk::ApplicationWindow, direction: Direction) {$/;"	f
 navigator_should_panic_if_move_to_index_where_not_allowed	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn navigator_should_panic_if_move_to_index_where_not_allowed() {$/;"	f
 navigator_should_panic_if_move_towards_where_not_allowed	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn navigator_should_panic_if_move_towards_where_not_allowed() {$/;"	f
+new	/Users/christophethibaut/Coding/gallsh-rust/src/image_data.rs	/^    pub fn new(colors: usize, rank: Rank) -> Self {$/;"	f
 new	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    pub fn new(capacity: i32, cells_per_row: i32) -> Self {$/;"	f
 on_last_page_move_is_checked_against_capacity	/Users/christophethibaut/Coding/gallsh-rust/src/navigator.rs	/^    fn on_last_page_move_is_checked_against_capacity() {$/;"	f
 order	/Users/christophethibaut/Coding/gallsh-rust/src/args.rs	/^    pub fn order(&self) -> Order {$/;"	f

@@ -13,6 +13,17 @@ pub struct ImageData {
 }
 
 impl ImageData {
+
+    pub fn new(colors: usize, rank: Rank) -> Self {
+        ImageData {
+            colors: colors,
+            rank: rank,
+            selected: false,
+            palette: [0;9],
+            label: String::new(),
+        }
+    }
+
     pub fn label(&self) -> Option<String> {
         if self.label.len() > 0 {
             Some(self.label.clone())
@@ -28,10 +39,13 @@ impl ImageData {
                 None => Ordering::Less,
             },
             None => match other.label() {
-                Some(b) => Ordering::Greater,
+                Some(_) => Ordering::Greater,
                 None => Ordering::Equal,
             }
         }
     }
 }
+
+
+
 
