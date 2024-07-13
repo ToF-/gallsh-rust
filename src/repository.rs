@@ -524,7 +524,7 @@ impl Repository {
         let index = self.navigator.index();
         let entry = &mut self.entry_list[index];
         entry.set_label(&self.field);
-        println!("recording label {}", entry.image_data.label.iter().collect::<String>());
+        println!("recording label {}", entry.image_data.label);
         if picture_io::save_image_data(&entry).is_err() {
             eprintln!("can't save image data {}", &entry.image_data_file_path())
         };

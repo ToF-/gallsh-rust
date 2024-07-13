@@ -25,8 +25,7 @@ pub fn make_entry(file_path:String, file_size:u64, colors:usize, modified_time:S
             rank: initial_rank,
             selected: false,
             palette: [0;9],
-            label_length: 0,
-            label: ['\0';16],
+            label: String::new(),
         },
         modified_time: modified_time,
         delete: false,
@@ -48,8 +47,8 @@ impl Entry {
             if has_focus { "▄" } else { "" },
             self.image_data.rank.show(),
             if self.image_data.selected { "△" } else { "" },
-            if self.image_data.label_length > 0 {
-                format!("{}", self.image_data.label.iter().collect::<String>())
+            if self.image_data.label.len() > 0 {
+                format!("{}", self.image_data.label)
             } else { String::from("") } ,
             if self.delete { "🗑" } else { "" },
             if show_parent { self.directory() } else { String::from("") })
@@ -82,13 +81,7 @@ impl Entry {
     }
 
     pub fn set_label(&mut self, label: &String) {
-        self.image_data.label = ['\0';16];
-        self.image_data.label_length = 0;
-        let mut chars = label.char_indices();
-        while let Some((i, ch)) = chars.next() {
-            self.image_data.label[i] = ch;
-            self.image_data.label_length = i + 1;
-        }
+        self.image_data.label = label.to_string()
     }
 
     pub fn set_select(&mut self, value: bool) {
