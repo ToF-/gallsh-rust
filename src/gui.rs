@@ -522,7 +522,6 @@ pub fn process_key(repository_rc: &Rc<RefCell<Repository>>, gui_rc: &Rc<RefCell<
                         "i" => repository.move_prev_page(),
                         "p" => repository.move_prev_page(),
 
-                        "s" => repository.begin_search_edit(),
 
                         "f" => repository.toggle_real_size(),
                         "x" => repository.toggle_palette_extract(),
@@ -544,10 +543,15 @@ pub fn process_key(repository_rc: &Rc<RefCell<Repository>>, gui_rc: &Rc<RefCell<
                         "u" => repository.select_page(false),
                         "U" => repository.select_all(false),
                         "S" => repository.save_select_entries(),
+
                         "slash" => repository.begin_label_edit(),
+                        "s" => repository.begin_search_edit(),
+
                         "asterisk" => repository.apply_last_label(),
+
                         "plus" => repository.point_label(),
                         "minus" => repository.point_remove_label(),
+
                         "h" => repository.help(),
                         "period"|"k" => {
                             if gui.view_mode() {
