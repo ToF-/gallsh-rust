@@ -530,6 +530,7 @@ pub fn process_key(repository_rc: &Rc<RefCell<Repository>>, gui_rc: &Rc<RefCell<
 
                         "D" => repository.toggle_delete(),
 
+                        "c" => repository.copy_label(),
                         "C" => repository.copy_temp(),
                         "q" => { repository.quit(); refresh = false; gui.application_window.close() },
                         "Q" => { repository.copy_move_and_quit(); refresh = false; gui.application_window.close() },

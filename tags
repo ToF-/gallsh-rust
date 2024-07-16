@@ -70,6 +70,7 @@ confirm_search_edit	/Users/christophethibaut/Coding/gallsh-rust/src/repository.r
 copy_entry	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^pub fn copy_entry(entry: &Entry, target_path: &Path) -> Result<()> {$/;"	f
 copy_entry_filename_to_current_dir	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^pub fn copy_entry_filename_to_current_dir(entry: &Entry) {$/;"	f
 copy_file_to_target_directory	/Users/christophethibaut/Coding/gallsh-rust/src/picture_io.rs	/^fn copy_file_to_target_directory(file_path: &Path, target_directory: &Path) -> Result<u64> {$/;"	f
+copy_label	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn copy_label(&mut self) {$/;"	f
 copy_move_and_quit	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn copy_move_and_quit(&self) {$/;"	f
 copy_select_entries	/Users/christophethibaut/Coding/gallsh-rust/src/repository.rs	/^    pub fn copy_select_entries(&self, target: &str) {$/;"	f
 copy_selection_target	/Users/christophethibaut/Coding/gallsh-rust/src/args.rs	/^    pub fn copy_selection_target(&self) -> Result<Option<String>, String> {$/;"	f

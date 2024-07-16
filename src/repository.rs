@@ -158,6 +158,14 @@ impl Repository {
         self.label_edit_mode_on = false;
     }
 
+    pub fn copy_label(&mut self) {
+        if let Some(entry) = self.current_entry() {
+            if let Some(label) = entry.image_data.label() {
+                self.field = label
+            }
+        }
+    }
+
     pub fn search(&mut self) {
         // let pattern = self.edit.iter().take_while(|&c| *c!='\0').collect::<String>();
         let pattern = self.field.clone();
