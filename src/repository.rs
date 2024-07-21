@@ -54,6 +54,9 @@ pub fn init_repository(args: &Args) -> Result<Repository> {
     };
     if args.update_image_data {
         ensure_thumbnails(&entry_list);
+        let nb_entries = &entry_list.len();
+        let total_size: u64 = entry_list.iter().map(|e| e.file_size).sum();
+        println!("{} entries, {} bytes", nb_entries, total_size);
         return Err(Error::new(ErrorKind::Other, "updating thumbnails done"))
     };
 

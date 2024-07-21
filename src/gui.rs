@@ -534,6 +534,10 @@ pub fn process_key(repository_rc: &Rc<RefCell<Repository>>, gui_rc: &Rc<RefCell<
                         "C" => repository.copy_temp(),
                         "q" => { repository.quit(); refresh = false; gui.application_window.close() },
                         "Q" => { repository.copy_move_and_quit(); refresh = false; gui.application_window.close() },
+                        "dollar" => repository.point_rank(Rank::NoStar),
+                        "quotedbl" => repository.point_rank(Rank::OneStar),
+                        "guillemotleft" => repository.point_rank(Rank::TwoStars),
+                        "guillemotright" => repository.point_rank(Rank::ThreeStars),
 
                         "B" => repository.point_rank(Rank::NoStar),
                         "Eacute" => repository.point_rank(Rank::OneStar),
