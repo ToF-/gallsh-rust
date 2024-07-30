@@ -513,7 +513,7 @@ pub fn process_key(repository_rc: &Rc<RefCell<Repository>>, gui_rc: &Rc<RefCell<
 
                         "g" => repository.move_to_register(),
                         "z" => repository.move_to_index(0),
-                        "r" => repository.move_to_random_index(),
+                        "R" => repository.move_to_random_index(),
 
                         "j" => repository.move_forward_ten_pages(),
                         "l" => repository.move_backward_ten_pages(),
@@ -539,18 +539,13 @@ pub fn process_key(repository_rc: &Rc<RefCell<Repository>>, gui_rc: &Rc<RefCell<
                         "guillemotleft" => repository.point_rank(Rank::TwoStars),
                         "guillemotright" => repository.point_rank(Rank::ThreeStars),
 
-                        "B" => repository.point_rank(Rank::NoStar),
-                        "Eacute" => repository.point_rank(Rank::OneStar),
-                        "P" => repository.point_rank(Rank::TwoStars),
-                        "O" => repository.point_rank(Rank::ThreeStars),
-                        "R" => repository.set_rank(Rank::NoStar),
                         "a" => repository.select_page(true),
                         "u" => repository.select_page(false),
                         "U" => repository.select_all(false),
-                        "S" => repository.save_select_entries(),
+                        "X" => repository.save_select_entries(),
 
                         "slash" => repository.begin_label_edit(),
-                        "s" => repository.begin_search_edit(),
+                        "S" => repository.begin_search_edit(),
 
                         "asterisk" => repository.apply_last_label(),
 
@@ -573,19 +568,19 @@ pub fn process_key(repository_rc: &Rc<RefCell<Repository>>, gui_rc: &Rc<RefCell<
 
                         },
                         "space" => repository.move_next_page(),
-                        "Right" => {
+                        "Right"|"r" => {
                             refresh = !repository.real_size();
                             arrow_command(Direction::Right, &gui, &mut repository, &repository_rc)
                         },
-                        "Left" => {
+                        "Left"|"t" => {
                             refresh = !repository.real_size();
                             arrow_command(Direction::Left, &gui, &mut repository, &repository_rc)
                         },
-                        "Down" => {
+                        "Down"|"s" => {
                             refresh = !repository.real_size();
                             arrow_command(Direction::Down, &gui, &mut repository, &repository_rc)
                         },
-                        "Up" => {
+                        "Up"|"d" => {
                             refresh = !repository.real_size();
                             arrow_command(Direction::Up, &gui, &mut repository, &repository_rc)
                         },
