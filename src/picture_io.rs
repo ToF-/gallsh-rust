@@ -8,7 +8,7 @@ use crate::THUMB_SUFFIX;
 use crate::entry::make_entry;
 use crate::image::get_image_color;
 use crate::image_data::ImageData;
-use crate::paths::check_path;
+use crate::paths::{check_path, temporary_path};
 use crate::paths::is_thumbnail;
 use crate::rank::Rank;
 use gtk::cairo::{Context, Format, ImageSurface};
@@ -403,8 +403,7 @@ fn copy_file_to_target_directory(file_path: &Path, target_directory: &Path) -> R
 pub fn copy_entry_filename_to_current_dir(entry: &Entry) {
     let s = entry.original_file_path();
     let file_path = Path::new(&s);
-    let path = Path::new(".");
-    let _ = copy_file_to_target_directory(file_path, path);
+    let _ = copy_file_to_target_directory(file_path, &temporary_path());
 }
 
 pub fn copy_entry(entry: &Entry, target_path: &Path) -> Result<()> {

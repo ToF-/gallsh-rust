@@ -482,7 +482,7 @@ impl Repository {
 
     pub fn copy_temp(&self) {
         if let Some(entry) = self.current_entry() {
-            copy_entry_filename_to_current_dir(entry);
+            copy_entry_filename_to_current_dir(&entry);
         }
     }
 

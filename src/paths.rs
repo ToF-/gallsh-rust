@@ -11,6 +11,7 @@ pub const IMAGE_DATA: &str = "IMAGE_DATA";
 
 const DEFAULT_DIR :&str    = "images/";
 const DIR_ENV_VAR :&str    = "GALLSHDIR";
+const DIR_COPY :&str       = "GALLSHTMP";
 
 pub fn is_valid_directory(dir: &str) -> bool {
     let path = PathBuf::from(dir);
@@ -61,6 +62,15 @@ pub fn check_path(dir: &str, confirm_create: bool) -> Result<PathBuf> {
 pub fn check_label_path(dir: &str, label: &str) -> Result<PathBuf> {
     let path = PathBuf::from(dir).join(label);
     check_path(path.to_str().unwrap(),true)
+}
+
+pub fn temporary_path() -> PathBuf {
+    let gallshtmp = env::var(DIR_COPY);
+    if let Ok(dir) = &gallshtmp {
+        PathBuf::from(dir)
+    } else {
+        PathBuf::from(".")
+    }
 }
 
 pub fn determine_path(directory: Option<String>) -> String {
